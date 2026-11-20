@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-20 10:27+0000\n"
-"PO-Revision-Date: 2026-11-20 10:27+0000\n"
+"POT-Creation-Date: 2026-11-20 10:34+0000\n"
+"PO-Revision-Date: 2026-11-20 10:34+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -115,8 +115,20 @@ msgid "%s waits in a queue you do not belong to."
 msgstr ""
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "%s working days, the least the estimate gives"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.actions.report,print_report_name:sol_commerce.action_report_reconciliation_day
 msgid "'Reconciliation %s' % object.day"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "+%s working days"
 msgstr ""
 
 #. module: sol_commerce
@@ -770,6 +782,7 @@ msgid "Add at least one parameter or service package."
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__customer_address
 #: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
 msgid "Address"
 msgstr ""
@@ -1798,6 +1811,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__customer_id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__customer_id
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cash_flow_report_search
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_receivable_report_search
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_revenue_report_search
 msgid "Customer"
@@ -1826,6 +1840,12 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__customer_status
 msgid "Customer Status"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Customer asked for %s."
 msgstr ""
 
 #. module: sol_commerce
@@ -2346,6 +2366,12 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__sampling_ids
 msgid "Expected Sampling"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Expected return"
 msgstr ""
 
 #. module: sol_commerce
@@ -3901,6 +3927,7 @@ msgid "Person"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__partner_phone
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
@@ -4338,6 +4365,11 @@ msgid "Received At"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+msgid "Recipient"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_reconciliation_day
 #: model:ir.ui.menu,name:sol_commerce.menu_reconciliation
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
@@ -4519,8 +4551,8 @@ msgid "Results within"
 msgstr ""
 
 #. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__returns_after_request
-msgid "Returns After Request"
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__return_timeline
+msgid "Return Timeline"
 msgstr ""
 
 #. module: sol_commerce
@@ -4570,6 +4602,12 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_has_sms_error
 msgid "SMS Delivery error"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Safety margin"
 msgstr ""
 
 #. module: sol_commerce
@@ -4675,6 +4713,8 @@ msgid ""
 msgstr ""
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Sample pickup"
 msgstr ""
@@ -4703,6 +4743,12 @@ msgid ""
 "Samples collected on %(day)s return results on %(ready)s, after the expected"
 " return date %(committed)s. Agree an earlier appointment, or change the "
 "return date with the customer first."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Samples received from"
 msgstr ""
 
 #. module: sol_commerce
@@ -4869,6 +4915,12 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template__source_order_id
 msgid "Source Order"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Standard turnaround"
 msgstr ""
 
 #. module: sol_commerce
@@ -5055,6 +5107,12 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__method_ids
 msgid "Testing Methods"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Testing finishes"
 msgstr ""
 
 #. module: sol_commerce
@@ -5325,11 +5383,6 @@ msgstr ""
 msgid ""
 "The report reaches the customer once the order is paid in full; %s is still "
 "due."
-msgstr ""
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
-msgid "The results are expected after the date the customer asked for."
 msgstr ""
 
 #. module: sol_commerce
@@ -5901,6 +5954,12 @@ msgid "for"
 msgstr ""
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "for approval and signing"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
 msgid "if you need more help."
 msgstr ""
@@ -5937,6 +5996,18 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "not claimed yet"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "on the laboratory's schedule"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "set by Sales"
 msgstr ""
 
 #. module: sol_commerce

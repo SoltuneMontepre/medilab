@@ -19684,3 +19684,8 @@ msgstr "Ngày Trả Kết Quả Dự Kiến Mới"
 #: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_create_all
 msgid "Change expected return dates"
 msgstr "Đổi ngày trả kết quả dự kiến"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_create_all
+msgid "Change committed return dates"
+msgstr ""

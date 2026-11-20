@@ -6146,3 +6146,79 @@ msgstr "Tạm ứng (%)"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Advance Amount"
 msgstr "Số tiền tạm ứng"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "%s working days, the least the estimate gives"
+msgstr "%s ngày làm việc, mức tối thiểu của dự kiến"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "+%s working days"
+msgstr "+%s ngày làm việc"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Customer asked for %s."
+msgstr "Khách hàng yêu cầu ngày %s."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Expected return"
+msgstr "Trả kết quả dự kiến"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+msgid "Recipient"
+msgstr "Người nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__return_timeline
+msgid "Return Timeline"
+msgstr "Tiến Trình Trả Kết Quả"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Safety margin"
+msgstr "Số ngày dự phòng"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Samples received from"
+msgstr "Nhận mẫu từ"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Standard turnaround"
+msgstr "Thời gian trả kết quả chuẩn"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Testing finishes"
+msgstr "Thử nghiệm xong"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "for approval and signing"
+msgstr "để duyệt và ký"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "on the laboratory's schedule"
+msgstr "theo lịch phòng thí nghiệm"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "set by Sales"
+msgstr "do Sales đặt"
