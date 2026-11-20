@@ -328,7 +328,7 @@
                 </div>
                 <label for="committed_date" />
                 <div class="d-flex align-items-center gap-2">
-                    <field name="committed_date" readonly="state != 'draft'" class="oe_inline" />
+                    <field name="committed_date" readonly="state != 'draft'" class="flex-grow-1" />
                     <widget name="medilab_open_tab" tab="timeline" icon="mdi:clock-outline" string="Timeline" invisible="not return_timeline" />
                 </div>
             </xpath>

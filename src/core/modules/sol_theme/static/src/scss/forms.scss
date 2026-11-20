@@ -647,6 +647,14 @@
       .o_field_badge
     ):not(.o_field_radio):not(.o_field_image):not(.o_field_html):not(.o_field_x2many):not(.o_field_one2many):not(.o_field_many2many):not(
       .o_field_statusbar
+    ):not(.o_field_priority):not(.o_field_signature):not(.o_field_binary):not(.o_field_many2many_binary),
+  .o_inner_group
+    .o_cell
+    > .d-flex
+    > .o_field_widget.o_readonly_modifier:not(.o_field_boolean):not(.o_field_boolean_toggle):not(.o_field_boolean_button_group):not(
+      .o_field_badge
+    ):not(.o_field_radio):not(.o_field_image):not(.o_field_html):not(.o_field_x2many):not(.o_field_one2many):not(.o_field_many2many):not(
+      .o_field_statusbar
     ):not(.o_field_priority):not(.o_field_signature):not(.o_field_binary):not(.o_field_many2many_binary) {
     min-height: 2.25rem;
     padding: 0.35rem 0.75rem;
