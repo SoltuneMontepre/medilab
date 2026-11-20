@@ -382,8 +382,10 @@ describe("WF-06 feature acceptance criteria", () => {
       cy.signInAs("sample_delivery_staff");
       cy.openRecord(report);
       cy.get(`${ACTIONS} button[name=action_record_delivery]`).should("not.exist");
-      callRefused(REPORT, "action_record_delivery", [[report.id]]).should("be.a", "string").and.not.be.empty;
-      readAs(report, ["status", "delivered_at"]).should(([read]) => {
+      callRefused(REPORT, "action_record_delivery", [[report.id]]).should((message) => {
+        expect(message).to.be.a("string").and.not.be.empty;
+      });
+      readAs(report, ["status", "delivered_at"]).should((read) => {
         expect(read.status).to.equal("draft");
         expect(read.delivered_at).to.equal(false);
       });
