@@ -1,6 +1,9 @@
 from typing import TYPE_CHECKING
 
+from markupsafe import Markup, escape
+
 from odoo import api, fields, models
+from odoo.tools import format_datetime
 
 from odoo.addons.sol_commerce.constants.models import MODEL_PAYMENT_COLLECTION, MODEL_SALE_ORDER
 
@@ -20,15 +23,8 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
         order_id = fields.Many2one(MODEL_SALE_ORDER, required=True, readonly=True)
         # Currency of the order.
         currency_id = fields.Many2one(related="order_id.currency_id")
-        # Summary of the quotation and its active payment request.
-        customer_id = fields.Many2one(related="order_id.customer_id")
-        order_total = fields.Monetary(related="order_id.amount_total", string="Quotation Total")
-        payment_request_id = fields.Many2one(related="order_id.payment_request_id")
-        request_kind = fields.Selection(related="payment_request_id.kind", string="Request")
-        request_amount = fields.Monetary(related="payment_request_id.amount", string="Requested Amount")
-        verified_amount = fields.Monetary(related="payment_request_id.verified_amount", string="Paid Amount")
-        remaining_amount = fields.Monetary(related="payment_request_id.remaining_amount", string="Remaining Due")
-        deadline = fields.Datetime(related="payment_request_id.deadline", string="Payment Deadline")
+        # Read-only summary of the quotation and its active payment request shown beside the payment fields.
+        summary_html = fields.Html(compute="_compute_summary_html", sanitize=False)
         # How much the customer paid.
         amount = fields.Monetary(required=True)
         # How Sales received the money.
@@ -37,6 +33,44 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
         received_at = fields.Datetime(required=True, default=fields.Datetime.now)
         # The original bank or cash reference.
         reference = fields.Char()
+
+    @api.depends("order_id")
+    def _compute_summary_html(self):
+        _ = self.env._
+        for wizard in self:
+            order = wizard.order_id
+            if not order:
+                wizard.summary_html = False
+                continue
+            currency = order.currency_id
+            request = order.payment_request_id
+            rows = [(_("Quotation Total"), currency.format(order.amount_total))]
+            if request:
+                kinds = dict(request._fields["kind"]._description_selection(self.env))
+                rows.append((_("Request"), kinds.get(request.kind, request.kind)))
+                if request.verified_amount:
+                    rows.append((_("Paid"), currency.format(request.verified_amount)))
+                if request.deadline:
+                    rows.append((_("Payment Deadline"), format_datetime(self.env, request.deadline)))
+            body = Markup("").join(
+                Markup(
+                    '<div class="d-flex justify-content-between align-items-baseline py-1 gap-3">'
+                    '<span class="text-muted">%s</span><span class="text-end">%s</span></div>'
+                )
+                % (label, escape(value))
+                for label, value in rows
+            )
+            due = request.remaining_amount if request else order.amount_total
+            footer = Markup(
+                '<div class="d-flex justify-content-between align-items-baseline border-top pt-2 mt-2 fw-bold">'
+                '<span>%s</span><span class="text-primary fs-5">%s</span></div>'
+            ) % (_("Remaining Due"), escape(currency.format(due)))
+            wizard.summary_html = Markup(
+                '<div class="bg-light border rounded p-3">'
+                '<div class="fw-semibold fs-5 mb-1">%s</div>'
+                '<div class="text-muted small mb-3">%s</div>'
+                '%s%s</div>'
+            ) % (escape(order.name), escape(order.customer_id.display_name or ""), body, footer)
 
     @api.model
     def default_get(self, fields_list):
