@@ -207,7 +207,8 @@ class LaboratoryFolder(models.Model, LaboratoryFolderBase):
         """Detach unsigned history from eligible bytes and remove only content with no remaining references."""
         self.ensure_one()
         files = self.file_ids.sudo()
-        files._lock_for_signing()
+        if files:
+            files._lock_for_signing()
         versions = files.version_ids.sudo()
         signed = versions.filtered(lambda version: version.approval_state == "approved" or bool(version.signature_ids))
         removable = versions - signed

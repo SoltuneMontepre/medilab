@@ -65,6 +65,16 @@ class TestLaboratoryFolderRetention(AuditLookup, LaboratoryFilesCase):
         self.assertEqual(version.content_id.state, "verified")
         self.assertFalse(self.folder.retention_approved_at)
 
+    def test_an_empty_folder_can_be_approved_for_retention_removal(self):
+        folder = self.env[MODEL_LABORATORY_FOLDER].create({"name": "Empty", "owner_id": self.tester.id})
+        self.expire(folder)
+        self.flag_due_folders()
+
+        folder.with_user(self.administrator).action_approve_retention_removal()
+
+        self.assertTrue(folder.retention_approved_at)
+        self.assertEqual(folder.retention_approved_by_id, self.administrator)
+
     def test_only_an_administrator_can_approve_and_history_and_signed_content_stay(self):
         signed = self.save(self.file, "signed bytes")
         removable = self.save(self.file, "unsigned bytes")
