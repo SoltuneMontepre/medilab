@@ -69,7 +69,7 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
         for order in self:
             order.priority = order.priority_request == "accepted"
 
-    @api.depends("order_line.parameter_method_id")
+    @api.depends("order_line.parameter_method_id.turnaround_days")
     def _compute_turnaround_days(self):
         requests = self.env[MODEL_TEST_REQUEST]
         for order in self:
@@ -78,7 +78,7 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             frozen = order in order._frozen_by_quotation()
             order.turnaround_days = order.turnaround_days if frozen else turnaround["days"]
 
-    @api.depends("order_line.parameter_method_id")
+    @api.depends("order_line.parameter_method_id.turnaround_days")
     def _compute_turnaround_missing(self):
         requests = self.env[MODEL_TEST_REQUEST]
         for order in self:
