@@ -70,11 +70,13 @@ describe("TasksScreen", () => {
     );
     await renderSignedIn(<TasksScreen />);
 
-    await fireEvent.press(await screen.findByRole("button", { name: "Xem thêm" }));
+    await fireEvent(await screen.findByTestId("record-list"), "endReached");
 
     expect(await screen.findByText("Review the method sheet")).toBeOnTheScreen();
     expect(mediLab.sent[1].url).toBe(`${API}/tasks?list=queue&after=1`);
-    expect(screen.queryByRole("button", { name: "Xem thêm" })).toBeNull();
+    const asked = mediLab.sent.length;
+    await fireEvent(screen.getByTestId("record-list"), "endReached");
+    expect(mediLab.sent).toHaveLength(asked);
   });
 
   it("offers to retry when MediLab cannot be reached", async () => {

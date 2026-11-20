@@ -1,17 +1,18 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import type { Task, TaskList, TaskPage } from "../../api";
 import { useReloadOnReturn } from "../../focus";
 import { failed, useLoad, type Load } from "../../load";
 import { useT } from "../../locale";
+import { usePersonRead } from "../../person";
 import { useSession } from "../../session";
-import { styles as shared } from "../../styles";
-import { Unreachable } from "../connection/Unreachable";
+import { ActionProblem } from "../connection/ActionProblem";
 import { taskPath } from "../documents/documentPath";
 import { chosenTab, ListTabs, type ListTab } from "../shared/ListTabs";
+import { NavButton } from "../shared/Navbar";
+import { RecordList } from "../shared/RecordList";
+import { Screen } from "../shared/Screen";
 import { TaskRow } from "./TaskRow";
 
 const LISTS: ListTab<TaskList>[] = [
@@ -26,10 +27,11 @@ interface Listed {
 }
 
 /** The person's to-do list: their open tasks, soonest deadline first, their finished tasks, and the tasks waiting in
- * the queues they can claim from, the same as the web's lists. */
+ * the queues they can claim from, the same as the web's lists. A person who may create tasks creates one from it. */
 export function TasksScreen() {
   const t = useT();
   const { call } = useSession();
+  const person = usePersonRead();
   const params = useLocalSearchParams<{ list?: string }>();
   const [list, setList] = useState(() => chosenTab(LISTS, params.list));
   const [problem, setProblem] = useState<Load<never> | null>(null);
@@ -43,8 +45,8 @@ export function TasksScreen() {
     [call, list],
   );
   const first = useCallback(() => page(null), [page]);
-  const { load, setLoad, reload } = useLoad(first);
-  useReloadOnReturn(reload);
+  const { load, setLoad, reload, refresh } = useLoad(first);
+  useReloadOnReturn(refresh);
 
   async function more() {
     if (load.state !== "ready" || !load.value.nextAfter) {
@@ -61,8 +63,15 @@ export function TasksScreen() {
 
   const current = LISTS.find((item) => item.list === list) ?? LISTS[0];
   return (
-    <SafeAreaView style={styles.screen}>
-      <Text style={shared.title}>{t("tasks.title")}</Text>
+    <Screen
+      title={t("tasks.title")}
+      scroll={false}
+      actions={
+        person?.me.can.create_tasks && (
+          <NavButton icon="plus" label={t("tasks.new")} testID="tasks-new" onPress={() => router.push("/tasks/new")} />
+        )
+      }
+    >
       <ListTabs
         tabs={LISTS}
         chosen={list}
@@ -71,29 +80,19 @@ export function TasksScreen() {
           setList(chosen);
         }}
       />
-      {load.state === "loading" && <ActivityIndicator accessibilityLabel={t("loading")} />}
-      {load.state === "unreachable" && <Unreachable onRetry={reload} />}
-      {load.state === "refused" && <Text style={shared.error}>{load.message}</Text>}
-      {problem?.state === "unreachable" && <Unreachable onRetry={more} />}
-      {problem?.state === "refused" && <Text style={shared.error}>{problem.message}</Text>}
-      {load.state === "ready" && (
-        <ScrollView contentContainerStyle={styles.list}>
-          {load.value.tasks.length === 0 && <Text style={shared.detail}>{t(current.empty)}</Text>}
-          {load.value.tasks.map((task) => (
-            <TaskRow key={task.id} task={task} onPress={() => router.push(taskPath(task.id))} />
-          ))}
-          {load.value.nextAfter !== null && (
-            <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={more}>
-              <Text style={shared.secondaryButtonText}>{t("more")}</Text>
-            </Pressable>
-          )}
-        </ScrollView>
-      )}
-    </SafeAreaView>
+      <RecordList
+        load={load}
+        items={load.state === "ready" ? load.value.tasks : []}
+        keyOf={(task) => task.id}
+        renderItem={(task) => <TaskRow task={task} onPress={() => router.push(taskPath(task.id))} />}
+        icon="clipboard-check-outline"
+        empty={t(current.empty)}
+        onRetry={reload}
+        onRefresh={refresh}
+        hasMore={load.state === "ready" && load.value.nextAfter !== null}
+        onMore={more}
+        footer={<ActionProblem problem={problem} gone={t(current.empty)} onRetry={more} />}
+      />
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1, padding: 24, gap: 16 },
-  list: { gap: 8 },
-});

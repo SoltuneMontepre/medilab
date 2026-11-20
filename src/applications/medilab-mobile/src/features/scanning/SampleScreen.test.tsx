@@ -30,7 +30,7 @@ describe("SampleScreen", () => {
     const mediLab = fakeMediLab({ status: 200, body: sample() }, { status: 200, body: received });
     await renderSignedIn(<SampleScreen />);
 
-    expect(await screen.findByText("PTN.2026.0042")).toBeOnTheScreen();
+    expect(await screen.findByRole("header", { name: "PTN.2026.0042" })).toBeOnTheScreen();
     expect(screen.getByText("Chai PET 500 mL")).toBeOnTheScreen();
     expect(screen.queryByText("Khách hàng")).toBeNull();
     expect(screen.getByText("Hoá chưa nhận mẫu.")).toBeOnTheScreen();
