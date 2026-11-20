@@ -7,7 +7,9 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_DEVICE,
     MODEL_LABORATORY_FILE,
     MODEL_RES_USERS,
+    MODEL_TASK,
 )
+from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER
 from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 
 COMPUTERS = (
@@ -165,6 +167,10 @@ def seed_sample_folders(env):
     head = env.ref("sol_demo.demo_res_users_head_of_department")
     tester = env.ref("sol_demo.demo_res_users_chemistry_tester")
     sample = env.ref("sol_demo.demo_sample_bottled_water_testing")
+    test = sample.test_ids.filtered(lambda sample_test: sample_test.status == "testing")[:1]
+    test.ensure_one()
+    if not test._latest_testing_task():
+        env[MODEL_TASK]._create_for_event(SAMPLE_RECEIVED_TRIGGER, document=test, department=head.department_id)
     folders = sample._create_laboratory_folders(head)
     for folder in folders:
         folder.member_ids = [Command.create({"user_id": tester.id, "role": MEMBER_ROLE})]
