@@ -80,6 +80,15 @@ export function watchOpenedPushes(onOpened: (document: PushedDocument) => void):
   }
 }
 
+/** Calls back for each push that arrives while the app is open, so the unread marks are read again. */
+export function watchPushes(onPushed: () => void): () => void {
+  try {
+    return onMessage(getMessaging(), () => onPushed());
+  } catch {
+    return () => undefined;
+  }
+}
+
 // The event of a push of a conversation message.
 const MESSAGE_EVENT = "message";
 

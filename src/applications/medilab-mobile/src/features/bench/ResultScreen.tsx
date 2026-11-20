@@ -1,19 +1,28 @@
 import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useState, type ReactNode } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import type { Call, Result } from "../../api";
+import type { Translate } from "../../i18n";
 import { useT } from "../../locale";
 import { useAction, useRecord } from "../../record";
 import { useSession } from "../../session";
-import { colors, styles as shared } from "../../styles";
+import { styles as shared } from "../../styles";
+import { colors, layout, radius, space } from "../../theme";
 import { ActionProblem } from "../connection/ActionProblem";
 import { LoadNotice } from "../connection/LoadNotice";
-import { Facts } from "../shared/Facts";
-import { formatMoment } from "../tasks/taskText";
+import { ActionBar, type BarAction } from "../shared/ActionBar";
+import { BottomSheet } from "../shared/BottomSheet";
 import { Button } from "../shared/Button";
+import { Facts } from "../shared/Facts";
+import { Icon } from "../shared/Icon";
+import { RecordHead } from "../shared/RecordHead";
+import { Screen } from "../shared/Screen";
+import { Sheet } from "../shared/Sheet";
+import { Fact } from "../tasks/TaskRow";
+import { formatMoment } from "../tasks/taskText";
 import { ResultForm, type ResultEntry } from "./ResultForm";
+import { resultTone } from "./resultText";
 
 type Step = "reading" | "changing" | "signing" | "rejecting";
 
@@ -39,48 +48,95 @@ export function ResultScreen() {
     });
   }
 
-  return (
-    <SafeAreaView style={shared.page}>
-      <LoadNotice load={load} gone={t("result.gone")} onRetry={reload} />
-      {load.state === "ready" && (
-        <ScrollView contentContainerStyle={shared.pageContent} keyboardShouldPersistTaps="handled">
-          <Details result={load.value} />
-          {step === "changing" && (
-            <ResultForm
-              unit={load.value.unit}
-              comparisonRequested={load.value.comparison_requested}
-              result={load.value}
-              busy={busy}
-              onSubmit={(entry: ResultEntry) => act("", { method: "PATCH", body: entry })}
-              onCancel={() => setStep("reading")}
-            />
-          )}
-          {step === "signing" && (
-            <Signing
-              result={load.value}
-              busy={busy}
-              onSign={(acknowledged) =>
-                act("/sign", {
-                  method: "POST",
-                  body: { confirmed: true, ...(acknowledged ? { warnings_acknowledged: true } : {}) },
-                })
-              }
-              onCancel={() => setStep("reading")}
-            />
-          )}
-          {step === "rejecting" && (
-            <Rejecting
-              busy={busy}
-              onReject={(reason) => act("/reject", { method: "POST", body: { reason } })}
-              onCancel={() => setStep("reading")}
-            />
-          )}
-          {step === "reading" && <Actions result={load.value} onStep={setStep} />}
-          <ActionProblem problem={problem?.load ?? null} gone={t("result.gone")} onRetry={() => problem?.retry()} />
-        </ScrollView>
-      )}
-    </SafeAreaView>
+  const result = load.state === "ready" ? load.value : null;
+  const failure = (
+    <ActionProblem problem={problem?.load ?? null} gone={t("result.gone")} onRetry={() => problem?.retry()} />
   );
+  return (
+    <Screen
+      title={result?.code ?? t("result.result")}
+      footer={result && step === "reading" && <ActionBar actions={actions(result, setStep, t)}>{failure}</ActionBar>}
+    >
+      <LoadNotice load={load} gone={t("result.gone")} onRetry={reload} />
+      {result && (
+        <>
+          <Details result={result} />
+          {step === "changing" && (
+            <Sheet title={t("result.change")}>
+              <ResultForm
+                unit={result.unit}
+                comparisonRequested={result.comparison_requested}
+                result={result}
+                busy={busy}
+                onSubmit={(entry: ResultEntry) => act("", { method: "PATCH", body: entry })}
+                onCancel={() => setStep("reading")}
+              />
+              {failure}
+            </Sheet>
+          )}
+          {step === "reading" && !result.actions.edit && !result.actions.sign && !result.actions.reject && (
+            <View style={styles.readOnly}>
+              <Icon name="lock-outline" size={18} />
+              <Text style={[shared.detail, styles.readOnlyText]} testID="result-read-only">
+                {t("result.readOnly")}
+              </Text>
+            </View>
+          )}
+          <Signing
+            visible={step === "signing"}
+            result={result}
+            busy={busy}
+            failure={failure}
+            onSign={(acknowledged) =>
+              act("/sign", {
+                method: "POST",
+                body: { confirmed: true, ...(acknowledged ? { warnings_acknowledged: true } : {}) },
+              })
+            }
+            onCancel={() => setStep("reading")}
+          />
+          <Rejecting
+            visible={step === "rejecting"}
+            busy={busy}
+            failure={failure}
+            onReject={(reason) => act("/reject", { method: "POST", body: { reason } })}
+            onCancel={() => setStep("reading")}
+          />
+        </>
+      )}
+    </Screen>
+  );
+}
+
+/** The actions on the result: sending a draft moves it forward, approving accepts it, rejecting refuses it. */
+function actions(result: Result, onStep: (step: Step) => void, t: Translate): BarAction[] {
+  const { edit, sign, reject } = result.actions;
+  const sending = result.status === "none";
+  const listed: BarAction[] = [];
+  if (sign) {
+    listed.push({
+      key: "sign",
+      label: t(sending ? "result.send" : "result.approve"),
+      tone: sending ? "primary" : "success",
+      icon: sending ? "send-outline" : "check-decagram-outline",
+      testID: "result-send",
+      onPress: () => onStep("signing"),
+    });
+  }
+  if (edit) {
+    listed.push({ key: "edit", label: t("result.change"), icon: "pencil-outline", onPress: () => onStep("changing") });
+  }
+  if (reject) {
+    listed.push({
+      key: "reject",
+      label: t("result.reject"),
+      tone: "danger",
+      icon: "close-circle-outline",
+      testID: "result-reject",
+      onPress: () => onStep("rejecting"),
+    });
+  }
+  return listed;
 }
 
 function Details({ result }: Readonly<{ result: Result }>) {
@@ -88,53 +144,37 @@ function Details({ result }: Readonly<{ result: Result }>) {
   const { language } = useSession();
   return (
     <>
-      <Text style={shared.title}>{`${result.code} – ${result.parameter}`}</Text>
-      <Facts
-        facts={[
-          ["result.result", result.value_display],
-          ["result.conclusion", result.conclusion_label],
-          ["result.limit", result.limit],
-          ["result.status", result.status_label],
-          ["result.enteredBy", result.entered_by],
-          ["result.enteredAt", result.entered_at ? formatMoment(result.entered_at, language) : ""],
-          ["result.rejectionReason", result.rejection_reason],
-        ]}
-      />
+      <RecordHead
+        title={`${result.code} – ${result.parameter}`}
+        status={{ label: result.status_label, tone: resultTone(result.status) }}
+      >
+        {!!result.entered_by && <Fact icon="account-outline" text={result.entered_by} />}
+      </RecordHead>
       {result.warnings.length > 0 && (
         <View style={styles.warning} accessibilityRole="alert">
-          <Text style={shared.label}>{t("result.warnings")}</Text>
+          <View style={styles.warningHead}>
+            <Icon name="alert-outline" color={colors.warning} />
+            <Text style={shared.label}>{t("result.warnings")}</Text>
+          </View>
           {result.warnings.map((warning) => (
-            <Text key={warning} style={styles.warningText}>
+            <Text key={warning} style={shared.text}>
               {warning}
             </Text>
           ))}
         </View>
       )}
-    </>
-  );
-}
-
-function Actions({ result, onStep }: Readonly<{ result: Result; onStep: (step: Step) => void }>) {
-  const t = useT();
-  const { edit, sign, reject } = result.actions;
-  if (!edit && !sign && !reject) {
-    return (
-      <Text style={shared.detail} testID="result-read-only">
-        {t("result.readOnly")}
-      </Text>
-    );
-  }
-  return (
-    <>
-      {sign && (
-        <Button label={t(result.status === "none" ? "result.send" : "result.approve")} onPress={() => onStep("signing")} primary testID="result-send" />
-      )}
-      {edit && (
-        <Button label={t("result.change")} onPress={() => onStep("changing")} />
-      )}
-      {reject && (
-        <Button label={t("result.reject")} onPress={() => onStep("rejecting")} />
-      )}
+      <Sheet title={t("result.result")}>
+        <Text style={styles.value}>{result.value_display}</Text>
+        <Facts
+          facts={[
+            ["result.conclusion", result.conclusion_label],
+            ["result.limit", result.limit],
+            ["result.enteredBy", result.entered_by],
+            ["result.enteredAt", result.entered_at ? formatMoment(result.entered_at, language) : ""],
+            ["result.rejectionReason", result.rejection_reason],
+          ]}
+        />
+      </Sheet>
     </>
   );
 }
@@ -142,18 +182,27 @@ function Actions({ result, onStep }: Readonly<{ result: Result; onStep: (step: S
 /** The confirmation step of a signature: what signing does, and the person's acknowledgement of the warnings of a
  * draft they send. */
 function Signing({
+  visible,
   result,
   busy,
+  failure,
   onSign,
   onCancel,
-}: Readonly<{ result: Result; busy: boolean; onSign: (acknowledged: boolean) => void; onCancel: () => void }>) {
+}: Readonly<{
+  visible: boolean;
+  result: Result;
+  busy: boolean;
+  failure: ReactNode;
+  onSign: (acknowledged: boolean) => void;
+  onCancel: () => void;
+}>) {
   const t = useT();
   const sending = result.status === "none";
   const warned = sending && result.warnings.length > 0;
   const [acknowledged, setAcknowledged] = useState(false);
   const ready = !busy && (!warned || acknowledged);
   return (
-    <View style={shared.section}>
+    <BottomSheet visible={visible} title={t(sending ? "result.send" : "result.approve")} onClose={onCancel}>
       <Text style={shared.text}>
         {t(sending ? "result.confirmSend" : "result.confirmApprove", { code: result.code, parameter: result.parameter })}
       </Text>
@@ -165,42 +214,86 @@ function Signing({
           testID="result-acknowledge"
           onPress={() => setAcknowledged(!acknowledged)}
         >
-          <Text style={shared.label}>{t("result.acknowledge")}</Text>
+          <Icon
+            name={acknowledged ? "checkbox-marked" : "checkbox-blank-outline"}
+            size={24}
+            color={acknowledged ? colors.primary : colors.borderControl}
+          />
+          <Text style={[shared.label, styles.acknowledgementText]}>{t("result.acknowledge")}</Text>
         </Pressable>
       )}
-      <Button label={t("result.sign")} onPress={() => onSign(warned)} primary disabled={!ready} testID="result-sign" />
+      {failure}
+      <Button label={t("result.sign")} icon="draw-pen" onPress={() => onSign(warned)} tone="success" disabled={!ready} testID="result-sign" />
       <Button label={t("result.cancel")} onPress={onCancel} />
-    </View>
+    </BottomSheet>
   );
 }
 
 function Rejecting({
+  visible,
   busy,
+  failure,
   onReject,
   onCancel,
-}: Readonly<{ busy: boolean; onReject: (reason: string) => void; onCancel: () => void }>) {
+}: Readonly<{
+  visible: boolean;
+  busy: boolean;
+  failure: ReactNode;
+  onReject: (reason: string) => void;
+  onCancel: () => void;
+}>) {
   const t = useT();
   const [reason, setReason] = useState("");
   return (
-    <View style={shared.section}>
-      <Text style={shared.label}>{t("result.reason")}</Text>
-      <TextInput
-        accessibilityLabel={t("result.reason")}
-        style={[shared.input, styles.reason]}
-        value={reason}
-        onChangeText={setReason}
-        multiline
+    <BottomSheet visible={visible} title={t("result.confirmReject")} onClose={onCancel}>
+      <View style={styles.field}>
+        <Text style={shared.label}>{t("result.reason")}</Text>
+        <TextInput
+          accessibilityLabel={t("result.reason")}
+          style={[shared.input, shared.multiline]}
+          value={reason}
+          onChangeText={setReason}
+          multiline
+        />
+      </View>
+      {failure}
+      <Button
+        label={t("result.confirmReject")}
+        icon="close-circle-outline"
+        onPress={() => onReject(reason)}
+        tone="danger"
+        disabled={busy}
+        testID="result-confirm-reject"
       />
-      <Button label={t("result.confirmReject")} onPress={() => onReject(reason)} primary disabled={busy} />
       <Button label={t("result.cancel")} onPress={onCancel} />
-    </View>
+    </BottomSheet>
   );
 }
 
 const styles = StyleSheet.create({
-  warning: { gap: 4, padding: 12, borderRadius: 8, backgroundColor: "#fff4e5" },
-  warningText: { fontSize: 14, color: "#663c00" },
-  acknowledgement: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12 },
-  acknowledged: { borderColor: colors.primary, borderWidth: 2 },
-  reason: { minHeight: 80, textAlignVertical: "top" },
+  readOnly: { flexDirection: "row", gap: space.sm, alignItems: "center" },
+  readOnlyText: { flex: 1 },
+  warning: {
+    gap: space.sm,
+    padding: space.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.warning,
+    backgroundColor: colors.warningSoft,
+  },
+  warningHead: { flexDirection: "row", alignItems: "center", gap: space.sm },
+  value: { fontSize: 26, fontWeight: "700", color: colors.text },
+  field: { gap: 6 },
+  acknowledgement: {
+    minHeight: layout.touch,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: space.md,
+  },
+  acknowledged: { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+  acknowledgementText: { flex: 1 },
 });

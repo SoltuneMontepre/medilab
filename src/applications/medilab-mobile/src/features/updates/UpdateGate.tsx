@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { ActivityIndicator, AppState } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityIndicator, AppState, StyleSheet, View } from "react-native";
 
 import { useT } from "../../locale";
 import { useSession } from "../../session";
-import { styles } from "../../styles";
+import { colors } from "../../theme";
 import { checkRelease, installApk, installCode, takesUpdates, type Release } from "./release";
 import { UpdatingScreen } from "./UpdatingScreen";
 
@@ -77,9 +76,9 @@ export function UpdateGate({ children }: Readonly<{ children: ReactNode }>) {
 
   if (gate.kind === "checking") {
     return (
-      <SafeAreaView style={styles.screen}>
-        <ActivityIndicator accessibilityLabel={t("update.checking")} />
-      </SafeAreaView>
+      <View style={styles.checking}>
+        <ActivityIndicator size="large" color={colors.primary} accessibilityLabel={t("update.checking")} />
+      </View>
     );
   }
   if (gate.kind === "updating") {
@@ -87,3 +86,7 @@ export function UpdateGate({ children }: Readonly<{ children: ReactNode }>) {
   }
   return children;
 }
+
+const styles = StyleSheet.create({
+  checking: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.bg },
+});

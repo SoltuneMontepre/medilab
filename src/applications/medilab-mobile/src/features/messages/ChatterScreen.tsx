@@ -32,6 +32,7 @@ export function ChatterScreen() {
   return (
     <Thread
       title={code ? t("chatter.titleOf", { code }) : t("chatter.title")}
+      look="chatter"
       thread={thread}
       gone={t("document.gone")}
       empty={t("chatter.empty")}
