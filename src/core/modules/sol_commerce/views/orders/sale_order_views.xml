@@ -120,25 +120,11 @@
                     invisible="order_status in ('draft', 'submitted', 'confirmed', 'completed', 'cancelled') or quotation_follow_up in ('unpaid', 'paid', 'accepted') and state != 'draft'"
                 />
                 <button
-                    name="action_revise_quotation"
-                    type="object"
-                    string="Revise quotation"
-                    class="btn-secondary"
-                    invisible="order_status != 'claimed' or not quotation_follow_up or state != 'sent'"
-                />
-                <button
                     name="action_confirm_order"
                     type="object"
                     string="Confirm order"
                     class="btn-success"
                     invisible="order_status != 'claimed' or state == 'draft' or quotation_follow_up not in ('paid', 'accepted') and not (source == 'sales' and advance_method == 'none' and quotation_follow_up == 'unpaid')"
-                />
-                <button
-                    name="action_print_quotation"
-                    type="object"
-                    string="Print quotation"
-                    class="btn-secondary"
-                    invisible="not quotation_follow_up or state == 'draft'"
                 />
                 <field name="has_open_collection" invisible="1" />
                 <button
@@ -148,19 +134,6 @@
                     class="btn-primary o_start_sample_collection"
                     context="{'medilab_collection_dialog': True}"
                     invisible="order_status != 'confirmed' or show_unpaid_warning or has_open_collection"
-                />
-                <button
-                    name="action_change_committed_date"
-                    type="object"
-                    string="Change return date"
-                    class="btn-secondary"
-                    invisible="order_status != 'confirmed' or not test_request_id"
-                    groups="sol_laboratory.group_permission_committed_date_change_create_all"
-                />
-                <span
-                    class="vr mx-2 align-self-center"
-                    style="height: 1.5rem;"
-                    invisible="not can_record_collection and not can_record_agreement and (not pending_amount or payment_status == 'paid' or state == 'cancel')"
                 />
                 <button name="%(action_payment_collection)d" type="action" string="Record payment" class="btn-primary"
                     context="{'default_order_id': id}" invisible="not can_record_collection" groups="base.group_user" />
@@ -178,7 +151,29 @@
                 <span
                     class="vr mx-2 align-self-center"
                     style="height: 1.5rem;"
-                    invisible="not can_save_order_template"
+                    invisible="(order_status != 'claimed' or not quotation_follow_up or state != 'sent') and (not quotation_follow_up or state == 'draft') and (order_status != 'confirmed' or not test_request_id) and not can_save_order_template"
+                />
+                <button
+                    name="action_revise_quotation"
+                    type="object"
+                    string="Revise quotation"
+                    class="btn-secondary"
+                    invisible="order_status != 'claimed' or not quotation_follow_up or state != 'sent'"
+                />
+                <button
+                    name="action_print_quotation"
+                    type="object"
+                    string="Print quotation"
+                    class="btn-secondary"
+                    invisible="not quotation_follow_up or state == 'draft'"
+                />
+                <button
+                    name="action_change_committed_date"
+                    type="object"
+                    string="Change return date"
+                    class="btn-secondary"
+                    invisible="order_status != 'confirmed' or not test_request_id"
+                    groups="sol_laboratory.group_permission_committed_date_change_create_all"
                 />
                 <button name="action_save_as_template" type="object" string="Save as template" class="btn-secondary" invisible="not can_save_order_template" groups="sol_laboratory.group_permission_order_template_create_all" />
                 <span
