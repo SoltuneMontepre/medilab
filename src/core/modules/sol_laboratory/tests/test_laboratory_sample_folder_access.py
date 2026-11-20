@@ -1,7 +1,8 @@
 from odoo.fields import Command
 from odoo.tests import tagged
 
-from .laboratory_sample_folder_case import LaboratorySampleFolderCase
+from .laboratory_files_case import LaboratoryFilesCase
+from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import (
     FILE_READ,
     FILE_WRITE,
@@ -21,7 +22,7 @@ SAMPLE_READER_GROUP = "sol_laboratory.group_permission_sample_read_all"
 
 
 @tagged("post_install", "-at_install")
-class TestLaboratorySampleFolderAccess(LaboratorySampleFolderCase):
+class TestLaboratorySampleFolderAccess(LaboratoryFilesCase, RequestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -49,7 +50,14 @@ class TestLaboratorySampleFolderAccess(LaboratorySampleFolderCase):
     def test_the_files_of_a_completed_or_cancelled_sample_folder_are_read_only(self):
         for status in ("completed", "cancelled"):
             with self.subTest(status=status):
-                folder = self.folder_of_category(RESULT, name=f"{status.title()} results")
+                folder = self.env[MODEL_LABORATORY_FOLDER].create(
+                    {
+                        "name": f"{status.title()} results",
+                        "owner_id": self.tester.id,
+                        "sample_id": self.create_request().sample_ids.id,
+                        "category": RESULT,
+                    }
+                )
                 file = self.file_of("HPLC/run-01.xlsx", folder)
                 lockable = self.file_of("HPLC/notes.csv", folder)
                 self.save(file, "results")
