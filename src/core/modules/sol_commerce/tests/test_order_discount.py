@@ -1,5 +1,6 @@
 from lxml import etree
 
+from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import Form, tagged
 from odoo.tests.form import O2MProxy
@@ -57,6 +58,7 @@ class TestOrderDiscount(OrderCase):
 
     def test_a_salesperson_gives_a_line_a_discount(self):
         order = self.make_quotable_order()
+        order.expected_collection_date = fields.Date.today()
         with (
             Form(order.with_user(self.sales)) as form,
             assert_instance(form.product_line_ids, O2MProxy).edit(0) as line,

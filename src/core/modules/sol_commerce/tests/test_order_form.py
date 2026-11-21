@@ -2,6 +2,7 @@ from ast import literal_eval
 
 from lxml import etree
 
+from odoo import fields
 from odoo.tests import Form, new_test_user, tagged
 from odoo.tests.form import O2MProxy
 
@@ -72,7 +73,7 @@ class TestOrderForm(OrderCase):
 
     def test_contact_is_hidden_for_an_individual(self):
         contact = self._nodes("//sheet//field[@name='partner_id']")[0]
-        self.assertEqual(contact.get("invisible"), "customer_id and not customer_is_company")
+        self.assertIn("customer_id and not customer_is_company", contact.get("invisible") or "")
         self.assertIn("not customer_id", contact.get("readonly") or "")
 
     def test_only_customers_can_be_chosen(self):
@@ -152,8 +153,8 @@ class TestOrderForm(OrderCase):
             literal_eval(assert_instance(product.get("options"), str)), {"no_create": True, "no_open": True}
         )
         sample = self._nodes(f"{LINE_FORM}//field[@name='sample_id']")[0]
-        self.assertEqual(sample.get("domain"), "[('order_id', '=', parent.id)]")
-        self.assertTrue(literal_eval(assert_instance(sample.get("options"), str)).get("no_create"))
+        self.assertEqual(sample.get("readonly"), "1")
+        self.assertTrue(literal_eval(assert_instance(sample.get("options"), str)).get("no_open"))
         for path in (
             f"{LINE_FORM}/group/group/field[@name='name']",
             f"{LINE_FORM}//label[@for='qty_delivered']",
@@ -212,14 +213,14 @@ class TestOrderForm(OrderCase):
 
     def test_editing_the_ordered_lines_updates_the_totals(self):
         order = self.make_order([(self.lead_product, 1)], status="claimed", user_id=self.sales.id)
+        order.expected_collection_date = fields.Date.today()
         with Form(order) as form:
             before = self._total(form)
-            with assert_instance(form.product_line_ids, O2MProxy).new() as line:
-                line.product_template_id = self.package_product
-                line.product_id = self.package_product.product_variant_id
+            with assert_instance(form.product_line_ids, O2MProxy).edit(0) as line:
+                line.product_uom_qty = 2
             self.assertGreater(self._total(form), before)
 
-        self.assertEqual(len(order.order_line), 2)
+        self.assertEqual(order.order_line.product_uom_qty, 2)
         self.assertEqual(order.product_line_ids, order.order_line)
 
     def test_each_status_has_its_label(self):

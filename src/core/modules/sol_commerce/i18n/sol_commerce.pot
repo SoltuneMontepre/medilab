@@ -6247,3 +6247,29 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__expected_sample_summary
 msgid "Sample Volume"
 msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "Give an expected pickup day that has not passed."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__payos_available
+msgid "Payos Available"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__qr_html
+msgid "Qr Html"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__recorded_payments_html
+msgid "Recorded Payments Html"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__summary_html
+msgid "Summary Html"
+msgstr ""

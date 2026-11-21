@@ -6458,3 +6458,29 @@ msgstr "Còn lại"
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__expected_sample_summary
 msgid "Sample Volume"
 msgstr "Lượng mẫu"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "Give an expected pickup day that has not passed."
+msgstr "Vui lòng chọn ngày lấy mẫu dự kiến chưa qua."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__payos_available
+msgid "Payos Available"
+msgstr "Hỗ trợ PayOS"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__qr_html
+msgid "Qr Html"
+msgstr "Mã QR"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__recorded_payments_html
+msgid "Recorded Payments Html"
+msgstr "Các khoản thanh toán đã ghi nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__summary_html
+msgid "Summary Html"
+msgstr "Tóm tắt"
