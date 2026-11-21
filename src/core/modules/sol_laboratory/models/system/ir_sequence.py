@@ -18,9 +18,10 @@ class IrSequence(models.Model, IrSequenceBase):
 
     def _create_date_range_seq(self, date):
         # A prefix with the range's month numbers again every month; Odoo's ranges last a year.
-        if "%(range_month)s" not in (self.prefix or ""):
+        day = fields.Date.to_date(date)
+        if not day or "%(range_month)s" not in (self.prefix or ""):
             return super()._create_date_range_seq(date)
-        first_day = fields.Date.to_date(date).replace(day=1)
+        first_day = day.replace(day=1)
         return (
             self.env["ir.sequence.date_range"]
             .sudo()

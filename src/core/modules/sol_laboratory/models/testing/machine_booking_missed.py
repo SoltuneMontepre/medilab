@@ -51,6 +51,8 @@ class MachineBookingMissed(models.Model, MachineBookingMissedBase):
         if self - self._missed():
             raise UserError(self.env._("Only a scheduled booking whose start has passed can be rescheduled."))
         for booking in self:
+            if not booking.starts_at or not booking.ends_at:
+                raise UserError(self.env._("Only a scheduled booking can be moved."))
             way = booking.sample_test_id.parameter_method_id
             slot = self._free_slot(
                 booking.machine_id,
