@@ -26,7 +26,7 @@ describe("SampleTestScreen", () => {
     const mediLab = fakeMediLab({ status: 200, body: sampleTest() }, { status: 200, body: result() });
     await renderSignedIn(<SampleTestScreen />);
 
-    expect(await screen.findByText("PTN.2026.0042")).toBeOnTheScreen();
+    expect(await screen.findByRole("header", { name: "PTN.2026.0042" })).toBeOnTheScreen();
     expect(screen.getByText("QCVN 6-1:2010/BYT")).toBeOnTheScreen();
     await fireEvent.changeText(screen.getByLabelText("Giá trị (mg/L)"), "0,0080");
     await fireEvent.press(screen.getByRole("button", { name: "Lưu kết quả" }));

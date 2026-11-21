@@ -8,9 +8,21 @@ Medilab Mobile is the phone app of the laboratory's staff. It brings the work do
 | ----------- | ----------- |
 | Platforms   | Android and iOS phones and tablets, built with React Native and Expo from one TypeScript code base. The first release is for Android. |
 | Installing  | Staff install the Android app from an APK the laboratory publishes in its release bucket, not from Google Play. |
-| Languages   | Vietnamese by default, or English, chosen at sign-in or in the settings, and kept for the next start. |
+| Languages   | Vietnamese by default, or English, chosen at sign-in or in the menu, and kept for the next start. |
 | Connection  | The app works online. An action that cannot reach MediLab is not done: the app says so and offers to retry. A photo or a signature not sent yet stays on the phone until it is sent or the person discards it. |
 | Modules     | A screen whose module is not installed is not shown, such as container scanning without Inventory or support requests without E-commerce ([SH-01](../../shared.md#sh-01-modular-installation-and-integration)). |
+
+## Navigation
+
+The app looks and moves like the web, following [UX and UI](../../../conventions/ux-ui.md#medilab-mobile) and [Styling](../../../conventions/styling.md#medilab-mobile).
+
+| Rule          | Description |
+| ------------- | ----------- |
+| Tabs          | The bottom of the app has the tabs Tasks, Scan, Conversations and Menu. Scan shows only to a person who scans sample labels, and Conversations counts the unread messages. |
+| Navbar        | Every screen has the web's navbar: the screen's title, its actions and the notifications, marked while one is unread. A screen opened from another has a way back. |
+| Menu          | The Menu tab shows the other apps the person may use, as the web's app drawer does: the results waiting for their signature, the handover records and the support requests. Under them are the person's name and department, the server, the notification settings, the language and signing out. |
+| Records       | A record opened from a tab, a notification or a push opens over the tab and returns to it. A push that starts the app opens its record over the Tasks tab. |
+| Lists         | A list is read again when pulled down and reads its next page when scrolled to the end. |
 
 ## Updates
 
@@ -37,13 +49,13 @@ Medilab Mobile is the phone app of the laboratory's staff. It brings the work do
 
 | Rule          | Description |
 | ------------- | ----------- |
-| Home          | The app opens on the person's day, as the Tasks app does on the web ([SH-10](../../shared.md#sh-10-tasks-and-to-do-list)): today's planned tasks, the next tasks to do with the action each needs, and the tasks waiting in the queues they can claim from. |
-| To-do list    | The person's open tasks, soonest deadline first, and their finished tasks. Opening a task opens its document at the action to take. |
+| Home          | The app opens on the Tasks tab, the person's day as the Tasks app shows it on the web ([SH-10](../../shared.md#sh-10-tasks-and-to-do-list)): today's planned tasks, the next tasks to do with the action each needs, the tasks waiting in the queues they can claim from, and their finished work. Each part opens its list, and a task's action is taken from the day. |
+| To-do list    | The person's open tasks, soonest deadline first, their finished tasks, and the tasks waiting in their queues. Opening a task opens its document at the action to take. |
 | Lifecycle     | The person claims a task from a queue, starts it and marks a task created by hand done, as on the web. A task already claimed by someone else cannot be claimed. |
 | Managing      | A person with the task permissions, such as a head of department for their department, assigns a waiting task, reassigns one with a reason and creates a task by hand with an assignee and a deadline. |
 | Notifications | The person's notifications ([SH-11](../../shared.md#sh-11-schedules-and-reminders)), unread first; opening one opens its document and marks it read. |
 | Pushes        | A push names the event and the document's code. Tapping it opens the document; when the person can no longer see the document, the app says so instead of showing an empty screen. A push to a tester never names the customer or the customer's name for a sample. |
-| Preferences   | The person turns pushes on or off per event in the app's settings, which are their notification preferences ([SH-11](../../shared.md#sh-11-schedules-and-reminders)). Mandatory events cannot be turned off. |
+| Preferences   | The person turns pushes on or off per event in the notification settings of the menu, which are their notification preferences ([SH-11](../../shared.md#sh-11-schedules-and-reminders)). Mandatory events cannot be turned off. |
 
 ## Conversations (SH-12, US-S23)
 
@@ -94,7 +106,7 @@ Conversations follow [SH-12](../../shared.md#sh-12-conversations).
 - Two people claiming the same task from their phones: the second is told it is already claimed.
 - Tapping a push opens its document; a document the person can no longer see shows a message instead.
 - A push to a tester never names the customer or the customer's name for a sample.
-- A push turned off for an event in the app's settings is no longer sent to the person.
+- A push turned off for an event in the notification settings is no longer sent to the person.
 - A message sent from the phone appears in Discuss on the web, and a message sent on the web appears on the phone.
 - A note posted on a sample from the phone appears in its chatter on the web and sends nothing to the customer.
 - A muted conversation's messages are not pushed to the person.

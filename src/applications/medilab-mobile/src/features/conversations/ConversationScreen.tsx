@@ -2,13 +2,14 @@ import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 
 import type { Conversation, Message } from "../../api";
+import { useBadges } from "../../badges";
 import { useT } from "../../locale";
 import { watchMessagePushes } from "../../push";
 import { useSession } from "../../session";
 import type { Draft } from "../messages/Composer";
 import { Thread } from "../messages/Thread";
 import { useThread } from "../messages/useThread";
-import { Button } from "../shared/Button";
+import { NavButton } from "../shared/Navbar";
 
 // How often an open conversation asks for new messages, besides its pushes.
 export const POLL_MILLISECONDS = 10_000;
@@ -19,6 +20,7 @@ export const POLL_MILLISECONDS = 10_000;
 export function ConversationScreen() {
   const t = useT();
   const { call } = useSession();
+  const { refresh: refreshBadges } = useBadges();
   const { id } = useLocalSearchParams<{ id: string }>();
   const path = `/conversations/${encodeURIComponent(id)}`;
   const thread = useThread(`${path}/messages`);
@@ -50,9 +52,11 @@ export function ConversationScreen() {
   const newest = thread.load.state === "ready" ? thread.load.value.at(-1) : undefined;
   useEffect(() => {
     if (newest && !newest.mine) {
-      call(`${path}/seen`, { method: "POST", body: { message_id: newest.id } }).catch(() => undefined);
+      call(`${path}/seen`, { method: "POST", body: { message_id: newest.id } })
+        .then(refreshBadges)
+        .catch(() => undefined);
     }
-  }, [call, path, newest]);
+  }, [call, path, newest, refreshBadges]);
 
   const findPeople = useCallback(
     (query: string) =>
@@ -90,13 +94,15 @@ export function ConversationScreen() {
       title={conversation?.name ?? ""}
       actions={
         conversation && (
-          <Button
+          <NavButton
             testID="conversation-mute"
+            icon={conversation.muted ? "bell-off-outline" : "bell-ring-outline"}
             label={t(conversation.muted ? "conversation.unmute" : "conversation.mute")}
             onPress={toggleMute}
           />
         )
       }
+      look="conversation"
       thread={thread}
       gone={t("conversation.gone")}
       empty={t("conversation.empty")}

@@ -150,7 +150,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
           });
           openMenu(MENU.calendar);
           cy.get(".o_switch_view.o_list").click();
-          search(sample.code);
+          search(sample.code, { facet: false });
           cy.contains(".o_data_row", `${booking.machine_id[1]}: ${booking.display_name}`).should("be.visible");
         });
       });

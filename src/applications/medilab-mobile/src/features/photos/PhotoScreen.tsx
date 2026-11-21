@@ -1,15 +1,16 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useRef, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { failed, type Load } from "../../load";
 import { useT } from "../../locale";
 import { useSession } from "../../session";
 import { styles as shared } from "../../styles";
+import { colors, radius, space } from "../../theme";
 import { Button } from "../shared/Button";
 import { CameraPermission } from "../shared/CameraPermission";
+import { Screen } from "../shared/Screen";
 import { keepPhoto, sendPhoto } from "./photoQueue";
 
 // A photo of a sample is for people, not a print: a smaller file sends faster from the field.
@@ -54,27 +55,34 @@ export function PhotoScreen() {
   }
 
   return (
-    <SafeAreaView style={shared.page}>
-      <ScrollView contentContainerStyle={shared.pageContent}>
-        <Text style={shared.title}>{t("photo.title", { code })}</Text>
-        {permission?.granted && focused && !problem && (
-          <View style={styles.camera}>
-            <CameraView ref={camera} style={StyleSheet.absoluteFill} facing="back" />
-          </View>
-        )}
-        <CameraPermission permission={permission} needed={t("photo.cameraNeeded")} onAllow={requestPermission} />
-        {permission?.granted && !problem && (
-          <Button label={t("photo.shutter")} onPress={shoot} primary disabled={busy} testID="photo-shutter" />
-        )}
-        {problem && (
-          <>
-            <Text style={shared.label}>{t("photo.kept")}</Text>
-            {problem.state !== "unreachable" && <Refusal problem={problem} />}
-            <Button label={t("photo.back")} onPress={() => router.back()} testID="photo-back" />
-          </>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+    <Screen title={t("photo.title", { code })} bell={false}>
+      {permission?.granted && focused && !problem && (
+        <View style={styles.camera}>
+          <CameraView ref={camera} style={StyleSheet.absoluteFill} facing="back" />
+        </View>
+      )}
+      <CameraPermission permission={permission} needed={t("photo.cameraNeeded")} onAllow={requestPermission} />
+      {permission?.granted && !problem && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t("photo.shutter")}
+          accessibilityState={{ disabled: busy }}
+          disabled={busy}
+          testID="photo-shutter"
+          style={({ pressed }) => [styles.shutter, (pressed || busy) && styles.pressed]}
+          onPress={shoot}
+        >
+          <View style={styles.shutterInner} />
+        </Pressable>
+      )}
+      {problem && (
+        <View style={styles.kept}>
+          <Text style={shared.label}>{t("photo.kept")}</Text>
+          {problem.state !== "unreachable" && <Refusal problem={problem} />}
+          <Button label={t("photo.back")} icon="arrow-left" onPress={() => router.back()} testID="photo-back" />
+        </View>
+      )}
+    </Screen>
   );
 }
 
@@ -89,5 +97,19 @@ function Refusal({ problem }: Readonly<{ problem: Load<never> }>) {
 }
 
 const styles = StyleSheet.create({
-  camera: { aspectRatio: 3 / 4, borderRadius: 8, overflow: "hidden" },
+  camera: { aspectRatio: 3 / 4, borderRadius: radius.lg, overflow: "hidden", backgroundColor: colors.secondary },
+  shutter: {
+    alignSelf: "center",
+    width: 76,
+    height: 76,
+    borderRadius: radius.pill,
+    borderWidth: 4,
+    borderColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.surface,
+  },
+  shutterInner: { width: 58, height: 58, borderRadius: radius.pill, backgroundColor: colors.primary },
+  pressed: { opacity: 0.6 },
+  kept: { gap: space.md },
 });

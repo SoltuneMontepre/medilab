@@ -121,10 +121,14 @@ export function dragBookingToSlot(booking, slot, zone) {
       expect($column, `the day of the slot, ${to.date}, in the booking's week`).to.have.length(1);
       const column = $column[0].getBoundingClientRect();
       const point = (clientX, clientY) => ({ button: 0, clientX, clientY, pageX: clientX + window.scrollX, pageY: clientY + window.scrollY });
-      // The booking is grabbed in its first quarter hour, away from the edges where the pointer may snap either way.
+      // FullCalendar can cover an event's DOM hit target with a neighboring event, so keep the booking coordinates for this synthetic drag.
       const grabbed = point(eventBox.left + eventBox.width / 2, timeTop(minutesOf(from.time) + SNAP_MINUTES / 2));
       expect(grabbed.clientY, "the grab point inside the booking").to.be.within(eventBox.top, eventBox.bottom);
-      cy.wrap($event).trigger("mousedown", { ...grabbed, scrollBehavior: false });
+      cy.wrap($event).trigger("mousedown", grabbed.clientX - eventBox.left, grabbed.clientY - eventBox.top, {
+        ...grabbed,
+        force: true,
+        scrollBehavior: false,
+      });
       cy.document().trigger("mousemove", { ...point(grabbed.clientX + 1, grabbed.clientY + 1), scrollBehavior: false });
       const y = grabbed.clientY + timeTop(minutesOf(to.time)) - timeTop(minutesOf(from.time));
       moveDragTo(point, column.left + column.width / 2, y, to.date, to.time);

@@ -23,6 +23,16 @@ Buttons, status badges and list rows take their color from what they mean. The c
 - A flag that only one line of a list can have is a checkbox that clears the others when ticked, not a toggle.
 - `sol_theme` overrides Odoo and Bootstrap styles that are set with `!important` or with more specific selectors, so its stylesheets use `!important` where an override needs it. SonarQube ignores its rule S9423 (`!important`) for `sol_theme/static/src/scss/`, set in `sonar-project.properties`.
 
+## Medilab Mobile
+
+[Medilab Mobile](../functional/laboratory_module/applications/medilab-mobile.md) looks like the web, so a person sees one product on both.
+
+- **Tokens.** `src/applications/medilab-mobile/src/theme.ts` holds the tokens of `tokens.scss` under the same names in camel case, such as `$ml-primary-light` as `colors.primaryLight`. A token changed on the web is changed there in the same change. Screens take colours, sizes and radii from `theme.ts` and never repeat a colour code.
+- **Colors by meaning.** The table above applies to the phone: a button's `tone` is `primary`, `success`, `danger` or `secondary`, and a status badge's `tone` is `info`, `success`, `warning`, `danger` or `muted`, for the same meanings as the web's `btn-*` and `decoration-*`.
+- **Icons.** The phone uses Material Design Icons, the set the web names `mdi:<name>`, through `MaterialCommunityIcons` of `@expo/vector-icons`, so an action keeps the same icon on the web and the phone.
+- **Light only.** The app has the web's light theme and no dark theme.
+- **Brand.** The app icon, the splash screen and the sign-in screen show the MediLab mark of `sol_theme/static/src/img/medilab.svg`. The splash screen and the navbar take `$ml-primary`.
+
 ## Related documents
 
 - [UX and UI](ux-ui.md)
