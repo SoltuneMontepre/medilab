@@ -14718,6 +14718,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
+msgid "You saved this version, so another person must sign it."
+msgstr "Bạn đã lưu phiên bản này, vì vậy người khác phải ký."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_laboratory_folders.py:0
 msgid "Only the head of a department that tests %s creates its folders."
 msgstr "Chỉ trưởng phòng ban thử nghiệm %s mới được tạo thư mục của mẫu."
