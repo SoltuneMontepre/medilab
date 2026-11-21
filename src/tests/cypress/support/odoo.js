@@ -15,14 +15,19 @@ export function signIn(login) {
     cy.session(
       [Cypress.config("baseUrl"), login],
       () => {
-        cy.visit("/web/login");
-        cy.get("input[name=login]").type(login);
-        cy.get("input[name=password]").type(demoPassword, {
-          log: false,
-          parseSpecialCharSequences: false,
+        cy.request({ url: "/web/login", log: false }).then(({ body }) => {
+          const page = new DOMParser().parseFromString(body, "text/html");
+          const csrfToken = page.querySelector("input[name=csrf_token]")?.value;
+          expect(csrfToken, "login CSRF token").to.be.a("string").and.not.be.empty;
+          return cy.request({
+            method: "POST",
+            url: "/web/login",
+            form: true,
+            followRedirect: false,
+            log: false,
+            body: { login, password: demoPassword, csrf_token: csrfToken },
+          }).its("status").should("be.oneOf", [302, 303]);
         });
-        cy.get("form.oe_login_form").submit();
-        cy.location("pathname").should("match", /^\/(odoo|my)(\/|$)/);
       },
       {
         cacheAcrossSpecs: false,
