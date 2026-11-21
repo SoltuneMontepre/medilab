@@ -32,6 +32,7 @@ tools/
     ├── test_shards.py          splits the Odoo test classes into shards for test:core
     ├── test_openapi.py         test:openapi comparison with the document on main
     ├── test_openapi_keys.py    test:openapi refusal of duplicate keys
+    ├── test_upgrade.py         test:upgrade from the released image
     └── test_core_*.sh          test:core steps run inside a container
 ```
 

@@ -1,7 +1,28 @@
+# odoo serves the active colour and odoo-preview the colour being released; Argo Rollouts adds the colour to each selector.
 apiVersion: v1
 kind: Service
 metadata:
   name: odoo
+  labels:
+    app.kubernetes.io/name: odoo
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: odoo
+  ports:
+    - name: http
+      port: 8069
+      targetPort: http
+    - name: websocket
+      port: 8072
+      targetPort: websocket
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: odoo-preview
   labels:
     app.kubernetes.io/name: odoo
   annotations:

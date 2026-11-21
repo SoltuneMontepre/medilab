@@ -69,7 +69,7 @@ EOF
   return 1
 }
 
-kubectl -n medilab rollout status deployment/odoo --timeout=120s
+kubectl -n medilab wait rollout/odoo --for=jsonpath='{.status.phase}'=Healthy --timeout=120s
 kubectl -n kube-system rollout status deployment/traefik --timeout=120s
 
 probe medilab cloudflared "$TRAEFIK" 0

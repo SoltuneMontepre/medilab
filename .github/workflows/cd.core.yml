@@ -131,7 +131,7 @@ jobs:
     needs: release
     if: needs.release.outputs.released == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 50
+    timeout-minutes: 90
     outputs:
       synced: ${{ steps.wait.outputs.synced }}
     steps:
@@ -152,8 +152,9 @@ jobs:
         id: wait
         env:
           RELEASE_COMMIT: ${{ needs.release.outputs.commit }}
-          # The longest sync that can still succeed: the backup, the upgrade Job's 30 minutes, then the 10-minute rollout.
-          TIMEOUT: "2700"
+          # The longest sync that can still succeed: the rehearsal's 30 minutes, the backup, the upgrade Job's 30 minutes,
+          # then the Rollout's 15-minute progress deadline.
+          TIMEOUT: "4800"
           ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
         run: bash tools/scripts/cd_core_verify.sh

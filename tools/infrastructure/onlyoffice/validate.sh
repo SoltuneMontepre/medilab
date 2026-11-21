@@ -20,11 +20,19 @@ curl --fail --silent --show-error \
 curl --fail --silent --show-error \
   https://raw.githubusercontent.com/argoproj/argo-cd/v3.4.1/manifests/crds/application-crd.yaml \
   -o "$validation_dir/argocd.yaml"
+# The integration renders the odoo Rollout and its AnalysisTemplates.
+for crd in rollout analysis-template; do
+  curl --fail --silent --show-error \
+    "https://raw.githubusercontent.com/argoproj/argo-rollouts/v1.10.1/manifests/crds/$crd-crd.yaml" \
+    -o "$validation_dir/argo-rollouts-$crd.yaml"
+done
 printf '%s  %s\n' \
   262fef78478492cd35b73a1b227106b7802f9c056361d1f561d04b32d751337f "$validation_dir/cert-manager.yaml" \
   d4da9492a6906a3834bb1f5b7367575a29b5c43411017babc7a30728f465d1ba "$validation_dir/external-secrets.yaml" \
   1d5e8558803804562238b0d4a57174aadd6d87c36e3c4c55199ebcc356a9406c "$validation_dir/traefik.yaml" \
-  fa8a0c7f8127f85bbbf57467e7c659ec7d47e7d162cc76c1b07482ebf2b98f49 "$validation_dir/argocd.yaml" | sha256sum -c -
+  fa8a0c7f8127f85bbbf57467e7c659ec7d47e7d162cc76c1b07482ebf2b98f49 "$validation_dir/argocd.yaml" \
+  1562decc7b3720c31cbe382eeb62b6fbfd236f8e81a1f98644a9774d1e7d7933 "$validation_dir/argo-rollouts-rollout.yaml" \
+  bb41aa62329355c5ffb38031822b4515cc2f60c5a94fcae5df6099ddbf8c5a08 "$validation_dir/argo-rollouts-analysis-template.yaml" | sha256sum -c -
 for component in onlyoffice onlyoffice-production onlyoffice-integration onlyoffice-edge onlyoffice-monitor; do
   kubectl kustomize "infra/cluster/$component" > "$validation_dir/$component.yaml"
 done
@@ -36,6 +44,7 @@ MEDILAB_ONLYOFFICE_SCHEMA_ROOTS="$PWD:$validation_dir" \
 "$validation_python" tools/infrastructure/onlyoffice/validate_crds.py --skip-kind Backup \
   --crd "$validation_dir/cert-manager.yaml" --crd "$validation_dir/external-secrets.yaml" \
   --crd "$validation_dir/traefik.yaml" --crd "$validation_dir/argocd.yaml" \
+  --crd "$validation_dir/argo-rollouts-rollout.yaml" --crd "$validation_dir/argo-rollouts-analysis-template.yaml" \
   "$validation_dir"/onlyoffice*.yaml \
   infra/cluster/applications/onlyoffice.yaml infra/cluster/applications/onlyoffice-monitor.yaml \
   infra/cluster/onlyoffice-monitor/alerting-secret.yaml
