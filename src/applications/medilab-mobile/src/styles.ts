@@ -1,46 +1,35 @@
 import { StyleSheet } from "react-native";
 
-// Colours and shapes the screens share.
-export const colors = {
-  primary: "#1f6feb",
-  text: "#1c2024",
-  muted: "#60646c",
-  border: "#d9d9e0",
-  error: "#ce2c31",
-};
+import { colors, fontSize, layout, letterSpacing, radius, space } from "./theme";
 
+// Text and controls the screens share, from the theme's tokens.
 export const styles = StyleSheet.create({
-  screen: { flex: 1, padding: 24, gap: 16, justifyContent: "center" },
-  title: { fontSize: 26, fontWeight: "600", color: colors.text },
-  detail: { fontSize: 14, color: colors.muted },
-  label: { fontSize: 14, fontWeight: "500", color: colors.text },
+  title: { fontSize: fontSize.xl, fontWeight: "700", color: colors.text, letterSpacing: letterSpacing.heading },
+  heading: { fontSize: fontSize.md, fontWeight: "600", color: colors.text, letterSpacing: letterSpacing.heading },
+  label: { fontSize: 15, fontWeight: "500", color: colors.text },
+  text: { fontSize: 15, lineHeight: 22, color: colors.text },
+  detail: { fontSize: fontSize.sm, lineHeight: 18, color: colors.textMuted },
+  error: { fontSize: fontSize.base, color: colors.danger },
   input: {
+    minHeight: layout.touch,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
+    borderColor: colors.borderControl,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    paddingHorizontal: space.md,
     paddingVertical: 10,
-    fontSize: 16,
+    fontSize: fontSize.md,
     color: colors.text,
   },
-  error: { fontSize: 14, color: colors.error },
-  primaryButton: { backgroundColor: colors.primary, borderRadius: 8, paddingVertical: 12, alignItems: "center" },
-  primaryButtonText: { color: "#ffffff", fontSize: 16, fontWeight: "600" },
-  secondaryButton: {
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: "center",
-  },
-  secondaryButtonText: { color: colors.primary, fontSize: 16, fontWeight: "500" },
-  // A screen that scrolls the record it shows, and its parts.
-  page: { flex: 1, padding: 24 },
-  pageContent: { gap: 12, paddingBottom: 24 },
-  section: { gap: 8 },
-  heading: { fontSize: 18, fontWeight: "600", color: colors.text },
-  text: { fontSize: 15, color: colors.text },
+  multiline: { minHeight: 96, textAlignVertical: "top" },
   disabled: { opacity: 0.5 },
   // A record in a list, which opens it.
-  card: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, gap: 4 },
+  card: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: space.md,
+    gap: space.xs,
+  },
 });

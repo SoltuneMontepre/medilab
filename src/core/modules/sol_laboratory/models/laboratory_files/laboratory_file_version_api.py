@@ -26,6 +26,7 @@ class LaboratoryFileVersionApi(models.Model, LaboratoryFileVersionApiBase):
             "source": version.source,
             "size": version.size,
             "sha256": version.sha256,
+            "content_available": bool(version.content_id),
             "parent_version_id": version.parent_version_id.id or None,
             "restored_from_id": version.restored_from_id.id or None,
             "saved_by": {"id": version.user_id.id, "name": version.user_id.name},

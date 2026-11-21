@@ -29,6 +29,7 @@ export function upload(device, folder, path, fixtureName, { baseVersionId } = {}
       headers: { "Idempotency-Key": randomId() },
     }).then((prepared) => {
       if (prepared.status !== 200) return { refused: prepared };
+      if (prepared.body.upload.status === "unchanged") return { upload: prepared.body.upload };
       const { id } = prepared.body.upload;
       return api(device, "POST", `/folders/${folder.id}/uploads/${id}/parts`, { body: { part_numbers: [1] } }).then((parts) =>
         // A Blob is the one request body Cypress sends byte for byte.

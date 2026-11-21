@@ -38,6 +38,7 @@ def seed_demo(env):
     from .demo_laboratory_editing import seed_laboratory_editing
     from .demo_laboratory_file_locks import seed_laboratory_file_locks
     from .demo_laboratory_files import (
+        seed_closed_sample_folder,
         seed_laboratory_file_restores,
         seed_laboratory_file_versions,
         seed_laboratory_files,
@@ -95,6 +96,7 @@ def seed_demo(env):
     seed_laboratory_file_locks(env)
     seed_laboratory_uploads(env)
     seed_sample_folders(env)
+    seed_closed_sample_folder(env)
     seed_laboratory_editing(env)
     seed_phones(env)
     seed_notifications(env)

@@ -275,13 +275,16 @@ class ApprovalMixin(models.AbstractModel, ApprovalMixinBase):
             )
         record_as(self, self.env[MODEL_PERMISSION_MIXIN])._check_permission("sign")
         department = self._approval_department()
-        if level.same_department and (not department or person.department_id != department):
+        if level.same_department and not self._approval_department_matches(department, person):
             raise UserError(self.env._("Only people of the department that did the work can act at this level."))
         if person in rows.signer_id and not self._approval_signs_again(level):
             raise UserError(self.env._("You have already signed this document."))
         if rejecting and not level.can_reject:
             raise UserError(self.env._("This level cannot reject."))
         return level
+
+    def _approval_department_matches(self, department, person):
+        return bool(department and person.department_id == department)
 
     def _approval_next_level(self, rows):
         # The first level of the document that has not signed yet.

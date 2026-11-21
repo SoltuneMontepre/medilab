@@ -47,6 +47,7 @@ from . import (
     laboratory_content_scheduled_job,
     laboratory_editing_scheduled_job,
     laboratory_file_lock_scheduled_job,
+    laboratory_folder_retention_scheduled_job,
     laboratory_upload_scheduled_job,
     machine_booking_scheduled_job,
     quality_registration_scheduled_job,

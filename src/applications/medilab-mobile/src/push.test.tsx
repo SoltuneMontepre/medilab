@@ -47,8 +47,8 @@ describe("Pushes", () => {
     await fireEvent.changeText(screen.getByLabelText("Mật khẩu"), "typed");
     await fireEvent.press(screen.getByRole("button", { name: "Đăng nhập" }));
 
-    await waitFor(() => expect(mediLab.sent).toHaveLength(5));
-    expect(mediLab.sent[4]).toMatchObject({
+    await waitFor(() => expect(mediLab.sent).toHaveLength(3));
+    expect(mediLab.sent[2]).toMatchObject({
       method: "PUT",
       url: "https://lab.example/medilab/api/v1/push-token",
       headers: { Authorization: "Bearer device-key" },
@@ -57,8 +57,8 @@ describe("Pushes", () => {
 
     mediLab.plan({ status: 204 });
     await act(async () => messaging.refreshPushToken("new-token"));
-    await waitFor(() => expect(mediLab.sent).toHaveLength(6));
-    expect(mediLab.sent[5].body).toEqual({ token: "new-token" });
+    await waitFor(() => expect(mediLab.sent).toHaveLength(4));
+    expect(mediLab.sent[3].body).toEqual({ token: "new-token" });
   });
 
   it("registers nothing on a build without Firebase", async () => {
@@ -67,11 +67,7 @@ describe("Pushes", () => {
     await renderApp();
 
     expect(await screen.findByText(GREETING)).toBeOnTheScreen();
-    expect(mediLab.sent.map((sent) => sent.url)).toEqual([
-      "https://lab.example/medilab/api/v1/me",
-      "https://lab.example/medilab/api/v1/tasks/today",
-      "https://lab.example/medilab/api/v1/modules",
-    ]);
+    expect(mediLab.sent.map((sent) => sent.url)).toEqual(["https://lab.example/medilab/api/v1/tasks/today"]);
   });
 
   it("opens the document of a tapped push, also the one that started the app", async () => {

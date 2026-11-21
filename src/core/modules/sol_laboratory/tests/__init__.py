@@ -132,6 +132,7 @@ from . import (
     test_laboratory_folder_api_concurrency,
     test_laboratory_folder_category_migration,
     test_laboratory_folder_ownership,
+    test_laboratory_folder_retention,
     test_laboratory_http_process,
     test_laboratory_mobile_updates,
     test_laboratory_paths,

@@ -1,4 +1,4 @@
-import { fireEvent, screen } from "@testing-library/react-native";
+import { fireEvent, screen, within } from "@testing-library/react-native";
 import { router } from "expo-router";
 
 import { fakeMediLab, kept } from "../../testing/fakeMediLab";
@@ -30,7 +30,7 @@ describe("NotificationsScreen", () => {
 
     expect(await screen.findByRole("button", { name: "Nhắc việc, MT-2026-0012, Chưa đọc" })).toBeOnTheScreen();
     expect(screen.getByRole("button", { name: "Nhắc việc, MT-2026-0010" })).toBeOnTheScreen();
-    expect(screen.getAllByRole("button").map((item) => item.props.accessibilityLabel)).toEqual([
+    expect(within(screen.getByTestId("record-list")).getAllByRole("button").map((item) => item.props.accessibilityLabel)).toEqual([
       "Nhắc việc, MT-2026-0012, Chưa đọc",
       "Nhắc việc, MT-2026-0010",
     ]);
@@ -67,11 +67,13 @@ describe("NotificationsScreen", () => {
     );
     await renderSignedIn(<NotificationsScreen />);
 
-    await fireEvent.press(await screen.findByRole("button", { name: "Xem thêm" }));
+    await fireEvent(await screen.findByTestId("record-list"), "endReached");
 
     expect(await screen.findByRole("button", { name: "Nhắc việc, MT-2026-0010" })).toBeOnTheScreen();
     expect(mediLab.sent[1].url).toBe("https://lab.example/medilab/api/v1/notifications?after=77");
-    expect(screen.queryByRole("button", { name: "Xem thêm" })).toBeNull();
+    const asked = mediLab.sent.length;
+    await fireEvent(screen.getByTestId("record-list"), "endReached");
+    expect(mediLab.sent).toHaveLength(asked);
   });
 
   it("says when there are none", async () => {
