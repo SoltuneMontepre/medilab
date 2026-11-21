@@ -12,10 +12,17 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     DUPLICATE,
     FAILED,
     PENDING,
+    RETENTION_REMOVAL_CONTEXT,
+    RETENTION_REMOVED,
     SETTLE_CONTENT_CONTEXT,
     VERIFIED,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_CONTENT
+from odoo.addons.sol_laboratory.constants.laboratory_uploads import ENDED_STATUSES
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_LABORATORY_CONTENT,
+    MODEL_LABORATORY_FILE_VERSION,
+    MODEL_LABORATORY_UPLOAD,
+)
 from odoo.addons.sol_laboratory.fields.big_integer import BigInteger
 from odoo.addons.sol_laboratory.services import laboratory_bucket
 
@@ -40,9 +47,15 @@ class LaboratoryContent(models.Model, LaboratoryContentBase):
     if not TYPE_CHECKING:
         # Key of the object in the bucket: 32 hexadecimal digits the server made, which tell nothing about the content.
         object_key = fields.Char(required=True, readonly=True, copy=False)
-        # pending, verified, duplicate or failed.
+        # pending, verified, duplicate, failed or retention_removed.
         state = fields.Selection(
-            [(PENDING, "Pending"), (VERIFIED, "Verified"), (DUPLICATE, "Duplicate"), (FAILED, "Failed")],
+            [
+                (PENDING, "Pending"),
+                (VERIFIED, "Verified"),
+                (DUPLICATE, "Duplicate"),
+                (FAILED, "Failed"),
+                (RETENTION_REMOVED, "Removed by retention"),
+            ],
             required=True,
             default=PENDING,
             readonly=True,
@@ -77,7 +90,19 @@ class LaboratoryContent(models.Model, LaboratoryContentBase):
     def write(self, vals):
         if "object_key" in vals:
             raise UserError(self.env._("A content keeps the key of its object."))
-        if set(COMPUTED_FIELDS) & set(vals) and not self.env.context.get(SETTLE_CONTENT_CONTEXT):
+        if vals.get("state") == RETENTION_REMOVED and not (
+            self.env.su
+            and self.env.context.get(RETENTION_REMOVAL_CONTEXT)
+            and all(content.state == VERIFIED for content in self)
+        ):
+            raise UserError(self.env._("Only approved retention removal removes verified content."))
+        if (
+            set(COMPUTED_FIELDS) & set(vals)
+            and not self.env.context.get(SETTLE_CONTENT_CONTEXT)
+            and not (
+                self.env.su and self.env.context.get(RETENTION_REMOVAL_CONTEXT) and vals == {"state": RETENTION_REMOVED}
+            )
+        ):
             raise UserError(self.env._("Content is settled by the server from its own reading of the bytes."))
         return super().write(vals)
 
@@ -154,6 +179,24 @@ class LaboratoryContent(models.Model, LaboratoryContentBase):
         if self.state == VERIFIED:
             return self
         return self.search([("state", "=", VERIFIED), ("sha256", "=", self.sha256)], limit=1)
+
+    def _remove_for_retention(self):
+        """Mark unreferenced verified content removed and delete its bytes after this transaction commits."""
+        self.ensure_one()
+        content = self.sudo()
+        content._lock()
+        if content.state != VERIFIED:
+            return
+        if self.env[MODEL_LABORATORY_FILE_VERSION].sudo().search_count([("content_id", "=", content.id)]):
+            return
+        if (
+            self.env[MODEL_LABORATORY_UPLOAD]
+            .sudo()
+            .search_count([("content_id", "=", content.id), ("status", "not in", ENDED_STATUSES)])
+        ):
+            return
+        content.with_context(**{RETENTION_REMOVAL_CONTEXT: True}).write({"state": RETENTION_REMOVED})
+        content._delete_object_after_commit()
 
     def _lock(self):
         # The row is updated, as a file's is for a new version, so two settlings of one content are run one after the

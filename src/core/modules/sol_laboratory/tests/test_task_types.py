@@ -1,6 +1,6 @@
 from odoo.exceptions import AccessError, UserError
-from odoo.tests import tagged
 from odoo.fields import Command
+from odoo.tests import tagged
 
 from .task_case import TaskCase
 from odoo.addons.sol_laboratory.services.record_id import persisted_id

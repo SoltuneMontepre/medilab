@@ -198,6 +198,7 @@ export interface TaskDay {
   overdue_count: number;
   due_today_count: number;
   finished_count: number;
+  finished_week_count: number;
   claimable_count: number;
   next_up: Task[];
   planned_today: Task[];

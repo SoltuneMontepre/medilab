@@ -95,7 +95,7 @@ export function scheduleState(tests) {
   }).then((rows) => (state.messages = rows));
   cy.then(() =>
     callAs(ADMINISTRATOR, "mail.notification", "search_read", [[["mail_message_id", "in", state.messages.map(({ id }) => id)]]], {
-      fields: ["mail_message_id", "res_partner_id", "notification_type", "notification_status", "is_read"],
+      fields: ["mail_message_id", "res_partner_id", "notification_type", "is_read"],
       order: "id",
     }),
   ).then((rows) => (state.notifications = rows));

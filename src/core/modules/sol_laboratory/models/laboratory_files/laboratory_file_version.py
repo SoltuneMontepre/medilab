@@ -9,6 +9,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     EDITED_ONLINE,
     GENERATED,
     RESTORED,
+    RETENTION_REMOVAL_CONTEXT,
     SYNCED,
     VERIFIED,
 )
@@ -30,8 +31,8 @@ if TYPE_CHECKING:
 else:
     LaboratoryFileVersionBase = object
 
-# A version's number, content and origin never change once it is stored. Other fields, such as the signing state a
-# later feature adds, may.
+# A version's number, content and origin never change once stored, except approved retention removal may detach its
+# content while preserving its historical metadata. Other fields, such as signing state, may change.
 PROTECTED_FIELDS = (
     "file_id",
     "number",
@@ -41,6 +42,7 @@ PROTECTED_FIELDS = (
     "size",
     "sha256",
     "content_id",
+    "content_removed_at",
     "user_id",
     "device_id",
     "idempotency_key",
@@ -53,7 +55,7 @@ class LaboratoryFileVersion(models.Model, LaboratoryFileVersionBase):
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN, MODEL_LABORATORY_IDEMPOTENCY_MIXIN]
     _description = "Laboratory File Version"
     _order = "file_id, number desc"
-    # Versions are stored by saving a file and are never changed or deleted.
+    # Version history is immutable and never deleted; approved retention removal may detach the bytes.
     _permission_actions = ("read",)
 
     if not TYPE_CHECKING:
@@ -87,10 +89,12 @@ class LaboratoryFileVersion(models.Model, LaboratoryFileVersionBase):
         size = BigInteger(required=True, readonly=True)
         # SHA-256 of the content, in hexadecimal, as the server computed it.
         sha256 = fields.Char(string="SHA-256", required=True, readonly=True)
-        # The verified content the version holds; versions with the same content share it.
+        # The verified content the version holds; retention removal clears it without removing the version history.
         content_id = fields.Many2one(
-            MODEL_LABORATORY_CONTENT, string="Content", required=True, ondelete="restrict", readonly=True, index=True
+            MODEL_LABORATORY_CONTENT, string="Content", ondelete="restrict", readonly=True, index=True
         )
+        # When approved retention removal detached this version from its stored content.
+        content_removed_at = fields.Datetime(string="Content Removed On", readonly=True, copy=False)
         # The user who saved the version.
         user_id = fields.Many2one(MODEL_RES_USERS, string="Saved By", required=True, ondelete="restrict", readonly=True)
         # The device it came from; empty for a version made online or by a restore in the back office.
@@ -113,25 +117,38 @@ class LaboratoryFileVersion(models.Model, LaboratoryFileVersionBase):
                 "%(path)s, version %(number)s", path=version.file_id.path or "", number=version.number
             )
 
-    @api.constrains("content_id", "sha256", "size")
+    @api.constrains("content_id", "sha256", "size", "content_removed_at")
     def _check_content(self):
         for version in self.sudo():
             content = version.content_id
-            if content.state != VERIFIED or (content.sha256, content.size) != (version.sha256, version.size):
+            if content and (
+                content.state != VERIFIED or (content.sha256, content.size) != (version.sha256, version.size)
+            ):
                 raise ValidationError(
                     self.env._("A version holds verified content, with the size and SHA-256 the server computed.")
                 )
+            if not content and not version.content_removed_at:
+                raise ValidationError(self.env._("A version without stored content must record its retention removal."))
 
     def _read_address(self, seconds):
         """The presigned address that reads the version's content for seconds, saved under its file's name. The caller
         checks first that the person may read the file."""
         self.ensure_one()
         version = self.sudo()
+        if not version.content_id:
+            raise UserError(self.env._("This version's content was removed after administrator approval."))
         name = posixpath.basename(version.file_id.path or "")
         return laboratory_bucket.read_address(version.content_id.object_key, seconds, name)
 
     def write(self, vals):
-        if set(PROTECTED_FIELDS) & set(vals):
+        if set(PROTECTED_FIELDS) & set(vals) and not (
+            self.env.su
+            and self.env.context.get(RETENTION_REMOVAL_CONTEXT)
+            and set(vals) == {"content_id", "content_removed_at"}
+            and not vals["content_id"]
+            and vals["content_removed_at"]
+            and not any(self.mapped("content_removed_at"))
+        ):
             raise UserError(
                 self.env._("A version's number, content and origin never change; save the file again instead.")
             )

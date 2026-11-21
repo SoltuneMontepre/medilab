@@ -1,57 +1,31 @@
-import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useCallback, useState } from "react";
+import { StyleSheet, Switch, Text, View } from "react-native";
 
 import { ApiError, UnreachableError, type PushPreference } from "../../api";
+import { useLoad } from "../../load";
 import { useT } from "../../locale";
 import { useSession } from "../../session";
-import { colors, styles as shared } from "../../styles";
+import { styles as shared } from "../../styles";
+import { colors, space } from "../../theme";
+import { LoadNotice } from "../connection/LoadNotice";
 import { Unreachable } from "../connection/Unreachable";
-
-type Load =
-  | { state: "loading" }
-  | { state: "ready"; preferences: PushPreference[] }
-  | { state: "unreachable" }
-  | { state: "refused"; message: string };
+import { Badge } from "../shared/Badge";
+import { Screen } from "../shared/Screen";
+import { Sheet } from "../shared/Sheet";
 
 /** The person's push preferences per event, the same ones the web's notification preferences show. A mandatory
  * event's push stays on. */
 export function NotificationSettingsScreen() {
   const t = useT();
   const { call } = useSession();
-  const [load, setLoad] = useState<Load>({ state: "loading" });
   const [problem, setProblem] = useState<string | null>(null);
   const [unreachable, setUnreachable] = useState(false);
 
-  const read = useCallback(async (): Promise<Load> => {
-    try {
-      const answer = await call<{ preferences: PushPreference[] }>("/notification-preferences");
-      return { state: "ready", preferences: answer?.preferences ?? [] };
-    } catch (error) {
-      if (error instanceof UnreachableError) {
-        return { state: "unreachable" };
-      }
-      if (error instanceof ApiError) {
-        return { state: "refused", message: error.message };
-      }
-      throw error;
-    }
+  const read = useCallback(async () => {
+    const answer = await call<{ preferences: PushPreference[] }>("/notification-preferences");
+    return answer?.preferences ?? [];
   }, [call]);
-
-  useEffect(() => {
-    let shown = true;
-    read()
-      .then((loaded) => shown && setLoad(loaded))
-      .catch(() => shown && setLoad({ state: "unreachable" }));
-    return () => {
-      shown = false;
-    };
-  }, [read]);
-
-  async function retry() {
-    setLoad({ state: "loading" });
-    setLoad(await read());
-  }
+  const { load, setLoad, reload } = useLoad(read);
 
   async function choose(preference: PushPreference, push: boolean) {
     setProblem(null);
@@ -61,15 +35,8 @@ export function NotificationSettingsScreen() {
         method: "PUT",
         body: { push },
       });
-      if (saved) {
-        setLoad((current) =>
-          current.state === "ready"
-            ? {
-                ...current,
-                preferences: current.preferences.map((item) => (item.event === saved.event ? saved : item)),
-              }
-            : current,
-        );
+      if (saved && load.state === "ready") {
+        setLoad({ state: "ready", value: load.value.map((item) => (item.event === saved.event ? saved : item)) });
       }
     } catch (error) {
       if (error instanceof UnreachableError) {
@@ -83,47 +50,41 @@ export function NotificationSettingsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.screen}>
-      <Text style={shared.title}>{t("settings.title")}</Text>
+    <Screen title={t("settings.title")}>
       <Text style={shared.detail}>{t("settings.explanation")}</Text>
-      {load.state === "loading" && <ActivityIndicator accessibilityLabel={t("loading")} />}
-      {load.state === "unreachable" && <Unreachable onRetry={retry} />}
-      {load.state === "refused" && <Text style={shared.error}>{load.message}</Text>}
+      <LoadNotice load={load} gone="" onRetry={reload} />
       {unreachable && <Unreachable onRetry={() => setUnreachable(false)} />}
-      {problem && <Text style={shared.error}>{problem}</Text>}
+      {problem && (
+        <Text accessibilityRole="alert" style={shared.error}>
+          {problem}
+        </Text>
+      )}
       {load.state === "ready" && (
-        <ScrollView contentContainerStyle={styles.list}>
-          {load.preferences.map((preference) => (
-            <View key={preference.event} style={styles.row}>
+        <Sheet>
+          {load.value.map((preference, index) => (
+            <View key={preference.event} style={[styles.row, index > 0 && styles.divided]}>
               <View style={styles.name}>
                 <Text style={shared.label}>{preference.name}</Text>
-                {preference.mandatory && <Text style={shared.detail}>{t("settings.mandatory")}</Text>}
+                {preference.mandatory && <Badge label={t("settings.mandatory")} tone="muted" />}
               </View>
               <Switch
                 accessibilityLabel={preference.name}
                 value={preference.push}
                 disabled={preference.mandatory}
+                trackColor={{ true: colors.accentLight, false: colors.borderStrong }}
+                thumbColor={preference.push ? colors.primary : colors.surface}
                 onValueChange={(push) => choose(preference, push)}
               />
             </View>
           ))}
-        </ScrollView>
+        </Sheet>
       )}
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, padding: 24, gap: 16 },
-  list: { gap: 4 },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  name: { flex: 1, gap: 2 },
+  row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: space.md, minHeight: 48 },
+  divided: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingTop: space.md },
+  name: { flex: 1, gap: space.xs },
 });

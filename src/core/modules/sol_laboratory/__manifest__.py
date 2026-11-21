@@ -24,6 +24,7 @@
         "data/scheduled_job_data.xml",
         "data/laboratory_editing_job_data.xml",
         "data/laboratory_content_job_data.xml",
+        "data/laboratory_folder_retention_job_data.xml",
         "data/laboratory_upload_job_data.xml",
         "security/audit_access_data.xml",
         "security/laboratory_files_access.xml",

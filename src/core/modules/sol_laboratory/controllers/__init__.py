@@ -2,6 +2,7 @@ from . import (
     binary,
     brevo,
     dispatch_portal,
+    email_confirmation,
     laboratory_api_attachments,
     laboratory_api_chatter,
     laboratory_api_conversations,
