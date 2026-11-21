@@ -58,6 +58,7 @@ class TestLaboratoryFileVersionImmutability(LaboratoryFilesCase):
             "size": 1,
             "sha256": "0" * 64,
             "content_id": self.stored("other").id,
+            "content_removed_at": False,
             "user_id": self.member.id,
             "device_id": False,
             "idempotency_key": "another-request",

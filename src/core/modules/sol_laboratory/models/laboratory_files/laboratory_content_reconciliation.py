@@ -4,7 +4,13 @@ from typing import TYPE_CHECKING
 from odoo import api, fields, models
 from odoo.tools import SQL
 
-from odoo.addons.sol_laboratory.constants.laboratory_files import DUPLICATE, FAILED, PENDING, VERIFIED
+from odoo.addons.sol_laboratory.constants.laboratory_files import (
+    DUPLICATE,
+    FAILED,
+    PENDING,
+    RETENTION_REMOVED,
+    VERIFIED,
+)
 from odoo.addons.sol_laboratory.constants.laboratory_reconciliation import (
     FOREIGN_MARKER,
     LEFT_BEHIND,
@@ -115,7 +121,7 @@ class LaboratoryContent(models.Model, LaboratoryContentBase):
     @api.model
     def _row_with_object(self, row, size, modified, cutoff):
         key, state, expected = row
-        if state in (DUPLICATE, FAILED) and modified < cutoff:
+        if state in (DUPLICATE, FAILED, RETENTION_REMOVED) and modified < cutoff:
             yield f"{LEFT_BEHIND}:{key}", {"kind": LEFT_BEHIND, "key": key}
         elif state == VERIFIED and size != expected:
             yield f"{WRONG_SIZE}:{key}", {"kind": WRONG_SIZE, "key": key}
@@ -174,7 +180,7 @@ class LaboratoryContent(models.Model, LaboratoryContentBase):
 
     @api.model
     def _delete_object_left_behind(self, payload):
-        if self._content_of(payload["key"]).state in (DUPLICATE, FAILED):
+        if self._content_of(payload["key"]).state in (DUPLICATE, FAILED, RETENTION_REMOVED):
             laboratory_bucket.delete(payload["key"])
             _logger.info("Deleted the object %s of duplicate or failed laboratory content", payload["key"])
 

@@ -20,6 +20,8 @@ Recurring work runs by itself in batches, is safe to run twice, retries what fai
 
 The work of a job is `_handle_<key with dots replaced by underscores>(self, item)` on `medilab.scheduled.job`. A feature module adds it by extending the model. A job that finds its own work, such as the samples whose retention ends soon or the stale document locks, also defines `_queue_<key with dots replaced by underscores>(self)`, which runs once as each run starts, before the run claims items, so the run also takes the items it queued. The handler returns nothing when the item is done, returns a `datetime` to defer the item without counting an attempt, raises `PermanentJobError` for a failure a retry cannot fix, and raises any other exception for a failure worth retrying.
 
+The daily job `laboratory_folder.retention_review` flags archived folders whose retention date passed for an administrator. It creates one job item per folder and changes no stored content; deletion follows only the administrator's approval on that folder.
+
 ### Claiming and retries
 
 A batch claims due items with `FOR UPDATE SKIP LOCKED`, handles each one in a savepoint, and retries a failure with a delay that doubles up to the job's attempts. The item is then marked failed and an activity is created for the administrator. Under the cron, the batch commits its claims before it handles any item, so a worker killed or a connection lost in a handler leaves its items running. Abandoned claims, an item still running after the claim timeout, count an attempt. A second cron pass waits on Odoo's own scheduler lock.

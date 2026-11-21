@@ -1,3 +1,7 @@
+from typing import cast
+
+from lxml import html
+
 from odoo.tests import HttpCase, new_test_user, tagged
 
 from .report_case import ReportCase
@@ -30,6 +34,20 @@ class TestTestReportPortal(HttpCase, ReportCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, bytes(report.attachment_id.raw))
+
+    def test_a_customer_sees_the_test_reports_card_for_an_issued_report(self):
+        self.complete()
+        self.sign()
+        self.authenticate("hoa.portal", "hoa.portal")
+
+        counters = self.make_jsonrpc_request("/my/counters", {"counters": {"test_report_count": "client_category"}})
+        self.assertEqual(counters["test_report_count"], 1)
+        page = html.fromstring(self.url_open("/my").text)
+        cards = cast("list[html.HtmlElement]", page.xpath("//a[@href='/my/test-reports']"))
+
+        self.assertEqual(len(cards), 1)
+        self.assertIn("Test Reports", cards[0].text_content())
+        self.assertFalse(any("d-none" in ancestor.get("class", "").split() for ancestor in cards[0].iterancestors()))
 
     def test_a_report_not_issued_cannot_be_downloaded(self):
         self.complete()
