@@ -126,7 +126,17 @@ describe("WF-06 Report release", () => {
 
             step("The customer opens Test reports on the portal and downloads the report");
             cy.signInAs("customer");
-            cy.get("main a[href='/my/test-reports']").first().click();
+            cy.intercept("POST", "/my/counters", (request) => {
+              if (request.body.params?.counters?.test_report_count) {
+                request.alias = "portalTestReportCounters";
+              }
+            });
+            cy.visit("/my");
+            cy.wait("@portalTestReportCounters").then(({ response }) => {
+              expect(response.statusCode).to.equal(200);
+              expect(response.body.result.test_report_count).to.equal(1);
+            });
+            cy.get("main a[href='/my/test-reports']").first().should("be.visible").click();
             cy.contains("main", issued.code).should("be.visible");
             cy.request(`/my/test-reports/${report.id}/download`).its("headers.content-type").should("contain", "application/pdf");
           }),
@@ -382,9 +392,7 @@ describe("WF-06 feature acceptance criteria", () => {
       cy.signInAs("sample_delivery_staff");
       cy.openRecord(report);
       cy.get(`${ACTIONS} button[name=action_record_delivery]`).should("not.exist");
-      callRefused(REPORT, "action_record_delivery", [[report.id]]).should((message) => {
-        expect(message).to.be.a("string").and.not.be.empty;
-      });
+      callRefused(REPORT, "action_record_delivery", [[report.id]]).should("contain", "Only an issued report");
       readAs(report, ["status", "delivered_at"]).should((read) => {
         expect(read.status).to.equal("draft");
         expect(read.delivered_at).to.equal(false);
@@ -399,8 +407,30 @@ describe("WF-06 feature acceptance criteria", () => {
       cy.request({ url: `/my/test-reports/${report.id}/download`, failOnStatusCode: false })
         .its("status")
         .should("eq", 404);
-      cy.signInAs("customer");
-      cy.request(`/my/test-reports/${report.id}/download`).its("status").should("eq", 200);
+      readAs(report, ["status", "attachment_id", "request_id"]).then((issued) => {
+        expect(issued.status).to.equal("issued");
+        expect(issued.attachment_id[0]).to.be.a("number");
+        return readAs({ model: "medilab.test.request", id: issued.request_id[0] }, ["customer_id"]).then(
+          (request) =>
+            refAs(ADMIN, "sol_demo.demo_customer_nuoc_sach").then((customer) => {
+              expect(request.customer_id[0]).to.equal(customer.id);
+              cy.signInAs("customer");
+              cy.request(`/my/test-reports/${report.id}/download`).its("status").should("eq", 200);
+            }),
+        );
+      });
+      cy.signInAs("individual");
+      cy.intercept("POST", "/my/counters", (request) => {
+        if (request.body.params?.counters?.test_report_count) {
+          request.alias = "portalTestReportCounters";
+        }
+      });
+      cy.visit("/my");
+      cy.wait("@portalTestReportCounters").then(({ response }) => {
+        expect(response.statusCode).to.equal(200);
+        expect(response.body.result.test_report_count).to.equal(0);
+      });
+      cy.get("main a[href='/my/test-reports']").should("not.be.visible");
     });
   });
 
