@@ -36,7 +36,7 @@ People reach the [laboratory files](../functional/laboratory_module/overview.md#
 | Access       | Allowed when                                                                                                                                            | Refused with                                        |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
 | `read`       | The person holds the laboratory files permission, is a member of the folder and, for a folder of a sample, sees the sample                              | `permission_denied`, `not_found`                    |
-| `write`      | `read`, and the folder is neither archived nor turned off                                                                                               | `folder_archived`, `folder_disabled`                |
+| `write`      | `read`, and the folder is neither archived, turned off, nor attached to a completed or cancelled sample                                                 | `folder_archived`, `folder_disabled`, `folder_sample_closed` |
 | `share`      | `read` and the person owns the folder, or the person administers folders and, for a folder of a sample, sees the sample; and the folder is not archived | `permission_denied`, `not_found`, `folder_archived` |
 | `administer` | The person administers folders and, for a folder of a sample, sees the sample                                                                           | `permission_denied`, `not_found`                    |
 
@@ -98,7 +98,7 @@ A file (`medilab.laboratory.file`) is a path in a folder and a series of version
 
 A version holds content the server verified ([Stored content](#stored-content)) and records its SHA-256 and size, never values a computer sent: a save passes the content, and a restore takes the content of the version it restores. Content that is pending, failed or a duplicate is refused, and so is a version whose SHA-256 or size is not its content's.
 
-1. `_check_can_add_version(user, device)` refuses a version that breaks a rule every save obeys, whoever stores it and with whatever rights: the folder is archived (`folder_archived`) or turned off (`folder_disabled`). **It is the extension point of the features built on files**, which add their own rules there, such as a lock someone else holds, so a caller that skips the access check still cannot pass them.
+1. `_check_can_add_version(user, device)` refuses a version that breaks a rule every save obeys, whoever stores it and with whatever rights: the folder is archived (`folder_archived`), turned off (`folder_disabled`), or belongs to a completed or cancelled sample (`folder_sample_closed`). **It is the extension point of the features built on files**, which add their own rules there, such as a lock someone else holds, so a caller that skips the access check still cannot pass them.
 2. The file's row is updated, which locks it (see below).
 3. Content with the current version's SHA-256 adds nothing, whatever version the save was made from, and the current version is returned. A restore is the exception: it always adds a version with the content of the version it restores.
 4. The version takes the number after the file's last one, and the version that is current as its parent.
@@ -426,7 +426,7 @@ The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. Th
 | `permission_denied`, `device_revoked` | 403 |
 | `not_found` | 404 |
 | `method_not_allowed` | 405 |
-| `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed` | 409 |
+| `folder_archived`, `folder_disabled`, `folder_sample_closed`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed` | 409 |
 | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict` | 422 |
 | `too_many_attempts` | 429 |
 | `internal_error` | 500 |
@@ -488,7 +488,7 @@ A folder of a sample holds the files of one category of its work: raw data, work
 - They are named after the lab code only, which testers see: `<lab code> Raw Data`, with the root `<lab code>-raw`, and `<lab code> Results`, with the root `<lab code>-result`. When the owner already has a folder of that root, nothing is created and the person is told.
 - Creating them again adds nothing. Two creations at once make one folder of each category: the second one's creation fails on the unique key, `_create_laboratory_folders()` turns it into a `ConcurrencyError`, and Odoo runs the request again, which finds the folders.
 - The sample's form opens its folders the person sees.
-- Whether the folders of a completed or cancelled sample refuse uploads and online editing is an open question. Until it is answered they take both like any other folder, which is provisional; the answer adds its rule to `_check_can_add_version()` and `_check_can_edit_online()` only.
+- Once a sample is completed or cancelled, its folders are read-only like archived or turned-off folders. Members may still list, read and download files and versions; every write is refused with `folder_sample_closed`, including uploads, restores, online saves, opening a file for online editing and locking. A lock holder may still unlock. `_check_member_access()` enforces the rule for writes and `_check_can_add_version()` enforces it again for every save.
 
 ### Signing versions
 

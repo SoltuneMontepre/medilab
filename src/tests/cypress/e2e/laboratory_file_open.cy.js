@@ -3,6 +3,7 @@ import { call, signIn } from "../support/odoo";
 // The HPLC results spreadsheet and the CSV run the tester saved from their computer.
 const OFFICE_FILE = "HPLC-ket-qua-thang-10.xlsx";
 const CSV_FILE = "run-0412.csv";
+const COMPLETED_SAMPLE_FILE = "cabbage-results.xlsx";
 const FOLDER = "Kết quả HPLC";
 
 function fileId(name) {
@@ -39,6 +40,18 @@ describe("Opening laboratory files from the back office", () => {
 
     cy.get(".o_form_view").should("be.visible");
     cy.get("@open").should("not.have.been.called");
+  });
+
+  it("shows a completed sample's result file without opening the editor", () => {
+    fileId(COMPLETED_SAMPLE_FILE).then(() => {
+      cy.visit("/odoo/laboratory-files");
+      cy.window().then((win) => cy.spy(win, "open").as("open"));
+
+      cy.contains(".o_data_row td", COMPLETED_SAMPLE_FILE).click();
+
+      cy.get(".o_form_view").should("be.visible");
+      cy.get("@open").should("not.have.been.called");
+    });
   });
 
   it("keeps the form for a file of the Files tab of a folder", () => {
