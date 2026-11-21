@@ -29,7 +29,8 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 | Shared folders    | Folders others share with the person are listed under Shared with you and bound by choosing a local folder; no second laboratory folder is created. |
 | Not bound here    | Folders the person owns but has not bound on this computer are listed separately, ready to bind. |
 | Raw and results   | Raw data and results are bound to separate local folders. |
-| Sync rules        | By default every file in the folder and its subfolders is synced. The person can limit it by name prefix, name pattern with `*`, or extension, and can leave out subfolders. |
+| Sync rules        | By default every file in the folder and its subfolders is synced. Under Advanced options, folded away until needed, the person can limit it by name prefix, name pattern with `*`, or extension, and can leave out subfolders. |
+| First start       | A person with no bound folder lands on the Folders tab after signing in. |
 | Modes             | An upload-only folder sends local changes and never writes to the computer, for instrument computers. A two-way folder also downloads the new current versions others save. |
 | Stop syncing      | Stop syncing removes the binding from this computer only. The laboratory folder, its members and the local files stay; the folder is listed again, ready to bind to any local folder. |
 | Sharing           | Manage access shows the owner and the members. The owner finds people by name or login to add them and removes members; other members only see the list. |
@@ -42,6 +43,7 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 | Uploading         | A file is uploaded in parts straight to the bucket, with its SHA-256 hash, from the version it was based on. An interrupted upload resumes; one that keeps failing is retried with a growing delay. |
 | Downloading       | A new version is downloaded to a temporary file, checked against its hash, and only then put in place, so a half-written file never replaces a good one. |
 | Changes           | Every 15 seconds the application asks for the changes to its folders since the last one it saw. |
+| Summary           | The Status tab opens with one sentence saying whether everything is synced, syncing, paused, in need of attention or without a folder, and offers to add a folder when there is none. Errors and conflicts are coloured and counted on the Status tab. |
 | Queue             | Each file shows its status: pending, running, completed, conflict, error and retrying, or paused. The person pauses and resumes the queue and retries a failed file; pausing keeps the queue. |
 | Lost access       | When the person loses a folder's membership or its sample, the folder stays listed with a line saying access was lost; its pending files are paused, not deleted or failed, and nothing on the computer is removed. They continue when access comes back, without binding again. |
 | Turned off        | When an administrator turns a folder off, new files wait with a message and upload once it is turned on again. |

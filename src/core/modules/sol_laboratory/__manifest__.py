@@ -1,12 +1,12 @@
 {
     "name": "Medilab - Laboratory",
-    "version": "20.0.1.56.0",
+    "version": "20.0.1.57.0",
     "summary": "Laboratory testing core: test catalog, parameters, samples, results and machines.",
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
     "license": "LGPL-3",
     "icon": "/sol_laboratory/static/description/icon.png",
-    "depends": ["base", "web", "hr", "portal", "calendar"],
+    "depends": ["base", "web", "hr", "portal", "calendar", "base_install_request"],
     "data": [
         "security/res_groups_data.xml",
         "security/ir.access.csv",
@@ -142,6 +142,7 @@
             "sol_laboratory/static/src/views/form/*",
             "sol_laboratory/static/src/views/timeline/*",
             "sol_laboratory/static/src/tasks/dashboard/*",
+            "sol_laboratory/static/src/testing/*",
         ],
     },
     "application": True,

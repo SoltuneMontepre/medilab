@@ -409,18 +409,6 @@ class TestResult(models.Model, TestResultBase):
             )
         return super().write(vals)
 
-    def action_use_value_suggestion(self):
-        """The tester confirms the suggested text for a value below the LOD or LOQ, in each language; the measured
-        value stays as it was entered."""
-        self.ensure_one()
-        if not self.value_suggestion:
-            raise UserError(self.env._("Only a value below its LOD or LOQ has a suggested text."))
-        self.value_text = self.value_suggestion
-        langs = [code for code, _name in self.env["res.lang"].get_installed()]
-        self.update_field_translations(
-            "value_text", {lang: self._below_threshold_text(self.with_context(lang=lang).env) for lang in langs}
-        )
-
     def action_sign(self):
         self.ensure_one()
         if self.status == STATE_NONE:

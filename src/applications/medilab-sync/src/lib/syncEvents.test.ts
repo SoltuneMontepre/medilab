@@ -3,6 +3,7 @@ import type { ProgressDeltaDto, RemoteFileRow, StatusDto } from "../types";
 import {
   applyProgressDelta,
   createRemoteFilesRefreshController,
+  describeSyncEvent,
   isFolderEqual,
   isJobEqual,
   isRemoteFileEqual,
@@ -12,6 +13,13 @@ import {
   mergeStatusSnapshot,
 } from "./syncEvents";
 import { createRemoteFilesFixture, createStatusFixture } from "../test/syncFixtures";
+
+test("describeSyncEvent hiện đường dẫn và thông báo, không hiện JSON thô", () => {
+  expect(describeSyncEvent({ jobId: 1, path: "a.xlsx", message: "Mất mạng" })).toBe("a.xlsx — Mất mạng");
+  expect(describeSyncEvent({ path: "a.xlsx", serverVersionId: 3 })).toBe("a.xlsx");
+  expect(describeSyncEvent({ count: 2 })).toBeNull();
+  expect(describeSyncEvent(null)).toBeNull();
+});
 
 /** Tạo promise có thể điều khiển thủ công thời điểm giải quyết. */
 function createDeferred<T>() {

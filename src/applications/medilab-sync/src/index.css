@@ -12,6 +12,14 @@ body {
   color: #0f172a;
 }
 
+/* Viền focus rõ cho bàn phím trên mọi ô nhập và nút. */
+input:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #0f172a;
+  outline-offset: 2px;
+}
+
 @layer components {
   .btn {
     cursor: pointer;

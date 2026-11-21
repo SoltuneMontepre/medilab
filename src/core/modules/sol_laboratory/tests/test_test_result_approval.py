@@ -2,7 +2,12 @@ from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .result_case import RESULT_PERMISSIONS, ResultCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_APPROVAL_LEVEL, MODEL_DEPARTMENT, MODEL_SIGNATURE
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_APPROVAL_LEVEL,
+    MODEL_DEPARTMENT,
+    MODEL_SIGNATURE,
+    MODEL_TASK,
+)
 
 
 @tagged("post_install", "-at_install")
@@ -76,6 +81,14 @@ class TestTestResultApproval(ResultCase):
 
         self.assertEqual(result.status, "approved")
         self.assertEqual(self.signers(result), [(self.head, tester_level), (self.head, head_level)])
+
+    def test_the_dashboard_lists_the_results_a_head_may_approve(self):
+        result = self.enter()
+        self.send(result)
+
+        tasks = self.env[MODEL_TASK]
+        self.assertEqual(self.as_person(tasks, self.head).get_dashboard_data()["to_approve"]["results"], [result.id])
+        self.assertEqual(self.as_person(tasks, self.tester).get_dashboard_data()["to_approve"]["results"], [])
 
     def test_a_tester_cannot_approve_a_result_they_entered(self):
         result = self.enter()

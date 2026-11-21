@@ -121,7 +121,7 @@ describe("WF-04 Result entry and approval", () => {
     });
   });
 
-  it("TC-WF04-A1 lets the tester confirm the suggested text for a value below the LOD, keeping the measured value", () => {
+  it("TC-WF04-A1 lets the tester assess and send a value below the LOD, keeping the measured value", () => {
     assignedTest("lead", { days: 7, sample: COMPARED_WATER }).then((test) => {
       step("The tester enters a value below the LOD, and the regulation's limit shows");
       cy.signInAs("tester");
@@ -129,19 +129,7 @@ describe("WF-04 Result entry and approval", () => {
       cy.get(".o_field_widget[name=limit_max]").should("contain", "0.01");
       cy.get(".o_field_widget[name=limit_unit_id]").should("contain", "mg/L");
       results(test).then(([result]) => {
-        cy.readRecord(result, ["lod", "unit_id"]).then(({ lod, unit_id: [, unit] }) => {
-          const text = `<${lod} ${unit} (below LOD)`;
-          cy.get(".o_field_widget[name=value_suggestion]").should("have.text", text);
-          step("The tester uses the suggested text, keeping the measured value");
-          cy.get("button[name=action_use_value_suggestion]").click();
-          cy.get(".o_field_widget[name=value_text] input").should("have.value", text);
-          cy.get(".o_field_widget[name=value_suggestion]").should("not.exist");
-          cy.readRecord(result, ["value", "value_text", "conclusion"]).should("deep.include", {
-            value: 0.003,
-            value_text: text,
-            conclusion: false,
-          });
-        });
+        cy.readRecord(result, ["value", "conclusion"]).should("deep.include", { value: 0.003, conclusion: false });
         step("The tester assesses the result and sends it for approval");
         assess("Pass");
         cy.signRecord();

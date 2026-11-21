@@ -2,6 +2,7 @@ from . import (
     calendar_event,
     calendar_event_unavailability,
     task,
+    task_approvals,
     task_assignment_notice,
     task_authorization,
     task_link_review,

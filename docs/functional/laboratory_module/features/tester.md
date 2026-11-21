@@ -8,7 +8,7 @@ The tester, also called lab QA, runs assigned tests with a machine when the way 
 
 - **US-T01** As a tester, I want to see my testing tasks in my to-do list, soonest deadline first, and claim unassigned testing tasks of my department, so that I work on what is due first.
 - **US-T02** As a tester, I want to be notified when the head approves a booking of my task, so that I know when to test.
-- **US-T03** As a tester, I want to move or cancel my booking, so that my schedule matches what I can do.
+- **US-T03** As a tester, I want to move or cancel my booking, and to book the next free slot when I miss its start, so that my schedule matches what I can do.
 - **US-T04** As a tester, I want to be reminded before a booking starts, so that I am ready to start on time.
 - **US-T19** As a tester, I want to mark one of my tests urgent with a reason, so that a sample I know must come first is scheduled first even when its due date is not close.
 - **US-T20** As a tester, I want to be warned when one of my tests is at risk of missing its due date, so that I can ask for help in time.
@@ -64,6 +64,8 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Machine heads-up | Warn within the separate calibration, maintenance or recent-repair windows, each defaulting to 7 days. Valid warnings allow booking only while calibration, maintenance and availability requirements are satisfied. |
 | Releasing the machine | Submitting the result or marking the measurement finished frees the machine before the booking's end. A booking whose end passes without either keeps the machine, flags the next bookings on it at risk and notifies the tester and head. |
 | Adjusting | Move or cancel their own not-started booking, keeping all required reservations synchronized under SH-11. Cancelling the booking returns its sample test to the plan without cancelling it. A move is made from the booking's form or by dragging it on the machine schedule, only to a free slot. |
+| Missed start | A scheduled booking whose start passed without being started is missed: the tester and the head are notified once, and the tester reschedules it to the earliest free slot of the tester, machine and locations, or starts it late or cancels it. Nothing frees the booking's reservations until then. |
+| Log | The form of a sample test has a Log tab for whoever reads sample tests, such as the tester and the head of department. It lists, newest first, when and by whom the test, its bookings and its results were created or changed, with the fields changed and their old and new values, from the [audit trail](../../../specs/audit-trail.md#log-of-a-sample-test). It does not give access to the Audit Trail app. |
 
 Acceptance criteria:
 
@@ -81,12 +83,14 @@ Acceptance criteria:
 - A test whose booking ends after its internal due date is flagged, sends an initial notice and remains in daily risk summaries until resolved.
 - A tester not authorized for its parameter cannot claim or be scheduled for the test.
 - A booking cannot join a machine interval that has started, that is full, or that holds a booking of another method.
+- A scheduled booking whose start passed notifies its tester and head once; its tester can reschedule it to the earliest free slot, and a booking that is not missed cannot be rescheduled.
 - Measuring three parameters of one sample with the same method on a shared machine takes one place of its capacity.
 - A booking whose end passed without a result or a finished measurement keeps its machine, and the next bookings on the machine are flagged at risk; submitting the result frees the machine.
 - A machine booking cannot end after the machine's calibration validity.
 - A currently valid calibration due within the warning window shows its date; booking proceeds only if all other maintenance and resource conditions hold.
 - A machine with a repair recorded within the warning days shows a warning naming the repair.
 - A tester sees the lab code of a sample, not its customer or the customer's name for it.
+- A person who reads sample tests sees in the Log tab of a test who changed its status, booked it and entered or signed its results, and when; a person who cannot read sample tests sees no entry.
 
 ### 2. Results (US-T05 to US-T09, US-T17, US-T18, US-T22)
 
@@ -96,7 +100,7 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 | ----------- | ---------------------------------------------------------------------------------------------------- |
 | Limit copy | Creating a result copies its way of testing, sample type, unit, LOD and LOQ from its way and sample type. If comparison is requested, copy the exact regulation, parameter and sample-type limit and unit; missing configuration remains visible. Comparison is requested for a result when the sample's regulation sets a limit for its parameter on some sample type. Only the system writes the copy, and catalog edits never change it. |
 | Measurement | A result measured in the laboratory belongs to exactly one booking; an outsourced result belongs to its sample test, which a subcontract dispatch sends. Its booking supplies the performer, interval and machine when required; entering one result does not complete the other bookings sharing its machine interval. |
-| Conclusion | No conclusion is needed without requested regulation comparison. For a requested comparison, the tester assesses pass, fail or insufficient basis. Text and below-LOD/LOQ values need professional assessment, never automatic passing or substitution with zero. A result without an exact-type limit can only be assessed as insufficient basis. A result outside the requested comparison takes no conclusion. A value below the LOD, or else below the LOQ, suggests a text such as "<0.05 mg/L (below LOQ)" with the copied threshold and unit, in each language; confirming it keeps the measured value. Reports show the threshold and unit from the result's snapshot. |
+| Conclusion | No conclusion is needed without requested regulation comparison. For a requested comparison, the tester assesses pass, fail or insufficient basis. Text and below-LOD/LOQ values need professional assessment, never automatic passing or substitution with zero. A result without an exact-type limit can only be assessed as insufficient basis. A result outside the requested comparison takes no conclusion. A value below the LOD, or else below the LOQ, suggests a text such as "<0.05 mg/L (below LOQ)" with the copied threshold and unit; entering a text result keeps the measured value. Reports show the threshold and unit from the result's snapshot. |
 | Retest | A retest is a new result with a new booking; the rejected or interrupted result stays on record. The system does not count or limit retests. |
 | Sanity check | Before a numeric result is sent for approval, it is compared with past approved results and the regulation limit. An unusual value shows a warning with the reason; the tester may still send it, and the warning stays on the result. |
 | Claimed first | Only the person a testing task is assigned to, by claiming it or by the head's assignment, enters the result of its sample test; anyone else, the head of department included, claims or is assigned the task first. A rejected result's new testing task is claimed again. |

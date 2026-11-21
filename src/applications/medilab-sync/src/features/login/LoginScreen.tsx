@@ -57,6 +57,8 @@ export function LoginScreen({
           <input
             className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
             value={account}
+            autoFocus
+            autoComplete="username"
             onChange={(event) => setAccount(event.target.value)}
           />
         </label>
@@ -64,14 +66,19 @@ export function LoginScreen({
           <span>{t("login.password")}</span>
           <input
             type="password"
+            autoComplete="current-password"
             className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
         </label>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <button className="btn btn-primary" disabled={busy} type="submit">
-          {t("login.submit")}
+        <button
+          className="btn btn-primary"
+          disabled={busy || !odooUrl.trim() || !account.trim() || !password}
+          type="submit"
+        >
+          {t(busy ? "login.submitting" : "login.submit")}
         </button>
       </form>
     </main>

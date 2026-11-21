@@ -56,10 +56,10 @@ class TestTestReportAssessment(ReportCase):
         self.assertEqual(sample["conclusion"], "")
         self.assertEqual(list(sample["rows"][0]), ["parameter", "result", "unit", "method"])
 
-    def test_a_confirmed_below_lod_text_prints_with_its_copied_threshold(self):
+    def test_a_below_lod_text_prints_as_the_tester_entered_it(self):
         self.applicability.lod = 0.002
         result = self.enter(value=0.001)
-        self.as_person(result, self.tester).action_use_value_suggestion()
+        self.as_person(result, self.tester).value_text = "<0.002 mg/g (below LOD)"
         self.send(result)
         self.approve(result)
 

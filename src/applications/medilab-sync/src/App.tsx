@@ -28,6 +28,7 @@ import { normalizeLocale, type Locale, type MessageKey } from "./i18n";
 import {
   applyProgressDelta,
   createRemoteFilesRefreshController,
+  describeSyncEvent,
   mergeRemoteFiles,
   mergeStatusSnapshot,
 } from "./lib/syncEvents";
@@ -133,18 +134,27 @@ function AppBanners({
   notice,
   sessionExpired,
   conflict,
+  onDismissError,
   onDismissConflict,
 }: Readonly<{
   error: string | null;
   notice: string | null;
   sessionExpired: boolean;
   conflict: string | null;
+  onDismissError: () => void;
   onDismissConflict: () => void;
 }>) {
   const t = useT();
   return (
     <>
-        {error ? <p className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+        {error ? (
+          <p className="mb-4 flex items-start justify-between gap-3 rounded bg-red-50 p-3 text-sm text-red-700">
+            <span className="break-words">{error}</span>
+            <button type="button" className="btn btn-secondary px-2 py-1" onClick={onDismissError}>
+              {t("conflict.dismiss")}
+            </button>
+          </p>
+        ) : null}
         {notice ? <p className="mb-4 rounded bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</p> : null}
         {sessionExpired ? (
           <p className="mb-4 rounded bg-amber-50 p-3 text-sm text-amber-800">{t("session.expiredBanner")}</p>
@@ -199,12 +209,22 @@ async function registerSyncListeners(
   };
 
   const handleConflict = (payload: unknown) => {
-    options.setConflict(options.tRef.current("conflict.bannerDetail", { detail: JSON.stringify(payload) }));
+    const detail = describeSyncEvent(payload);
+    options.setConflict(
+      detail
+        ? options.tRef.current("conflict.bannerDetail", { detail })
+        : options.tRef.current("conflict.banner"),
+    );
     options.setTab("status");
   };
 
   const handleSyncError = (payload: unknown) => {
-    options.setError(options.tRef.current("sync.errorDetail", { detail: JSON.stringify(payload) }));
+    const detail = describeSyncEvent(payload);
+    options.setError(
+      detail
+        ? options.tRef.current("sync.errorDetail", { detail })
+        : options.tRef.current("sync.error"),
+    );
   };
 
   const handleUpdate = (info: UpdateAvailable) => {
@@ -342,6 +362,9 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
         if (current.logged_in) {
           refreshController.resume();
           void refreshController.invalidate();
+          if (current.folders.length === 0) {
+            setTab("folders");
+          }
         }
       } catch (err) {
         if (!cancelled) {
@@ -412,6 +435,10 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
       if (next.logged_in) {
         refreshController.resume();
         void refreshRemoteFiles();
+        // Chưa có thư mục nào: mở thẳng tab Thư mục để người dùng thêm thư mục đầu tiên.
+        if (next.folders.length === 0) {
+          setTab("folders");
+        }
       }
     }
   }
@@ -623,9 +650,15 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
             key={item}
             type="button"
             className={`tab-btn ${tab === item ? "tab-btn-active" : ""}`}
+            aria-current={tab === item ? "page" : undefined}
             onClick={() => setTab(item)}
           >
             {t(tabMessageKey(item))}
+            {item === "status" && status.failed + status.conflict > 0 ? (
+              <span className="ml-2 rounded-full bg-red-600 px-1.5 py-0.5 text-xs font-semibold text-white">
+                {status.failed + status.conflict}
+              </span>
+            ) : null}
           </button>
         ))}
       </nav>
@@ -636,6 +669,7 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
           notice={notice}
           sessionExpired={status.session_expired}
           conflict={conflict}
+          onDismissError={() => setError(null)}
           onDismissConflict={() => setConflict(null)}
         />
 
@@ -650,6 +684,7 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
               onOpenOffice={handleOpenOffice}
               onKeepLocal={handleKeepLocal}
               onAcceptServer={handleAcceptServer}
+              onOpenFolders={() => setTab("folders")}
             />
           </DevelopmentProfiler>
         ) : null}

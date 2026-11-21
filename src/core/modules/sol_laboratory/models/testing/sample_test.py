@@ -43,7 +43,7 @@ FINISHED_STATUSES = ("approved", "cancelled")
 class SampleTest(models.Model, SampleTestBase):
     _name = MODEL_SAMPLE_TEST
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
-    _audit_children = ("booking_ids",)
+    _audit_children = ("booking_ids", "result_ids")
     _description = "Sample Test"
     _order = "sample_id, id"
     _rec_name = "parameter_id"

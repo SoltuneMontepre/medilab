@@ -1,5 +1,12 @@
 import type { FolderRow, JobRow, ProgressDeltaDto, RemoteFileRow, StatusDto } from "../types";
 
+/** Chuỗi dễ đọc từ payload sự kiện của backend (đường dẫn tệp và thông báo); null nếu không có gì để hiện. */
+export function describeSyncEvent(payload: unknown): string | null {
+  const { path, message } = (payload ?? {}) as { path?: unknown; message?: unknown };
+  const parts = [path, message].filter((part): part is string => typeof part === "string" && part !== "");
+  return parts.length ? parts.join(" — ") : null;
+}
+
 /**
  * Cập nhật tiến độ của một job cụ thể trong StatusDto mà không tạo object mới cho
  * các job hay folder không bị ảnh hưởng, giữ nguyên reference identity.

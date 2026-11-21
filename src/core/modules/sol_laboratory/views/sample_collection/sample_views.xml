@@ -295,6 +295,18 @@
                         <page string="Note" name="note">
                             <field name="note" />
                         </page>
+                        <page string="Audit Log" name="audit_log" groups="sol_laboratory.group_permission_audit_entry_read_all">
+                            <field name="log_ids" readonly="1">
+                                <list>
+                                    <field name="create_date" string="Date" />
+                                    <field name="user_id" />
+                                    <field name="action" />
+                                    <field name="document_model" />
+                                    <field name="change_ids" widget="many2many_tags" />
+                                    <field name="note" />
+                                </list>
+                            </field>
+                        </page>
                     </notebook>
                 </sheet>
                 <chatter />
