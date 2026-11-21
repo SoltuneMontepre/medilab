@@ -46,6 +46,10 @@ describe("updates", () => {
     memoryDownloads.clear();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("opens a phone that runs a version MediLab serves", async () => {
     const mediLab = fakeMediLab({ status: 204 });
     await openApp();
