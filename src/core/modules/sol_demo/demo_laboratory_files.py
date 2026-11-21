@@ -6,6 +6,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_MODEL_DATA,
     MODEL_LABORATORY_DEVICE,
     MODEL_LABORATORY_FILE,
+    MODEL_LABORATORY_FOLDER,
     MODEL_RES_USERS,
     MODEL_TASK,
 )
@@ -197,3 +198,47 @@ def seed_sample_folders(env):
         for version in versions
     ]
     env[MODEL_IR_MODEL_DATA]._update_xmlids([{**xml_id, "noupdate": True} for xml_id in xml_ids])
+
+
+def seed_closed_sample_folder(env):
+    """The completed cabbage sample's result spreadsheet, which stays readable after the sample is closed."""
+    if env.ref("sol_demo.demo_laboratory_file_cabbage_results", raise_if_not_found=False):
+        return
+    sample = env.ref("sol_demo.demo_sample_cabbage_completed")
+    head = env.ref("sol_demo.demo_res_users_head_of_department")
+    sample.sudo().write({"status": "testing"})
+    sample._create_laboratory_folders(head)
+    result_folder = (
+        env[MODEL_LABORATORY_FOLDER].sudo().search([("sample_id", "=", sample.id), ("category", "=", RESULT)], limit=1)
+    )
+    result_folder.member_ids = [
+        Command.create({"user_id": env.ref("sol_demo.demo_res_users_tester").id, "role": MEMBER_ROLE})
+    ]
+    file = env[MODEL_LABORATORY_FILE]._get_or_create(result_folder, "2026/cabbage-results.xlsx")
+    content = xlsx_content("Kết quả thử nghiệm bắp cải")
+    version = file._add_version(
+        content=content_writer(env)(content),
+        source=SYNCED,
+        user=head,
+        device=env.ref("sol_demo.demo_laboratory_device_aas_pc"),
+    )
+    sample._follow_tests()
+    env[MODEL_IR_MODEL_DATA]._update_xmlids(
+        [
+            {
+                "xml_id": "sol_demo.demo_laboratory_folder_cabbage_completed_result",
+                "record": result_folder,
+                "noupdate": True,
+            },
+            {
+                "xml_id": "sol_demo.demo_laboratory_file_cabbage_results",
+                "record": file,
+                "noupdate": True,
+            },
+            {
+                "xml_id": f"sol_demo.demo_laboratory_file_version_cabbage_results_{version.number}",
+                "record": version,
+                "noupdate": True,
+            },
+        ]
+    )

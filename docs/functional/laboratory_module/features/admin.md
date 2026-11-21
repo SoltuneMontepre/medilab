@@ -219,6 +219,8 @@ Follows [Laboratory files](../overview.md#laboratory-files).
 | Turning off | A folder that is turned off refuses uploads from everyone and still lets its members read and download. |
 | Ownership   | Changing a folder's owner keeps the previous owner as a member. |
 | Retention   | Archiving a folder sets its retention date from the retention period system parameter and keeps every version. |
+| Review      | After that date, a daily job flags the folder for an administrator. No stored bytes are removed without explicit administrator approval. |
+| Removal     | Approval keeps version metadata and audit history, detaches eligible unsigned versions from their bytes, preserves signed content and content referenced by another version, then deletes only unreferenced bucket objects. |
 | File signing | Versions of laboratory files are signed through the chain for signing laboratory file versions, which the administrator sets up with its levels before anyone signs a version; until then signing one is refused. |
 
 Acceptance criteria:
@@ -227,6 +229,11 @@ Acceptance criteria:
 - A turned-off folder refuses every upload and still lets its members download its files.
 - Changing a folder's owner keeps the previous owner as a member.
 - Archiving a folder sets its retention date and keeps every version.
+- The daily retention job flags only archived folders whose retention date passed; it never removes content.
+- Only a folder administrator can approve eligible content removal, and approval is recorded on the folder and in its audit trail.
+- Approval preserves version numbers, hashes, sizes, authors, timestamps and signing history; signed versions remain downloadable.
+- A version whose bytes were removed remains in file history, is marked unavailable, cannot be downloaded or restored, and retains its SHA-256 and size.
+- Content still referenced by a version in any folder remains verified and downloadable; unreferenced content is marked removed and deleted from the bucket after approval.
 - Releasing a lock lets others upload the file again and is recorded in the audit trail.
 
 ### 6. Report templates (US-AD36)
