@@ -43,9 +43,19 @@ export const archivedSubcontractor = helper("archivedSubcontractor", function ar
   });
 });
 
-// Today's date plus some days, as Odoo stores a date.
+// Today's date in the lab's timezone plus some days, as Odoo stores a date.
 export function inDays(days) {
-  return new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
+  const today = Object.fromEntries(
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+      .formatToParts(new Date())
+      .map(({ type, value }) => [type, value]),
+  );
+  return new Date(Date.UTC(Number(today.year), Number(today.month) - 1, Number(today.day) + days)).toISOString().slice(0, 10);
 }
 
 // The subcontractor of a parameter's subcontracted way of testing, as the head of department reads it.

@@ -38,7 +38,7 @@ export function choose(field, label) {
 }
 
 // Filters the shown list by a search field, so a record past the first page is found too.
-export function search(text, { grouped = false, field } = {}) {
+export function search(text, { grouped = false, field, facet = true } = {}) {
   cy.get(".o_searchview_input").type(text);
   // Enter applies the first suggestion only once the suggestions are shown.
   cy.get(".o_searchview_autocomplete").should("contain", text);
@@ -51,8 +51,8 @@ export function search(text, { grouped = false, field } = {}) {
   } else {
     cy.get(".o_searchview_input").type("{enter}");
   }
-  cy.contains(".o_searchview_facet", text);
   cy.wait("@filtered");
+  if (facet) cy.contains(".o_searchview_facet", text);
 }
 
 // Opens a back-office menu as a user does: the app from the apps menu, then each section and entry of the menu bar,

@@ -72,7 +72,7 @@ The harness requires context `kind-medilab-286-review`, a loopback API server an
 
 ### Running browser tests
 
-Run commands from the repository root in PowerShell, Bash or your usual terminal. Install [Bun](https://bun.sh/docs/installation) and Node.js 22.x, 24.x or >=26 for Cypress 16, start Docker or Podman and prepare a local demo with the [README quick start](../../README.md#quick-start). Browser tests use `demo.<role>` accounts and change demo records.
+Run commands from the repository root in PowerShell, Bash or your usual terminal. Install [Bun](https://bun.sh/docs/installation) and Node.js 22.x, 24.x or >=26 for Cypress 16, start Docker or Podman and prepare a local demo with the [README quick start](../../README.md#quick-start). Browser tests use `demo.<role>` accounts and change demo records. The test runner uses `Asia/Ho_Chi_Minh` as its local timezone so browser date and time fields match the seeded lab users on hosts that default to UTC.
 
 1. Run `task test:e2e:help` to see the selected Odoo URL and the available commands.
 2. Run `task up` to start an existing demo, then open that URL in your browser and check that the login page loads. Use `task logs` if startup fails. A completed fresh demo already has its starting records; use it directly. For a disposable test environment without demo data, `task test:e2e:app` installs the modules and demo data into its application database, as CI does.
