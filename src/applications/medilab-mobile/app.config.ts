@@ -44,7 +44,7 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
   // A build made for a MediLab served over HTTP, such as the local app, may reach one; other builds use HTTPS only.
   const allowsHttp = serverUrl.startsWith("http:");
   const updateCertificate = process.env[UPDATE_CERTIFICATE] || undefined;
-  // The app checks for updates itself, at start and back in the foreground, so expo-updates never checks on its own.
+  // The app checks for updates itself, at start and back from a minute away, so expo-updates never checks on its own.
   const updates: ExpoConfig["updates"] = updateCertificate
     ? {
         enabled: true,
