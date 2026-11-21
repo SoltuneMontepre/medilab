@@ -130,7 +130,7 @@ describe("WF-06 Report release", () => {
             cy.visit("/my");
             cy.wait("@portalCounters").then(({ response }) => {
               expect(response.statusCode).to.equal(200);
-              expect(response.body.result.test_report_count).to.equal(1);
+              expect(response.body.test_report_count).to.equal(1);
             });
             cy.get("main a[href='/my/test-reports']").first().should("be.visible").click();
             cy.contains("main", issued.code).should("be.visible");
@@ -420,7 +420,7 @@ describe("WF-06 feature acceptance criteria", () => {
       cy.visit("/my");
       cy.wait("@portalCountersWithoutReports").then(({ response }) => {
         expect(response.statusCode).to.equal(200);
-        expect(response.body.result.test_report_count).to.equal(0);
+        expect(response.body.test_report_count).to.equal(0);
       });
       cy.get("main a[href='/my/test-reports']").should("not.be.visible");
     });
