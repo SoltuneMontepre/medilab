@@ -229,9 +229,14 @@ class LaboratoryFile(models.Model, LaboratoryFileBase):
             if content:
                 raise ValueError("A restore stores the content of the version it restores.")
             content = restored_from.sudo().content_id
+            if not content:
+                raise UserError(self.env._("This version's content was removed after administrator approval."))
         content = (content or self.env[MODEL_LABORATORY_CONTENT]).sudo()
         if len(content) != 1 or content.state != VERIFIED:
             raise ValueError("A version stores content the server verified.")
+        content._lock()
+        if content.state != VERIFIED:
+            raise UserError(self.env._("This content is no longer available for a new version."))
         return content
 
     def _lock_for_new_version(self):
