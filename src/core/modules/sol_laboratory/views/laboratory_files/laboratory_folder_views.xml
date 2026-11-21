@@ -12,6 +12,7 @@
                 <field name="sample_id" optional="show" />
                 <field name="category" optional="show" />
                 <field name="retention_until" optional="show" />
+                <field name="retention_review_required" optional="hide" groups="sol_laboratory.group_permission_laboratory_folder_edit_all" />
             </list>
         </field>
     </record>
@@ -48,6 +49,15 @@
                         groups="sol_laboratory.group_permission_laboratory_folder_edit_all"
                         confirm="The folder becomes read only for good and keeps its files until its retention date. Only its members can still be removed. Archive it?"
                     />
+                    <button
+                        name="action_approve_retention_removal"
+                        type="object"
+                        string="Approve Content Removal"
+                        class="btn-danger"
+                        invisible="not retention_review_required or retention_approved_at"
+                        groups="sol_laboratory.group_permission_laboratory_folder_edit_all"
+                        confirm="This removes eligible unsigned file content from storage while preserving version history. Signed and shared content stays available. Approve removal?"
+                    />
                     <field name="status" widget="statusbar" />
                 </header>
                 <sheet>
@@ -76,6 +86,9 @@
                             <field name="category" invisible="not sample_id" />
                             <field name="archived_at" invisible="not archived_at" />
                             <field name="retention_until" invisible="not archived_at" />
+                            <field name="retention_review_required" invisible="not archived_at" />
+                            <field name="retention_approved_at" invisible="not retention_approved_at" />
+                            <field name="retention_approved_by_id" invisible="not retention_approved_by_id" />
                             <field name="created_by_device_id" invisible="not created_by_device_id" />
                         </group>
                     </group>
@@ -130,6 +143,7 @@
                 <filter name="in_use" string="In Use" domain="[('archived_at', '=', False), ('enabled', '=', True)]" />
                 <filter name="turned_off" string="Turned Off" domain="[('archived_at', '=', False), ('enabled', '=', False)]" />
                 <filter name="archived" string="Archived" domain="[('archived_at', '!=', False)]" />
+                <filter name="retention_review" string="Retention Review" domain="[('retention_review_required', '=', True)]" groups="sol_laboratory.group_permission_laboratory_folder_edit_all" />
                 <separator />
                 <filter name="group_by_owner" string="Owner" context="{'group_by': 'owner_id'}" />
                 <filter name="group_by_sync_mode" string="Sync Mode" context="{'group_by': 'sync_mode'}" />

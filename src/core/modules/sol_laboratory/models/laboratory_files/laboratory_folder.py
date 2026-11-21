@@ -18,16 +18,21 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     OWNER_ROLE,
     PERMISSION_DENIED,
     RAW_DATA,
+    RETENTION_METADATA_CONTEXT,
+    RETENTION_REMOVAL_CONTEXT,
     TWO_WAY,
     UPLOAD_ONLY,
 )
+from odoo.addons.sol_laboratory.constants.laboratory_uploads import ENDED_STATUSES
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LABORATORY_DEVICE,
     MODEL_LABORATORY_FILE,
+    MODEL_LABORATORY_FILE_VERSION,
     MODEL_LABORATORY_FOLDER,
     MODEL_LABORATORY_FOLDER_MEMBER,
     MODEL_LABORATORY_SYNC_RULE,
+    MODEL_LABORATORY_UPLOAD,
     MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_RES_CONFIG_SETTINGS,
@@ -80,6 +85,23 @@ class LaboratoryFolder(models.Model, LaboratoryFolderBase):
         archived_at = fields.Datetime(readonly=True)
         # Date until which an archived folder keeps its files.
         retention_until = fields.Date(readonly=True)
+        # Whether the daily job has flagged the expired folder for an administrator to review.
+        retention_review_required = fields.Boolean(
+            string="Retention Review", readonly=True, copy=False, groups=FOLDER_ADMINISTRATION_GROUP
+        )
+        # When an administrator approved removal of eligible version content.
+        retention_approved_at = fields.Datetime(
+            string="Retention Approved On", readonly=True, copy=False, groups=FOLDER_ADMINISTRATION_GROUP
+        )
+        # The administrator who approved removal of eligible version content.
+        retention_approved_by_id = fields.Many2one(
+            MODEL_RES_USERS,
+            string="Retention Approved By",
+            readonly=True,
+            ondelete="restrict",
+            copy=False,
+            groups=FOLDER_ADMINISTRATION_GROUP,
+        )
         # The device the folder was created from, for the audit.
         created_by_device_id = fields.Many2one(MODEL_LABORATORY_DEVICE, ondelete="set null", readonly=True)
         # People who can read and write the folder, the owner included.
@@ -129,7 +151,8 @@ class LaboratoryFolder(models.Model, LaboratoryFolderBase):
                 folder.status = "turned_off"
 
     def write(self, vals):
-        self._check_not_archived()
+        if not (self.env.su and self.env.context.get(RETENTION_METADATA_CONTEXT)):
+            self._check_not_archived()
         vals = {**vals, **self._normal_names(vals)}
         if "root" in vals and any(folder.root != vals["root"] for folder in self):
             raise UserError(self.env._("The name a folder was created with never changes; rename the folder instead."))
@@ -160,6 +183,50 @@ class LaboratoryFolder(models.Model, LaboratoryFolderBase):
                 "retention_until": fields.Date.context_today(self) + timedelta(days=days),
             }
         )
+
+    def action_approve_retention_removal(self):
+        """Keep history while removing eligible bytes after an administrator approves the expired folder."""
+        self._check_folder_access(FOLDER_ADMINISTER)
+        today = fields.Date.context_today(self)
+        for folder in self.sudo():
+            if not folder.archived_at or not folder.retention_until or folder.retention_until > today:
+                raise UserError(self.env._("Only an archived folder past its retention date can be reviewed."))
+            if not folder.retention_review_required:
+                raise UserError(self.env._("This folder has not been flagged for retention review yet."))
+            if folder.retention_approved_at:
+                raise UserError(self.env._("This folder's retention removal was already approved."))
+            folder._remove_expired_version_content()
+            folder.with_context(**{RETENTION_METADATA_CONTEXT: True}).write(
+                {
+                    "retention_review_required": False,
+                    "retention_approved_at": fields.Datetime.now(),
+                    "retention_approved_by_id": self.env.user.id,
+                }
+            )
+
+    def _remove_expired_version_content(self):
+        """Detach unsigned history from eligible bytes and remove only content with no remaining references."""
+        self.ensure_one()
+        files = self.file_ids.sudo()
+        if files:
+            files._lock_for_signing()
+        versions = files.version_ids.sudo()
+        signed = versions.filtered(lambda version: version.approval_state == "approved" or bool(version.signature_ids))
+        removable = versions - signed
+        contents = removable.content_id
+        if removable:
+            removable.with_context(**{RETENTION_REMOVAL_CONTEXT: True}).write(
+                {"content_id": False, "content_removed_at": fields.Datetime.now()}
+            )
+        contents = contents.exists().sudo()
+        versions_model = self.env[MODEL_LABORATORY_FILE_VERSION].sudo()
+        uploads_model = self.env[MODEL_LABORATORY_UPLOAD].sudo()
+        for content in contents:
+            if versions_model.search_count([("content_id", "=", content.id)]):
+                continue
+            if uploads_model.search_count([("content_id", "=", content.id), ("status", "not in", ENDED_STATUSES)]):
+                continue
+            content._remove_for_retention()
 
     @api.model
     def _normal_names(self, vals):
