@@ -8,7 +8,9 @@ from odoo.tests import TransactionCase, tagged
 @tagged("post_install", "-at_install")
 class TestDemoRolePermissions(TransactionCase):
     def test_upgrade_restores_workflow_permissions_without_widening_roles(self):
-        migration_path = Path(get_module_path("sol_demo")) / "migrations" / "20.0.1.44.0" / "post-migrate.py"
+        module_path = get_module_path("sol_demo")
+        assert module_path is not None
+        migration_path = Path(module_path) / "migrations" / "20.0.1.44.0" / "post-migrate.py"
         self.assertTrue(migration_path.is_file(), "The demo role permission upgrade migration must exist.")
         spec = importlib.util.spec_from_file_location("sol_demo_role_permission_migration", migration_path)
         assert spec is not None
