@@ -8,6 +8,7 @@ from . import (
     test_demo_mandatory_notices,
     test_demo_quotation_language,
     test_demo_quotations,
+    test_demo_report_payment_migration,
     test_demo_request_orders,
     test_demo_role_permissions,
     test_invoice_demo,
