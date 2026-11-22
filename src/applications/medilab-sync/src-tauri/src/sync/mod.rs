@@ -17,6 +17,7 @@ mod reconcile_tests;
 pub mod resume;
 pub mod retry;
 pub mod rules;
+pub mod sample_folders;
 pub mod status_events;
 #[cfg(test)]
 pub mod test_server;

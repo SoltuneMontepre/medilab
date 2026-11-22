@@ -21,7 +21,7 @@ import { SettingsTab } from "./features/settings/SettingsTab";
 import { FoldersTab } from "./features/sync/FoldersTab";
 import { StatusTab } from "./features/sync/StatusTab";
 import { AppHeader } from "./features/header/AppHeader";
-import { displayLocalPath } from "./components";
+import { displayLocalPath, useConfirm } from "./components";
 import { DevelopmentProfiler } from "./components/DevelopmentProfiler";
 import { LocaleProvider, useT } from "./locale";
 import { normalizeLocale, type Locale, type MessageKey } from "./i18n";
@@ -47,6 +47,8 @@ import {
   onUpdateAvailable,
   onUploadProgress,
   openOfficeEditor,
+  openSyncFile,
+  openSyncFolder,
   pauseSync,
   registerSyncFolder,
   resolveDroppedSyncFolder,
@@ -287,6 +289,7 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
   // Lệnh Tạm dừng/Tiếp tục có cờ bận riêng: không bị khóa bởi lệnh chạy lâu khác (xem AppHeader).
   const [toggleSyncBusy, setToggleSyncBusy] = useState(false);
   const runToggleSync = useAsyncRunner(setToggleSyncBusy, setError);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   useEffect(() => {
     void getCurrentWindow()
@@ -509,9 +512,33 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
     }
   }
 
+  /** Cho người dùng chọn thư mục chính rồi lưu vào cài đặt; hủy hộp thoại thì giữ nguyên. Đọc cài
+   * đặt đã lưu để không lưu kèm những thay đổi đang gõ dở trên tab Cài đặt. */
+  async function onChooseHomeFolder() {
+    const next = await run(async () => {
+      const path = await chooseSyncFolder();
+      if (!path) {
+        return undefined;
+      }
+      const saved = await saveSettings(withSettingsPatch(await getSettings(), { home_folder: path }));
+      const { home_folder } = await getSettings();
+      setSettings((current) => (current ? { ...current, home_folder } : current));
+      return saved;
+    });
+    if (next) {
+      setStatus((prev) => mergeStatusSnapshot(prev, next));
+    }
+  }
+
   /** Xác nhận với người dùng rồi hủy đăng ký một thư mục. */
   async function onUnregisterFolder(folderId: number, folderLogicalRoot: string) {
-    if (!window.confirm(t("folders.unregisterConfirm", { name: folderLogicalRoot }))) {
+    const confirmed = await confirm({
+      title: t("folders.unregisterConfirm", { name: folderLogicalRoot }),
+      body: t("folders.unregisterConfirmBody"),
+      confirmLabel: t("folders.unregister"),
+      danger: true,
+    });
+    if (!confirmed) {
       return;
     }
     const next = await run(() => unregisterSyncFolder(folderId));
@@ -549,6 +576,13 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
     [run],
   );
 
+  const handleOpenFile = useCallback(
+    (fileId: number) => {
+      void run(() => openSyncFile(fileId));
+    },
+    [run],
+  );
+
   const handleOpenHistory = useCallback((fileId: number, label: string) => {
     setHistoryTarget({ fileId, label });
   }, []);
@@ -575,15 +609,21 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
 
   const handleAcceptServer = useCallback(
     (fileId: number) => {
-      void run(() => acceptServerVersion(fileId)).then((next) => {
+      void (async () => {
+        const confirmed = await confirm({
+          title: tRef.current("files.useServerConfirm"),
+          body: tRef.current("files.useServerConfirmBody"),
+          confirmLabel: tRef.current("files.useServer"),
+        });
+        const next = confirmed ? await run(() => acceptServerVersion(fileId)) : undefined;
         if (next) {
           setStatus((prev) => mergeStatusSnapshot(prev, next));
           setConflict(null);
           void refreshRemoteFiles();
         }
-      });
+      })();
     },
-    [refreshRemoteFiles, run],
+    [confirm, refreshRemoteFiles, run],
   );
 
   // Kho mật khẩu của OS đang khóa: key có thể vẫn hợp lệ, nên mời mở khóa rồi thử lại thay vì
@@ -680,6 +720,7 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
               busy={busy}
               remoteFiles={remoteFiles}
               onRetry={handleRetryJob}
+              onOpenFile={handleOpenFile}
               onOpenHistory={handleOpenHistory}
               onOpenOffice={handleOpenOffice}
               onKeepLocal={handleKeepLocal}
@@ -711,12 +752,15 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
               onRecursiveChange={setRecursive}
               onChooseFolder={() => void onChooseFolder()}
               onRegister={(event) => void onRegisterFolder(event)}
+              onOpenFolder={(folderId) => void run(() => openSyncFolder(folderId))}
               onUnregister={(folderId, folderLogicalRoot) =>
                 void onUnregisterFolder(folderId, folderLogicalRoot)
               }
               onManageAccess={(remoteId, label) => setAccessTarget({ remoteId, label })}
               onSharedBound={(next) => setStatus((prev) => mergeStatusSnapshot(prev, next))}
               dropActive={dropActive}
+              homeFolder={settings?.home_folder}
+              onChooseHomeFolder={() => void onChooseHomeFolder()}
             />
           </DevelopmentProfiler>
         ) : null}
@@ -756,6 +800,7 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
           onDismiss={() => setPendingUpdate(null)}
         />
       ) : null}
+      {confirmDialog}
     </main>
   );
 }

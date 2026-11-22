@@ -16,6 +16,7 @@ import {
   StatusSummary,
   StatusTab,
   StatusTable,
+  filterRemoteFiles,
 } from "./StatusTab";
 
 /** Helper bọc component bằng LocaleProvider để test render html. */
@@ -94,6 +95,7 @@ describe("StatusTab component memoization and render isolation", () => {
         busy={false}
         remoteFiles={remoteFiles}
         onRetry={() => {}}
+        onOpenFile={() => {}}
         onOpenHistory={() => {}}
         onOpenOffice={() => {}}
         onAcceptServer={() => {}}
@@ -108,6 +110,54 @@ describe("StatusTab component memoization and render isolation", () => {
   });
 });
 
+describe("StatusCards", () => {
+  test("gộp việc đang chạy và đang chờ thành một thẻ, không có thẻ Tạm dừng", () => {
+    const html = renderWithLocale(
+      <StatusCards completed={5} uploading={1} downloading={2} pending={3} failed={0} conflict={0} />,
+    );
+    expect(html).toContain("Đang xử lý");
+    expect(html).toContain(">6<");
+    expect(html).not.toContain("Tạm dừng");
+  });
+});
+
+describe("RemoteFilesTable", () => {
+  const handlers = {
+    busy: false,
+    onOpenFile: () => {},
+    onOpenHistory: () => {},
+    onOpenOffice: () => {},
+    onAcceptServer: () => {},
+    onKeepLocal: () => {},
+  };
+
+  test("xếp tệp dưới tên thư mục của nó", () => {
+    const { folders } = createStatusFixture();
+    const files = [
+      { id: 1, folder_id: 2, relative_path: "second.csv", remote_file_id: 8, remote_version_id: 1, status: "synced" },
+      { id: 2, folder_id: 1, relative_path: "first.csv", remote_file_id: 9, remote_version_id: 1, status: "synced" },
+    ];
+    const html = renderWithLocale(<RemoteFilesTable remoteFiles={files} folders={folders} {...handlers} />);
+    const order = ["ROOT1", "first.csv", "ROOT2", "second.csv"].map((text) => html.indexOf(text));
+    expect(order.every((index) => index >= 0)).toBe(true);
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+  });
+
+  test("mỗi tệp có nút mở bằng chương trình của nó", () => {
+    const { folders } = createStatusFixture();
+    const html = renderWithLocale(
+      <RemoteFilesTable remoteFiles={createRemoteFilesFixture()} folders={folders} {...handlers} />,
+    );
+    expect(html).toContain(">Mở</button>");
+  });
+
+  test("tìm tệp theo một phần tên, không phân biệt hoa thường", () => {
+    const files = createRemoteFilesFixture();
+    expect(filterRemoteFiles(files, "FILE2").map((file) => file.relative_path)).toEqual(["file2.txt"]);
+    expect(filterRemoteFiles(files, "  ")).toBe(files);
+  });
+});
+
 
 test("listed Office files offer editing by folder policy", () => {
   for (const extension of ["docx", "xlsx", "pptx"]) {
@@ -117,6 +167,7 @@ test("listed Office files offer editing by folder policy", () => {
           file={{ id: 1, folder_id: 1, relative_path: `probe.${extension}`, remote_file_id: 8, remote_version_id: 15, status: "synced" }}
           category={category}
           busy={false}
+          onOpenFile={() => {}}
           onOpenHistory={() => {}}
           onOpenOffice={() => {}}
           onAcceptServer={() => {}}

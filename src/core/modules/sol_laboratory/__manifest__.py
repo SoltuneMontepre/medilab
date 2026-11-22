@@ -98,6 +98,7 @@
         "views/tasks/task_type_views.xml",
         "views/tasks/task_reassign_views.xml",
         "views/tasks/task_views.xml",
+        "views/tasks/task_laboratory_files_views.xml",
         "views/notifications/notification_views.xml",
         "views/testing/change_request_raise_views.xml",
         "views/testing/change_request_reject_views.xml",

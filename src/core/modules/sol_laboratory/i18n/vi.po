@@ -3580,6 +3580,7 @@ msgstr "Phiên bản tệp"
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_file
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_file
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form_laboratory_files
 msgid "Files"
 msgstr "Tệp"
 
@@ -14784,6 +14785,11 @@ msgstr "Mã băm chứng từ"
 #: model:mail.message.subtype,name:sol_laboratory.event_laboratory_file_version_rejected
 msgid "Laboratory file version rejected"
 msgstr "Phiên bản tệp phòng thí nghiệm bị từ chối"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__laboratory_file_count
+msgid "Laboratory File Count"
+msgstr "Số tệp phòng thí nghiệm"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__laboratory_folder_count

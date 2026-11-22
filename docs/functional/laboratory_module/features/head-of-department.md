@@ -144,12 +144,13 @@ Follows [Laboratory files](../overview.md#laboratory-files).
 
 | Rule          | Description |
 | ------------- | ----------- |
-| Sample folders | Creating a sample's folders adds the raw-data and result folders it does not have yet, owned by the person who creates them, syncing every file upload-only; the owner adds the members. |
+| Sample folders | Creating a sample's folders adds the raw-data and result folders it does not have yet, owned by the person who creates them, syncing every file upload-only; the owner adds the members. Assigning or claiming a testing task of the head's department creates the folders the sample still lacks, owned by the head, and adds the person as a member, so the head creates folders or adds testers by hand only for anything else. |
 | Signing       | A version of a result file is signed through the approval chain of laboratory files; the signature belongs to that version and its hash. |
 
 Acceptance criteria:
 
 - Creating a sample's folders twice adds no second folder of the same category.
+- Assigning a testing task to a tester gives the sample its raw-data and result folders, owned by the head of the task's department, with the tester as a member.
 - Signing a file version records the signer, the version and its hash; a newer version of the file shows as not signed.
 - Rejecting a version without a reason is refused.
 

@@ -239,6 +239,8 @@ pub fn run() {
             commands::accept_server_version,
             commands::keep_local_conflict,
             commands::open_office_editor,
+            commands::open_sync_folder,
+            commands::open_sync_file,
             commands::list_sync_devices,
             commands::revoke_sync_device,
             commands::check_update,

@@ -25,6 +25,10 @@ pub struct AppSettings {
     /// Số part của MỘT tệp được PUT cùng lúc (setting ẩn, như `upload_concurrency`).
     #[serde(default = "default_transfer_concurrency")]
     pub part_concurrency: i64,
+    /// Thư mục chính trên máy này: folder của các mẫu đang thử được tự gắn vào bên trong. Chưa chọn
+    /// thì không tự gắn gì.
+    #[serde(default)]
+    pub home_folder: Option<String>,
 }
 
 /// Mức song song mặc định của các setting concurrency ẩn.
@@ -63,6 +67,7 @@ impl Default for AppSettings {
             upload_concurrency: default_transfer_concurrency(),
             download_concurrency: default_transfer_concurrency(),
             part_concurrency: default_transfer_concurrency(),
+            home_folder: None,
         }
     }
 }
@@ -93,6 +98,7 @@ mod tests {
         assert_eq!(settings.upload_concurrency, 3);
         assert_eq!(settings.download_concurrency, 3);
         assert_eq!(settings.part_concurrency, 3);
+        assert_eq!(settings.home_folder, None);
         assert_eq!(settings.odoo_url, "http://odoo");
     }
 }

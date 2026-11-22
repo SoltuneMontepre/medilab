@@ -7152,6 +7152,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__file_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_file
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form_laboratory_files
 msgid "Files"
 msgstr ""
 
@@ -8488,6 +8489,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_laboratory_folder
 msgid "Laboratory Folder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__laboratory_file_count
+msgid "Laboratory File Count"
 msgstr ""
 
 #. module: sol_laboratory
