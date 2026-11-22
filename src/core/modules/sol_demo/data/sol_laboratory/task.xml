@@ -108,7 +108,7 @@
     </record>
     <record id="demo_task_sample_test_lead" model="medilab.task">
         <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
-        <field name="name">Lead (Pb) on the An Phu bottled water</field>
+        <field name="name">Lead (Pb) on a bottled water sample</field>
         <field name="department_id" ref="demo_hr_department_chemistry" />
         <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="document_model">medilab.sample.test</field>
@@ -116,7 +116,7 @@
     </record>
     <record id="demo_task_sample_test_coliforms" model="medilab.task">
         <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
-        <field name="name">Coliforms on the An Phu bottled water</field>
+        <field name="name">Coliforms on a bottled water sample</field>
         <field name="department_id" ref="demo_hr_department_microbiology" />
         <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="document_model">medilab.sample.test</field>

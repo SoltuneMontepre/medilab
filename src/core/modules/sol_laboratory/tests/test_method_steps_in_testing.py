@@ -88,6 +88,25 @@ class TestMethodStepsInTesting(SchedulingCase):
         with self.assertRaises(AccessError):
             self.as_person(test, self.runner).read(["parameter_method_id"])
 
+    def test_a_tester_who_opens_the_sample_test_from_their_task_sees_its_steps_there(self):
+        test, _task, _booking = self.run_test()
+
+        self.assertEqual(
+            self.seen(test, self.tester),
+            [
+                [
+                    (1, 15, "Weigh the test portion.", False),
+                    (2, 480, "Ash the test portion.", "Raise the temperature gradually."),
+                    (3, 30, "Dissolve the ash and make up to volume.", False),
+                ]
+            ],
+        )
+        stepless = self.env[MODEL_PARAMETER_METHOD].create(
+            {"parameter_id": self.parameter.id, "method_id": self.stepless.id, "department_id": self.department.id}
+        )
+        self.use(test, stepless)
+        self.assertEqual(self.seen(test, self.tester), [[]])
+
     def test_medilab_mobile_gives_the_runner_the_steps_and_the_sample_test_screen(self):
         test, task, _booking = self.run_test()
         room = self.env[MODEL_LOCATION].create({"code": "A105", "name": "Ashing room"})
@@ -218,9 +237,13 @@ class TestMethodStepsInTesting(SchedulingCase):
         self.assertEqual(self.method.step_ids, self.steps)
         self.assertEqual(step.instruction, "Weigh the test portion.")
 
-    def test_the_steps_are_read_only_on_tasks_and_bookings(self):
-        for model in (MODEL_TASK, MODEL_MACHINE_BOOKING):
-            records = self.env[model].with_user(self.runner.user_id)
+    def test_the_steps_are_read_only_on_tasks_bookings_and_sample_tests(self):
+        for model, person in (
+            (MODEL_TASK, self.runner),
+            (MODEL_MACHINE_BOOKING, self.runner),
+            (MODEL_SAMPLE_TEST, self.tester),
+        ):
+            records = self.env[model].with_user(person.user_id)
             with self.subTest(model=model):
                 self.assertTrue(records.fields_get(["method_step_ids"], ["readonly"])["method_step_ids"]["readonly"])
                 form = etree.fromstring(records.get_views([(False, "form")])["views"]["form"]["arch"])

@@ -21,6 +21,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TASK,
     MODEL_TEST_PARAMETER,
     MODEL_TEST_RESULT,
+    MODEL_TESTING_METHOD_STEP,
 )
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER, TESTING_ACTION
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
@@ -135,6 +136,10 @@ class SampleTest(models.Model, SampleTestBase):
         subcontractor_id = fields.Many2one(related="parameter_method_id.subcontractor_id")
         # The unit results of its way of testing are expressed in on the sample's type.
         unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, compute="_compute_unit")
+        # Steps of the testing method of its way of testing, which the tester follows.
+        method_step_ids = fields.Many2many(
+            MODEL_TESTING_METHOD_STEP, compute="_compute_method_step_ids", string="Method Steps"
+        )
         # Dispatches that send the test to a subcontractor.
         dispatch_ids = fields.Many2many(
             MODEL_SUBCONTRACT_DISPATCH,
@@ -267,6 +272,13 @@ class SampleTest(models.Model, SampleTestBase):
                 if test.parameter_method_id
                 else False
             )
+
+    @api.depends("parameter_method_id")
+    def _compute_method_step_ids(self):
+        # Steps are master data every internal user reads; only the hop to the method runs as superuser.
+        steps = self.env[MODEL_TESTING_METHOD_STEP]
+        for test in self:
+            test.method_step_ids = steps.browse(test.sudo().parameter_method_id.method_id.step_ids.ids)
 
     def _compute_subcontracted_method_ids(self):
         for test in self:

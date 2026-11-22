@@ -1,3 +1,4 @@
+from odoo.exceptions import UserError
 from odoo.tests import Form, tagged
 
 from .result_case import ResultCase
@@ -77,6 +78,40 @@ class TestResultSanityCheck(SanityCheckCase):
         result = self.enter(value=0.0105, conclusion="fail")
 
         self.assertIn("regulation limit", text(result.check_preview))
+
+    def test_a_value_exactly_on_the_margin_warns(self):
+        # 0.009 is exactly 10% below 0.01, which floating-point subtraction puts just past the margin.
+        result = self.enter(value=0.009)
+
+        self.assertIn("0.009 mg/g is within 10% of the regulation limit 0.01 mg/g", text(result.check_preview))
+
+    def test_a_value_far_above_the_limit_warns_that_it_is_above_and_cannot_pass(self):
+        result = self.enter(value=0.03)
+
+        self.assertIn("0.030 mg/g is above the regulation limit 0.01 mg/g", text(result.check_preview))
+        with self.assertRaises(UserError):
+            self.send(result)
+        self.assertEqual(result.status, "none")
+        self.as_person(result, self.tester).conclusion = "fail"
+        self.send(result)
+        self.assertEqual(result.status, "requested")
+        self.assertIn("above the regulation limit", text(result.check_warning))
+
+    def test_a_value_below_the_minimum_warns_and_cannot_pass(self):
+        self.limit.write({"min_set": True, "min_value": 0.002})
+
+        result = self.enter(value=0.001)
+
+        self.assertIn("0.001 mg/g is below the regulation limit 0.002 mg/g", text(result.check_preview))
+        with self.assertRaises(UserError):
+            self.send(result)
+
+    def test_a_value_on_the_limit_still_passes(self):
+        result = self.enter(value=0.01)
+
+        self.send(result)
+
+        self.assertEqual(result.status, "requested")
 
     def test_a_limit_in_another_unit_of_the_same_category_is_converted(self):
         micrograms = self.env[MODEL_MEASUREMENT_UNIT].create(

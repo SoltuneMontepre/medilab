@@ -3643,6 +3643,7 @@ msgstr "Có thời hạn"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__folder_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__folder_id
 msgid "Folder"
 msgstr "Thư mục"
 
@@ -5278,6 +5279,8 @@ msgstr "Tin nhắn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__method_step_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__method_step_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Method Steps"
 msgstr "Các Bước Của Phương Pháp"
 
@@ -14887,8 +14890,8 @@ msgstr "Mẫu đã có thư mục thuộc loại này."
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
-msgid "%(version)s was rejected: %(reason)s"
-msgstr "%(version)s đã bị từ chối: %(reason)s"
+msgid "%(version)s in %(folder)s was rejected: %(reason)s"
+msgstr "%(version)s trong %(folder)s đã bị từ chối: %(reason)s"
 
 #. module: sol_laboratory
 #. odoo-python
@@ -20074,3 +20077,41 @@ msgstr "<span>Phiên bản</span>"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__is_missed
 msgid "Is Missed"
 msgstr "Bị lỡ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
+msgid "%(value)s is above the regulation limit %(limit)s."
+msgstr "%(value)s cao hơn giới hạn quy chuẩn %(limit)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
+msgid "%(value)s is below the regulation limit %(limit)s."
+msgstr "%(value)s thấp hơn giới hạn quy chuẩn %(limit)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
+msgid "%(value)s is outside the regulation limit, so it cannot pass; assess it as fail or insufficient basis."
+msgstr "%(value)s nằm ngoài giới hạn quy chuẩn nên không thể đạt; hãy đánh giá là không đạt hoặc không đủ căn cứ."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "<span>Below the detection or quantification limit, report it as</span>"
+msgstr "<span>Dưới giới hạn phát hiện hoặc định lượng, báo cáo là</span>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Use This Text"
+msgstr "Dùng nội dung này"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+msgid "Withdraw Rejection"
+msgstr "Rút từ chối"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "No machine can finish this test before its due date, and no subcontractor offers a way of testing for it."
+msgstr "Không máy nào hoàn thành chỉ tiêu này kịp trước hạn, và không thầu phụ nào có cách thử cho chỉ tiêu này."

@@ -2,8 +2,9 @@ import statistics
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
+from odoo.exceptions import UserError
 from odoo.fields import Domain
-from odoo.tools import formatLang
+from odoo.tools import float_compare, formatLang
 
 from odoo.addons.sol_laboratory.constants.approvals import STATE_APPROVED, STATE_NONE
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS, MODEL_TEST_RESULT
@@ -13,6 +14,14 @@ if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_test_result as TestResultCheckBase
 else:
     TestResultCheckBase = object
+
+# Values and limits are compared to this many decimals, so a value exactly on the margin, such as 0.009 against 0.01
+# with a 10% margin, is not pushed past it by floating-point rounding.
+COMPARE_DIGITS = 12
+
+
+def compare(first: float, second: float) -> int:
+    return float_compare(first, second, precision_digits=COMPARE_DIGITS)
 
 
 # Kết Quả Thử Nghiệm: the sanity check of a numeric result before it is sent, against the approved results of its way of
@@ -38,6 +47,14 @@ class TestResultCheck(models.Model, TestResultCheckBase):
     def action_sign(self):
         self.ensure_one()
         if self.status == STATE_NONE:
+            if self.conclusion == "pass" and not self.value_text and self._outside_limits():
+                raise UserError(
+                    self.env._(
+                        "%(value)s is outside the regulation limit, so it cannot pass; assess it as fail or "
+                        "insufficient basis.",
+                        value=self._shown_value(),
+                    )
+                )
             # The warnings found when the result is sent stay on it for the approver; sending it is the tester's call.
             self.sudo().check_warning = "\n".join(self._check_warnings()) or False
         return super().action_sign()
@@ -85,24 +102,56 @@ class TestResultCheck(models.Model, TestResultCheckBase):
         )
 
     def _limit_warnings(self) -> list[str]:
-        """The warnings of a value within the margin of its copied regulation minimum or maximum."""
+        """The warnings of a value outside its copied regulation minimum or maximum, or within the margin of one."""
         if not self.comparison_requested:
             return []
         margin = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("result_check_limit_margin_percent")
         unit = self.sudo().limit_unit_id or self.sudo().unit_id
+        outside = self._outside_limits()
         warnings = []
-        for is_set, limit in ((self.limit_min_set, self.limit_min), (self.limit_max_set, self.limit_max)):
-            converted = self._in_result_unit(limit) if is_set else None
-            if converted is not None and abs(self.value - converted) <= margin / 100 * abs(converted):
+        for side, limit, converted in self._converted_limits():
+            shown = {
+                "value": self._shown_value(),
+                "limit": self._with_unit(limit, self.limit_decimals or plain_digits(limit), unit),
+            }
+            if side in outside:
+                message = (
+                    self.env._("%(value)s is below the regulation limit %(limit)s.", **shown)
+                    if side == "min"
+                    else self.env._("%(value)s is above the regulation limit %(limit)s.", **shown)
+                )
+                warnings.append(message)
+            elif compare(abs(self.value - converted), margin / 100 * abs(converted)) <= 0:
                 warnings.append(
                     self.env._(
                         "%(value)s is within %(margin)s%% of the regulation limit %(limit)s.",
-                        value=self._shown_value(),
                         margin=plain_number(self.env, margin),
-                        limit=self._with_unit(limit, self.limit_decimals or plain_digits(limit), unit),
+                        **shown,
                     )
                 )
         return warnings
+
+    def _converted_limits(self):
+        """The copied minimum and maximum that are set and convert to the result's unit, as (side, limit, limit in the
+        result's unit)."""
+        limits = []
+        sides = (("min", self.limit_min_set, self.limit_min), ("max", self.limit_max_set, self.limit_max))
+        for side, is_set, limit in sides:
+            converted = self._in_result_unit(limit) if is_set else None
+            if converted is not None:
+                limits.append((side, limit, converted))
+        return limits
+
+    def _outside_limits(self) -> set[str]:
+        """The sides, min or max, of the copied limit that the numeric value is beyond; empty outside the requested
+        comparison or for a text result."""
+        if not self.comparison_requested or self.value_text:
+            return set()
+        return {
+            side
+            for side, _limit, converted in self._converted_limits()
+            if compare(self.value, converted) == (-1 if side == "min" else 1)
+        }
 
     def _in_result_unit(self, limit):
         """The copied limit in the result's unit; None when its unit does not convert to the result's."""

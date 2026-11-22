@@ -22,6 +22,43 @@ class TestTestResultEntry(ResultCase):
         result.write({"started_at": MONDAY})
         self.assertEqual(result.started_at, MONDAY)
 
+    def test_a_result_saved_with_its_start_keeps_the_booking_and_machine(self):
+        # The result form sends the start the tester may correct, which must not empty the booking and machine.
+        booking = self.schedule(self.test, self.tester)
+
+        result = self.enter(started_at=booking.starts_at)
+
+        self.assertEqual(result.booking_id, booking)
+        self.assertEqual(result.machine_id, booking.machine_id)
+        self.assertEqual(result.started_at, booking.starts_at)
+
+    def test_a_retest_does_not_take_the_booking_an_earlier_result_was_measured_in(self):
+        booking = self.schedule(self.test, self.tester)
+        first = self.enter()
+
+        second = self.enter(value=0.009)
+
+        self.assertEqual(first.booking_id, booking)
+        self.assertFalse(second.booking_id)
+        self.assertFalse(second.machine_id)
+        self.assertFalse(second.started_at)
+
+    def test_a_rejected_result_is_retested_in_a_new_booking_the_plan_proposes(self):
+        first = self.schedule(self.test, self.tester)
+        result = self.enter()
+        self.send(result)
+
+        self.as_person(result, self.head).action_reject("The blank was not subtracted.")
+
+        self.env.invalidate_all()
+        proposed = self.test.booking_ids.filtered(lambda booking: booking.status == "proposed")
+        self.assertEqual((len(proposed), proposed.person_id), (1, self.tester))
+        second = self.schedule(self.test, self.tester) - first
+        retest = self.enter(value=0.009)
+        self.assertEqual((retest.booking_id, retest.started_at), (second, second.starts_at))
+        self.assertEqual(result.booking_id, first)
+        self.assertEqual(second.status, "done")
+
     def test_a_result_takes_the_machine_of_the_booking_made_after_its_form_was_opened(self):
         booking = self.schedule(self.test, self.tester)
         stale = booking.machine_id

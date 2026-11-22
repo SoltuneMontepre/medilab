@@ -104,7 +104,7 @@ Acceptance criteria:
 - Scanning a sample's label records the handover for the scanner's department; a person outside the department is refused.
 - Asking for a sample to be collected again creates a sample collection task and records who asked and when.
 - The head of the department that tested a result is notified when its tester submits it for approval.
-- Rejecting a result sends its sample test back to testing, opens a new testing task for it assigned to the same tester and tells them the reason.
+- Rejecting a result sends its sample test back to testing, opens a new testing task for it assigned to the same tester, tells them the reason and proposes a new booking for the retest in the department's plan.
 - Once every result of a sample is approved, the sample is completed.
 - A head can explicitly approve a result they entered; it still needs the Lab Head's report signature before issue.
 - A result sent with a sanity warning shows the warning to the head who approves it.

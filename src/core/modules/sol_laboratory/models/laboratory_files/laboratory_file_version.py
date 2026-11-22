@@ -63,6 +63,8 @@ class LaboratoryFileVersion(models.Model, LaboratoryFileVersionBase):
         file_id = fields.Many2one(
             MODEL_LABORATORY_FILE, string="File", required=True, ondelete="restrict", readonly=True
         )
+        # The folder of the file, which names the sample of a sample's folder.
+        folder_id = fields.Many2one(related="file_id.folder_id")
         # Version number within the file, never reused.
         number = fields.Integer(required=True, readonly=True)
         # The version that was current when this one was made.
