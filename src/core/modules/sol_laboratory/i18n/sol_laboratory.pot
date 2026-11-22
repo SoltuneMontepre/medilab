@@ -2722,6 +2722,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_measurement_unit_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_group_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_group_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_method_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_form
@@ -15440,6 +15441,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__sample_type_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__sample_type_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_sample_type
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_method_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_form
 msgid "Sample Types"
 msgstr ""
