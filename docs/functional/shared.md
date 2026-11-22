@@ -293,7 +293,7 @@ People of the laboratory write to each other in conversations, and about a docum
 
 - **Built on Odoo Discuss.** A conversation is an Odoo Discuss channel (`discuss.channel`): a direct conversation between two people, or a group conversation with a name and members. Its messages are Odoo messages (`mail.message`), with their files and photos as attachments. On the web, conversations are in Odoo's Discuss app.
 - **Internal.** Only people with an internal user take part in conversations. Customers and subcontractors never join one; a customer writes to sales through a support request.
-- **Chatter.** Messages about a document, such as a task, a sample or a test request, are posted in its chatter, where everyone who can read the document reads them.
+- **Chatter.** Messages about a document, such as a task or a test request, are posted in its chatter, where everyone who can read the document reads them.
 - **Mentions.** A message that mentions a person with @ notifies them on each channel they keep on (SH-11).
 - **Pushes.** A new message in a conversation is pushed to the Medilab Mobile devices of its members, except its author and the members who muted the conversation.
 
@@ -301,7 +301,7 @@ Acceptance criteria:
 
 - A message sent in a conversation on the web appears on the phones of its members, and a message sent from a phone appears on the web.
 - A customer or a subcontractor cannot be added to a conversation.
-- Mentioning a person in a sample's chatter notifies them on each channel they keep on.
+- Mentioning a person in a test request's chatter notifies them on each channel they keep on.
 - A message in a group conversation is pushed to every member except its author and those who muted it.
 - A record discussion does not grant access to records the participant cannot read.
 

@@ -65,7 +65,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Releasing the machine | Submitting the result or marking the measurement finished frees the machine before the booking's end. A booking whose end passes without either keeps the machine, flags the next bookings on it at risk and notifies the tester and head. |
 | Adjusting | Move or cancel their own not-started booking, keeping all required reservations synchronized under SH-11. Cancelling the booking returns its sample test to the plan without cancelling it. A move is made from the booking's form or by dragging it on the machine schedule, only to a free slot. |
 | Missed start | A scheduled booking whose start passed without being started is missed: the tester and the head are notified once, and the tester reschedules it to the earliest free slot of the tester, machine and locations, or starts it late or cancels it. Nothing frees the booking's reservations until then. |
-| Log | The form of a sample test has a Log tab for whoever reads sample tests, such as the tester and the head of department. It lists, newest first, when and by whom the test, its bookings and its results were created or changed, with the fields changed and their old and new values, from the [audit trail](../../../specs/audit-trail.md#log-of-a-sample-test). It does not give access to the Audit Trail app. |
+| Log | The form of a sample test has an Audit Log panel beside the sheet, below it on narrow screens, for whoever reads sample tests, such as the tester and the head of department. It lists, newest first, when and by whom the test, its bookings and its results were created or changed, with the fields changed and their old and new values, from the [audit trail](../../../specs/audit-trail.md#log-of-a-form). It does not give access to the Audit Trail app. |
 
 Acceptance criteria:
 
@@ -90,7 +90,7 @@ Acceptance criteria:
 - A currently valid calibration due within the warning window shows its date; booking proceeds only if all other maintenance and resource conditions hold.
 - A machine with a repair recorded within the warning days shows a warning naming the repair.
 - A tester sees the lab code of a sample, not its customer or the customer's name for it.
-- A person who reads sample tests sees in the Log tab of a test who changed its status, booked it and entered or signed its results, and when; a person who cannot read sample tests sees no entry.
+- A person who reads sample tests sees in the Audit Log panel of a test who changed its status, booked it and entered or signed its results, and when; a person who cannot read sample tests sees no entry.
 
 ### 2. Results (US-T05 to US-T09, US-T17, US-T18, US-T22)
 
@@ -103,8 +103,8 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 | Conclusion | No conclusion is needed without requested regulation comparison. For a requested comparison, the tester assesses pass, fail or insufficient basis. Text and below-LOD/LOQ values need professional assessment, never automatic passing or substitution with zero. A result without an exact-type limit can only be assessed as insufficient basis. A result outside the requested comparison takes no conclusion. A value below the LOD, or else below the LOQ, suggests a text such as "<0.05 mg/L (below LOQ)" with the copied threshold and unit; entering a text result keeps the measured value. Reports show the threshold and unit from the result's snapshot. |
 | Retest | A retest is a new result with a new booking; the rejected or interrupted result stays on record. The system does not count or limit retests. |
 | Sanity check | Before a numeric result is sent for approval, it is compared with past approved results and the regulation limit. An unusual value shows a warning with the reason; the tester may still send it, and the warning stays on the result. |
-| Claimed first | Only the person a testing task is assigned to, by claiming it or by the head's assignment, enters the result of its sample test; anyone else, the head of department included, claims or is assigned the task first. A rejected result's new testing task is claimed again. |
-| Task done   | The testing task is done when the tester submits the result; approving it is the head's work at the result approval level. A rejected result keeps its record and review, and opens a new testing task for the same sample test, for a correction or a new measurement. |
+| Claimed first | Only the person a testing task is assigned to, by claiming it or by the head's assignment, enters the result of its sample test; anyone else, the head of department included, claims or is assigned the task first. A rejected result's new testing task goes back to the same tester, who does not claim it again. |
+| Task done   | The testing task is done when the tester submits the result; approving it is the head's work at the result approval level. A rejected result keeps its record and review, and opens a new testing task for the same sample test, assigned to the same tester, for a correction or a new measurement. |
 | Telling the head | Submitting a result tells the head of the department that tested it, unless the head submitted it, through the mandatory `test_result.sent` notification. A result submitted again after its tester withdrew it tells the head again. |
 | Outsourced  | The results of an outsourced test are entered by the subcontractor or by a lab QA; each result records who entered it. |
 | Method steps | A tester sees the steps of the testing method of the way of testing chosen for their sample test, in step number order, from the testing task and the booking. They only read them; the administrator maintains them ([Administrator](admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28)). |
@@ -123,7 +123,7 @@ Acceptance criteria:
 - A step with a location shows that location's code and name to the tester.
 - A testing task whose sample names a location shows that location on the task, the schedule, the to-do list and the timeline, and opening it shows it marked on its parent location's map.
 - A tester cannot change a step.
-- A rejected result stays on record, the sample test goes back to testing and a new testing task opens for it.
+- A rejected result stays on record, the sample test goes back to testing and a new testing task assigned to the same tester opens for it.
 - Submitting the result closes the tester's testing task and tells the head of the department that tested it.
 - Submitting a result again after withdrawing it tells the head again; approving it tells the head nothing more.
 - No result is entered for a sample test whose testing task is unassigned or assigned to someone else, and Enter Result is not shown.

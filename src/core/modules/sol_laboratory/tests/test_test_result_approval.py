@@ -127,7 +127,7 @@ class TestTestResultApproval(ResultCase):
         with self.assertRaises(UserError):
             self.as_person(result, self.tester).action_sign()
 
-    def test_rejecting_keeps_the_result_opens_a_new_testing_task_and_tells_the_tester(self):
+    def test_rejecting_keeps_the_result_gives_the_tester_a_new_testing_task_and_tells_them_why(self):
         self.tester.user_id.notification_type = "inbox"
         result = self.enter()
         self.send(result)
@@ -139,8 +139,7 @@ class TestTestResultApproval(ResultCase):
         self.assertEqual(self.task.status, "done")
         task = self.test._testing_task()
         self.assertNotEqual(task, self.task)
-        self.assertEqual((task.status, task.department_id), ("open", self.department))
-        self.assertFalse(task.assignee_id)
+        self.assertEqual((task.status, task.department_id, task.assignee_id), ("assigned", self.department, self.tester))
         self.assertIn("The blank read above the limit of detection.", str(task.note))
         message = self.env["mail.message"].search(
             [
@@ -152,7 +151,6 @@ class TestTestResultApproval(ResultCase):
         self.assertEqual(len(message), 1)
         self.assertIn("The blank read above the limit of detection.", (message.body or ""))
         self.assertEqual(message.notification_ids.res_partner_id, self.tester.user_id.partner_id)
-        self.as_person(task, self.tester).action_claim()
         retest = self.enter(value=0.009)
         self.assertTrue(retest.is_reported)
         self.assertEqual(result.status, "rejected")

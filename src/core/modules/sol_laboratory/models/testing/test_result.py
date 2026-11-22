@@ -66,6 +66,7 @@ SYSTEM_FIELDS = frozenset(
         "is_replaced",
         "check_warning",
         "booking_id",
+        "machine_id",
         *SOURCE_FIELDS,
         *LIMIT_FIELDS,
     }
@@ -83,7 +84,6 @@ CONTENT_FIELDS = frozenset(
         "value",
         "value_decimals",
         "value_text",
-        "machine_id",
         "started_at",
         "conclusion",
         *SOURCE_FIELDS,
@@ -195,9 +195,9 @@ class TestResult(models.Model, TestResultBase):
             ondelete="restrict",
             index=True,
         )
-        # The machine the measurement ran on, taken from the booking and correctable by the tester; empty when outsourced.
+        # The machine the measurement ran on, taken from the booking the form is saved with; empty when outsourced.
         machine_id = fields.Many2one(
-            MODEL_MACHINE, compute="_compute_measurement", store=True, readonly=False, ondelete="restrict"
+            MODEL_MACHINE, compute="_compute_measurement", store=True, readonly=True, ondelete="restrict"
         )
         # When the measurement started, taken from the booking's start and correctable by the tester.
         started_at = fields.Datetime(string="Started At", compute="_compute_measurement", store=True, readonly=False)
@@ -562,12 +562,14 @@ class TestResult(models.Model, TestResultBase):
             if state == STATE_APPROVED:
                 self.env[MODEL_TEST_REPORT]._follow_corrections(test.sample_id.request_id)
             if state == STATE_REJECTED and not self.replaces_id:
-                # The rejected result stays on record, and a new testing task with the reason waits in the queue of
-                # the department that tested it, unless one is still open. A rejected correction is redone by a change
-                # request.
+                # The rejected result stays on record, and a new testing task with the reason goes back to the tester
+                # who held the last one, or waits in the queue of the department that tested it when nobody did,
+                # unless one is still open. A rejected correction is redone by a change request.
                 task = test._latest_testing_task()
                 if task.status == "done":
-                    test._open_testing_task(task.department_id, self._approval_rejection_reason())
+                    retest = test._open_testing_task(task.department_id, self._approval_rejection_reason())
+                    if task.assignee_id:
+                        retest.write({"assignee_id": task.assignee_id.id, "status": "assigned"})
 
     def _send_back(self, note):
         """The lab head sends approved results back to the department that tested them: their signatures are withdrawn,

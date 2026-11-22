@@ -146,7 +146,7 @@
                                 <field name="parameter_method_id" />
                                 <field name="sample_type_id" />
                                 <field name="subcontractor_id" invisible="not subcontractor_id" />
-                                <field name="machine_id" invisible="subcontractor_id" readonly="status != 'none'" />
+                                <field name="machine_id" invisible="subcontractor_id" />
                                 <field name="started_at" readonly="status != 'none'" />
                                 <field name="lod" widget="nullable_float" />
                                 <field name="loq" widget="nullable_float" />

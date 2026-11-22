@@ -291,7 +291,7 @@ The script stops without writing when the tables are inconsistent or Business fl
 
 - TC-F34-01 Main: The tester enters, signs and sends a result, which closes the testing task; the head approves it.
 - TC-F34-02 Rule: A rejected result is kept, and a retest adds a new result with a new booking; only the latest is sent for approval.
-- TC-F34-03 Exception: A tester cannot approve their own result, but the head may approve an entry they made; a rejection opens a new testing task and tells the tester the reason.
+- TC-F34-03 Exception: A tester cannot approve their own result, but the head may approve an entry they made; a rejection opens a new testing task assigned to the same tester and tells them the reason.
 
 ### F-35 Unusual result warning
 

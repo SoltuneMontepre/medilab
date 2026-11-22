@@ -56,7 +56,7 @@ tags:
   - name: Conversations
     description: The person's direct and group conversations, the same as Discuss on the web.
   - name: Chatter
-    description: The messages and notes of a task's, a sample's or a test request's chatter.
+    description: The messages and notes of a task's or a test request's chatter.
   - name: Support requests
     description: The customers' support requests sales handle, taken and answered as on the web. Declared by
       `sol_commerce`, so they exist only with E-commerce installed.
@@ -779,7 +779,7 @@ paths:
     get:
       operationId: listDocumentMessages
       tags: [Chatter]
-      summary: Lists a page of the messages and notes of a task's, a sample's or a test request's chatter, newest first.
+      summary: Lists a page of the messages and notes of a task's or a test request's chatter, newest first.
       description: |
         The messages people wrote that the web's chatter shows the person, read with their rights. Any other document,
         or one the person may not read, answers `not_found`.
@@ -834,7 +834,7 @@ paths:
     post:
       operationId: postDocumentNote
       tags: [Chatter]
-      summary: Posts a note with its text and mentions on a task's, a sample's or a test request's chatter.
+      summary: Posts a note with its text and mentions on a task's or a test request's chatter.
       description: |
         A note is internal: it reaches the people it mentions and the internal followers, never a customer. Anyone who
         may read the document posts a note on it. With an `Idempotency-Key`, repeating the request answers with the

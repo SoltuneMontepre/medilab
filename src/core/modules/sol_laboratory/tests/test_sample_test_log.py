@@ -24,6 +24,15 @@ class TestSampleTestLog(AuditLookup, ResultCase):
         self.assertFalse(log & self.entries(other))
         self.assertTrue(log.mapped("change_ids.display_name"))
 
+    def test_whoever_reads_samples_reads_the_log_of_the_sample_and_no_entry_about_other_documents(self):
+        self.grant(self.tester, "sample.read.all")
+
+        log = self.as_person(self.sample, self.tester).log_ids
+
+        self.assertTrue(log & self.entries(self.sample))
+        entries = self.env[MODEL_AUDIT_ENTRY].with_user(self.tester.user_id)
+        self.assertFalse(entries.search([("document_model", "=", self.request._name)]))
+
     def test_the_audit_trail_stays_closed_to_whoever_cannot_read_sample_tests(self):
         outsider = self.create_person("Vo Thi Hoa", self.microbiology, "hoa.vo")
 

@@ -11,7 +11,7 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TEST, MODEL
 @freeze_time(MONDAY)
 @tagged("post_install", "-at_install")
 class TestTestResultEntry(ResultCase):
-    def test_a_booked_result_takes_the_booking_machine_and_start_and_can_correct_them(self):
+    def test_a_booked_result_takes_the_booking_machine_and_start_and_can_correct_the_start(self):
         booking = self.schedule(self.test, self.tester)
 
         result = self.enter()
@@ -19,9 +19,20 @@ class TestTestResultEntry(ResultCase):
         self.assertEqual(result.machine_id, booking.machine_id)
         self.assertEqual(result.started_at, booking.starts_at)
         self.assertEqual(booking.status, "done")
-        result.write({"machine_id": self.slow.id, "started_at": MONDAY})
-        self.assertEqual(result.machine_id, self.slow)
+        result.write({"started_at": MONDAY})
         self.assertEqual(result.started_at, MONDAY)
+
+    def test_a_result_takes_the_machine_of_the_booking_made_after_its_form_was_opened(self):
+        booking = self.schedule(self.test, self.tester)
+        stale = booking.machine_id
+        rebooked = self.slow if stale == self.fast else self.fast
+        booking._set({"machine_id": rebooked.id})
+
+        result = self.enter(machine_id=stale.id)
+
+        self.assertEqual(result.machine_id, rebooked)
+        with self.assertRaises(UserError):
+            result.with_user(self.tester.user_id).write({"machine_id": stale.id})
 
     def test_a_result_copies_the_regulation_limit_and_keeps_it(self):
         result = self.enter()

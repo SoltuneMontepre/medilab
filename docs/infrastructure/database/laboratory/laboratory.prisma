@@ -1288,7 +1288,7 @@ model TestResult {
   entered_at     DateTime
   /// The booking the measurement ran in; submitting the result ends the booking. Empty for an outsourced test. A retest is a new result with a new booking.
   booking_id     Int?
-  /// The machine the measurement ran on, taken from the booking and correctable by the lab QA; empty for an outsourced test.
+  /// The machine the measurement ran on, taken from the booking the result is saved with; empty for an outsourced test.
   machine_id     Int?
   /// When the measurement started, taken from the booking's start and correctable by the lab QA.
   started_at     DateTime?

@@ -65,7 +65,7 @@ Conversations follow [SH-12](../../shared.md#sh-12-conversations).
 | ---------------- | ----------- |
 | Conversations    | The person's direct and group conversations, the same as in Discuss on the web, with their unread messages. New messages appear without reloading while the app is open. |
 | Messages         | Text, photos from the camera or the gallery, and files. A message can mention a person with @. |
-| Chatter          | A task, sample or test request opened in the app shows its chatter, and the person posts a note on it. The app never sends a chatter message to a customer. |
+| Chatter          | A task or test request opened in the app shows its chatter, and the person posts a note on it. The app never sends a chatter message to a customer. |
 | Mute             | The person mutes a conversation, so its messages are no longer pushed to them. |
 | Support requests | With E-commerce installed, sales see the support requests they handle, take a waiting one and answer it, following [Support](../../ecommerce_module/features/sales.md#7-support-us-s20-us-s23). The customer reads the answer on the portal and is notified as on the web. |
 
@@ -108,7 +108,7 @@ Conversations follow [SH-12](../../shared.md#sh-12-conversations).
 - A push to a tester never names the customer or the customer's name for a sample.
 - A push turned off for an event in the notification settings is no longer sent to the person.
 - A message sent from the phone appears in Discuss on the web, and a message sent on the web appears on the phone.
-- A note posted on a sample from the phone appears in its chatter on the web and sends nothing to the customer.
+- A note posted on a test request from the phone appears in its chatter on the web and sends nothing to the customer.
 - A muted conversation's messages are not pushed to the person.
 - An answer to a support request from the phone sets the request to answered and notifies the customer.
 - Scanning the label of a sample not handed over to the person's department records no receipt and says why.
