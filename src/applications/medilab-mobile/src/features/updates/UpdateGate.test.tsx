@@ -46,6 +46,10 @@ describe("updates", () => {
     memoryDownloads.clear();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("opens a phone that runs a version MediLab serves", async () => {
     const mediLab = fakeMediLab({ status: 204 });
     await openApp();
@@ -114,18 +118,36 @@ describe("updates", () => {
     expect(screen.queryByText("The app")).not.toBeOnTheScreen();
   });
 
-  it("checks again when the app comes back to the foreground", async () => {
+  it("checks again when the person comes back to the app after a minute away", async () => {
+    const now = jest.spyOn(Date, "now").mockReturnValue(1_000_000);
     const mediLab = fakeMediLab({ status: 204 });
     jest.mocked(Updates.fetchUpdateAsync).mockResolvedValue({ isNew: true, isRollBackToEmbedded: false } as never);
     await openApp();
     expect(await screen.findByText("The app")).toBeOnTheScreen();
 
     mediLab.plan({ status: 200, body: { action: "code", version: "1.1.0" } });
+    await act(async () => foreground("background"));
+    now.mockReturnValue(1_060_000);
     await act(async () => foreground("active"));
 
     expect(await screen.findByTestId("updating-screen")).toBeOnTheScreen();
     expect(screen.queryByText("The app")).not.toBeOnTheScreen();
     expect(mediLab.sent).toHaveLength(2);
+  });
+
+  it("keeps the screen when a permission dialog or the camera the app opened closes", async () => {
+    const now = jest.spyOn(Date, "now").mockReturnValue(1_000_000);
+    const mediLab = fakeMediLab({ status: 204 });
+    await openApp();
+    expect(await screen.findByText("The app")).toBeOnTheScreen();
+
+    mediLab.plan({ status: 200, body: { action: "install", version: "1.1.1", url: APK_URL, sha256: "0" } });
+    await act(async () => foreground("background"));
+    now.mockReturnValue(1_020_000);
+    await act(async () => foreground("active"));
+
+    expect(screen.getByText("The app")).toBeOnTheScreen();
+    expect(mediLab.sent).toHaveLength(1);
   });
 
   it("opens the app when MediLab cannot answer, as every other call is refused then too", async () => {

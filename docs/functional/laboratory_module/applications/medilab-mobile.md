@@ -28,7 +28,7 @@ The app looks and moves like the web, following [UX and UI](../../../conventions
 
 | Rule        | Description |
 | ----------- | ----------- |
-| Checking    | The app asks MediLab whether it has an update when it starts and whenever it comes back to the foreground. |
+| Checking    | The app asks MediLab whether it has an update when it starts and whenever the person comes back to it after at least a minute away. A permission dialog, the camera or a picker the app opens is part of the task and asks nothing. |
 | Mandatory   | When MediLab has an update, the app shows an updating screen and cannot be used until the update is installed. The person cannot postpone it. |
 | Code only   | An update that changes only the app's code downloads, and the app restarts into it. |
 | New install | An update that needs a new install downloads the APK and opens Android's installer. |
