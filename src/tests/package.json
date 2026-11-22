@@ -2,7 +2,9 @@
   "name": "medilab-core-tests",
   "private": true,
   "scripts": {
-    "test": "node --test cypress/plugins/settings.test.cjs cypress/plugins/execution.test.cjs cypress/support/odoo.test.cjs && cypress run"
+    "test": "bun run test:helpers && bun run test:browser",
+    "test:helpers": "node --test cypress/plugins/settings.test.cjs cypress/plugins/execution.test.cjs cypress/support/odoo.test.cjs",
+    "test:browser": "cypress run"
   },
   "devDependencies": {
     "@cypress/grep": "^7.0.0",
