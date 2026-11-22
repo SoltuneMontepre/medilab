@@ -22,7 +22,7 @@ task test:e2e:tap TAP_ARGS='status --json'
 task test:e2e:tap TAP_ARGS='specs --json'
 ```
 
-`TAP_ARGS` preserves CLI flags through the npm Task wrapper in PowerShell and passes them as data rather than shell code. The wrapper uses the locked Cypress package in `src/tests`, clears `ELECTRON_RUN_AS_NODE`, filters sessions to this worktree's E2E project and binds the selected PID. It refuses another project's session and asks for `--session <pid>` if more than one matches. Carry that observed PID on every subsequent command in a debugging loop. Tap works with Electron, Chrome, Chromium and Edge; headless CI continues to use `task test:e2e`. [Official Tap guide](https://docs.cypress.io/app/tooling/cypress-tap)
+`TAP_ARGS` preserves CLI flags through the npm Task wrapper in PowerShell and passes them as data rather than shell code. The wrapper uses the locked Cypress package in `src/tests`, clears `ELECTRON_RUN_AS_NODE`, filters sessions to this worktree's E2E project and binds the selected PID. It refuses another project's session and asks for `--session <pid>` if more than one matches. Carry that observed PID on every subsequent command in a debugging loop. Tap works with Electron, Chrome, Chromium and Edge; headless runs use `task test:e2e`. [Official Tap guide](https://docs.cypress.io/app/tooling/cypress-tap)
 
 ## Choose the skill
 
