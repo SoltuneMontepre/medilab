@@ -39,6 +39,14 @@ class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
             ]
         return fields
 
+    def _quotation_missing_field_errors(self, lines):
+        missing = super()._quotation_missing_field_errors(lines)
+        if not self.advance_method:
+            missing.append(self.env._("Choose how the advance is paid, or no advance, before sending the quotation."))
+        elif self.advance_method != ADVANCE_NONE and not self.advance_mode:
+            missing.append(self.env._("Choose whether the advance is the full amount, a percentage or a fixed amount."))
+        return missing
+
     def _check_quotation_can_be_sent(self):
         super()._check_quotation_can_be_sent()
         if self.sudo()._latest_quotation().advance_invoice_id.amount_residual:

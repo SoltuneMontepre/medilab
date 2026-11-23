@@ -26,6 +26,22 @@ class TestOrderCart(OrderCase):
         self.assertFalse(order.requested_date)
         self.assertFalse(order.priority_request)
 
+    def test_quotation_validation_reports_independent_missing_fields_together(self):
+        order = self.make_order(
+            [(self.lead_product, 1)],
+            status="claimed",
+            user_id=self.sales.id,
+            advance_method=False,
+            advance_mode=False,
+        )
+
+        with self.assertRaises(UserError) as raised:
+            order.with_user(self.sales).action_send_quotation()
+
+        message = str(raised.exception)
+        self.assertIn("Choose a sample type for these items", message)
+        self.assertIn("Choose how the advance is paid", message)
+
     def test_cart_total_excludes_vat_and_uses_the_package_price(self):
         order = self.make_order([(self.lead_product, 2), (self.package_product, 1)])
         package_line = order._catalog_lines().filtered(
