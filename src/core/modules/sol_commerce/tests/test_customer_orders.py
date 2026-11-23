@@ -37,6 +37,7 @@ class TestCustomerOrders(OrderCase):
 
         with Form(self.env[MODEL_SALE_ORDER].with_context(medilab_sales_order=True)) as order:
             order.customer_id = self.customer
+            order.advance_method = "bank_transfer"
             self.assertEqual(order.partner_id, lan)
 
     def test_merging_moves_the_orders_to_the_matched_customer(self):
