@@ -1,11 +1,13 @@
 from datetime import timedelta
 
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
+from odoo.fields import Command
 from odoo.tests import tagged
 
 from .request_case import RequestCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE, MODEL_SCHEDULED_JOB, MODEL_TASK
+from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_SAMPLE, MODEL_SCHEDULED_JOB, MODEL_TASK
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RETENTION_CODE
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -63,6 +65,29 @@ class TestSampleDisposal(RequestCase):
         self.sample.write({"status": "testing", "retained_until": False})
         with self.assertRaises(UserError):
             self.sample.action_dispose("Poured away")
+
+    def test_handover_permission_does_not_allow_disposal_past_retention(self):
+        receptionist = self.env[MODEL_PERSON].create(
+            {
+                "name": "Sample Receptionist",
+                "login": "retention.receptionist",
+                "permission_ids": [
+                    Command.set(
+                        [
+                            persisted_id(self.env.ref("sol_laboratory.permission_sample_read_all")),
+                            persisted_id(self.env.ref("sol_laboratory.permission_sample_handover_create_all")),
+                        ]
+                    )
+                ],
+            }
+        )
+        self.sample.write({"status": "retained", "retained_until": self.today - timedelta(days=1)})
+
+        with self.assertRaises(AccessError):
+            self.sample.with_user(receptionist.user_id).action_dispose("Poured away")
+
+        self.assertEqual(self.sample.status, "retained")
+        self.assertFalse(self.sample.disposed_at)
 
     def test_retention_reminder_lists_a_sample_due_soon_once(self):
         self.sample.write({"status": "retained", "retained_until": self.today + timedelta(days=3)})

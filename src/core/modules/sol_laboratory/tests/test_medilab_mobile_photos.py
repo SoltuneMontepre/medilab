@@ -22,7 +22,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 
 PHOTO = b"\x89PNG\r\n\x1a\nphoto taken at the customer's site"
 # What sample delivery staff may do with samples, as the demo staff may.
-STAFF_PERMISSIONS = ("test_request_read_all", "sample_read_all", "sample_edit_all")
+STAFF_PERMISSIONS = ("test_request_read_all", "sample_read_all", "sample_create_all")
 
 
 def photo_body(photo=PHOTO, name="collected.png"):

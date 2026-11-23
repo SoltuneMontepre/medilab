@@ -1,5 +1,7 @@
+from lxml import etree
+
 from odoo import fields
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import tagged
 
@@ -29,6 +31,25 @@ class TestSampleReception(RequestCase):
         super().setUpClass()
         cls.staff = cls.env.ref("sol_laboratory.person_administrator")
         permission = "sol_laboratory.permission_{}"
+        cls.receptionist = cls.env[MODEL_PERSON].create(
+            {
+                "name": "Sample Receptionist",
+                "login": "sample.receptionist",
+                "permission_ids": [
+                    Command.set(
+                        [
+                            persisted_id(cls.env.ref(permission.format(name)))
+                            for name in (
+                                "test_request_read_all",
+                                "sample_read_all",
+                                "sample_handover_create_all",
+                                "sample_test_read_all",
+                            )
+                        ]
+                    )
+                ],
+            }
+        )
         cls.scanner_role = cls.env[MODEL_ROLE].create(
             {
                 "code": "scanner",
@@ -62,6 +83,74 @@ class TestSampleReception(RequestCase):
         sample = self.sample.with_user(self.staff.user_id)
         sample.action_receive(*args, **kwargs)
         return sample
+
+    def test_receptionist_records_receipt_without_general_sample_edit(self):
+        self.request.action_confirm()
+        self.sample.physical_state = False
+        sample = self.sample.with_user(self.receptionist.user_id)
+
+        sample.write(
+            {
+                "physical_state": "liquid",
+                "received_quantity": "2 bottles",
+                "condition": "good",
+                "storage_location": "Fridge 2, shelf B",
+            }
+        )
+        sample.action_receive_entered()
+
+        self.assertEqual(sample.status, "received")
+        self.assertEqual(sample.physical_state, "liquid")
+        self.assertEqual(sample.received_quantity, "2 bottles")
+        self.assertEqual(sample.storage_location, "Fridge 2, shelf B")
+        self.assertEqual(sample.received_by_id, self.receptionist)
+        self.assertTrue(sample.received_at)
+        self.assertEqual(self.request.status, "sample_received")
+
+    def test_receptionist_can_receive_more_of_an_on_hold_sample(self):
+        self.request.action_confirm()
+        sample = self.receive("50 mL", "insufficient").with_user(self.receptionist.user_id)
+
+        sample.write({"received_quantity": "1 L", "storage_location": "Fridge 2"})
+        sample.action_receive_more_entered()
+
+        self.assertEqual(sample.status, "received")
+        self.assertEqual(sample.storage_location, "Fridge 2")
+        self.assertEqual(sample.received_by_id, self.receptionist)
+
+    def test_receptionist_cannot_write_other_sample_fields_or_forge_receipt(self):
+        sample = self.sample.with_user(self.receptionist.user_id)
+        for values in (
+            {"received_quantity": "2 bottles", "note": "Changed notes"},
+            {"sample_type_id": self.sample_type.id},
+            {"regulation_id": False},
+            {"test_ids": [Command.clear()]},
+            {"status": "received"},
+            {"received_at": fields.Datetime.now()},
+        ):
+            with self.subTest(values=values), self.assertRaises(AccessError):
+                sample.write(values)
+        self.assertFalse(sample.received_quantity)
+        self.assertEqual(sample.status, "expected")
+        self.assertFalse(sample.received_at)
+
+    def test_receptionist_cannot_change_intake_values_after_receipt(self):
+        sample = self.receive("2 bottles", "good").with_user(self.receptionist.user_id)
+        with self.assertRaises(AccessError):
+            sample.write({"received_quantity": "1 bottle"})
+
+    def test_receptionist_form_offers_receipt_and_locks_general_fields(self):
+        sample = self.sample.with_user(self.receptionist.user_id)
+        view = self.env.ref("sol_laboratory.view_medilab_sample_form")
+        arch = etree.fromstring(sample.get_view(persisted_id(view))["arch"])
+
+        self.assertNotEqual(arch.get("edit"), "False")
+        self.assertTrue(arch.xpath(".//button[@name='action_receive_entered']"))
+        self.assertTrue(arch.xpath(".//button[@name='action_receive_more_entered']"))
+        self.assertFalse(arch.xpath(".//button[@name='action_dispose']"))
+        self.assertEqual(arch.xpath("string(.//field[@name='note']/@readonly)"), "1")
+        self.assertEqual(sample.lock_take(), {"taken": True})
+        sample.lock_release("cancelled")
 
     def test_good_receipt_creates_a_testing_task_for_each_in_house_test(self):
         subcontractor_id, _name = self.env[MODEL_SUBCONTRACTOR].name_create("Outside Lab")
