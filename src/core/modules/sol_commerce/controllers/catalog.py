@@ -12,6 +12,7 @@ from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 CART_SESSION = "medilab_cart_id"
+CART_FORM_SESSION = "medilab_cart_form"
 CART_PATH = "/cart"
 ORDERS_PATH = "/orders"
 
@@ -57,9 +58,14 @@ class Catalog(http.Controller):
     def cart(self, error=None, **kwargs):
         order = self._cart()
         contacts = order._contact_choices() if order else request_env()["res.partner"]
+        form_state = request.session.pop(CART_FORM_SESSION, None)
+        submitted = form_state.get("values", {}) if form_state and form_state.get("order_id") == order.id else {}
         # The order's contact stays chosen; otherwise the customer's default contact is preselected.
-        chosen = (order.partner_id & contacts) or (
-            order._customer_record().default_contact_id if contacts else contacts
+        submitted_contact = contacts.filtered(lambda contact: str(contact.id) == submitted.get("contact_id"))
+        chosen = (
+            submitted_contact
+            or (order.partner_id & contacts)
+            or (order._customer_record().default_contact_id if contacts else contacts)
         )
         return request.render(
             "sol_commerce.cart_page",
@@ -70,6 +76,7 @@ class Catalog(http.Controller):
                 "public": request_env().user._is_public(),
                 "contacts": contacts,
                 "chosen_contact": chosen,
+                "submitted": submitted,
             },
         )
 
@@ -124,8 +131,20 @@ class Catalog(http.Controller):
             order._set_portal_dates(requested_date, bool(priority))
             order.action_submit({"name": name, "email": email, "phone": phone})
         except UserError as error:
+            request.session[CART_FORM_SESSION] = {
+                "order_id": order.id,
+                "values": {
+                    "name": name or "",
+                    "email": email or "",
+                    "phone": phone or "",
+                    "contact_id": contact_id or "",
+                    "requested_date": requested_date or "",
+                    "priority": bool(priority),
+                },
+            }
             return request.redirect(f"/cart?error={quote(str(error))}")
         request.session.pop(CART_SESSION, None)
+        request.session.pop(CART_FORM_SESSION, None)
         return request.render("sol_commerce.order_submitted", {"order": order.sudo()})
 
     def _choose_contact(self, order, contact_id):

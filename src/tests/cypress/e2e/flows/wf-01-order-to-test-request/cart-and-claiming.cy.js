@@ -53,6 +53,36 @@ describe("WF-01 portal cart and order claiming (F-04, F-05)", () => {
     cy.get("form[action='/cart/submit']").should("exist");
   });
 
+  it("TC-F04-04 keeps a priority request and submitted details after missing-date validation", () => {
+    becomeVisitor().then(() => {
+      cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
+      cy.location("pathname").should("eq", "/cart");
+      cy.get("form[action='/cart/submit'] input[name=name]").type("Lê Văn Khách");
+      cy.get("form[action='/cart/submit'] input[name=email]").type("priority@example.test");
+      cy.get("form[action='/cart/submit'] input[name=phone]").type("0901234567");
+      cy.get("#requested_date").should("have.value", "");
+      cy.get("#priority").check();
+      cy.get("form[action='/cart/submit'] button[type=submit]").first().click();
+
+      cy.location("pathname").should("eq", "/cart");
+      cy.contains("p.text-danger", "Give the date you want the results to ask for priority.");
+      cy.get("form[action='/cart/submit']").should("exist");
+      cy.contains("tr", "Lead (Pb)").should("exist");
+      cy.get("#priority").should("be.checked");
+      cy.get("#requested_date").should("have.value", "");
+      cy.get("form[action='/cart/submit'] input[name=name]").should("have.value", "Lê Văn Khách");
+      cy.get("form[action='/cart/submit'] input[name=email]").should("have.value", "priority@example.test");
+      cy.get("form[action='/cart/submit'] input[name=phone]").should("have.value", "0901234567");
+
+      cy.visit("/cart");
+      cy.get("#priority").should("not.be.checked");
+      cy.get("#requested_date").should("have.value", "");
+      cy.get("form[action='/cart/submit'] input[name=name]").should("have.value", "");
+      cy.get("form[action='/cart/submit'] input[name=email]").should("have.value", "");
+      cy.get("form[action='/cart/submit'] input[name=phone]").should("have.value", "");
+    });
+  });
+
   it("TC-F05-02 lets a salesperson who reads every order read another salesperson's order without changing it", () => {
     refAs("demo.administrator", "sol_demo.demo_sale_order_history_sales_2_1").then((other) => {
       cy.signInAs("sales");

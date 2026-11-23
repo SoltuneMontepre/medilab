@@ -16,6 +16,16 @@ class TestOrderCart(OrderCase):
         with self.assertRaises(UserError):
             order.action_submit()
 
+    def test_priority_without_a_date_leaves_the_draft_unsubmitted(self):
+        order = self.make_order([(self.lead_product, 1)])
+
+        with self.assertRaisesRegex(UserError, "Give the date"):
+            order._set_portal_dates(False, True)
+
+        self.assertEqual(order.order_status, "draft")
+        self.assertFalse(order.requested_date)
+        self.assertFalse(order.priority_request)
+
     def test_cart_total_excludes_vat_and_uses_the_package_price(self):
         order = self.make_order([(self.lead_product, 2), (self.package_product, 1)])
         package_line = order._catalog_lines().filtered(
