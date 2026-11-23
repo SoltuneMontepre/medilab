@@ -63,5 +63,6 @@ export function useLoad<T>(read: () => Promise<T>) {
 
   const setLoad = useCallback((load: Load<T>) => setShown({ read, load }), [read]);
   const load: Load<T> = shown.read === read ? shown.load : LOADING;
-  return { load, setLoad, reload };
+  // Reads again while what was read stays shown, such as when the person pulls a list down.
+  return { load, setLoad, reload, refresh: attempt };
 }

@@ -22,8 +22,8 @@ class LabTimezoneCase(ScheduleInvariantsCase):
         person.write({"resource_calendar_id": calendar.id, "tz": tz})
 
     @classmethod
-    def lead_test_expected_on(cls, expected_date):
+    def lead_test_expected_on(cls, committed_date):
         """A lead test on a new sample whose request is expected on the date, so its due date is computed from it."""
         request = cls.create_request()
-        request.expected_date = expected_date
+        request.committed_date = committed_date
         return request.sample_ids.test_ids

@@ -37,4 +37,14 @@
         <field name="role_id" ref="sol_laboratory.role_administrator" />
         <field name="deadline_hours">24</field>
     </record>
+    <record id="task_type_payment_review" model="medilab.task.type">
+        <field name="code">payment_review</field>
+        <field name="name">Payment confirmation</field>
+        <field name="trigger">payment_recorded</field>
+        <field name="document_model">account.payment</field>
+        <field name="action">confirm_payment</field>
+        <field name="route">role</field>
+        <field name="role_id" ref="sol_laboratory.role_administrator" />
+        <field name="deadline_hours">24</field>
+    </record>
 </odoo>

@@ -94,6 +94,9 @@
                     />
                 </header>
                 <sheet>
+                    <div class="alert alert-info" role="status" invisible="status != 'expected'">
+                        Enter the physical state, the amount received and the condition under Receipt, then press Receive.
+                    </div>
                     <div class="alert alert-warning" role="alert" invisible="not regulation_notice">
                         <field name="regulation_notice" />
                     </div>
@@ -103,12 +106,14 @@
                     </div>
                     <group>
                         <group>
-                            <field name="request_id" />
-                            <field name="customer_sample_name" />
-                            <field name="sample_type_id" />
+                            <field name="agreed_on_order" invisible="1" />
+                            <field name="request_id" readonly="agreed_on_order" />
+                            <field name="customer_sample_name" readonly="agreed_on_order" />
+                            <field name="sample_type_id" readonly="agreed_on_order" />
                             <field name="physical_state" />
                             <field
                                 name="regulation_id"
+                                readonly="agreed_on_order"
                                 domain="[
                                     ('sample_type_ids', 'parent_of', sample_type_id),
                                     '|', ('valid_from', '=', False), ('valid_from', '&lt;=', context_today().strftime('%Y-%m-%d')),
@@ -160,7 +165,7 @@
                     </group>
                     <notebook>
                         <page string="Tests" name="tests">
-                            <field name="test_ids">
+                            <field name="test_ids" readonly="agreed_on_order">
                                 <list editable="bottom" decoration-bf="can_enter_result">
                                     <field name="parameter_id" />
                                     <field name="parameter_method_id" readonly="1" optional="show" />

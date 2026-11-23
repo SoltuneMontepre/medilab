@@ -145,13 +145,14 @@
     </record>
     <!-- Started yesterday and neither given a result nor marked finished, so it still holds ICP-MS 1 and puts the next
          booking at risk. -->
+    <!-- The overrun booking ran on the last working day before today. -->
     <record id="demo_machine_booking_lead_overrun" model="medilab.machine.booking">
         <field name="machine_id" ref="demo_machine_icpms" />
         <field name="sample_test_id" ref="demo_sample_test_lead_overrun" />
         <field name="task_id" ref="demo_task_sample_test_lead_overrun" />
         <field name="person_id" ref="demo_person_chemistry_tester" />
-        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=-1, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
-        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=-1, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=-{0: 3, 6: 2}.get(DateTime.now().weekday(), 1), hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=-{0: 3, 6: 2}.get(DateTime.now().weekday(), 1), hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">in_progress</field>
     </record>
     <record id="demo_machine_booking_lead_overrun_next" model="medilab.machine.booking">

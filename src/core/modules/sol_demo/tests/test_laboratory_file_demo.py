@@ -5,7 +5,15 @@ from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.sol_demo.demo_laboratory_editing import ONLINE_CONTENT
 from odoo.addons.sol_demo.demo_laboratory_files import SAMPLE_RESULT_SAVES, SAVES
-from odoo.addons.sol_laboratory.constants.laboratory_files import CONFLICT, LOCKED, RESTORED, VERIFIED
+from odoo.addons.sol_laboratory.constants.laboratory_files import (
+    CONFLICT,
+    FILE_READ,
+    FILE_WRITE,
+    FOLDER_SAMPLE_CLOSED,
+    LOCKED,
+    RESTORED,
+    VERIFIED,
+)
 from odoo.addons.sol_laboratory.constants.laboratory_uploads import (
     COMPLETED,
     PREPARED,
@@ -16,10 +24,26 @@ from odoo.addons.sol_laboratory.constants.laboratory_uploads import (
     UPLOAD_FAILED,
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_UPLOAD
+from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
 
 @tagged("post_install", "-at_install")
 class TestLaboratoryFileDemo(TransactionCase):
+    def test_the_completed_samples_result_file_is_readable_but_cannot_add_a_version(self):
+        sample = self.env.ref("sol_demo.demo_sample_cabbage_completed")
+        file = self.env.ref("sol_demo.demo_laboratory_file_cabbage_results")
+        head = self.env.ref("sol_demo.demo_res_users_head_of_department")
+
+        self.assertEqual(sample.status, "completed")
+        self.assertEqual(file.folder_id.sample_id, sample)
+        file.with_user(head)._check_file_access(FILE_READ)
+        with self.assertRaises(LaboratoryFileError) as caught:
+            file.with_user(head)._check_file_access(FILE_WRITE)
+        self.assertEqual(caught.exception.code, FOLDER_SAMPLE_CLOSED)
+        with self.assertRaises(LaboratoryFileError) as caught:
+            file.with_user(head)._check_can_add_version(head, None)
+        self.assertEqual(caught.exception.code, FOLDER_SAMPLE_CLOSED)
+
     def test_seed_spreadsheets_contain_xlsx_workbooks(self):
         spreadsheets = [content for key, _, _, content, _ in SAVES if key == "hplc_results"]
         spreadsheets += list(SAMPLE_RESULT_SAVES)

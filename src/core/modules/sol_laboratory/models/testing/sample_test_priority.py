@@ -46,7 +46,7 @@ class SampleTestPriority(models.Model, SampleTestPriorityBase):
         # True when the test's planned finish is after its internal due date or no free slot lets it finish by then;
         # its tester and head of department are told when it turns true.
         at_risk = fields.Boolean(string="At Risk", readonly=True, copy=False, index=True)
-        # The plan's priority class: urgent when marked urgent, due soon when the due date is within the urgency
+        # The plan's priority class: urgent when marked urgent or its request is an accepted priority order, due soon when the due date is within the urgency
         # threshold, otherwise normal.
         priority = fields.Selection(
             [("urgent", "Urgent"), ("due_soon", "Due Soon"), ("normal", "Normal")], compute="_compute_priority"
@@ -60,12 +60,12 @@ class SampleTestPriority(models.Model, SampleTestPriorityBase):
             self.env[MODEL_MACHINE_BOOKING]._plan(self.sudo().booking_ids.department_id)
         return result
 
-    @api.depends("marked_urgent", "due_date")
+    @api.depends("marked_urgent", "due_date", "sample_id.request_id.priority")
     def _compute_priority(self):
         hours = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("urgency_hours")
         until = fields.Datetime.now() + timedelta(hours=hours)
         for test in self:
-            if test.marked_urgent:
+            if test.marked_urgent or test.sudo().sample_id.request_id.priority:
                 test.priority = "urgent"
             elif test.due_date and test.due_date <= until:
                 test.priority = "due_soon"
@@ -94,7 +94,7 @@ class SampleTestPriority(models.Model, SampleTestPriorityBase):
         )
         return (
             PRIORITY_RANKS[test.priority or "normal"],
-            test.sample_id.request_id.expected_date or date.max,
+            test.sample_id.request_id.committed_date or date.max,
             handover.received_at or datetime.max,
             test.id,
         )

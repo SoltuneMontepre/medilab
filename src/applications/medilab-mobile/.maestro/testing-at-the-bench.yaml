@@ -29,13 +29,12 @@ env:
     visible:
       id: "home"
     timeout: 60000
-- scrollUntilVisible:
-    element:
-      id: "home-scan"
-    direction: DOWN
+- extendedWaitUntil:
+    visible:
+      id: "tab-scan"
     timeout: 30000
 - tapOn:
-    id: "home-scan"
+    id: "tab-scan"
 # Android asks for the camera; the flow types the label's code instead.
 - tapOn:
     text: "Don.t allow"
@@ -70,9 +69,11 @@ env:
 - repeat:
     while:
       notVisible:
-        id: "home"
+        id: "tab-tasks"
     commands:
       - back
+- tapOn:
+    id: "tab-tasks"
 - scrollUntilVisible:
     element:
       id: "home-todo"

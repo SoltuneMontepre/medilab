@@ -19,6 +19,29 @@
                     <a t-if="legacy_invoice.amount_residual and quotation.status == 'sent'" class="btn btn-primary" t-att-href="legacy_invoice_url"><i class="oi me-1" data-icon="credit_card" aria-hidden="true" />Pay the advance</a>
                 </p>
                 <p t-if="order.payment_deadline and not advance and not legacy_invoice">Accept the quotation before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
+                <dl class="d-flex flex-wrap column-gap-4 row-gap-1 mb-3">
+                    <div t-if="order.requested_date" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Requested date</dt>
+                        <dd class="mb-0" t-out="order.requested_date" t-options="{'widget': 'date'}" />
+                    </div>
+                    <div t-if="order.priority_request" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Priority</dt>
+                        <dd class="mb-0" t-out="dict(order._fields['priority_request']._description_selection(order.env))[order.priority_request]" />
+                    </div>
+                    <div t-if="order.committed_date" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Committed return date</dt>
+                        <dd class="mb-0" t-out="order.committed_date" t-options="{'widget': 'date'}" />
+                    </div>
+                    <div t-elif="order.turnaround_days" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Results</dt>
+                        <dd class="mb-0">Within <t t-out="order.turnaround_days" /> working days of receiving the samples</dd>
+                    </div>
+                    <!-- When the rest is paid; the report is released once the order is paid in full. -->
+                    <div t-if="order.advance_mode != 'full'" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Balance due</dt>
+                        <dd class="mb-0"><span t-field="order.balance_due" /></dd>
+                    </div>
+                </dl>
                 <t t-set="show_discount" t-value="any(lines.mapped('discount'))" />
                 <div class="table-responsive">
                     <table class="table">

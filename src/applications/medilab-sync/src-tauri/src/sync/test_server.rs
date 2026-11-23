@@ -506,7 +506,7 @@ fn expires() -> String {
     (chrono::Utc::now() + chrono::Duration::minutes(15)).to_rfc3339()
 }
 fn version_value(id: i64, size: i64, hash: &str) -> serde_json::Value {
-    serde_json::json!({"id":id,"number":id,"source":"synced","size":size,"sha256":hash,
+    serde_json::json!({"id":id,"number":id,"source":"synced","size":size,"sha256":hash,"content_available":true,
         "parent_version_id":null,"restored_from_id":null,"saved_by":{"id":2,"name":"Tester"},"device":{"id":1,"name":"PC"},"created_at":"2026-10-25T00:00:00Z"})
 }
 fn upload_value(id: i64, s: &Session, part_size: i64) -> serde_json::Value {

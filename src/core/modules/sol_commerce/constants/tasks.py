@@ -6,3 +6,5 @@ POSTING_TRIGGER = "invoice_drafted"
 POSTING_ACTION = "post"
 # Set while the system drafts an invoice it posts right away, so no posting task is created for it.
 AUTO_POST_CONTEXT = "medilab_auto_post"
+PAYMENT_REVIEW_TRIGGER = "payment_recorded"
+PAYMENT_REVIEW_ACTION = "confirm_payment"

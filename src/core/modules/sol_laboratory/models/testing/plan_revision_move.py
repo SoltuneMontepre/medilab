@@ -80,7 +80,7 @@ class PlanRevisionMove(models.Model, PlanRevisionMoveBase):
         # The internal due date of the sample test.
         due_date = fields.Datetime(related="booking_id.sample_test_id.due_date")
         # The committed return date Sales promised the customer.
-        committed_date = fields.Date(related="booking_id.sample_test_id.sample_id.request_id.expected_date")
+        committed_date = fields.Date(related="booking_id.sample_test_id.sample_id.request_id.committed_date")
 
     _revision_booking_unique = models.Constraint(
         "UNIQUE(revision_id, booking_id)", "A plan revision moves a booking once."

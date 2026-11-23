@@ -57,7 +57,7 @@ describe("TaskScreen", () => {
 
     expect(await screen.findByText("Bước 1 · 15 phút")).toBeOnTheScreen();
     expect(await screen.findByText("Chì (Pb) – TCVN 7602:2007")).toBeOnTheScreen();
-    expect(screen.getByText("PTN.2026.0042")).toBeOnTheScreen();
+    expect(screen.getAllByText("PTN.2026.0042")[0]).toBeOnTheScreen();
     expect(screen.queryByRole("button", { name: "Nhập kết quả" })).toBeNull();
     expect(screen.getByText("Ash the test portion.")).toBeOnTheScreen();
     expect(screen.getByText("Tại: Balance room")).toBeOnTheScreen();
@@ -157,7 +157,7 @@ describe("TaskScreen", () => {
     );
     await renderSignedIn(<TaskScreen />);
 
-    expect(await screen.findByText("Ao số 2, trang trại Phạm Văn Long")).toBeOnTheScreen();
+    expect((await screen.findAllByText("Ao số 2, trang trại Phạm Văn Long"))[0]).toBeOnTheScreen();
     expect(screen.getByText("Mẫu cần lấy")).toBeOnTheScreen();
     expect(screen.getAllByRole("button", { name: "Mở PTN.2026.0042" })).toHaveLength(1);
 

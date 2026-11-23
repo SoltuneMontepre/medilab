@@ -101,7 +101,8 @@ class TestQuotationAdvance(OrderCase):
 
         first = order.currency_id.round(balance.amount / 3)
         payments._create_request_payment(balance, first, "cash").action_post()
-        self.assertEqual(order.test_request_id.status, "confirmed")
+        # The verified advance released the request to the laboratory; the balance waits for the report.
+        self.assertEqual(order.test_request_id.status, "paid")
         balance._expire_requests()
         self.assertEqual(balance.state, "open")
         self.assertEqual(balance.verified_amount, first)
@@ -241,7 +242,7 @@ class TestQuotationAdvance(OrderCase):
 
         self.assertEqual(order._latest_quotation().status, "accepted")
         self.assertEqual(order.quotation_follow_up, "accepted")
-        self.assertTrue(order.show_unpaid_warning)
+        self.assertFalse(order.show_unpaid_warning)
 
     def test_only_a_quotation_without_an_advance_is_accepted_by_the_customer(self):
         order = self.make_quotable_order()

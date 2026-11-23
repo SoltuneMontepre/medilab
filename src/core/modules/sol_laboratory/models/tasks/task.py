@@ -22,9 +22,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.scheduling import CALENDAR_SYNC_CONTEXT, CALENDAR_SYNC_TOKEN
 from odoo.addons.sol_laboratory.constants.tasks import FINAL_STATUSES, MANUAL_TRIGGER, TESTING_ACTION
+from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_ROLE
 from odoo.addons.sol_laboratory.services.document_code import document_code
 from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
+from odoo.addons.sol_laboratory.services.staff_language import staff_env
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -113,6 +115,8 @@ class Task(models.Model, TaskBase):
         sampling_location_id = fields.Many2one(
             MODEL_LOCATION, compute="_compute_sample_test_details", string="Sampling Location"
         )
+        # Where the work is done outside the laboratory, such as the address samples are collected at.
+        place = fields.Char()
         # True when the system closes the task once its work is done, rather than the assignee.
         closed_by_system = fields.Boolean(compute="_compute_closed_by_system")
         # True when the current user is the assignee.
@@ -226,12 +230,22 @@ class Task(models.Model, TaskBase):
             & Domain("type_id.route", "=", "role")
             & Domain("type_id.role_id", "in", person.role_ids.ids)
         )
-        return Domain("status", "=", "open") & (department_queue | role_queue)
+        administrator_queue = (
+            Domain("department_id", "=", False) & Domain("type_id.route", "=", "administrator")
+            if self.env.ref(ADMINISTRATOR_ROLE) in person.role_ids
+            else Domain.FALSE
+        )
+        return Domain("status", "=", "open") & (department_queue | role_queue | administrator_queue)
 
     @api.constrains("status", "assignee_id", "department_id", "type_id")
     def _check_queue(self):
         for task in self:
-            if task.status != "open" or task.assignee_id or task.department_id or task.type_id.route == "role":
+            if (
+                task.status != "open"
+                or task.assignee_id
+                or task.department_id
+                or task.type_id.route in {"role", "administrator"}
+            ):
                 continue
             raise ValidationError(self.env._("%s needs an assignee or a department whose queue holds it.", task.name))
 
@@ -291,6 +305,7 @@ class Task(models.Model, TaskBase):
             "planned_end",
             "assignee_id",
             "name",
+            "place",
             "status",
         } & set(vals):
             self._sync_calendar_event()
@@ -333,7 +348,9 @@ class Task(models.Model, TaskBase):
             return False
         if self.department_id:
             return self.department_id == person.department_id
-        return self.type_id.route == "role" and self.type_id.role_id in person.role_ids
+        if self.type_id.route == "role":
+            return self.type_id.role_id in person.role_ids
+        return self.type_id.route == "administrator" and self.env.ref(ADMINISTRATOR_ROLE) in person.role_ids
 
     def action_claim(self):
         person = self.env[MODEL_PERSON]._current()
@@ -399,7 +416,7 @@ class Task(models.Model, TaskBase):
                 "user_id": user.id,
                 "partner_ids": [Command.set([persisted_id(user.partner_id)])],
                 "alarm_ids": [Command.clear()],
-                "location": task.sampling_location_id.display_name or False,
+                "location": task.place or task.sampling_location_id.display_name or False,
             }
             if event:
                 event.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN}).write(values)
@@ -452,7 +469,8 @@ class Task(models.Model, TaskBase):
         """
         department = values.pop("department", None)
         assignee = values.pop("assignee", None)
-        task_types = self.env[MODEL_TASK_TYPE].sudo().search([("trigger", "=", trigger)])
+        # Task names are read by staff; a customer acting on the portal does not set their language.
+        task_types = staff_env(self.env)[MODEL_TASK_TYPE].sudo().search([("trigger", "=", trigger)])
         vals_list = [
             {
                 "type_id": task_type.id,
@@ -551,7 +569,7 @@ class Task(models.Model, TaskBase):
                 "closed_by_system": task.closed_by_system,
                 "has_document": bool(task.document_id),
                 "department": task.sudo().department_id.display_name or "",
-                "location": task.sampling_location_id.display_name or "",
+                "location": task.place or task.sampling_location_id.display_name or "",
             }
             for task in self
         ]

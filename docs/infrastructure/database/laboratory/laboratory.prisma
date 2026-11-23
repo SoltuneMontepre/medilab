@@ -579,6 +579,8 @@ model ParameterMethod {
   allows_negative  Boolean         @default(false)
   /// Minutes a booking of the way takes when its method is linked to no machine, covering preparation, measurement and time to repeat a failed measurement; rounded up to 15-minute slots. Empty when the method has a machine, whose link gives the duration; an in-house way without either cannot be booked.
   duration_minutes Int?
+  /// Standard turnaround: the working days its results take from sample receipt; for a subcontracted way it covers transport and the subcontractor's processing. A quotation with a way without it cannot be sent.
+  turnaround_days  Int?
   /// Samples one interval of a tester holds for bookings of the way when its method is linked to no machine; at least 1.
   capacity         Int             @default(1)
   /// Days from sending a dispatch through the subcontracted way until its results are back, transport and processing included; empty when unknown or for an in-house way.
@@ -978,8 +980,10 @@ model TestRequest {
   requested_date DateTime? @db.Date
   /// Committed return date: the date Sales promised the customer the results. Only Sales changes it, with the customer's agreement; each change is a CommittedDateChange.
   committed_date DateTime? @db.Date
-  /// True for an accepted priority request: the requested date is earlier than the estimate and the check said it can be met, so its tests are urgent.
+  /// True for an accepted priority request: the feasibility check said the requested date can be met, so its tests are urgent.
   priority      Boolean  @default(false)
+  /// Working days results take from sample receipt, the longest standard turnaround of the accepted ways; receiving the first sample fixes the committed date with it when none was agreed.
+  turnaround_days Int?
   /// Language the customer wants the report in: vi, en or bilingual.
   report_language String @default("bilingual") @db.VarChar
   /// How the report reaches the customer: in_person, post, email or other.
@@ -1515,6 +1519,8 @@ model User {
   owned_folders      LaboratoryFolder[]         @relation("FolderOwner")
   /// Laboratory folders the user is a member of.
   folder_memberships LaboratoryFolderMember[]   @relation("FolderMember")
+  /// Folders whose content removal the user approved.
+  approved_folder_retention LaboratoryFolder[] @relation("FolderRetentionApprover")
   /// Laboratory file versions the user saved.
   file_versions      LaboratoryFileVersion[]    @relation("VersionAuthor")
   /// Laboratory file uploads the user made.
@@ -3097,6 +3103,12 @@ model LaboratoryFolder {
   archived_at      DateTime?
   /// Date until which an archived folder keeps its files.
   retention_until  DateTime? @db.Date
+  /// Whether the daily job flagged this expired folder for administrator review.
+  retention_review_required Boolean @default(false)
+  /// When an administrator approved eligible content removal.
+  retention_approved_at DateTime?
+  /// The administrator who approved eligible content removal.
+  retention_approved_by_id Int?
   /// The device the folder was created from, for the audit.
   created_by_device_id Int?
   /// The Idempotency-Key the computer sent with the request that created the folder; empty when it sent none.
@@ -3107,6 +3119,8 @@ model LaboratoryFolder {
   sample           Sample?   @relation(fields: [sample_id], references: [id], onDelete: Restrict)
   /// The device the folder was created from.
   created_by_device LaboratoryDevice? @relation(fields: [created_by_device_id], references: [id], onDelete: SetNull)
+  /// The administrator who approved eligible content removal.
+  retention_approved_by User? @relation("FolderRetentionApprover", fields: [retention_approved_by_id], references: [id], onDelete: Restrict)
   /// People who can read and write the folder, the owner included.
   members          LaboratoryFolderMember[]
   /// Which files of a bound local folder are synced.
@@ -3220,8 +3234,10 @@ model LaboratoryFileVersion {
   size               BigInt
   /// SHA-256 of the content, in hexadecimal, as the server computed it.
   sha256             String         @db.VarChar
-  /// The verified content the version holds; versions with the same content share it.
-  content_id         Int
+  /// The verified content the version holds; empty after approved retention removal.
+  content_id         Int?
+  /// When approved retention removal detached this version from its content.
+  content_removed_at DateTime?
   /// The user who saved the version.
   user_id            Int
   /// The device it came from; empty for a version made online or by a restore in the back office.
@@ -3235,7 +3251,7 @@ model LaboratoryFileVersion {
   /// The file.
   file               LaboratoryFile @relation("FileVersions", fields: [file_id], references: [id], onDelete: Restrict)
   /// The verified content the version holds.
-  content            LaboratoryContent @relation(fields: [content_id], references: [id], onDelete: Restrict)
+  content            LaboratoryContent? @relation(fields: [content_id], references: [id], onDelete: Restrict)
   /// The file whose current version this is.
   current_of         LaboratoryFile? @relation("CurrentVersion")
   /// The version that was current when this one was made.
@@ -3275,7 +3291,7 @@ model LaboratoryFileVersion {
 }
 
 /// One object of the laboratory files bucket, with the size and SHA-256 the server computed of it. Its object key and,
-/// once settled, its state, size and SHA-256 never change, and it is never deleted. Only full rights reach it.
+/// once settled, its size and SHA-256 never change, and the row is never deleted. Approved retention may mark it removed after no version refers to it. Only full rights reach it.
 /// object_key is checked to be 32 lowercase hexadecimal digits, sha256 64; verified and duplicate content have a size
 /// and a SHA-256, and the SHA-256 is unique among verified content (a partial unique index).
 model LaboratoryContent {
@@ -3283,7 +3299,7 @@ model LaboratoryContent {
   id         Int                     @id @default(autoincrement())
   /// Key of the object in the bucket: 32 hexadecimal digits the server made, which tell nothing about the content.
   object_key String                  @unique @db.VarChar
-  /// pending, verified, duplicate or failed.
+  /// pending, verified, duplicate, failed or retention_removed.
   state      String                  @default("pending") @db.VarChar
   /// Size of the content in bytes, as the server computed it; empty while pending.
   size       BigInt?

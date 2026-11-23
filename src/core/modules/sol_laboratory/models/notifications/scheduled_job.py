@@ -8,6 +8,7 @@ from odoo.tools import format_datetime
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_ENTRY,
+    MODEL_MAIL_NOTIFICATION,
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_SCHEDULED_JOB,
 )
@@ -23,6 +24,7 @@ from odoo.addons.sol_laboratory.services.firebase_client import (
     TemporaryFirebaseError,
     firebase_client_from_env,
 )
+from odoo.addons.sol_laboratory.services.staff_language import staff_env
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_scheduled_job as ScheduledJobBase
@@ -75,16 +77,18 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         if item.item_key != f"{event.id}:{stamp}":
             return
         task = event.medilab_task_id or event.medilab_booking_ids.task_id[:1]
-        # The organiser's or the assignee's time zone, as their calendar shows the event.
-        zone = event.user_id.tz or self.env.company.tz or "UTC"
-        start = format_datetime(self.env, event.start, tz=zone)
         if not task:
             if event.location_id and event.active:
+                env = self._reminder_env(event.user_id)
                 self.env["mail.message"].raise_event(
                     EVENT_LOCATION_BOOKING_REMINDER,
                     event,
                     f"calendar:{event.id}:reminder:{stamp}",
-                    self.env._("Starts at %(start)s in %(location)s.", start=start, location=event.location),
+                    env._(
+                        "Starts at %(start)s in %(location)s.",
+                        start=format_datetime(env, event.start, tz=env.context["tz"]),
+                        location=event.location,
+                    ),
                     subject=event.name,
                     partners=event.partner_ids,
                 )
@@ -92,28 +96,52 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         partner = event.user_id.partner_id
         if not partner:
             return
+        env = self._reminder_env(event.user_id)
         self.env["mail.message"].raise_event(
             EVENT_TASK_REMINDER,
             task,
             f"calendar:{event.id}:reminder:{stamp}",
-            self.env._("Starts at %(start)s.", start=start),
+            env._("Starts at %(start)s.", start=format_datetime(env, event.start, tz=env.context["tz"])),
             subject=task.name,
             partners=partner,
         )
 
+    def _reminder_env(self, user):
+        """The environment that writes a reminder in the language and time zone of the person it reminds."""
+        tz = (user and user.tz) or self.env.company.partner_id.tz or VIETNAM_ZONE
+        env = staff_env(self.env, user)
+        return env(context=dict(env.context, tz=tz))
+
     def _handle_notifications_email(self, item):
         mail = item._document()
         if not mail or not mail.exists() or mail.state == "sent":
-            return
+            return None
+        notification = self.env[MODEL_MAIL_NOTIFICATION].sudo().search(
+            [
+                ("mail_mail_id", "=", mail.id),
+                ("mail_message_id.subtype_id.mandatory", "=", True),
+            ],
+            limit=1,
+        )
+        if notification and notification.res_partner_id.email_bounced:
+            mail.sudo().write({"state": "cancel"})
+            notification.sudo().write({"notification_status": "bounce", "failure_type": "mail_bounce"})
+            return None
         if mail.state == "cancel":
             raise PermanentJobError(self.env._("The email was cancelled."))
         if mail.state == "exception" and mail.failure_type not in (False, "mail_smtp", "unknown"):
+            if notification:
+                notification._mark_email_bounced(notification.email_retry_attempts + 1)
+                return None
             raise PermanentJobError(mail.failure_reason or self.env._("The email cannot be sent."))
         mail.sudo().write({"state": "outgoing", "failure_reason": False, "failure_type": False})
         mail.sudo().send(raise_exception=False)
         mail.invalidate_recordset()
         if mail.state == "exception":
+            if notification:
+                return notification._schedule_email_retry()
             raise UserError(mail.failure_reason or self.env._("The mail server did not accept the message."))
+        return None
 
     def _handle_notifications_push(self, item):
         delivery = item._document()

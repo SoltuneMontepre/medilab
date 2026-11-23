@@ -109,6 +109,39 @@ def seed_sampling(env):
     _xml_id(env, "demo_sale_order_quotation_sampling_confirmed", orders[1])
 
 
+def seed_dates(env):
+    """Quotations whose requested date the standard turnaround meets, whose committed date is later than the requested
+    one, and whose priority request Sales accepted or declined."""
+    if env.ref("sol_demo.demo_sale_order_dates_feasible", raise_if_not_found=False):
+        return
+    sales = env.ref("sol_demo.demo_res_users_sales")
+    lead = _product(env, "parameter_id", env.ref("sol_demo.demo_parameter_price_lead").parameter_id.id)
+    tax = _sales_tax(env, 10)
+    today = fields.Date.today()
+    orders = {}
+    for name in ("feasible", "later", "priority_accepted", "priority_declined"):
+        orders[name] = _quotable_order(env, lead, tax, advance_method="bank_transfer", advance_mode="full")
+    orders["feasible"].requested_date = today + timedelta(days=30)
+    later = orders["later"]
+    later.write({"requested_date": today + timedelta(days=1)})
+    later.committed_date = later.estimated_result_date
+    accepted = orders["priority_accepted"]
+    # The demo has no free slots to check, so the accepted request is written as Sales would leave it.
+    accepted.write(
+        {
+            "requested_date": today + timedelta(days=14),
+            "priority_request": "accepted",
+            "committed_date": today + timedelta(days=14),
+        }
+    )
+    declined = orders["priority_declined"]
+    declined.write({"requested_date": today + timedelta(days=1), "priority_request": "requested"})
+    _as(declined, sales).action_decline_priority()
+    for name, order in orders.items():
+        _as(order, sales).action_send_quotation()
+        _xml_id(env, f"demo_sale_order_dates_{name}", order)
+
+
 def _other_way(line):
     """A way of testing offered for the line's parameter other than the one it has, or empty."""
     return (line._offered_ways() - line.parameter_method_id)[:1]

@@ -24,6 +24,7 @@ services:
       - onlyoffice
     volumes:
       - ../../infra/cluster/onlyoffice:/opt/medilab/onlyoffice:ro
+      - ../../infra/cluster/onlyoffice/document_editor_service_worker.js:/var/www/onlyoffice/documentserver/sdkjs/common/serviceworker/document_editor_service_worker.js:ro
       - ${ONLYOFFICE_TLS_DIR:?Set the directory containing tls.crt and tls.key}:/run/onlyoffice-tls:ro
       - ${ONLYOFFICE_CA_DIR:?Set the directory containing ca.crt}:/run/onlyoffice-ca:ro
       - onlyoffice-lib:/var/lib/onlyoffice

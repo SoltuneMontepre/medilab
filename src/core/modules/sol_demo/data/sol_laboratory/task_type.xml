@@ -7,6 +7,13 @@
         name="write"
         eval="[[ref('sol_laboratory.task_type_sample_collection')], {'route': 'role', 'role_id': ref('demo_role_sample_delivery_staff')}]"
     />
+    <!-- The accountant confirms the transfers and cash payments sales or customers report. The type came after the
+         demo was first installed, so a function routes it on every update. -->
+    <function
+        model="medilab.task.type"
+        name="write"
+        eval="[[ref('sol_commerce.task_type_payment_review')], {'role_id': ref('demo_role_accountant')}]"
+    />
     <data noupdate="1">
         <!-- The lab head signs the reports. -->
         <record id="sol_laboratory.task_type_report_signing" model="medilab.task.type">

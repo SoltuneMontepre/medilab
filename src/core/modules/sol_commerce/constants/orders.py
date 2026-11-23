@@ -41,8 +41,12 @@ ADVANCE_FULL = "full"
 ADVANCE_PERCENTAGE = "percentage"
 ADVANCE_FIXED = "fixed"
 ADVANCE_PAID_STATES = ("paid", "in_payment")
+# When the balance after the advance is due; whatever Sales chose, the issued report waits until the order is paid.
+BALANCE_BEFORE_COLLECTION = "before_collection"
+BALANCE_AT_COLLECTION = "at_collection"
+BALANCE_BEFORE_REPORT = "before_report"
 # The advance fields stop changing once the current revision is sent.
-ADVANCE_FIELDS = frozenset({"advance_method", "advance_mode", "advance_value"})
+ADVANCE_FIELDS = frozenset({"advance_method", "advance_mode", "advance_value", "balance_due"})
 # The quotation statuses under which the order's advance, lines and samples stay as quoted.
 QUOTATION_FROZEN_STATUSES = (QUOTATION_SENT, QUOTATION_ACCEPTED)
 
@@ -77,6 +81,9 @@ FROZEN_LINE_FIELDS = frozenset(
     }
 )
 
+# The dates and priority of the order that stop changing once the quotation is sent.
+DATE_FIELDS = frozenset({"requested_date", "committed_date", "priority_request"})
+
 # The sample fields that stop changing with the lines.
 FROZEN_SAMPLE_FIELDS = frozenset(
     {"order_id", "customer_sample_name", "sample_type_id", "physical_state", "regulation_id", "sequence"}
@@ -88,11 +95,15 @@ PORTAL_LOCKED_ORDER_FIELDS = frozenset(
         "advance_method",
         "advance_mode",
         "advance_value",
+        "balance_due",
         "claimed_at",
         "confirmed_at",
         "customer_id",
-        "expected_result_date",
+        "committed_date",
         "order_status",
+        "priority_request",
+        "requested_date",
+        "turnaround_days",
         "payment_deadline",
         "reordered_from_id",
         "reorder_note",

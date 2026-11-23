@@ -34,4 +34,4 @@ configMapGenerator:
       disableNameSuffixHash: true
 images:
   - name: ghcr.io/soltunemontepre/medilab
-    newTag: sha-dedec6ce8550beaec40d069272d55748cb5e828c
+    newTag: sha-8c58004c5f469e294ddffa4f4aeb8b89485dd1d5
