@@ -89,27 +89,27 @@ describe("WF-04 Result entry and approval", () => {
     });
   });
 
-  it("TC-WF04-E1 lets the head reject a result, which stays on record and opens a new testing task", () => {
+  it("TC-WF04-E1 lets the head reject a result, which stays on record and gives the tester a new testing task", () => {
     const reason = "Mẫu chuẩn kiểm tra đọc cao 15%, hiệu chuẩn lại máy AAS và đo lại.";
     sentResult().then(({ test, result }) => {
       step("The head of department rejects the result with a reason");
       cy.signInAs("head_of_department");
       cy.openRecord(result);
       cy.rejectRecord(reason);
-      step("The rejected result stays on record, and a new testing task waits with the reason");
+      step("The rejected result stays on record, and a new testing task with the reason goes back to the tester");
       cy.readRecord(result, ["status"]).its("status").should("eq", "rejected");
       cy.readRecord(test, ["status"]).its("status").should("eq", "testing");
-      testingTasks(test).then(([done, retest, ...others]) => {
-        expect(others).to.be.empty;
-        expect(done.status).to.equal("done");
-        expect(retest.status).to.equal("open");
-        expect(retest.assignee_id).to.equal(false);
-        expect(retest.note).to.contain(reason);
-      });
+      refAs(TESTER, "sol_demo.demo_person_tester").then((tester) =>
+        testingTasks(test).then(([done, retest, ...others]) => {
+          expect(others).to.be.empty;
+          expect(done.status).to.equal("done");
+          expect(retest.status).to.equal("assigned");
+          expect(retest.assignee_id[0]).to.equal(tester.id);
+          expect(retest.note).to.contain(reason);
+        }),
+      );
 
       step("The tester enters the retest result, which is the one reported");
-      // The new testing task waits in the queue: the tester claims it before entering the retest.
-      callAs(TESTER, "medilab.sample.test", "action_claim_testing_task", [[test.id]]);
       cy.signInAs("tester");
       enterResult(test, "0.009");
       results(test).then((rows) => {

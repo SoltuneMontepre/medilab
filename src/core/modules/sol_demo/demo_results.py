@@ -52,7 +52,6 @@ def seed_results(env):
     rejected.with_user(head).action_reject(
         "The calibration check standard read 15% high; recalibrate the AAS and measure again."
     )
-    _test(retested, lead)._testing_task().with_user(tester).action_claim()
     retest = _enter(env, tester, _test(retested, lead), value_text="Not detected", conclusion="pass")
     retest.with_context(lang="vi_VN").value_text = "Không phát hiện"
     waiting_result = _test(waiting, lead).result_ids
