@@ -126,6 +126,7 @@ describe("WF-01 portal cart and order claiming (F-04, F-05)", () => {
           cy.signInAs(role);
           openOrder();
           openTab("payment");
+          cy.get(".o_field_widget[name=advance_method]").should("have.class", "o_required_modifier");
           cy.get(".o_field_widget[name=advance_method] input").click();
           cy.contains("No advance").should("be.visible");
         }
