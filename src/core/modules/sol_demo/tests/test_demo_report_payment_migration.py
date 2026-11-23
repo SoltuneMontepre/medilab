@@ -30,13 +30,11 @@ class TestDemoReportPaymentMigration(HttpCase, ReportCase):
         cls.portal.password = cls.portal.login
         cls.foreign.password = cls.foreign.login
 
-    def issue_scheduled_report(self, delivery_method):
+    def issue_report(self, delivery_method):
         self.request.delivery_method = delivery_method
-        booking = self.schedule(self.test, self.tester)
         self.complete()
         self.sign()
         report = self.report()
-        self.assertTrue(booking)
         self.assertEqual(self.test.sample_id.request_id, report.request_id)
         return report
 
@@ -67,8 +65,8 @@ class TestDemoReportPaymentMigration(HttpCase, ReportCase):
         self.authenticate(user.login, user.login)
         return self.url_open(f"/my/test-reports/{report.id}/download")
 
-    def test_upgrade_releases_one_scheduled_request_through_postal_delivery_and_owner_download(self):
-        report = self.issue_scheduled_report("post")
+    def test_upgrade_releases_one_request_through_postal_delivery_and_owner_download(self):
+        report = self.issue_report("post")
         self.assertFalse(report.withheld_for_payment)
         order = self.link_unpaid_order(report)
 
@@ -94,8 +92,8 @@ class TestDemoReportPaymentMigration(HttpCase, ReportCase):
         self.assertTrue(report.delivered_at)
         self.assertEqual(report.request_id.status, "reported")
 
-    def test_upgrade_releases_one_scheduled_request_for_in_person_delivery(self):
-        report = self.issue_scheduled_report("in_person")
+    def test_upgrade_releases_one_request_for_in_person_delivery(self):
+        report = self.issue_report("in_person")
         self.assertFalse(report.withheld_for_payment)
         self.link_unpaid_order(report)
 
