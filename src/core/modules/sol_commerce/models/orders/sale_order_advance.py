@@ -29,7 +29,11 @@ class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
     def fields_get(self, allfields=None, attributes=None):
         fields = super().fields_get(allfields, attributes)
         advance_method = fields.get("advance_method")
-        if advance_method and not (self.env.su or self.env.user.has_group(ALL_ORDERS_GROUP)):
+        if (
+            advance_method
+            and "selection" in advance_method
+            and not (self.env.su or self.env.user.has_group(ALL_ORDERS_GROUP))
+        ):
             advance_method["selection"] = [
                 choice for choice in advance_method["selection"] if choice[0] != ADVANCE_NONE
             ]

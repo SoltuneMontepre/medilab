@@ -233,6 +233,14 @@ class TestQuotationAdvance(OrderCase):
         self.assertEqual(admin_choices, head_choices)
         self.assertEqual(set(sales_choices), set(head_choices) - {"none"})
 
+    def test_sales_fields_get_without_selection_attribute_does_not_add_it(self):
+        field = (
+            self.env["sale.order"].with_user(self.sales).fields_get(["advance_method"], ["string"])["advance_method"]
+        )
+
+        self.assertIn("string", field)
+        self.assertNotIn("selection", field)
+
     def test_paying_the_advance_accepts_the_quotation(self):
         order = self.make_quotable_order()
         order.with_user(self.sales).action_send_quotation()
