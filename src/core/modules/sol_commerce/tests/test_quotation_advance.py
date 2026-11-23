@@ -217,6 +217,22 @@ class TestQuotationAdvance(OrderCase):
         self.assertFalse(order.sudo().invoice_ids)
         self.assertEqual(len(self.customer_notices(order)), 1)
 
+    def test_no_advance_is_only_offered_to_authorized_users(self):
+        def choices_for(user):
+            field = (
+                self.env["sale.order"].with_user(user).fields_get(["advance_method"], ["selection"])["advance_method"]
+            )
+            return dict(field["selection"])
+
+        head_choices = choices_for(self.head)
+        admin = self.env.ref("base.user_admin")
+        admin_choices = choices_for(admin)
+        sales_choices = choices_for(self.sales)
+
+        self.assertIn("none", head_choices)
+        self.assertEqual(admin_choices, head_choices)
+        self.assertEqual(set(sales_choices), set(head_choices) - {"none"})
+
     def test_paying_the_advance_accepts_the_quotation(self):
         order = self.make_quotable_order()
         order.with_user(self.sales).action_send_quotation()

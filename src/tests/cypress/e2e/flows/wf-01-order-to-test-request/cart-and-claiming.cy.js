@@ -1,4 +1,6 @@
 import { becomeVisitor, call, callAs, callRefused, refAs } from "../../../support/odoo";
+import { openMenu, openRow, openTab } from "../../../support/form";
+import { MENU } from "../../../support/menus";
 import { CUSTOMERS, clearCarts, orderAt } from "./setup";
 
 describe("WF-01 portal cart and order claiming (F-04, F-05)", () => {
@@ -73,6 +75,31 @@ describe("WF-01 portal cart and order claiming (F-04, F-05)", () => {
       cy.get(".o_statusbar_buttons button[name=action_claim]").should("not.exist");
       callRefused("sale.order", "action_claim", [[order.id]]).should("eq", "This order is already claimed.");
       cy.readRecord(order, ["user_id"]).its("user_id.1").should("eq", "Nguyen Thi Thu");
+    });
+  });
+
+  it("TC-F05-04 hides No advance from Sales but shows it to authorized users", () => {
+    orderAt("claimed").then((order) => {
+      callAs("demo.sales", "sale.order", "read", [[order.id], ["name"]]).then(([{ name }]) => {
+        const openOrder = () => {
+          openMenu(MENU.sales, MENU.orders);
+          openRow(name);
+        };
+
+        cy.signInAs("sales");
+        openOrder();
+        openTab("payment");
+        cy.get(".o_field_widget[name=advance_method] input").click();
+        cy.contains("No advance").should("not.exist");
+
+        for (const role of ["head_of_sales", "administrator"]) {
+          cy.signInAs(role);
+          openOrder();
+          openTab("payment");
+          cy.get(".o_field_widget[name=advance_method] input").click();
+          cy.contains("No advance").should("be.visible");
+        }
+      });
     });
   });
 });

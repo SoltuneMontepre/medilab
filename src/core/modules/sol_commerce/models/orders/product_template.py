@@ -85,8 +85,24 @@ class ProductTemplate(models.Model, ProductTemplateBase):
         vals = {"name": name, "list_price": list_price, "sale_ok": bool(offered), field_name: owner.id}
         if product:
             product.write(vals)
-            return product
-        return self.sudo().create({**vals, "type": "service", "purchase_ok": False, "taxes_id": [Command.clear()]})
+        else:
+            product = self.sudo().create(
+                {**vals, "type": "service", "purchase_ok": False, "taxes_id": [Command.clear()]}
+            )
+        product._refresh_draft_cart_prices()
+        return product
+
+    def _refresh_draft_cart_prices(self):
+        lines = (
+            self.env[MODEL_SALE_ORDER_LINE]
+            .sudo()
+            .search(
+                Domain("product_id.product_tmpl_id", "in", self.ids)
+                & Domain("order_id.order_status", "=", "draft")
+                & Domain("display_type", "=", False)
+            )
+        )
+        lines._lock_catalog_price()
 
     @api.model
     def _catalog_domain(self, sample_type=None, group=None, name=None, price_min=None, price_max=None):
