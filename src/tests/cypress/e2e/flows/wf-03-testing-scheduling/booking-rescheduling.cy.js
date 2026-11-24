@@ -1,6 +1,6 @@
 import { callAs } from "../../../support/odoo";
 import { save } from "../../../support/form";
-import { formTime, milliseconds, typeTime } from "../../features/laboratory/scheduling/setup";
+import { milliseconds, shownTime, typeTime } from "../../features/laboratory/scheduling/setup";
 import { displayZone, dragBookingToSlot, wallClock } from "./screens";
 import { eventsGone, scheduleState } from "./state";
 import { HEAD, TESTER, awayFromQuarterHour, bookedOnOneMachine, book, assignedChromium, releaseFixtures, resetFixtures } from "./setup";
@@ -75,10 +75,9 @@ describe("SF-10 the head moves and cancels a department booking", () => {
           typeTime(slot, zone);
           const duration = milliseconds(booking.ends_at) - milliseconds(booking.starts_at);
           const movedEnd = new Date(milliseconds(slot) + duration).toISOString().replace("T", " ").slice(0, 19);
-          cy.get('.o_field_widget[name="ends_at"]').should(($field) => {
-            const shown = $field.find("input").val() || $field.text();
-            expect(String(shown).trim()).to.include(formTime(movedEnd, zone).slice(0, 16));
-          });
+          cy.get('.o_field_widget[name="ends_at"]').should(($field) =>
+            expect($field.text().trim()).to.equal(shownTime(movedEnd, zone)),
+          );
           cy.intercept("POST", "/web/dataset/call_kw/medilab.machine.booking/web_save").as("savedBooking");
           save();
           cy.wait("@savedBooking").its("response.body.error").should("not.exist");
