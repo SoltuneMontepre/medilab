@@ -110,7 +110,7 @@ class TestStepRoomBookings(SchedulingCase, LocationCase):
 
     def test_moving_a_booking_names_the_room_that_blocks_it(self):
         booking = self.scheduled()
-        later = MONDAY + timedelta(hours=1)
+        later = MONDAY + timedelta(hours=2)
         self.book(self.room, later, hours=1)
 
         with self.assertRaisesRegex(UserError, f"{self.room.display_name} is not free for"):
