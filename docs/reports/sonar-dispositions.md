@@ -22,6 +22,7 @@ The local tools rely on the trust boundary of the [local setup security review](
 | loopbackStorageTls | python:S5332; tools/onlyoffice_integration/loopback_storage_proxy.py | The storage adapter listens only on 127.0.0.1 inside an explicitly owned fixture container, and wraps every connection in TLS 1.2 or later with the fixture certificate. |
 | clusterServiceHttp | python:S5332; tools/cloudbeaver/kube_support.py | The regression probes call `cluster.local` service names inside a disposable test cluster, whose services have no TLS. Production traffic reaches CloudBeaver through the TLS ingress, which these probes do not stand in for. |
 | syncContractFixture | secrets:S2068; src/applications/medilab-sync/src-tauri/src/contract.rs | The flagged value is the synthetic `fixture` password of a unit-test sign-in body that checks OpenAPI contract validation. It authenticates nothing. |
+| composeEnvRewrite | pythonsecurity:S2083; tools/scripts/compose_env.py | `dev:setup` rewrites the `.env` beside the Compose file and keeps its other lines. The path is the fixed `ENV_FILE`, found from the script and never taken from input or file content; the flagged source is that same file's own lines. Values from the selection marker are written only through `_env_line`, which refuses a key outside `[A-Z][A-Z0-9_]*` and a value with CR, LF or NUL, so marker content cannot add or alter lines. |
 
 ## Accepted risks
 
