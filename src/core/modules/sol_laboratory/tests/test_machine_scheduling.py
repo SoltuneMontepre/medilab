@@ -3,9 +3,10 @@ from datetime import timedelta
 from freezegun import freeze_time
 from psycopg2 import IntegrityError
 
+from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
-from odoo.tests import tagged
+from odoo.tests import Form, tagged
 from odoo.tools import mute_logger
 
 from .scheduling_case import MONDAY, SchedulingCase
@@ -59,6 +60,42 @@ class TestMachineScheduling(SchedulingCase):
             second._set({"starts_at": first.starts_at + SLOT, "ends_at": first.ends_at + SLOT})
             self.env.flush_all()
 
+    def test_moving_a_booking_names_the_machine_that_blocks_it(self):
+        self.slow.status = "under_repair"
+        second_test = self.new_test()
+        self.testing_task(self.test, self.tester)
+        self.testing_task(second_test, self.other_tester)
+        first = self.schedule(self.test, self.tester)
+        second = self.schedule(second_test, self.other_tester)
+
+        self.assertEqual((first.machine_id, second.machine_id), (self.fast, self.fast))
+        with self.assertRaisesRegex(UserError, f"{self.fast.display_name} is not free for"):
+            second.with_user(self.other_tester.user_id).write({"starts_at": first.starts_at})
+
+    def test_moving_a_booking_names_the_tester_that_blocks_it(self):
+        self.testing_task(self.test, self.tester)
+        second_test = self.new_test()
+        self.testing_task(second_test, self.other_tester)
+        first = self.schedule(self.test, self.tester)
+        second = self.schedule(second_test, self.other_tester)
+
+        self.assertNotEqual(first.machine_id, second.machine_id)
+        second.with_user(self.other_tester.user_id).write({"starts_at": first.ends_at})
+        second._set({"person_id": self.tester.id})
+
+        with self.assertRaisesRegex(UserError, f"{self.tester.display_name} is not free for"):
+            second.with_user(self.head.user_id).write({"starts_at": first.starts_at})
+
+    def test_booking_form_updates_the_end_when_its_start_changes(self):
+        self.testing_task(self.test, self.tester)
+        booking = self.schedule(self.test, self.tester)
+        later = MONDAY + timedelta(hours=2)
+        form = Form(booking)
+
+        form.starts_at = later
+
+        self.assertEqual(fields.Datetime.to_datetime(form.ends_at), later + 3 * SLOT)
+
     def test_a_machine_under_repair_gets_no_bookings_and_its_bookings_move_to_another(self):
         self.testing_task(self.test, self.tester)
         booking = self.schedule(self.test, self.tester)
@@ -69,6 +106,18 @@ class TestMachineScheduling(SchedulingCase):
         other = self.new_test()
         self.testing_task(other, self.other_tester)
         self.assertEqual(other.recommended_machine_id, self.slow)
+
+    def test_failed_machine_without_replacement_leaves_proposal_unassigned(self):
+        self.testing_task(self.test, self.tester)
+        booking = self.schedule(self.test, self.tester)
+        self.slow.status = "under_repair"
+
+        self.fast.status = "under_repair"
+
+        self.assertEqual(booking.status, "proposed")
+        self.assertFalse(booking.machine_id)
+        self.assertFalse(booking.starts_at)
+        self.assertTrue(self.test.outsourcing_suggested)
 
     def test_a_machine_overdue_for_calibration_gets_no_bookings(self):
         self.fast.service_ids = [

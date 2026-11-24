@@ -89,9 +89,11 @@ class SampleMobile(models.Model, SampleMobileBase):
         return self.env.su or self.env.user.has_group(TEST_REQUEST_READER_GROUP)
 
     def _may_add_photos(self):
-        """Whether the person sees the sample's photos and may change the sample, which attaching a photo needs."""
+        """Whether the person sees the sample's photos and may add a collection or receipt photo."""
         self.ensure_one()
-        return self._customer_visible() and bool(self._filtered_access("write"))
+        return self._customer_visible() and (
+            bool(self._filtered_access("write")) or self._can_attach_collection_photo()
+        )
 
     def _mobile_photos(self):
         """The sample's photos the person may read; a tester reads none."""
@@ -117,7 +119,7 @@ class SampleMobile(models.Model, SampleMobileBase):
         if not self._may_add_photos():
             raise LaboratoryFileError(PERMISSION_DENIED, self.env._("You may not add photos to %s.", self.code))
         values = self._photo_values(photo, values["name"], values["mimetype"])
-        return self._link_photo(attachments._create_once(device, key, values))
+        return self._attach_photo(values, device, key)
 
     def _mobile_handover(self):
         """The sample's handover to the person's department, as they may read it; None when there is none."""

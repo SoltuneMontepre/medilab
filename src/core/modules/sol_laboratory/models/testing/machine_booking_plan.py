@@ -47,7 +47,7 @@ class MachineBookingPlan(models.Model, MachineBookingPlanBase):
             for booking in proposals.sorted(lambda booking: booking.sample_test_id._plan_key(department)):
                 test = booking.sample_test_id
                 found = self._recommend(test, booking.person_id, department, planned=placed)
-                values = {"starts_at": False, "ends_at": False}
+                values = {"machine_id": False, "starts_at": False, "ends_at": False}
                 if found:
                     way, machine, start, length = found
                     values = {

@@ -172,3 +172,13 @@ export function typeTime(value, zone, field = "starts_at") {
   cy.get(`.o_field_widget[name="${field}"] .o_input`).first().focus();
   cy.get(`.o_field_widget[name="${field}"] input`).clear().type(text).blur();
 }
+
+// A moment as a read-only datetime field shows it: short month, day and time, with the year only outside the current one.
+export function shownTime(value, zone) {
+  const moment = new Date(`${value}Z`);
+  const yearOf = (date) => new Intl.DateTimeFormat("en-US", { timeZone: zone, year: "numeric" }).format(date);
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: zone, month: "short", day: "numeric", hour: "numeric", minute: "numeric",
+    ...(yearOf(moment) === yearOf(new Date()) ? {} : { year: "numeric" }),
+  }).format(moment);
+}

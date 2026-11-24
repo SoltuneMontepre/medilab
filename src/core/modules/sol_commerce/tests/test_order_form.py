@@ -217,7 +217,12 @@ class TestOrderForm(OrderCase):
         return totals["total_amount_currency"]
 
     def test_editing_the_ordered_lines_updates_the_totals(self):
-        order = self.make_order([(self.lead_product, 1)], status="claimed", user_id=self.sales.id)
+        order = self.make_order(
+            [(self.lead_product, 1)],
+            status="claimed",
+            user_id=self.sales.id,
+            advance_method="bank_transfer",
+        )
         order.expected_collection_date = fields.Date.today()
         with Form(order) as form:
             before = self._total(form)

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from odoo import models
+from odoo import api, models
 from odoo.exceptions import UserError
 from odoo.tools import format_datetime
 
@@ -24,6 +24,28 @@ else:
 # Đơn Hàng: the advance payment request and notice sent with a quotation.
 class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
     _inherit = MODEL_SALE_ORDER
+
+    @api.model
+    def fields_get(self, allfields=None, attributes=None):
+        fields = super().fields_get(allfields, attributes)
+        if self.env.su or self.env.user.has_group(ALL_ORDERS_GROUP):
+            return fields
+        # Only the Head of Sales is offered no advance.
+        for name in ("advance_mode", "advance_method"):
+            field = fields.get(name)
+            if field and "selection" in field:
+                field["selection"] = [choice for choice in field["selection"] if choice[0] != ADVANCE_NONE]
+        return fields
+
+    def _quotation_missing_field_errors(self, lines):
+        missing = super()._quotation_missing_field_errors(lines)
+        if not self.advance_mode:
+            missing.append(
+                self.env._("Choose whether the advance is the full amount, a percentage, a fixed amount or none.")
+            )
+        elif self.advance_mode != ADVANCE_NONE and not self.payment_method:
+            missing.append(self.env._("Choose how the customer pays before sending the quotation."))
+        return missing
 
     def _check_quotation_can_be_sent(self):
         super()._check_quotation_can_be_sent()
