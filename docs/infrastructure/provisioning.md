@@ -48,6 +48,7 @@ Ansible runs in a container built from `tools/ansible/ansible.dockerfile`, the s
 
 - Node host keys are pinned in `infra/ansible/known_hosts`, one line per node: its public address, the key type and the key, copied from `/etc/ssh/ssh_host_ed25519_key.pub` in the VPS web console. Ansible refuses a node whose key is missing or different.
 - GitHub-hosted runners have no fixed addresses, so SSH on port 22 accepts connections from anywhere and the `ansible` user logs in with its key only. Turn on `ssh_hardening_enabled` once the owner confirms that nobody logs in to the node with a password, so password and root login are refused for every user.
+- SSH connections send keepalives every 30 seconds (`ServerAliveInterval=30`, `ServerAliveCountMax=6` in `infra/ansible/ansible.cfg`), so runner NAT gateways do not drop idle sessions while a long step such as `cd-reset` waits on a backup or upgrade.
 
 Anyone with Docker and read access to `infra` can run the same commands locally:
 
