@@ -62,7 +62,6 @@ class SaleOrderReturnTimeline(models.Model, SaleOrderReturnTimelineBase):
                 )
             )
         expected = self.committed_date or estimate["date"]
-        note = _("set by Sales") if self.committed_date and self.committed_date != estimate["date"] else ""
         cells = Markup("").join(
             Markup(
                 '<li class="o_medilab_timeline_step"><span class="text-muted small">%s</span><span>%s</span>'
@@ -73,8 +72,8 @@ class SaleOrderReturnTimeline(models.Model, SaleOrderReturnTimelineBase):
         )
         result = Markup(
             '<li class="o_medilab_timeline_step o_medilab_timeline_step_final"><span class="text-muted small">%s</span>'
-            '<strong>%s</strong><span class="text-muted small">%s</span></li>'
-        ) % (_("Expected return"), day(expected), note)
+            "<strong>%s</strong></li>"
+        ) % (_("Expected return"), day(expected))
         requested = Markup("")
         if self.requested_date:
             met = self.requested_date >= expected

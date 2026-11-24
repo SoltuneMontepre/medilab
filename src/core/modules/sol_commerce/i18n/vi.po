@@ -6212,7 +6212,7 @@ msgstr "Nhận mẫu từ"
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
 msgid "Standard turnaround"
-msgstr "Thời gian trả kết quả chuẩn"
+msgstr "Hạn chuẩn"
 
 #. module: sol_commerce
 #. odoo-python
@@ -6231,12 +6231,6 @@ msgstr "để duyệt và ký"
 #: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
 msgid "on the laboratory's schedule"
 msgstr "theo lịch phòng thí nghiệm"
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
-msgid "set by Sales"
-msgstr "do Sales đặt"
 
 #. module: sol_commerce
 #. odoo-python
