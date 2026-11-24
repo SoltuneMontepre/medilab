@@ -8,7 +8,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashSet;
 
 public final class Connections {
-    private static final String CONNECTIONS = "connections";
+    private static final String CONNECTIONS_KEY = "connections";
     private static final String MANAGED_ID = "medilab-postgres";
     private static final String PRESERVED = "Existing MediLab connection preserved.";
 
@@ -27,10 +27,10 @@ public final class Connections {
                 return;
             }
             JsonObject data = Files.exists(path) ? JsonFiles.read(path) : new JsonObject();
-            if (!data.has(CONNECTIONS)) {
-                data.add(CONNECTIONS, new JsonObject());
+            if (!data.has(CONNECTIONS_KEY)) {
+                data.add(CONNECTIONS_KEY, new JsonObject());
             }
-            JsonObject connections = data.getAsJsonObject(CONNECTIONS);
+            JsonObject connections = data.getAsJsonObject(CONNECTIONS_KEY);
             if (connections.has(MANAGED_ID)) {
                 System.out.println(PRESERVED);
                 return;
@@ -59,8 +59,8 @@ public final class Connections {
                     throw new Blocked("Symbolic link in data-sources");
                 }
                 JsonObject document = JsonFiles.read(file);
-                if (document.has(CONNECTIONS)) {
-                    for (String identifier : document.getAsJsonObject(CONNECTIONS).keySet()) {
+                if (document.has(CONNECTIONS_KEY)) {
+                    for (String identifier : document.getAsJsonObject(CONNECTIONS_KEY).keySet()) {
                         if (!identifiers.add(identifier)) {
                             throw new Blocked("Duplicate connection identifier");
                         }

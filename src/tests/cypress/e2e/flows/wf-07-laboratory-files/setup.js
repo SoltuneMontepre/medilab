@@ -95,15 +95,23 @@ export function devices(tag, ...logins) {
 // The result folder of a new sample, which its head of department creates and shares with the tester, with the tester and
 // the tester's device that saves into it.
 export function sharedResultFolder(tag) {
-  return person(TESTER).then((tester) =>
-    sampleWithoutFolders().then((sample) => {
+  const shared = {};
+  return person(TESTER)
+    .then((tester) => {
+      shared.tester = tester;
+      return sampleWithoutFolders();
+    })
+    .then((sample) => {
       callAs(HEAD, "medilab.sample", "action_create_laboratory_folders", [[sample.id]]);
-      return foldersOfSample(sample).then((folders) =>
-        devices(tag, HEAD, TESTER).then(([head, saver]) => {
-          const results = folders.find(({ category }) => category === "result");
-          return addMember(head, results, tester).then(() => ({ tester, saver, results }));
-        }),
-      );
-    }),
-  );
+      return foldersOfSample(sample);
+    })
+    .then((folders) => {
+      shared.results = folders.find(({ category }) => category === "result");
+      return devices(tag, HEAD, TESTER);
+    })
+    .then(([head, saver]) => {
+      shared.saver = saver;
+      return addMember(head, shared.results, shared.tester);
+    })
+    .then(() => shared);
 }
