@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from markupsafe import Markup, escape
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
