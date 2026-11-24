@@ -107,6 +107,18 @@ class TestMachineScheduling(SchedulingCase):
         self.testing_task(other, self.other_tester)
         self.assertEqual(other.recommended_machine_id, self.slow)
 
+    def test_failed_machine_without_replacement_leaves_proposal_unassigned(self):
+        self.testing_task(self.test, self.tester)
+        booking = self.schedule(self.test, self.tester)
+        self.slow.status = "under_repair"
+
+        self.fast.status = "under_repair"
+
+        self.assertEqual(booking.status, "proposed")
+        self.assertFalse(booking.machine_id)
+        self.assertFalse(booking.starts_at)
+        self.assertTrue(self.test.outsourcing_suggested)
+
     def test_a_machine_overdue_for_calibration_gets_no_bookings(self):
         self.fast.service_ids = [
             Command.create({"kind": "calibration", "service_date": "2025-10-01", "next_due_date": "2026-10-01"})
