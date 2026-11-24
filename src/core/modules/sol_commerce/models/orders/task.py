@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from odoo import api, fields, models
+from odoo import fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
@@ -42,7 +42,7 @@ class Task(models.Model, TaskBase):
 
     def _sync_quotation_order_assignee(self):
         orders = self.env[MODEL_SALE_ORDER].sudo()
-        for task in self.sudo().filtered(lambda item: item._opens_quotation() and item.assignee_id.user_id):
+        for task in self.sudo().filtered(lambda item: bool(item._opens_quotation() and item.assignee_id.user_id)):
             order = orders.browse(task.document_id).exists()
             user = task.assignee_id.user_id
             if not order:

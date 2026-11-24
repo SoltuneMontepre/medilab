@@ -58,7 +58,7 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
             rows = [(_("Quotation total"), currency.format(order.amount_total))]
             if request:
                 kinds = dict(request._fields["kind"]._description_selection(self.env))
-                rows.append((_("Payment request"), kinds.get(request.kind, request.kind)))
+                rows.append((_("Payment request"), kinds.get(request.kind or "", request.kind)))
                 if request.verified_amount:
                     rows.append((_("Paid amount"), currency.format(request.verified_amount)))
                 if request.deadline:
@@ -86,7 +86,7 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
                 '<div class="bg-light border rounded p-3 w-100">'
                 '<div class="mb-1">%s</div>'
                 '<div class="text-muted small mb-3">%s</div>'
-                '%s%s</div>'
+                "%s%s</div>"
             ) % (title, escape(order.customer_id.display_name or ""), body, footer)
 
     @api.depends("order_id", "method", "amount", "reference")
@@ -129,7 +129,7 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
                     '<div class="d-flex justify-content-center gap-2">'
                     '<a href="%s" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">%s</a>'
                     '<button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()">%s</button>'
-                    '</div></div>'
+                    "</div></div>"
                 ) % (
                     _("Scan to pay with PayOS"),
                     img_src,
@@ -146,32 +146,34 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
                     amount, memo, False, order.currency_id, order.partner_id, silent_errors=True
                 )
                 qr_img = (
-                    Markup('<img src="data:image/png;base64,%s" alt="Bank QR" class="img-fluid mb-2" style="max-width: 180px;" />')
+                    Markup(
+                        '<img src="data:image/png;base64,%s" alt="Bank QR" class="img-fluid mb-2" style="max-width: 180px;" />'
+                    )
                     % qr_b64
                     if qr_b64
                     else Markup("")
                 )
-                holder = bank.acc_holder_name or order.company_id.name
+                holder = bank.holder_name or order.company_id.name
                 wizard.qr_html = Markup(
                     '<div class="border rounded p-3 bg-light text-center">'
                     '<div class="fw-semibold mb-2">%s</div>'
-                    '%s'
+                    "%s"
                     '<div class="small text-start mt-1">'
                     '<div><span class="text-muted">%s:</span> %s</div>'
                     '<div><span class="text-muted">%s:</span> <span class="fw-semibold">%s</span></div>'
                     '<div><span class="text-muted">%s:</span> %s</div>'
                     '<div><span class="text-muted">%s:</span> <span class="fw-semibold">%s</span></div>'
-                    '</div>'
+                    "</div>"
                     '<div class="mt-2">'
                     '<button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()">%s</button>'
-                    '</div></div>'
+                    "</div></div>"
                 ) % (
                     _("Bank transfer QR"),
                     qr_img,
                     _("Bank"),
-                    escape(bank.bank_id.name or ""),
+                    escape(bank.bank_name or ""),
                     _("Account number"),
-                    escape(bank.acc_number or ""),
+                    escape(bank.account_number or ""),
                     _("Account holder"),
                     escape(holder or ""),
                     _("Transfer content"),
@@ -179,9 +181,9 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
                     _("Print QR"),
                 )
                 continue
-            wizard.qr_html = Markup(
-                '<div class="alert alert-secondary mb-0 small">%s</div>'
-            ) % _("PayOS or a company bank account is not configured to generate a payment QR yet.")
+            wizard.qr_html = Markup('<div class="alert alert-secondary mb-0 small">%s</div>') % _(
+                "PayOS or a company bank account is not configured to generate a payment QR yet."
+            )
 
     def action_generate_payos_qr(self):
         self.ensure_one()

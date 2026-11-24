@@ -72,9 +72,7 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         # The moment the customer has to pay the advance, or accept the quotation without one, by.
         payment_deadline = fields.Datetime(required=True)
         # Editable preview of the email message sent to the contact with the quotation PDF.
-        email_body = fields.Text(
-            string="Email message", compute="_compute_email_body", readonly=False, store=True
-        )
+        email_body = fields.Text(string="Email message", compute="_compute_email_body", readonly=False, store=True)
         # Filename of the PDF quotation attached to the email.
         attachment_name = fields.Char(string="Attachment", compute="_compute_attachment_name")
 
@@ -214,7 +212,7 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
 
     def action_send(self):
         self.ensure_one()
-        if self.payment_deadline <= fields.Datetime.now():
+        if not self.payment_deadline or self.payment_deadline <= fields.Datetime.now():
             raise UserError(self.env._("Give a payment deadline that is still to come."))
         self.order_id.payment_deadline = self.payment_deadline
         # The order sends the quotation now instead of opening this dialog again.

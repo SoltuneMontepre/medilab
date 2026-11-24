@@ -1,5 +1,5 @@
-from datetime import datetime, time, timedelta
-from typing import TYPE_CHECKING
+from datetime import date, datetime, time, timedelta
+from typing import TYPE_CHECKING, Literal
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -205,9 +205,10 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
                 )
             )
 
-    def _earliest_return_date(self):
+    def _earliest_return_date(self) -> date | Literal[False]:
         """The earliest date the laboratory can return the results; False without a turnaround."""
-        return self._return_estimate()["date"]
+        value = self._return_estimate()["date"]
+        return value if isinstance(value, date) else False
 
     def _return_estimate(self):
         """How the earliest return date is reached: the turnaround, or the laboratory's held work when it leaves the

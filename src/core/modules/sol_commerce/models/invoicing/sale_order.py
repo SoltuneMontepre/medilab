@@ -169,7 +169,7 @@ class SaleOrder(models.Model, SaleOrderBase):
                     else Markup("")
                 )
                 received = format_datetime(self.env, payment.received_at) if payment.received_at else ""
-                method = method_labels.get(payment.method, payment.method or "")
+                method = method_labels.get(payment.method or "", payment.method or "")
                 rows.append(
                     Markup(
                         '<tr><td class="px-3 py-2">%s</td><td class="px-3 py-2">%s</td>'
@@ -191,7 +191,7 @@ class SaleOrder(models.Model, SaleOrderBase):
                 '<thead class="table-light"><tr class="text-muted">'
                 '<th class="px-3 py-2">%s</th><th class="px-3 py-2">%s</th><th class="px-3 py-2">%s</th>'
                 '<th class="px-3 py-2 text-end">%s</th><th class="px-3 py-2">%s</th>'
-                '</tr></thead><tbody>%s</tbody></table></div></div>'
+                "</tr></thead><tbody>%s</tbody></table></div></div>"
             ) % (
                 escape(field_labels["received_at"]["string"]),
                 escape(field_labels["method"]["string"]),
@@ -257,9 +257,8 @@ class SaleOrder(models.Model, SaleOrderBase):
             target = order._collection_target()
             has_uncollected = bool(target)
             if target and target._name == MODEL_PAYMENT_REQUEST:
-                has_uncollected = (
-                    target.currency_id.compare_amounts(target.remaining_amount - target.pending_amount, 0) > 0
-                )
+                outstanding = target["remaining_amount"] - target["pending_amount"]
+                has_uncollected = target.currency_id.compare_amounts(outstanding, 0) > 0
             order.can_record_collection = bool(has_uncollected and order.state != "cancel")
             order.can_record_agreement = bool(
                 quotation.status == "sent"

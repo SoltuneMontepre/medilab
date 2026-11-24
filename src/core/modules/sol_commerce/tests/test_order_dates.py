@@ -59,7 +59,9 @@ class TestOrderDates(OrderCase):
 
         order.with_user(self.sales).action_send_quotation()
 
-        self.assertGreater(order.committed_date, order.requested_date)
+        committed, requested = order.committed_date, order.requested_date
+        assert isinstance(committed, date) and isinstance(requested, date)
+        self.assertGreater(committed, requested)
 
     def test_without_an_advance_the_turnaround_counts_from_today(self):
         order = self.make_quotable_order()
@@ -69,7 +71,9 @@ class TestOrderDates(OrderCase):
 
         order.with_user(self.head).action_send_quotation()
 
-        self.assertLessEqual(order.committed_date, requested)
+        committed = order.committed_date
+        assert isinstance(committed, date) and isinstance(requested, date)
+        self.assertLessEqual(committed, requested)
 
     def test_a_committed_date_earlier_than_the_turnaround_allows_is_refused(self):
         order = self.make_quotable_order()

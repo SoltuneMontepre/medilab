@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from odoo import fields
 from odoo.exceptions import UserError
@@ -28,7 +28,9 @@ class TestQuotationSendDialog(OrderCase):
         order = self.make_quotable_order()
 
         form = self.dialog(order)
-        self.assertGreater(form.payment_deadline, fields.Datetime.now())
+        deadline = form.payment_deadline
+        assert isinstance(deadline, datetime)
+        self.assertGreater(deadline, fields.Datetime.now())
         self.assertFalse(order.quotation_ids)
         form.save().action_send()
 
@@ -42,8 +44,10 @@ class TestQuotationSendDialog(OrderCase):
 
         order.expected_collection_date = pickup
 
-        self.assertGreaterEqual(order.committed_date, requests._date_after_working_days(pickup, 5))
-        self.assertLess(before, order.committed_date)
+        committed, turnaround = order.committed_date, requests._date_after_working_days(pickup, 5)
+        assert isinstance(committed, date) and isinstance(before, date) and isinstance(turnaround, date)
+        self.assertGreaterEqual(committed, turnaround)
+        self.assertLess(before, committed)
 
     def test_a_requested_date_before_the_pickup_estimate_is_not_copied(self):
         # Picked up today the samples would meet the requested date; picked up in three weeks they would not.
@@ -54,7 +58,9 @@ class TestQuotationSendDialog(OrderCase):
 
         self.dialog(order).save().action_send()
 
-        self.assertGreater(order.committed_date, order.requested_date)
+        committed, requested = order.committed_date, order.requested_date
+        assert isinstance(committed, date) and isinstance(requested, date)
+        self.assertGreater(committed, requested)
 
     def test_a_past_pickup_day_is_refused(self):
         order = self.make_quotable_order()
