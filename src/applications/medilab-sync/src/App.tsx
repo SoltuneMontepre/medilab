@@ -682,26 +682,26 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
         onLocaleChange={(locale) => void changeLocale(locale)}
         onToggleSync={() => void toggleSync()}
         onLogout={() => void onLogout()}
-      />
-
-      <nav className="flex gap-4 border-b bg-white px-6 py-2 text-sm">
-        {(["status", "folders", "settings"] as Tab[]).map((item) => (
-          <button
-            key={item}
-            type="button"
-            className={`tab-btn ${tab === item ? "tab-btn-active" : ""}`}
-            aria-current={tab === item ? "page" : undefined}
-            onClick={() => setTab(item)}
-          >
-            {t(tabMessageKey(item))}
-            {item === "status" && status.failed + status.conflict > 0 ? (
-              <span className="ml-2 rounded-full bg-red-600 px-1.5 py-0.5 text-xs font-semibold text-white">
-                {status.failed + status.conflict}
-              </span>
-            ) : null}
-          </button>
-        ))}
-      </nav>
+      >
+        <nav className="flex">
+          {(["status", "folders", "settings"] as Tab[]).map((item) => (
+            <button
+              key={item}
+              type="button"
+              className={`tab-btn ${tab === item ? "tab-btn-active" : ""}`}
+              aria-current={tab === item ? "page" : undefined}
+              onClick={() => setTab(item)}
+            >
+              {t(tabMessageKey(item))}
+              {item === "status" && status.failed + status.conflict > 0 ? (
+                <span className="ml-2 rounded-full bg-red-600 px-1.5 py-0.5 text-xs font-semibold text-white">
+                  {status.failed + status.conflict}
+                </span>
+              ) : null}
+            </button>
+          ))}
+        </nav>
+      </AppHeader>
 
       <section className="p-6">
         <AppBanners

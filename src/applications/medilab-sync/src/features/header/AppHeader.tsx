@@ -1,10 +1,12 @@
+import type { ReactNode } from "react";
 import type { Locale } from "../../i18n";
 import { LanguageSwitch } from "../../components";
 import { useT } from "../../locale";
 import type { StatusDto } from "../../types";
 
 /**
- * Thanh đầu trang: tên app, người dùng + máy chủ + trạng thái, đổi ngôn ngữ, tạm dừng, đăng xuất.
+ * Thanh đầu trang kiểu thanh điều hướng của Odoo: tên app, các tab (`children`), người dùng + máy
+ * chủ + trạng thái, đổi ngôn ngữ, tạm dừng, đăng xuất.
  *
  * Nút Tạm dừng/Tiếp tục chỉ bị khóa khi CHÍNH lệnh đó đang chạy (`toggleBusy`), không theo `busy`
  * chung của app: các lệnh khác (gắn thư mục, đối soát…) có thể chạy lâu trong lúc transfer đang
@@ -18,6 +20,7 @@ export function AppHeader({
   onLocaleChange,
   onToggleSync,
   onLogout,
+  children,
 }: Readonly<{
   status: StatusDto;
   busy: boolean;
@@ -26,6 +29,7 @@ export function AppHeader({
   onLocaleChange: (locale: Locale) => void;
   onToggleSync: () => void;
   onLogout: () => void;
+  children?: ReactNode;
 }>) {
   const t = useT();
   const flags = [
@@ -35,12 +39,13 @@ export function AppHeader({
     status.paused ? t("app.paused") : "",
   ].filter(Boolean);
   return (
-    <header className="flex items-center justify-between border-b bg-white px-6 py-3">
-      <div>
-        <h1 className="text-lg font-semibold">{t("app.title")}</h1>
-        <p className="text-sm text-slate-600">{flags.join(" · ")}</p>
-      </div>
-      <div className="flex flex-wrap items-center justify-end gap-2">
+    <header className="navbar flex h-13 items-stretch gap-2 px-3 shadow-sm">
+      <h1 className="flex items-center px-2 text-base font-semibold">{t("app.title")}</h1>
+      {children}
+      <div className="ml-auto flex items-center gap-2">
+        <p className="max-w-64 truncate text-xs text-white/80" title={flags.join(" · ")}>
+          {flags.join(" · ")}
+        </p>
         <LanguageSwitch locale={locale} onChange={onLocaleChange} />
         <button type="button" className="btn btn-secondary" disabled={toggleBusy} onClick={onToggleSync}>
           {status.paused ? t("action.resume") : t("action.pause")}

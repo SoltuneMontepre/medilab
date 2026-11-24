@@ -96,7 +96,7 @@ export function LanguageSwitch({
 }: Readonly<{ locale: string | undefined; onChange: (locale: Locale) => void }>) {
   const t = useT();
   return (
-    <label className="flex items-center gap-2 text-sm">
+    <label className="flex items-center gap-2 text-sm whitespace-nowrap">
       <span>{t("settings.language")}</span>
       <select
         className="rounded border border-slate-300 px-2 py-1"

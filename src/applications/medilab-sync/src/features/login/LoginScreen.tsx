@@ -39,48 +39,50 @@ export function LoginScreen({
   }
 
   return (
-    <main className="mx-auto max-w-lg p-8">
-      <div className="flex items-start justify-between gap-3">
-        <h1 className="text-2xl font-semibold">{t("app.title")}</h1>
-        <LanguageSwitch locale={locale} onChange={onLocaleChange} />
+    <main className="login-page flex min-h-screen items-center justify-center p-6">
+      <div className="w-full max-w-lg rounded-3xl border bg-white p-10 shadow-2xl">
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="text-2xl font-bold tracking-tight">{t("app.title")}</h1>
+          <LanguageSwitch locale={locale} onChange={onLocaleChange} />
+        </div>
+        <p className="mt-2 text-slate-600">{t("login.subtitle")}</p>
+        {sessionExpired ? (
+          <p className="mt-3 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            {t("login.sessionExpired")}
+          </p>
+        ) : null}
+        <form className="mt-6 space-y-3" onSubmit={handleSubmit}>
+          <OdooUrlField value={odooUrl} history={odooUrlHistory} onChange={onOdooUrlChange} />
+          <label className="block text-sm font-medium">
+            <span>{t("login.account")}</span>
+            <input
+              className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
+              value={account}
+              autoFocus
+              autoComplete="username"
+              onChange={(event) => setAccount(event.target.value)}
+            />
+          </label>
+          <label className="block text-sm font-medium">
+            <span>{t("login.password")}</span>
+            <input
+              type="password"
+              autoComplete="current-password"
+              className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </label>
+          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          <button
+            className="btn btn-primary w-full"
+            disabled={busy || !odooUrl.trim() || !account.trim() || !password}
+            type="submit"
+          >
+            {t(busy ? "login.submitting" : "login.submit")}
+          </button>
+        </form>
       </div>
-      <p className="mt-2 text-slate-600">{t("login.subtitle")}</p>
-      {sessionExpired ? (
-        <p className="mt-3 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-          {t("login.sessionExpired")}
-        </p>
-      ) : null}
-      <form className="mt-6 space-y-3" onSubmit={handleSubmit}>
-        <OdooUrlField value={odooUrl} history={odooUrlHistory} onChange={onOdooUrlChange} />
-        <label className="block text-sm font-medium">
-          <span>{t("login.account")}</span>
-          <input
-            className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
-            value={account}
-            autoFocus
-            autoComplete="username"
-            onChange={(event) => setAccount(event.target.value)}
-          />
-        </label>
-        <label className="block text-sm font-medium">
-          <span>{t("login.password")}</span>
-          <input
-            type="password"
-            autoComplete="current-password"
-            className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-        </label>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <button
-          className="btn btn-primary"
-          disabled={busy || !odooUrl.trim() || !account.trim() || !password}
-          type="submit"
-        >
-          {t(busy ? "login.submitting" : "login.submit")}
-        </button>
-      </form>
     </main>
   );
 }
