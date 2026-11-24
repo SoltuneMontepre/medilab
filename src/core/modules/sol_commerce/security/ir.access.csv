@@ -12,3 +12,4 @@ access_medilab_sample_collection_start_user,medilab.sample.collection.start user
 access_medilab_quotation_send_user,medilab.quotation.send user,medilab.quotation.send,base.group_user,crud,
 access_payment_collection_user,record payment,medilab.payment.collection,base.group_user,crud,
 access_quotation_agreement_user,record quotation agreement,medilab.quotation.agreement,base.group_user,crud,
+access_res_partner_customer_create,res.partner customer create,res.partner,sol_laboratory.group_permission_customer_create_all,rc,
