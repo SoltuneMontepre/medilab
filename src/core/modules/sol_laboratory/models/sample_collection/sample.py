@@ -59,6 +59,18 @@ EXPECTED_INTAKE_FIELDS = HELD_INTAKE_FIELDS | {
 INTAKE_FIELDS = {"expected": EXPECTED_INTAKE_FIELDS, "on_hold": HELD_INTAKE_FIELDS}
 
 
+def _intake_readonly(node):
+    """The readonly expression of a form field for a user who may only record the intake of a sample."""
+    field = node.get("name")
+    if field in HELD_INTAKE_FIELDS:
+        readonly = "status not in ('expected', 'on_hold')"
+    elif field in EXPECTED_INTAKE_FIELDS:
+        readonly = "status != 'expected'"
+    else:
+        return "1"
+    return f"({node.get('readonly')}) or ({readonly})" if node.get("readonly") else readonly
+
+
 def _progress(statuses, sent, done):
     """The status of a sample or request whose parts have the statuses, given the part status that waits for approval
     and the one that is approved; None leaves it as it is."""
@@ -273,18 +285,8 @@ class Sample(models.Model, SampleBase):
             arch = etree.fromstring(view["arch"])
             arch.set("edit", "True")
             for node in arch.iter("field"):
-                if next(node.iterancestors("field"), None) is not None:
-                    continue
-                field = node.get("name")
-                if field in HELD_INTAKE_FIELDS:
-                    readonly = "status not in ('expected', 'on_hold')"
-                elif field in EXPECTED_INTAKE_FIELDS:
-                    readonly = "status != 'expected'"
-                else:
-                    readonly = "1"
-                if readonly != "1" and node.get("readonly"):
-                    readonly = f"({node.get('readonly')}) or ({readonly})"
-                node.set("readonly", readonly)
+                if next(node.iterancestors("field"), None) is None:
+                    node.set("readonly", _intake_readonly(node))
             view["arch"] = etree.tostring(arch, encoding="unicode")
         return view
 
