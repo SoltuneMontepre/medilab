@@ -55,6 +55,23 @@ def _selected_marker(root):
     return marker
 
 
+def _env_line(key, value):
+    """Return one .env line, refusing a key or value that could add or alter other lines."""
+    if not re.fullmatch(r"[A-Z][A-Z0-9_]*", key, flags=re.ASCII):
+        raise ValueError(
+            f"The selected Compose configuration has an invalid key {key!r}."
+        )
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (str, int))
+        or re.search(r"[\r\n\0]", str(value))
+    ):
+        raise ValueError(
+            f"The selected Compose configuration has an invalid value for {key}."
+        )
+    return f"{key}={value}"
+
+
 def selected_project_name(root):
     marker = _selected_marker(root)
     return marker["project"] if marker else None
@@ -116,7 +133,8 @@ def main():
     kept = [line for line in lines if line.split("=", 1)[0] not in removed]
     name = values[KEY]
     env.write_text(
-        "\n".join([*(f"{key}={value}" for key, value in values.items()), *kept]) + "\n",
+        "\n".join([*(_env_line(key, value) for key, value in values.items()), *kept])
+        + "\n",
         encoding="utf-8",
     )
     sys.stdout.write(f"Compose project of this checkout: {name} ({env}).\n")

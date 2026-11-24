@@ -12,7 +12,7 @@ import urllib.request
 import uuid
 
 from kube_cluster import CONTEXT, NETWORK_NAMESPACE, http_status, inspect, kube, wait_for
-from runtime import IMAGE, PASSWORD, ROOT, Runtime
+from runtime import DATABASE_PASSWORD, IMAGE, PASSWORD, ROOT, Runtime
 
 
 def manifest_document_for_kind(manifest, kind):
@@ -56,7 +56,7 @@ class Fixture:
         kube("create", "namespace", self.namespace)
         kube("label", "namespace", self.namespace, "medilab-regression=cloudbeaver")
         self.secret("cloudbeaver-admin", {"CB_ADMIN_NAME": "operator", "CB_ADMIN_PASSWORD": PASSWORD})
-        self.secret("medilab-db-app", {"username": "regression", "password": "LocalDatabase9"})
+        self.secret("medilab-db-app", {"username": "regression", "password": DATABASE_PASSWORD})
         kube("apply", "-f", "-", input=json.dumps({"apiVersion": "v1", "kind": "List", "items": self.resources}))
         route_manifest = (ROOT / "infra/cluster/cloudbeaver/ingress-route.yaml").read_text()
         for kind in ("Middleware", "IngressRoute"):
@@ -199,7 +199,7 @@ class Fixture:
                         "image": "docker.io/library/postgres:18.4",
                         "env": [
                             {"name": "POSTGRES_USER", "value": "regression"},
-                            {"name": "POSTGRES_PASSWORD", "value": "LocalDatabase9"},
+                            {"name": "POSTGRES_PASSWORD", "value": DATABASE_PASSWORD},
                             {"name": "POSTGRES_DB", "value": "medilab"},
                         ],
                         "readinessProbe": {
@@ -326,7 +326,7 @@ class Fixture:
                 raise AssertionError("Unexpected port-forward state.")
             api = Runtime.__new__(Runtime)
             api.port = int(match[1])
-            api.env = {"CB_ADMIN_PASSWORD": PASSWORD, "DB_PASSWORD": "LocalDatabase9"}
+            api.env = {"CB_ADMIN_PASSWORD": PASSWORD, "DB_PASSWORD": DATABASE_PASSWORD}
             api.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
             yield api
         finally:

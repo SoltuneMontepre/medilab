@@ -26,7 +26,12 @@ from local_private_paths import (
     protect_created_path,
 )
 from onlyoffice_state import CONFIG_KEYS as ONLYOFFICE_CONFIG_KEYS
-from onlyoffice_state import missing_core_volumes, optional_volume_names
+from onlyoffice_state import (
+    OnlyofficeError,
+    missing_core_volumes,
+    optional_volume_names,
+    validated_port,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 COMPOSE = ROOT / "tools/infrastructure/docker-compose.yml"
@@ -1124,7 +1129,12 @@ def _normal_app_ready(project, owner, config):
             owned=True,
             config=config,
         )
-    port = config["MEDILAB_ODOO_PORT"]
+    try:
+        port = validated_port(config["MEDILAB_ODOO_PORT"])
+    except OnlyofficeError:
+        raise BootstrapError(
+            "The saved Odoo port is invalid; Odoo was not checked."
+        ) from None
     url = f"http://127.0.0.1:{port}/web/login?db={DATABASE}"
     last_error = None
     for _attempt in range(120):
