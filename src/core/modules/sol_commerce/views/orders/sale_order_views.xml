@@ -282,7 +282,7 @@
                 </div>
             </xpath>
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="before">
-                <field name="customer_id" domain="[('customer_ids', '!=', False)]" options="{'no_create': True}" />
+                <field name="customer_id" domain="[('customer_ids', '!=', False)]" options="{'no_quick_create': True}" context="{'medilab_create_customer': True, 'default_is_company': True}" />
                 <field name="customer_is_company" invisible="1" />
                 <field name="partner_is_company" invisible="1" />
             </xpath>

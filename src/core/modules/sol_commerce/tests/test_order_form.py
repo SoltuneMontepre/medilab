@@ -95,10 +95,12 @@ class TestOrderForm(OrderCase):
                 self.assertIn(node.get("invisible"), HIDDEN)
 
     def test_customer_and_contact_cannot_be_created_from_the_order(self):
-        for name in ("customer_id", "partner_id"):
-            with self.subTest(name=name):
-                field = self._nodes("//sheet//field[@name=$name]", name=name)[0]
-                self.assertTrue(literal_eval(assert_instance(field.get("options"), str)).get("no_create"))
+        customer = self._nodes("//sheet//field[@name='customer_id']")[0]
+        customer_options = literal_eval(assert_instance(customer.get("options"), str))
+        self.assertTrue(customer_options.get("no_quick_create"))
+        self.assertFalse(customer_options.get("no_create"))
+        contact = self._nodes("//sheet//field[@name='partner_id']")[0]
+        self.assertTrue(literal_eval(assert_instance(contact.get("options"), str)).get("no_create"))
 
     def test_sample_master_data_cannot_be_created_from_the_order(self):
         for path in ("//list[@name='sol_list']//field[@name='sample_type_id']", f"{LINE_FORM}//field[@name='sample_type_id']"):
