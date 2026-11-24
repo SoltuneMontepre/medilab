@@ -79,6 +79,10 @@ describe("WF-01 Order to confirmed test request", () => {
         step("Sales opens the order and puts its parameter on a sample");
         openMenu(MENU.sales, MENU.orders);
         openRow(submitted.name);
+        openTab("payment");
+        choose("advance_method", "Trực tuyến");
+        choose("advance_mode", "Phần trăm");
+        cy.get(".o_field_widget[name=advance_value] input").clear().type("30");
         openTab("samples");
         cy.get(".o_field_widget[name=sample_ids] .o_field_x2many_list_row_add button").click();
         cy.get(".o_selected_row .o_field_widget[name=customer_sample_name] input").type(sampleName);
@@ -90,9 +94,6 @@ describe("WF-01 Order to confirmed test request", () => {
         pick("sample_id", sampleName);
         step("Sales asks for an online advance and sends the quotation");
         openTab("payment");
-        choose("advance_method", "Trực tuyến");
-        choose("advance_mode", "Phần trăm");
-        cy.get(".o_field_widget[name=advance_value] input").clear().type("30");
         cy.sendRecord("action_send_quotation");
         cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
         cy.readRecord(order, ["invoice_ids"]).its("invoice_ids").should("be.empty");
@@ -151,6 +152,9 @@ describe("WF-01 Order to confirmed test request", () => {
     newRecord("/odoo/lab-orders");
     pick("customer_id", "Công ty TNHH Nước Uống Sạch");
     pick("partner_id", "Phạm Thị Hoa");
+    openTab("payment");
+    choose("advance_method", "Chuyển khoản");
+    openTab("order_lines");
     step("Sales adds Lead (Pb), whose price fills in, and saves the order");
     cy.get(".o_field_widget[name=product_line_ids] .o_field_x2many_list_row_add button").first().click();
     pick("product_template_id", "Lead (Pb)");

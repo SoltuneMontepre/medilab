@@ -119,7 +119,6 @@
                 ref('sol_laboratory.permission_sample_read_all'),
                 ref('sol_laboratory.permission_expected_sampling_read_all'),
                 ref('sol_laboratory.permission_sample_create_all'),
-                ref('sol_laboratory.permission_sample_edit_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
                 ref('sol_laboratory.permission_sample_test_create_all'),
                 ref('sol_laboratory.permission_sample_test_edit_all'),

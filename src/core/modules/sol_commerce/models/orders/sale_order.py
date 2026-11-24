@@ -518,14 +518,9 @@ class SaleOrder(models.Model, SaleOrderBase):
         lines = self._catalog_lines()
         if not lines:
             raise UserError(self.env._("Add at least one parameter or service package before sending the quotation."))
-        untyped = lines.filtered(lambda line: not line.sample_type_id)
-        if untyped:
-            raise UserError(
-                self.env._(
-                    "Choose a sample type for these items before sending the quotation:\n%s",
-                    "\n".join(name or "" for name in untyped.mapped("product_id.display_name")),
-                )
-            )
+        missing = self._quotation_missing_field_errors(lines)
+        if missing:
+            raise UserError("\n".join(missing))
         # The catalog may have stopped offering a parameter on a sample type since the line got its sample type.
         lines._check_offered_on_sample()
         self.order_line._way_lines()._check_ways_can_be_sent()
@@ -534,6 +529,18 @@ class SaleOrder(models.Model, SaleOrderBase):
             raise UserError(self.env._("A replaced quotation cannot be sent. Send the current revision instead."))
         if latest.status in (QUOTATION_ACCEPTED, QUOTATION_SENT) and self.state != "draft":
             raise UserError(self.env._("This quotation was already sent. Revise it to send a new revision."))
+
+    def _quotation_missing_field_errors(self, lines):
+        missing = []
+        untyped = lines.filtered(lambda line: not line.sample_type_id)
+        if untyped:
+            missing.append(
+                self.env._(
+                    "Choose a sample type for these items before sending the quotation:\n%s",
+                    "\n".join(name or "" for name in untyped.mapped("product_id.display_name")),
+                )
+            )
+        return missing
 
     def _latest_payment_deadline(self):
         # The latest payment deadline the order allows; False when only the configured days limit it.

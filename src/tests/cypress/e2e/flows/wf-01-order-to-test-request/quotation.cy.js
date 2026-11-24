@@ -112,7 +112,13 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
     cy.signInAs("sales");
     refAs("demo.sales", CUSTOMERS.nuocSach.company)
       .then(({ id }) =>
-        callAs("demo.sales", "sale.order", "create", [{ customer_id: id, partner_id: id }], { context: { medilab_sales_order: true } }),
+        callAs(
+          "demo.sales",
+          "sale.order",
+          "create",
+          [{ customer_id: id, partner_id: id, advance_method: "bank_transfer" }],
+          { context: { medilab_sales_order: true } },
+        ),
       )
       .then((id) => {
         const order = { model: "sale.order", id };

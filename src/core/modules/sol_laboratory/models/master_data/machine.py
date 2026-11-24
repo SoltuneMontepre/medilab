@@ -57,7 +57,7 @@ class Machine(models.Model, MachineBase):
         next_calibration_date = fields.Date(compute="_compute_next_service_dates", store=True, index=True)
         # Days between two maintenance visits; empty when the machine has no schedule.
         maintenance_interval_days = fields.Integer()
-        # Date the next maintenance is due, from the latest maintenance record and the interval.
+        # Date the next maintenance is due, from the latest service record or the maintenance interval.
         next_maintenance_date = fields.Date(compute="_compute_next_service_dates", store=True)
         # Calibration, maintenance and repair records of the machine.
         service_ids = fields.One2many(MODEL_MACHINE_SERVICE, "machine_id", string="Service History")
@@ -79,11 +79,10 @@ class Machine(models.Model, MachineBase):
             calibration = services.filtered(lambda service: service.kind == "calibration")[:1]
             maintenance = services.filtered(lambda service: service.kind == "maintenance")[:1]
             machine.next_calibration_date = calibration.next_due_date
-            machine.next_maintenance_date = (
-                maintenance.service_date + timedelta(days=machine.maintenance_interval_days)
-                if maintenance and maintenance.service_date and machine.maintenance_interval_days
-                else False
-            )
+            due = maintenance.next_due_date if maintenance else False
+            if not due and maintenance and maintenance.service_date and machine.maintenance_interval_days:
+                due = maintenance.service_date + timedelta(days=machine.maintenance_interval_days)
+            machine.next_maintenance_date = due
 
     @api.constrains("status")
     def _check_return_after_repair(self):

@@ -1,4 +1,6 @@
 from datetime import timedelta
+from os import times
+from unittest.mock import patch
 
 from freezegun import freeze_time
 
@@ -73,6 +75,58 @@ class TestBookingApproval(SchedulingCase, LocationCase):
         messages, partners = self.notices(APPROVED_EVENT, booking)
         self.assertEqual(partners, self.tester.user_id.partner_id)
         self.assertIn(booking.display_name, messages.body or "")
+
+    def test_approving_an_unchanged_proposal_does_not_recalculate_unrelated_proposals(self):
+        booking = self.propose()
+        bookings = self.env[MODEL_MACHINE_BOOKING]
+        with patch.object(type(bookings), "_plan"):
+            for _ in range(32):
+                test = self.new_test(MONDAY + timedelta(days=2))
+                self.testing_task(test, self.other_tester)
+        plan_started = times().elapsed
+        bookings._plan(self.department)
+        plan_elapsed = times().elapsed - plan_started
+        proposals = bookings.search([("status", "=", "proposed"), ("department_id", "=", self.department.id)])
+        proposal_count = len(proposals)
+        self.assertEqual(proposal_count, 33)
+
+        original_plan = type(bookings)._plan
+        plan_calls = 0
+
+        def count_plan_calls(model, departments):
+            nonlocal plan_calls
+            plan_calls += 1
+            return original_plan(model, departments)
+
+        with patch.object(type(bookings), "_plan", new=count_plan_calls):
+            started = times().elapsed
+            booking.sample_test_id.with_user(self.head.user_id).action_approve_booking()
+            elapsed = times().elapsed - started
+
+        print(f"[scheduler-profile] proposed={proposal_count} action=_plan calls=1 elapsed={plan_elapsed:.2f}s")
+        print(
+            f"[scheduler-profile] proposed={proposal_count} action=action_approve_booking "
+            f"plan_calls={plan_calls} elapsed={elapsed:.2f}s"
+        )
+        self.assertEqual(plan_calls, 0)
+
+    def test_approving_without_a_current_proposal_recalculates_the_plan(self):
+        test = self.new_test(MONDAY + timedelta(minutes=10))
+        self.propose(test)
+        bookings = self.env[MODEL_MACHINE_BOOKING]
+        original_plan = type(bookings)._plan
+        plan_calls = 0
+
+        def count_plan_calls(model, departments):
+            nonlocal plan_calls
+            plan_calls += 1
+            return original_plan(model, departments)
+
+        with patch.object(type(bookings), "_plan", new=count_plan_calls):
+            with self.assertRaisesRegex(UserError, "No machine can finish"):
+                test.with_user(self.head.user_id).action_approve_booking()
+
+        self.assertEqual(plan_calls, 1)
 
     def test_the_tester_does_not_reserve_their_own_booking(self):
         booking = self.propose()

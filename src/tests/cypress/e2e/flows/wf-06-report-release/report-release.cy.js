@@ -110,12 +110,19 @@ describe("WF-06 Report release", () => {
     refAs(ADMIN, "sol_demo.demo_res_partner_nuoc_sach").then((customer) =>
       refAs(ADMIN, "sol_demo.demo_res_partner_hoa").then((hoa) =>
         refAs(ADMIN, BY_EMAIL).then((report) =>
-          readAs(report, ["status", "code", "attachment_id", "request_id", "delivered_by_id"]).then((issued) => {
+          readAs(report, ["status", "code", "attachment_id", "request_id", "delivered_by_id", "withheld_for_payment"]).then((issued) => {
             step("The issued report has its number and PDF, and its test request is reported");
             expect(issued.status).to.equal("issued");
             expect(issued.code).to.match(/^PKQ\.\d{4}\.\d+$/);
             expect(issued.attachment_id[1]).to.equal(`${issued.code}.pdf`);
+            expect(issued.withheld_for_payment).to.equal(false);
             readAs({ model: "medilab.test.request", id: issued.request_id[0] }, ["status"]).its("status").should("eq", "reported");
+            callAs(ADMIN, "sale.order", "search_read", [[["test_request_id", "=", issued.request_id[0]]]], {
+              fields: ["amount_total", "payment_status"],
+            }).should(([order]) => {
+              expect(order.amount_total).to.be.greaterThan(0);
+              expect(order.payment_status).to.equal("paid");
+            });
             step("The customer is told of the issue, and staff deliver the PDF by e-mail");
             reportMessage(report, "issued", customer.id).its("0.subject").should("eq", issued.code);
             personNames("sol_demo.demo_person_sample_delivery_staff").then(([staff]) => expect(issued.delivered_by_id[1]).to.equal(staff));
@@ -149,15 +156,17 @@ describe("WF-06 Report release", () => {
     // Each demo report is delivered once; a later run on the same database finds it delivered.
     step("Sample delivery staff record the delivery of a report sent by post");
     refAs(ADMIN, BY_POST).then((report) =>
-      readAs(report, ["code", "delivery_method", "delivered_at"]).then((read) => {
+      readAs(report, ["code", "delivery_method", "delivered_at", "withheld_for_payment"]).then((read) => {
         expect(read.delivery_method).to.equal("post");
+        expect(read.withheld_for_payment).to.equal(false);
         if (!read.delivered_at) deliverFromList(read.code);
       }),
     );
     step("Staff record the delivery of a report handed over in person");
     refAs(ADMIN, REISSUED).then((report) =>
-      readAs(report, ["delivery_method", "delivered_at"]).then((read) => {
+      readAs(report, ["delivery_method", "delivered_at", "withheld_for_payment"]).then((read) => {
         expect(read.delivery_method).to.equal("in_person");
+        expect(read.withheld_for_payment).to.equal(false);
         if (read.delivered_at) return;
         cy.signInAs("sample_delivery_staff");
         cy.openRecord(report);

@@ -16,6 +16,32 @@ class TestOrderCart(OrderCase):
         with self.assertRaises(UserError):
             order.action_submit()
 
+    def test_priority_without_a_date_leaves_the_draft_unsubmitted(self):
+        order = self.make_order([(self.lead_product, 1)])
+
+        with self.assertRaisesRegex(UserError, "Give the date"):
+            order._set_portal_dates(False, True)
+
+        self.assertEqual(order.order_status, "draft")
+        self.assertFalse(order.requested_date)
+        self.assertFalse(order.priority_request)
+
+    def test_quotation_validation_reports_independent_missing_fields_together(self):
+        order = self.make_order(
+            [(self.lead_product, 1)],
+            status="claimed",
+            user_id=self.sales.id,
+            advance_method=False,
+            advance_mode=False,
+        )
+
+        with self.assertRaises(UserError) as raised:
+            order.with_user(self.sales).action_send_quotation()
+
+        message = str(raised.exception)
+        self.assertIn("Choose a sample type for these items", message)
+        self.assertIn("Choose how the advance is paid", message)
+
     def test_cart_total_excludes_vat_and_uses_the_package_price(self):
         order = self.make_order([(self.lead_product, 2), (self.package_product, 1)])
         package_line = order._catalog_lines().filtered(
@@ -26,6 +52,15 @@ class TestOrderCart(OrderCase):
         self.assertEqual(package_line.price_unit, self.package.list_price)
         self.assertGreater(self.package.parts_price, self.package.list_price)
         self.assertNotEqual(package_line.price_unit, self.package.parts_price)
+
+    def test_draft_cart_price_follows_a_catalog_price_change(self):
+        order = self.make_order([(self.lead_product, 1)])
+        line = order._catalog_lines()
+        new_price = line.price_unit + 5000
+
+        self.lead_price.list_price = new_price
+
+        self.assertEqual(line.price_unit, new_price)
 
     def test_visitor_submit_requires_an_email_and_creates_the_contact(self):
         order = self.env["sale.order"].create(
@@ -48,8 +83,19 @@ class TestOrderCart(OrderCase):
         self.assertEqual(order.customer_id.email, "lan@example.com")
         self.assertFalse(order.user_id)
 
+    def test_sent_quotation_keeps_its_price_when_the_catalog_price_changes(self):
+        order = self.make_quotable_order()
+        line = order._catalog_lines()
+        accepted_price = line.price_unit
+        order.with_user(self.sales).action_send_quotation()
+
+        self.lead_price.list_price = accepted_price + 5000
+
+        self.assertEqual(line.price_unit, accepted_price)
+
     def test_reorder_uses_current_prices_and_leaves_the_original(self):
         order = self.make_order([(self.lead_product, 2), (self.package_product, 1)], status="completed")
+        self.assertEqual(order.state, "draft")
         original_price = (
             order._catalog_lines()
             .filtered(lambda line: line.product_id.product_tmpl_id == self.lead_product)
