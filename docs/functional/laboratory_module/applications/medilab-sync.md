@@ -30,7 +30,7 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 | Own folders       | A new local folder creates a laboratory folder named after it, which the person can rename. |
 | Shared folders    | Folders others share with the person are listed under Shared with you and bound by choosing a local folder; no second laboratory folder is created. |
 | Not bound here    | Folders the person owns but has not bound on this computer are listed separately, ready to bind. |
-| Home folder       | The home folder is `MediLab` in the person's Documents folder, or in their user folder on a computer without one, until the person chooses another. The sample folders the person is a member of are bound by themselves inside it, under the sample's lab code and the folder's category, such as `<lab code>/Raw Data` and `<lab code>/Results`, created when missing. A folder already bound stays where it is, a folder of a completed or cancelled sample is not bound, and a folder the person stopped syncing is not bound again until they bind it themselves. |
+| Home folder       | The home folder is `MediLab` in the person's Documents folder, or in their user folder on a computer without one, until the person chooses another. The sample folders the person is a member of are bound by themselves inside it, under the sample's lab code and the folder's category, such as `<lab code>/Raw Data` and `<lab code>/Results`, created when missing. A folder already bound stays where it is, a folder of a completed or cancelled sample is not bound, and a folder the person stopped syncing is not bound again until they bind it themselves. Signing in to another server or account unbinds every folder and keeps its files and queue; a sample folder the person is a member of there is bound again in the place it had. |
 | Raw and results   | Raw data and results are bound to separate local folders. |
 | Sync rules        | By default every file in the folder and its subfolders is synced. Under Advanced options, folded away until needed, the person can limit it by name prefix, name pattern with `*`, or extension, and can leave out subfolders. |
 | First start       | A person with no bound folder lands on the Folders tab after signing in, which opens with the home folder. |
@@ -74,6 +74,7 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 - Open in Medilab Sync fills in this MediLab's address on the sign-in screen and names its host.
 - The folders of a sample the person was just given to test are bound inside the home folder without the person choosing a location, also on a new installation.
 - A sample folder the person stopped syncing is not bound again by itself.
+- A sample folder unbound by signing in to another server or account is bound again in its place, with its files and queue, once the person is a member of it there.
 - Saving a document several times within the waiting time adds one version.
 - A file changed while the application was closed is uploaded at the next start.
 - A downloaded file whose hash does not match is not put in place.

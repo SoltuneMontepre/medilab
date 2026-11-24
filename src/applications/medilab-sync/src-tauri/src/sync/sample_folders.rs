@@ -39,9 +39,9 @@ pub fn sample_folder_dir(home: &Path, remote: &FolderDto) -> Option<PathBuf> {
     Some(home.join(code).join(category))
 }
 
-/// Gắn một folder mẫu vào thư mục của nó dưới thư mục chính, tạo thư mục nếu chưa có. `false` khi
-/// không gắn: mẫu đã xong, folder đã gắn, người dùng đã ngừng đồng bộ nó, hoặc thư mục đã dùng cho
-/// folder khác.
+/// Gắn một folder mẫu vào thư mục của nó dưới thư mục chính, tạo thư mục nếu chưa có; thư mục còn
+/// dòng mất liên kết (đổi máy chủ, tài khoản) được gắn lại vào dòng đó. `false` khi không gắn: mẫu
+/// đã xong, folder đã gắn, người dùng đã ngừng đồng bộ nó, hoặc thư mục đã gắn với folder khác.
 fn bind_sample_folder(db: &Db, home: &Path, remote: &FolderDto) -> AppResult<bool> {
     if !remote.sample_open || db.auto_bind_skipped(remote.id)? {
         return Ok(false);
@@ -58,7 +58,10 @@ fn bind_sample_folder(db: &Db, home: &Path, remote: &FolderDto) -> AppResult<boo
     }
     std::fs::create_dir_all(&dir)?;
     let local_path = dir.canonicalize()?.to_string_lossy().into_owned();
-    if folders.iter().any(|folder| folder.local_path == local_path) {
+    if folders
+        .iter()
+        .any(|folder| folder.local_path == local_path && folder.remote_id.is_some())
+    {
         return Ok(false);
     }
     let rules: Vec<SyncRule> = remote
@@ -178,6 +181,31 @@ mod tests {
         assert_eq!(folders.len(), 2);
         assert_eq!(bind_sample_folders(&db, &home, &remotes).unwrap(), 0);
         assert_eq!(db.list_folders().unwrap().len(), 2);
+    }
+
+    /// Folder mất liên kết vì đổi máy chủ hoặc tài khoản được gắn lại tại chỗ, giữ nguyên dòng cũ.
+    #[test]
+    fn a_folder_unbound_by_a_server_change_is_bound_again_in_place() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = Db::open(&dir.path().join("t.db")).unwrap();
+        let home = dir.path().join("MediLab");
+        let raw = remote(1, Some(("PTN.26.11.0001", "raw")));
+        let local = sample_folder_dir(&home, &raw).unwrap();
+        std::fs::create_dir_all(&local).unwrap();
+        let local = local.canonicalize().unwrap();
+        let old = db
+            .upsert_folder(local.to_str().unwrap(), "old", Some(7), true, &[])
+            .unwrap();
+        db.migrate_laboratory_api().unwrap();
+        assert_eq!(db.list_folders().unwrap()[0].access_state, "unbound");
+
+        assert_eq!(bind_sample_folders(&db, &home, &[raw]).unwrap(), 1);
+
+        let folders = db.list_folders().unwrap();
+        assert_eq!(folders.len(), 1);
+        assert_eq!(folders[0].id, old);
+        assert_eq!(folders[0].remote_id, Some(1));
+        assert_eq!(folders[0].access_state, "ok");
     }
 
     /// Mẫu đã xong và folder người dùng đã ngừng đồng bộ không được tự gắn, cũng không tạo thư mục.
