@@ -109,15 +109,17 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
             checkout_url = self._open_payos_checkout_url(request)
             wizard.payos_available = payos_available
             wizard.payos_checkout_url = checkout_url
-            if not order or wizard.method != "bank_transfer":
-                wizard.qr_html = False
-                continue
-            amount = wizard.amount or (request.remaining_amount if request else order.amount_total)
-            memo = wizard.reference or (request.quotation_id.code if request and request.quotation_id else order.name)
-            if checkout_url:
-                wizard.qr_html = self._payos_qr_html(order, amount, checkout_url)
-            else:
-                wizard.qr_html = self._bank_qr_html(order, amount, memo)
+            wizard.qr_html = wizard._qr_html(order, request, checkout_url)
+
+    def _qr_html(self, order, request, checkout_url):
+        """The QR of a bank transfer: the open PayOS link's, else the company bank account's."""
+        if not order or self.method != "bank_transfer":
+            return False
+        amount = self.amount or (request.remaining_amount if request else order.amount_total)
+        if checkout_url:
+            return self._payos_qr_html(order, amount, checkout_url)
+        memo = self.reference or (request.quotation_id.code if request and request.quotation_id else order.name)
+        return self._bank_qr_html(order, amount, memo)
 
     def _open_payos_checkout_url(self, request):
         """Checkout URL of the payment request's latest PayOS link that is still open, or False."""
