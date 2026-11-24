@@ -1,5 +1,5 @@
 from datetime import timedelta
-from time import perf_counter
+from os import times
 from unittest.mock import patch
 
 from freezegun import freeze_time
@@ -83,9 +83,9 @@ class TestBookingApproval(SchedulingCase, LocationCase):
             for _ in range(32):
                 test = self.new_test(MONDAY + timedelta(days=2))
                 self.testing_task(test, self.other_tester)
-        plan_started = perf_counter()
+        plan_started = times().elapsed
         bookings._plan(self.department)
-        plan_elapsed = perf_counter() - plan_started
+        plan_elapsed = times().elapsed - plan_started
         proposals = bookings.search([("status", "=", "proposed"), ("department_id", "=", self.department.id)])
         proposal_count = len(proposals)
         self.assertEqual(proposal_count, 33)
@@ -99,14 +99,14 @@ class TestBookingApproval(SchedulingCase, LocationCase):
             return original_plan(model, departments)
 
         with patch.object(type(bookings), "_plan", new=count_plan_calls):
-            started = perf_counter()
+            started = times().elapsed
             booking.sample_test_id.with_user(self.head.user_id).action_approve_booking()
-            elapsed = perf_counter() - started
+            elapsed = times().elapsed - started
 
-        print(f"[scheduler-profile] proposed={proposal_count} action=_plan calls=1 elapsed={plan_elapsed:.3f}s")
+        print(f"[scheduler-profile] proposed={proposal_count} action=_plan calls=1 elapsed={plan_elapsed:.2f}s")
         print(
             f"[scheduler-profile] proposed={proposal_count} action=action_approve_booking "
-            f"plan_calls={plan_calls} elapsed={elapsed:.3f}s"
+            f"plan_calls={plan_calls} elapsed={elapsed:.2f}s"
         )
         self.assertEqual(plan_calls, 0)
 

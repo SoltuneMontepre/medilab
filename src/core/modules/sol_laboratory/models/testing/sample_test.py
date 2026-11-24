@@ -428,6 +428,7 @@ class SampleTest(models.Model, SampleTestBase):
                 or proposal.task_id != task
                 or proposal.person_id != task.assignee_id
                 or proposal.department_id != task.department_id
+                or not proposal._proposed_slot_is_available()
             ):
                 self.env[MODEL_MACHINE_BOOKING]._plan(task.sudo().department_id)
                 proposal = test._proposed_booking()
