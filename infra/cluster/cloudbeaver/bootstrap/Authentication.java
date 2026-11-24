@@ -1,3 +1,5 @@
+package medilab.cloudbeaver;
+
 import com.google.gson.JsonObject;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -8,6 +10,9 @@ import java.util.HexFormat;
 import java.util.Locale;
 
 final class Authentication {
+    private Authentication() {
+    }
+
     static void verify(GraphClient client, Path failure) throws Exception {
         String name = System.getenv("CB_VERIFY_NAME");
         String password = System.getenv("CB_VERIFY_PASSWORD");

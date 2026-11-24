@@ -74,7 +74,7 @@ export function machineFixture({ tests = 1, book = tests, machines = 1, capacity
     }),
   ).then((id) => (fixture.way = id));
   for (let index = 0; index < machines; index += 1) {
-    const letter = String.fromCharCode(65 + index);
+    const letter = String.fromCodePoint(65 + index);
     cy.then(() =>
       create(ADMIN, "medilab.machine", {
         code: `${fixture.tag}-${letter}`,
@@ -192,11 +192,13 @@ export function notified(model, ids, subtype) {
       ],
     ],
     { fields: ["res_partner_id"] },
-  ).then((notices) =>
-    callAs(ADMIN, "res.users", "search_read", [[["partner_id", "in", notices.map((notice) => notice.res_partner_id[0])]]], {
-      fields: ["login"],
-    }).then((users) => users.map((user) => user.login).sort()),
-  );
+  )
+    .then((notices) =>
+      callAs(ADMIN, "res.users", "search_read", [[["partner_id", "in", notices.map((notice) => notice.res_partner_id[0])]]], {
+        fields: ["login"],
+      }),
+    )
+    .then((users) => users.map((user) => user.login).sort());
 }
 
 // Every machine of the fixture back in use with a valid calibration, so no booking is left on a machine that is not fit

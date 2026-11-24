@@ -50,10 +50,12 @@ export const approvedResult = helper("approvedResult", function approvedResult(t
 
 // A lead test assigned to the tester and booked on its machine, which chooses its way of testing.
 export function bookedLead() {
-  return receivedSample([PARAMETERS.lead]).then((sample) => {
-    assign(sample);
-    return testOf(sample, PARAMETERS.lead).then((lead) => book(lead).then(() => lead));
-  });
+  return receivedSample([PARAMETERS.lead])
+    .then((sample) => {
+      assign(sample);
+      return testOf(sample, PARAMETERS.lead);
+    })
+    .then((lead) => book(lead).then(() => lead));
 }
 
 // A bottled water sample whose lead and pH tests are assigned to the tester. The lead test is booked on its machine

@@ -151,40 +151,7 @@ class SaleOrder(models.Model, SaleOrderBase):
             if not payments:
                 order.recorded_payments_html = False
                 continue
-            rows = []
-            for payment in payments:
-                if payment._verified_for_request():
-                    badge = Markup('<span class="badge rounded-pill text-bg-success">%s</span>') % _(
-                        "Confirmed by accounting"
-                    )
-                elif payment.state in ("canceled", "rejected"):
-                    badge = Markup('<span class="badge rounded-pill text-bg-danger">%s</span>') % _("Rejected")
-                else:
-                    badge = Markup('<span class="badge rounded-pill text-bg-warning">%s</span>') % _(
-                        "Pending accounting confirmation"
-                    )
-                note = (
-                    Markup('<div class="small text-danger mt-1">%s</div>') % escape(payment.rejection_reason)
-                    if payment.state in ("canceled", "rejected") and payment.rejection_reason
-                    else Markup("")
-                )
-                received = format_datetime(self.env, payment.received_at) if payment.received_at else ""
-                method = method_labels.get(payment.method or "", payment.method or "")
-                rows.append(
-                    Markup(
-                        '<tr><td class="px-3 py-2">%s</td><td class="px-3 py-2">%s</td>'
-                        '<td class="px-3 py-2">%s</td><td class="px-3 py-2 text-end">%s</td>'
-                        '<td class="px-3 py-2">%s%s</td></tr>'
-                    )
-                    % (
-                        escape(received),
-                        escape(method),
-                        escape(payment.memo or ""),
-                        escape(order.currency_id.format(payment.amount)),
-                        badge,
-                        note,
-                    )
-                )
+            rows = [order._recorded_payment_row(payment, method_labels) for payment in payments]
             order.recorded_payments_html = Markup(
                 '<div class="border rounded-3 bg-white overflow-hidden">'
                 '<div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0">'
@@ -200,6 +167,37 @@ class SaleOrder(models.Model, SaleOrderBase):
                 escape(state_label),
                 Markup("").join(rows),
             )
+
+    def _recorded_payment_row(self, payment, method_labels):
+        """Table row of a payment recorded on the order, with its accounting status."""
+        _ = self.env._
+        if payment._verified_for_request():
+            badge = Markup('<span class="badge rounded-pill text-bg-success">%s</span>') % _("Confirmed by accounting")
+        elif payment.state in ("canceled", "rejected"):
+            badge = Markup('<span class="badge rounded-pill text-bg-danger">%s</span>') % _("Rejected")
+        else:
+            badge = Markup('<span class="badge rounded-pill text-bg-warning">%s</span>') % _(
+                "Pending accounting confirmation"
+            )
+        note = (
+            Markup('<div class="small text-danger mt-1">%s</div>') % escape(payment.rejection_reason)
+            if payment.state in ("canceled", "rejected") and payment.rejection_reason
+            else Markup("")
+        )
+        received = format_datetime(self.env, payment.received_at) if payment.received_at else ""
+        method = method_labels.get(payment.method or "", payment.method or "")
+        return Markup(
+            '<tr><td class="px-3 py-2">%s</td><td class="px-3 py-2">%s</td>'
+            '<td class="px-3 py-2">%s</td><td class="px-3 py-2 text-end">%s</td>'
+            '<td class="px-3 py-2">%s%s</td></tr>'
+        ) % (
+            escape(received),
+            escape(method),
+            escape(payment.memo or ""),
+            escape(self.currency_id.format(payment.amount)),
+            badge,
+            note,
+        )
 
     def _pending_collections(self, *, include_online=True):
         self.ensure_one()

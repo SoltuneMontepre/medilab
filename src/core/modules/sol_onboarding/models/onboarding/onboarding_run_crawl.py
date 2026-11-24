@@ -32,6 +32,16 @@ def _payload(item) -> dict:
     return item.payload if isinstance(item.payload, dict) else {}
 
 
+def _error(item) -> str:
+    """The error a failed crawl item reports."""
+    error = (item.last_error or "").strip()
+    # A retried failure keeps its traceback, whose last line is the exception class and, when it has one, its message.
+    if error.startswith("Traceback"):
+        last = error.rpartition("\n")[2]
+        error = last.partition(": ")[2] if ": " in last else last
+    return error
+
+
 # Lượt Thu Thập: crawling its pages and reporting when it ends.
 class OnboardingRunCrawl(models.Model, OnboardingRunCrawlBase):
     _inherit = MODEL_ONBOARDING_RUN
@@ -81,13 +91,7 @@ class OnboardingRunCrawl(models.Model, OnboardingRunCrawlBase):
             address = (item.item_key or "").partition(":")[2]
             payload = _payload(item)
             if item.status == ITEM_FAILED:
-                error = (item.last_error or "").strip()
-                # A retried failure keeps its traceback, whose last line is the exception class and, when it has one,
-                # its message.
-                if error.startswith("Traceback"):
-                    last = error.rpartition("\n")[2]
-                    error = last.partition(": ")[2] if ": " in last else last
-                lines.append(self.env._("failed %(address)s: %(error)s", address=address, error=error))
+                lines.append(self.env._("failed %(address)s: %(error)s", address=address, error=_error(item)))
             elif "skipped" in payload:
                 lines.append(self.env._("skipped %(address)s: %(reason)s", address=address, reason=payload["skipped"]))
             elif item.status == ITEM_DONE:

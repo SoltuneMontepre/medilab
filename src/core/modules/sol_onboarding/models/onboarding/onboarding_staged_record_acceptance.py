@@ -168,33 +168,36 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
         for method in self._scope_methods():
             groups[normalize_code(method.code or "")] |= method
         for group in groups.values():
-            matched = catalog
-            field = self.env[MODEL_TESTING_FIELD]
-            for method in group:
-                found = record_as(method._matched_record(), catalog)
-                if method.action != ACTION_CREATE and not found:
-                    raise UserError(
-                        self.env._(
-                            "The matched record of %s no longer exists. Set the match again.", method._describe()
-                        )
-                    )
-                matched = matched or found
-                if method.action != ACTION_UPDATE:
-                    field = field or method._method_field()
-            to_accept = group.filtered(lambda method: method.action != ACTION_UPDATE)
-            if not to_accept:
-                continue
-            code = matched.code or group[0].code
-            record = (
-                matched
-                or catalog.search([("code", "=", code)], limit=1)
-                or catalog.with_context(lang=self.lang).create(
-                    {"code": code, "name": group[0].name or code, "field_id": (field or self.field_id).id}
-                )
-            )
-            for method in to_accept:
-                method._mark_accepted(record)
+            self._accept_method_group(group, catalog)
         return certificate
+
+    def _accept_method_group(self, group, catalog):
+        """Accept the certificate's scope methods whose codes make one method into the matched method, the catalog
+        method with their code, or a new one."""
+        matched = catalog
+        field = self.env[MODEL_TESTING_FIELD]
+        for method in group:
+            found = record_as(method._matched_record(), catalog)
+            if method.action != ACTION_CREATE and not found:
+                raise UserError(
+                    self.env._("The matched record of %s no longer exists. Set the match again.", method._describe())
+                )
+            matched = matched or found
+            if method.action != ACTION_UPDATE:
+                field = field or method._method_field()
+        to_accept = group.filtered(lambda method: method.action != ACTION_UPDATE)
+        if not to_accept:
+            return
+        code = matched.code or group[0].code
+        record = (
+            matched
+            or catalog.search([("code", "=", code)], limit=1)
+            or catalog.with_context(lang=self.lang).create(
+                {"code": code, "name": group[0].name or code, "field_id": (field or self.field_id).id}
+            )
+        )
+        for method in to_accept:
+            method._mark_accepted(record)
 
     def _scope_methods(self):
         """The staged methods of a certificate's scope that are to review, in the order they were staged."""

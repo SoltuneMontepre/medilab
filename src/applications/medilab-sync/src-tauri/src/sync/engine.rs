@@ -32,6 +32,7 @@ use rusqlite::OptionalExtension;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, HashMap, HashSet};
+use std::ffi::OsStr;
 use std::fs;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
@@ -1232,10 +1233,7 @@ impl EngineHandle {
                 .map(|(job_id, rel)| download_temp_path(&root.join(rel), job_id))
                 .collect();
             for path in walk(&root, folder.recursive) {
-                let name = path
-                    .file_name()
-                    .and_then(|value| value.to_str())
-                    .unwrap_or_default();
+                let name = path.file_name().and_then(OsStr::to_str).unwrap_or_default();
                 if name.contains(".medilab-download-")
                     && name.ends_with(".tmp")
                     && !active.contains(&path)
@@ -2086,40 +2084,20 @@ pub(crate) async fn run_upload_job_with(
         .as_ref()
         .and_then(|raw| serde_json::from_str(raw).ok())
         .unwrap_or_default();
-    if let Some(existing) = job
-        .session_id
-        .filter(|_| should_resume_session(job.content_hash.as_deref(), &expected))
+    if let Some(report) = finalize_resumed_session(
+        client,
+        db,
+        job,
+        owned,
+        remote_folder_id,
+        &path,
+        &initial,
+        &expected,
+        &is_paused,
+    )
+    .await?
     {
-        let upload = client.upload(remote_folder_id, existing).await?;
-        if matches!(upload.status.as_str(), "prepared" | "refused")
-            && crate::wire::ttl(&upload.expires_at) == 0
-        {
-            return Err(AppError::UploadExpired);
-        }
-
-        if upload.status == "expired" {
-            return Err(AppError::UploadExpired);
-        }
-        if upload.status == "failed" {
-            return Err(AppError::UploadFailed(
-                upload.failure_code.unwrap_or_default(),
-            ));
-        }
-        if upload.status != "prepared" || upload.part_count == 0 {
-            verify_content_without_stream(db, owned, &path, &expected).await?;
-            let finalized =
-                unless_paused(client.finalize(remote_folder_id, existing, &[]), &is_paused).await?;
-            record_finalize_result(db, job, owned, &finalized)?;
-            return Ok(UploadReport {
-                outcome: UploadOutcome::Finalized(finalized),
-                content_hash: expected.clone(),
-                parts_uploaded: 0,
-                total_parts: 0,
-                local_changed_after_read: local_changed_after_read(
-                    db, owned, &path, &initial, &expected,
-                ),
-            });
-        }
+        return Ok(report);
     }
     let (session_id, part_size) = match job.session_id {
         Some(existing) if should_resume_session(job.content_hash.as_deref(), &expected) => {
@@ -2185,28 +2163,20 @@ pub(crate) async fn run_upload_job_with(
     // Mỗi PUT là một task riêng: chạy độc lập trong lúc task này chờ ngân sách/đọc part kế
     // tiếp, và drop `in_flight` (JoinSet) abort mọi PUT còn dở.
     let mut in_flight: JoinSet<AppResult<(i64, String, i64)>> = JoinSet::new();
-    let mut urls: HashMap<i64, String> = HashMap::new();
-    let mut urls_valid_until = Instant::now();
+    let mut part_urls = PartUrls::new(client, remote_folder_id, session_id, window, total_parts);
     let mut failure: Option<AppError> = None;
     let mut next_part = 1_i64;
     loop {
-        // Ghi ngay các PUT đã xong (không chờ), rồi: cửa sổ đầy hoặc đã lên lịch hết thì chờ
-        // một PUT xong (Pause thì dừng ngay).
-        let finished = match in_flight.try_join_next() {
-            Some(result) => Some(result),
-            None if in_flight.len() >= window
-                || (next_part > total_parts && !in_flight.is_empty()) =>
+        let finished =
+            match next_finished_put(&mut in_flight, window, next_part > total_parts, &is_paused)
+                .await
             {
-                match unless_paused(async { Ok(in_flight.join_next().await) }, &is_paused).await {
-                    Ok(result) => result,
-                    Err(err) => {
-                        failure = Some(err);
-                        break;
-                    }
+                Ok(finished) => finished,
+                Err(err) => {
+                    failure = Some(err);
+                    break;
                 }
-            }
-            None => None,
-        };
+            };
         if let Some(result) = finished {
             match flatten_part_result(result) {
                 Ok((part_number, etag, len)) => {
@@ -2259,35 +2229,12 @@ pub(crate) async fn run_upload_job_with(
             failure = Some(AppError::Paused);
             break;
         }
-        // Presign sát lúc dùng, cho các part còn thiếu của cửa sổ sắp tới, và xin lại khi URL sắp
-        // hết hạn theo tuổi thật của nó.
-        if !urls.contains_key(&part_number) || Instant::now() >= urls_valid_until {
-            match presign_window(
-                client,
-                remote_folder_id,
-                session_id,
-                part_number,
-                window,
-                total_parts,
-                &done_parts,
-            )
-            .await
-            {
-                Ok((fresh, valid_until)) => {
-                    urls = fresh;
-                    urls_valid_until = valid_until;
-                }
-                Err(err) => {
-                    failure = Some(err);
-                    break;
-                }
+        let part_url = match part_urls.take(part_number, &done_parts).await {
+            Ok(part_url) => part_url,
+            Err(err) => {
+                failure = Some(err);
+                break;
             }
-        }
-        let Some(part_url) = urls.remove(&part_number) else {
-            failure = Some(AppError::Message(format!(
-                "Thiếu URL presigned cho phần {part_number}"
-            )));
-            break;
         };
         let part_span = tracing::debug_span!(
             "sync.upload_part",
@@ -2355,6 +2302,127 @@ pub(crate) async fn run_upload_job_with(
         total_parts,
         local_changed_after_read,
     })
+}
+
+/// Session đã lưu của job còn dùng cho nội dung `expected` mà server không cần PUT part nữa:
+/// finalize ngay và trả báo cáo. Session hết hạn hoặc thất bại thì lỗi; không có session để
+/// resume hoặc còn part phải PUT thì `None`.
+#[allow(clippy::too_many_arguments)]
+async fn finalize_resumed_session(
+    client: &ApiClient,
+    db: &Db,
+    job: &JobRow,
+    owned: &RunningJob,
+    remote_folder_id: i64,
+    path: &Path,
+    initial: &LocalMetadata,
+    expected: &str,
+    is_paused: &impl Fn() -> bool,
+) -> AppResult<Option<UploadReport>> {
+    let Some(existing) = job
+        .session_id
+        .filter(|_| should_resume_session(job.content_hash.as_deref(), expected))
+    else {
+        return Ok(None);
+    };
+    let upload = client.upload(remote_folder_id, existing).await?;
+    if matches!(upload.status.as_str(), "prepared" | "refused")
+        && crate::wire::ttl(&upload.expires_at) == 0
+    {
+        return Err(AppError::UploadExpired);
+    }
+    if upload.status == "expired" {
+        return Err(AppError::UploadExpired);
+    }
+    if upload.status == "failed" {
+        return Err(AppError::UploadFailed(
+            upload.failure_code.unwrap_or_default(),
+        ));
+    }
+    if upload.status == "prepared" && upload.part_count != 0 {
+        return Ok(None);
+    }
+    verify_content_without_stream(db, owned, path, expected).await?;
+    let finalized =
+        unless_paused(client.finalize(remote_folder_id, existing, &[]), is_paused).await?;
+    record_finalize_result(db, job, owned, &finalized)?;
+    Ok(Some(UploadReport {
+        outcome: UploadOutcome::Finalized(finalized),
+        content_hash: expected.to_string(),
+        parts_uploaded: 0,
+        total_parts: 0,
+        local_changed_after_read: local_changed_after_read(db, owned, path, initial, expected),
+    }))
+}
+
+/// Lấy ngay một PUT đã xong (không chờ); nếu chưa có mà cửa sổ đầy hoặc đã lên lịch hết part
+/// thì chờ một PUT xong (Pause thì dừng ngay). Không có PUT nào để lấy thì `None`.
+async fn next_finished_put(
+    in_flight: &mut JoinSet<AppResult<(i64, String, i64)>>,
+    window: usize,
+    all_scheduled: bool,
+    is_paused: &impl Fn() -> bool,
+) -> AppResult<Option<Result<AppResult<(i64, String, i64)>, tokio::task::JoinError>>> {
+    if let Some(result) = in_flight.try_join_next() {
+        return Ok(Some(result));
+    }
+    if in_flight.len() >= window || (all_scheduled && !in_flight.is_empty()) {
+        return unless_paused(async { Ok(in_flight.join_next().await) }, is_paused).await;
+    }
+    Ok(None)
+}
+
+/// URL presigned của các part sắp PUT trong một session multipart, kèm thời điểm lô URL hết hạn.
+struct PartUrls<'a> {
+    client: &'a ApiClient,
+    remote_folder_id: i64,
+    session_id: i64,
+    window: usize,
+    total_parts: i64,
+    urls: HashMap<i64, String>,
+    valid_until: Instant,
+}
+
+impl<'a> PartUrls<'a> {
+    fn new(
+        client: &'a ApiClient,
+        remote_folder_id: i64,
+        session_id: i64,
+        window: usize,
+        total_parts: i64,
+    ) -> Self {
+        Self {
+            client,
+            remote_folder_id,
+            session_id,
+            window,
+            total_parts,
+            urls: HashMap::new(),
+            valid_until: Instant::now(),
+        }
+    }
+
+    /// Lấy URL của `part_number`. Presign sát lúc dùng, cho các part còn thiếu của cửa sổ sắp
+    /// tới, và xin lại khi URL sắp hết hạn theo tuổi thật của nó.
+    async fn take(&mut self, part_number: i64, done_parts: &HashSet<i64>) -> AppResult<String> {
+        if !self.urls.contains_key(&part_number) || Instant::now() >= self.valid_until {
+            let (urls, valid_until) = presign_window(
+                self.client,
+                self.remote_folder_id,
+                self.session_id,
+                part_number,
+                self.window,
+                self.total_parts,
+                done_parts,
+            )
+            .await?;
+            self.urls = urls;
+            self.valid_until = valid_until;
+        }
+        self.urls
+            .remove(&part_number)
+            .ok_or_else(|| AppError::Message(format!("Thiếu URL presigned cho phần {part_number}")))
+    }
 }
 
 /// Kết quả mở session của một lượt upload.

@@ -42,6 +42,7 @@ function frame($subject, action) {
   }
   const box = element.getBoundingClientRect();
   const step = currentStep();
+  const label = step ? `${step} › ${action}` : action;
   const marks = [
     mark(document, {
       left: `${box.left - 4}px`,
@@ -64,7 +65,7 @@ function frame($subject, action) {
         borderRadius: "4px",
         whiteSpace: "nowrap",
       },
-      `${step ? `${step} › ` : ""}${action} ${elementName(element)}`,
+      `${label} ${elementName(element)}`,
     ),
     mark(document, {
       left: `${box.left + box.width / 2 - 7}px`,

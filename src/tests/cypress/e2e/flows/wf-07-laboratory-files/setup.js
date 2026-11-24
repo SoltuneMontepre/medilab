@@ -1,8 +1,8 @@
 import { callAs, randomId } from "../../../support/odoo";
-import { ADMINISTRATOR, HEAD, OTHER_TESTER, PARAMETERS, TESTER, assign, receivedSample } from "../wf-03-testing-scheduling/setup";
+import { ADMINISTRATOR, PARAMETERS, assign, receivedSample } from "../wf-03-testing-scheduling/setup";
 import { api, ok, signInDevice } from "./device";
 
-export { ADMINISTRATOR, HEAD, OTHER_TESTER, TESTER };
+export { ADMINISTRATOR, HEAD, OTHER_TESTER, TESTER } from "../wf-03-testing-scheduling/setup";
 export const MICROBIOLOGY_TESTER = "demo.microbiology_tester";
 export const SALES = "demo.sales";
 

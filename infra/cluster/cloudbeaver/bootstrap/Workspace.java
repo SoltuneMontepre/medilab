@@ -1,9 +1,14 @@
+package medilab.cloudbeaver;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Locale;
 
 public final class Workspace {
+    private static final String BOOTSTRAP_ATTEMPT = ".medilab-bootstrap-attempt";
+
     static Path root() {
         return Path.of(System.getenv().getOrDefault("MEDILAB_WORKSPACE", "/opt/cloudbeaver/workspace"));
     }
@@ -12,7 +17,7 @@ public final class Workspace {
         Path database = root.resolve(".data/cb.h2v2.dat.mv.db");
         try {
             return Files.isRegularFile(database) && Files.size(database) > 0;
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             return false;
         }
     }
@@ -28,12 +33,12 @@ public final class Workspace {
         }
     }
 
-    static String state(Path root) throws Exception {
+    static String state(Path root) throws IOException {
         Path runtime = root.resolve(".data/.cloudbeaver.runtime.conf");
         if (runtimeComplete(root) && databaseExists(root)) {
             return "configured";
         }
-        if (Files.exists(root.resolve(".medilab-bootstrap-attempt"))) {
+        if (Files.exists(root.resolve(BOOTSTRAP_ATTEMPT))) {
             throw new IllegalStateException("Interrupted bootstrap or lost runtime configuration: review recovery on a backup clone before any retry.");
         }
         if (Files.exists(runtime) || Files.exists(root.resolve(".data")) || Files.exists(root.resolve(".metadata"))) {
@@ -71,9 +76,9 @@ public final class Workspace {
             String state = state(root);
             if (args.length == 1 && args[0].equals("start") && state.equals("fresh")) {
                 Files.createDirectories(root);
-                Files.writeString(root.resolve(".medilab-bootstrap-attempt"), "Bootstrap attempted; runtime configuration is the completion record.\n",
+                Files.writeString(root.resolve(BOOTSTRAP_ATTEMPT), "Bootstrap attempted; runtime configuration is the completion record.\n",
                     StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
-                JsonFiles.sync(root.resolve(".medilab-bootstrap-attempt"));
+                JsonFiles.sync(root.resolve(BOOTSTRAP_ATTEMPT));
                 JsonFiles.sync(root);
             }
             System.out.println(state);

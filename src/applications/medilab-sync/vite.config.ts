@@ -8,7 +8,7 @@ import { visualizer } from "rollup-plugin-visualizer";
 const { ANALYZE: analyze, TAURI_DEV_HOST: host } = process.env;
 
 // https://vite.dev/config/
-export default defineConfig(async () => ({
+export default defineConfig(() => ({
   plugins: [
     react(),
     tailwindcss(),

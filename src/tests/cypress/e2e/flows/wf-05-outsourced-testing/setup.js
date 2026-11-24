@@ -60,9 +60,9 @@ export function inDays(days) {
 
 // The subcontractor of a parameter's subcontracted way of testing, as the head of department reads it.
 function subcontractorOf(kind) {
-  return refAs(HEAD, PARAMETERS[kind].way).then(({ id }) =>
-    callAs(HEAD, "medilab.parameter.method", "read", [[id], ["subcontractor_id"]]).then(([way]) => way.subcontractor_id[0]),
-  );
+  return refAs(HEAD, PARAMETERS[kind].way)
+    .then(({ id }) => callAs(HEAD, "medilab.parameter.method", "read", [[id], ["subcontractor_id"]]))
+    .then(([way]) => way.subcontractor_id[0]);
 }
 
 // The head of department cancels the subcontractor's draft dispatches, which a test outsourced next would otherwise
@@ -118,11 +118,13 @@ export const assignedTest = helper("assignedTest", function assignedTest(kind = 
     ]),
   )
     .then((requestId) => {
+      ids.request = requestId;
       callAs(RECEPTION, "medilab.test.request", "action_confirm", [[requestId]]);
-      callAs(RECEPTION, "medilab.test.request", "read", [[requestId], ["customer_id"]]).then(
-        ([request]) => (test.customerName = request.customer_id[1]),
-      );
-      return callAs(RECEPTION, "medilab.sample", "search_read", [[["request_id", "=", requestId]]], {
+      return callAs(RECEPTION, "medilab.test.request", "read", [[requestId], ["customer_id"]]);
+    })
+    .then(([request]) => {
+      test.customerName = request.customer_id[1];
+      return callAs(RECEPTION, "medilab.sample", "search_read", [[["request_id", "=", ids.request]]], {
         fields: ["code", "customer_sample_name", "test_ids"],
       });
     })
@@ -167,27 +169,35 @@ export const outsourceDialog = helper("outsourceDialog", function outsourceDialo
 // its own.
 export const outsourcedTest = helper("outsourcedTest", function outsourcedTest(kind = "lead") {
   clearDrafts(kind);
-  return suggestedTest(kind).then((test) =>
-    outsourceDialog(test)
-      .then((wizard) => callAs(HEAD, "medilab.sample.test.outsource", "action_outsource", [[wizard]]))
-      .then((action) =>
-        callAs(HEAD, "medilab.subcontract.dispatch", "read", [[action.res_id], ["code"]]).then(([read]) => ({
-          test,
-          dispatch: { model: "medilab.subcontract.dispatch", id: action.res_id, code: read.code },
-        })),
-      ),
-  );
+  let test;
+  return suggestedTest(kind)
+    .then((suggested) => {
+      test = suggested;
+      return outsourceDialog(test);
+    })
+    .then((wizard) => callAs(HEAD, "medilab.sample.test.outsource", "action_outsource", [[wizard]]))
+    .then((action) =>
+      callAs(HEAD, "medilab.subcontract.dispatch", "read", [[action.res_id], ["code"]]).then(([read]) => ({
+        test,
+        dispatch: { model: "medilab.subcontract.dispatch", id: action.res_id, code: read.code },
+      })),
+    );
 });
 
 // The head of department sends the dispatch of an outsourced test with sample delivery staff, its results expected in
 // a week.
 export const sentDispatch = helper("sentDispatch", function sentDispatch(kind = "lead") {
-  return outsourcedTest(kind).then(({ test, dispatch }) =>
-    refAs(HEAD, "sol_demo.demo_person_sample_delivery_staff").then((courier) => {
-      callAs(HEAD, "medilab.subcontract.dispatch", "write", [[dispatch.id], { courier_id: courier.id, expected_date: inDays(7) }]);
-      return callAs(HEAD, "medilab.subcontract.dispatch", "action_send", [[dispatch.id]]).then(() => ({ test, dispatch }));
-    }),
-  );
+  let outsourced;
+  return outsourcedTest(kind)
+    .then((made) => {
+      outsourced = made;
+      return refAs(HEAD, "sol_demo.demo_person_sample_delivery_staff");
+    })
+    .then((courier) => {
+      callAs(HEAD, "medilab.subcontract.dispatch", "write", [[outsourced.dispatch.id], { courier_id: courier.id, expected_date: inDays(7) }]);
+      return callAs(HEAD, "medilab.subcontract.dispatch", "action_send", [[outsourced.dispatch.id]]);
+    })
+    .then(() => outsourced);
 });
 
 // A sent dispatch whose receipt the subcontractor's person confirmed on the portal.
@@ -241,11 +251,9 @@ export const wayParts = helper("wayParts", function wayParts() {
 // A heavy-metal parameter the administrator creates without ways of testing.
 export const newParameter = helper("newParameter", function newParameter() {
   const name = `Kim loại thầu phụ ${Date.now()}`;
-  return refAs(ADMINISTRATOR, "sol_demo.demo_parameter_group_heavy_metals").then((group) =>
-    callAs(ADMINISTRATOR, "medilab.test.parameter", "create", [{ name, main_group_id: group.id, group_ids: [[6, 0, [group.id]]] }]).then(
-      (id) => ({ model: "medilab.test.parameter", id, name }),
-    ),
-  );
+  return refAs(ADMINISTRATOR, "sol_demo.demo_parameter_group_heavy_metals")
+    .then((group) => callAs(ADMINISTRATOR, "medilab.test.parameter", "create", [{ name, main_group_id: group.id, group_ids: [[6, 0, [group.id]]] }]))
+    .then((id) => ({ model: "medilab.test.parameter", id, name }));
 });
 
 // A subcontractor the administrator records, its accreditation valid for a year.
