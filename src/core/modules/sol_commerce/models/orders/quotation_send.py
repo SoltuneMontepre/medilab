@@ -112,7 +112,7 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
                 continue
             localized = order.with_context(lang=order._get_lang())
             deadline = format_datetime(localized.env, wizard.payment_deadline)
-            code = order._latest_quotation().code or order.name
+            code = order.name
             if wizard.on_credit or wizard.advance_mode == ADVANCE_NONE:
                 advance_amount = 0
             elif wizard.advance_mode == ADVANCE_FULL:

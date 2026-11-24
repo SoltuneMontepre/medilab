@@ -778,6 +778,7 @@ msgstr "Đã lưu trữ"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__attachment_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__attachment_name
 msgid "Attachment"
 msgstr "Tệp Đính Kèm"
 
@@ -929,6 +930,7 @@ msgstr "Xác nhận đơn hàng"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__confirmed
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__confirmed
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_form
 msgid "Confirmed"
 msgstr "Đã xác nhận"
 
@@ -2551,6 +2553,7 @@ msgstr "Bắt đầu thu mẫu"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__state
 msgid "Status"
 msgstr "Trạng Thái"
 
@@ -5267,6 +5270,7 @@ msgstr "Số đối tượng:"
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__preservation
 #: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sampling_preservation
 msgid "Preservation"
 msgstr "Điều kiện bảo quản"
 

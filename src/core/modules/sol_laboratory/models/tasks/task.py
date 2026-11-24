@@ -194,13 +194,15 @@ class Task(models.Model, TaskBase):
 
     @api.depends("department_id", "department_id.name", "type_id.route", "type_id.role_id", "type_id.role_id.name")
     def _compute_queue_name(self):
-        for task in self.sudo():
+        # Compute in one canonical language so open tasks never split across language-specific groups.
+        lang = self.env.company.partner_id.lang or "en_US"
+        for task in self.sudo().with_context(lang=lang):
             if task.department_id:
                 task.queue_name = task.department_id.name
             elif task.type_id.route == "role" and task.type_id.role_id:
                 task.queue_name = task.type_id.role_id.name
             elif task.type_id.route == "administrator":
-                task.queue_name = self.env._("Administrator")
+                task.queue_name = task.env._("Administrator")
             else:
                 task.queue_name = False
 
