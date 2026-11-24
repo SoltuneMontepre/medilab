@@ -90,6 +90,15 @@ class TestAuditIntegrations(AuditLookup, HttpCase):
         self.assertIn("Mailbox unavailable", assert_instance(self.entries(self.task, "error").note, str))
         self.assertFalse(self.entries(self.task, "integration"))
 
+    def test_an_email_failure_without_a_reason_is_recorded_by_its_label_not_its_code(self):
+        mail = self.email("unreachable")
+
+        mail._postprocess_sent_message(success_pids=[], success_emails=[], failure_type="mail_smtp")
+
+        self.assertEqual(
+            self.entries(self.task, "error").note, "Email not sent: Connection failed (outgoing mail server problem)"
+        )
+
     def test_a_brevo_event_is_recorded_on_the_document_of_its_email(self):
         message = self.notify("delivered")
         notification = message.notification_ids.filtered(lambda item: item.res_partner_id == self.recipient.partner_id)

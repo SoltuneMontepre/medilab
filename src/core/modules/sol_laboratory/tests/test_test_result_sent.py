@@ -75,7 +75,6 @@ class TestTestResultSent(ResultCase):
         result = self.enter()
         self.send(result)
         self.as_person(result, self.head).action_reject("The blank read above the limit of detection.")
-        self.as_person(self.test._testing_task(), self.tester).action_claim()
         retest = self.enter(value=0.009)
 
         self.send(retest)

@@ -8,8 +8,10 @@
                 create="0"
                 decoration-muted="status in ('done', 'cancelled')"
                 decoration-danger="at_risk and status in ('proposed', 'scheduled')"
+                decoration-warning="is_missed"
             >
                 <field name="at_risk" column_invisible="1" />
+                <field name="is_missed" column_invisible="1" />
                 <field name="display_name" string="Sample Test" />
                 <field name="machine_id" />
                 <field name="method_id" optional="hide" />
@@ -47,6 +49,7 @@
                         groups="sol_laboratory.group_permission_machine_booking_edit_all,sol_laboratory.group_permission_machine_booking_edit_own_department"
                     />
                     <button name="action_start" type="object" string="Start" class="btn-primary" invisible="status != 'scheduled'" />
+                    <button name="action_reschedule" type="object" string="Reschedule" class="btn-secondary" invisible="not is_missed" />
                     <button name="action_done" type="object" string="Done" class="btn-primary" invisible="status != 'in_progress'" />
                     <button
                         name="action_cancel"
@@ -65,6 +68,8 @@
                         <span class="badge text-bg-danger ms-2" invisible="not at_risk">At Risk</span>
                         <field name="is_pinned" invisible="1" />
                         <span class="badge text-bg-info ms-2" invisible="not is_pinned">Pinned</span>
+                        <field name="is_missed" invisible="1" />
+                        <span class="badge text-bg-warning ms-2" invisible="not is_missed">Missed</span>
                     </div>
                     <group>
                         <group>
@@ -146,6 +151,7 @@
                 <filter name="proposed" string="Plan" domain="[('status', '=', 'proposed')]" />
                 <filter name="at_risk" string="At Risk" domain="[('sample_test_id.at_risk', '=', True)]" />
                 <filter name="pinned" string="Pinned" domain="[('is_pinned', '=', True)]" />
+                <filter name="missed" string="Missed" domain="[('is_missed', '=', True)]" />
                 <separator />
                 <filter name="to_approve" string="To Approve" domain="[('status', '=', 'proposed'), ('starts_at', '!=', False), ('person_id', '!=', False)]" />
                 <filter name="to_review" string="To Review" domain="[('status', '=', 'proposed'), ('starts_at', '=', False)]" />

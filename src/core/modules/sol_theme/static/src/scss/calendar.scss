@@ -51,6 +51,15 @@
         --o-cw-bg: #{$ml-primary};
         --o-cw-color: #{$ml-text-on-primary};
 
+        // FullCalendar forces a vertical scrollbar on the header and all-day rows to align their columns with the body.
+        .fc-scroller {
+            scrollbar-width: thin;
+
+            &:not(.fc-scroller-liquid-absolute) {
+                scrollbar-color: transparent transparent;
+            }
+        }
+
         .fc-col-header-cell a {
             color: $ml-text-muted;
             font-weight: 600;

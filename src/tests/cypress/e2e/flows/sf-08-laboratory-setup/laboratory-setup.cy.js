@@ -187,7 +187,7 @@ describe("SF-08 Laboratory setup", () => {
         cy.get(".o_field_widget[name=value] input").clear().type("0.004");
         // The limit comes from the regulation of bottled water, and the tester concludes against it.
         cy.get(".o_field_widget[name=limit_max]").should("contain", "0.01");
-        cy.get(".o_field_widget[name=conclusion] input[data-value=pass]").check();
+        cy.get(".o_field_widget[name=conclusion]").contains("label", "Pass").click();
         save();
         cy.signRecord();
         cy.contains(".o_statusbar_status .o_arrow_button_current", "Awaiting Approval");

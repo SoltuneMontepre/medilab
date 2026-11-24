@@ -478,6 +478,8 @@ a.chip:hover {
     background-size: 20px 20px;
     cursor: grab;
     touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .canvas.dragging {
@@ -522,7 +524,7 @@ a.chip:hover {
 }
 
 /* The exported shapes set their stroke inline, so the highlight needs !important. */
-[data-flow].is-hover rect {
+[data-flow][role="link"].is-hover rect {
     stroke: var(--accent) !important;
     stroke-width: 3px !important;
     filter: drop-shadow(0 4px 8px rgba(0, 131, 239, 0.3));

@@ -154,7 +154,7 @@ For AI authoring and live debugging, use `task test:e2e:tap:open` and the [Cypre
 | `task test:e2e:tap:open`    | Open this worktree with Chrome for live AI debugging                                                                                             |
 | `task test:e2e:tap TAP_ARGS='status --json'` | Inspect this worktree's live Cypress E2E session                                                                                         |
 | `task test:e2e`             | Run every browser test against the running local demo                                                                                             |
-| `task test:e2e:app`         | Install demo data and start the disposable browser-test application, as CI does                                                                   |
+| `task test:e2e:app`         | Install demo data and start the disposable browser-test application                                                                               |
 | `task ai:verify`           | Check Odoo model and field navigation through the `odoo` MCP server                                                                               |
 | `task ai:cursor-setup`     | Install the official Odoo extension into an isolated Cursor profile                                                                               |
 | `task dev:lock`            | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`                                                                               |

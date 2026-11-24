@@ -23,6 +23,9 @@ AT_RISK_SUMMARY_JOB = "sample_tests.at_risk_summary"
 ROLE_GRANTS_EXPIRE_JOB = "role_grants.expire"
 # Key of the job that notifies the bookings whose end passed while they still hold their machine.
 MACHINE_BOOKINGS_OVERRUN_JOB = "machine_bookings.overrun"
+# Key of the job that notifies the bookings whose start passed without the tester starting them.
+MACHINE_BOOKINGS_MISSED_JOB = "machine_bookings.missed"
+
 # Key of the job that tells the heads of department when the accreditation of a draft dispatch's subcontractor lapses.
 DISPATCH_ACCREDITATION_LAPSED_JOB = "subcontract_dispatches.accreditation_lapsed"
 # Key of the job that prepares the PDF of each report waiting for its lab head.

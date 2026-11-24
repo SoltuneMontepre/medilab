@@ -8,6 +8,7 @@ from . import (
     machine_booking_conditions,
     machine_booking_eligibility,
     machine_booking_interruptions,
+    machine_booking_missed,
     machine_booking_overtime,
     machine_booking_plan,
     machine_booking_revision,

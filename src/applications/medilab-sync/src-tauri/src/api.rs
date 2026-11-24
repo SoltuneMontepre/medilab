@@ -125,6 +125,10 @@ pub struct FolderDto {
     /// Gợi ý hiển thị nút quản lý; quyền thật do server quyết định ở từng lần gọi.
     #[serde(default)]
     pub can_manage_members: bool,
+    /// `false` khi mẫu của folder đã xong hoặc bị hủy: folder chỉ còn đọc. Folder không thuộc mẫu
+    /// nào, và server cũ không gửi, là `true`.
+    #[serde(default = "default_true")]
+    pub sample_open: bool,
 }
 
 /// Danh tính tối thiểu của một user do server trả về: chỉ id, tên và login.
@@ -163,7 +167,7 @@ pub struct FolderMembersDto {
 }
 
 /// Mặc định `true` cho field bool vắng mặt trong response.
-fn default_true() -> bool {
+pub(crate) fn default_true() -> bool {
     true
 }
 
@@ -1279,6 +1283,7 @@ mod tests {
             owner_name: None,
             my_role: None,
             can_manage_members: false,
+            sample_open: true,
         };
         let shared = FolderDto {
             id: 3,
@@ -1297,6 +1302,7 @@ mod tests {
             owner_name: None,
             my_role: None,
             can_manage_members: false,
+            sample_open: true,
         };
         let folders = vec![shared.clone(), own.clone()];
         assert_eq!(

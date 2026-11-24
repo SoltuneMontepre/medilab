@@ -15,6 +15,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE_BOOKING,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
+    MODEL_SAMPLE,
     MODEL_SAMPLE_TEST,
     MODEL_TASK,
     MODEL_TASK_TYPE,
@@ -297,6 +298,7 @@ class Task(models.Model, TaskBase):
         if "assignee_id" in vals:
             self.env[MODEL_SAMPLE_TEST]._follow_assignment(self)
             self.env[MODEL_MACHINE_BOOKING]._follow_assignment(self)
+            self.env[MODEL_SAMPLE]._follow_assignment(self)
         if moved_out:
             # The departments the tasks moved between plan without and with them.
             self.env[MODEL_MACHINE_BOOKING]._plan(left | moved_out.sudo().department_id)

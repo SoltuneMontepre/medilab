@@ -970,7 +970,7 @@ model Customer {
 model TestRequest {
   /// Row identifier.
   id           Int      @id @default(autoincrement())
-  /// Unique code of the request, such as YC.2026.0001, numbered again each year; filled from a sequence when left empty.
+  /// Unique code of the request, such as YC.26.11.0001, numbered again each month; filled from a sequence when left empty.
   code         String   @unique @db.VarChar
   /// The customer who asks for the tests.
   customer_id  Int
@@ -1041,7 +1041,7 @@ model CommittedDateChange {
 model Sample {
   /// Row identifier.
   id                   Int          @id @default(autoincrement())
-  /// Unique laboratory code (mã PTN) from a sequence, such as PTN.2026.0001, numbered again each year; the only name testers see.
+  /// Unique laboratory code (mã PTN) from a sequence, such as PTN.26.11.0001, numbered again each month; the only name testers see.
   code                 String       @unique @db.VarChar
   /// The test request the sample belongs to.
   request_id           Int
@@ -1288,7 +1288,7 @@ model TestResult {
   entered_at     DateTime
   /// The booking the measurement ran in; submitting the result ends the booking. Empty for an outsourced test. A retest is a new result with a new booking.
   booking_id     Int?
-  /// The machine the measurement ran on, taken from the booking and correctable by the lab QA; empty for an outsourced test.
+  /// The machine the measurement ran on, taken from the booking the result is saved with; empty for an outsourced test.
   machine_id     Int?
   /// When the measurement started, taken from the booking's start and correctable by the lab QA.
   started_at     DateTime?

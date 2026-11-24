@@ -19,6 +19,12 @@ const ACTIONS = {
   all: "sol_laboratory.action_medilab_task",
 };
 
+const APPROVALS = [
+  { key: "results", model: "medilab.test.result" },
+  { key: "versions", model: "medilab.laboratory.file.version" },
+  { key: "bookings", model: "medilab.machine.booking" },
+];
+
 export class TaskViewButtons extends Component {
   static template = "sol_laboratory.TaskViewButtons";
   props = useProps({ tile: t.string(), onOpen: t.function() });
@@ -68,19 +74,36 @@ export class TaskDashboard extends Component {
     return DateTime.local().toLocaleString({ weekday: "long", day: "numeric", month: "long" });
   }
 
+  get approvals() {
+    const labels = {
+      results: _t("Results to approve"),
+      versions: _t("File versions to sign"),
+      bookings: _t("Bookings to approve"),
+    };
+    return APPROVALS.map((approval) => ({
+      ...approval,
+      label: labels[approval.key],
+      count: this.data.to_approve[approval.key].length,
+    })).filter((approval) => approval.count);
+  }
+
   get summary() {
     const { open_count, overdue_count, due_today_count } = this.data;
-    if (!open_count) {
-      return _t("Nothing open on your list.");
+    const parts = [];
+    if (open_count) {
+      parts.push(_t("%s open", open_count));
     }
-    const parts = [_t("%s open", open_count)];
     if (overdue_count) {
       parts.push(_t("%s overdue", overdue_count));
     }
     if (due_today_count) {
       parts.push(_t("%s due today", due_today_count));
     }
-    return parts.join(", ") + ".";
+    const toApprove = this.approvals.reduce((sum, approval) => sum + approval.count, 0);
+    if (toApprove) {
+      parts.push(_t("%s to approve", toApprove));
+    }
+    return parts.length ? parts.join(", ") + "." : _t("Nothing open on your list.");
   }
 
   get ribbon() {
@@ -177,6 +200,19 @@ export class TaskDashboard extends Component {
   async openTask(task) {
     const action = await this.orm.call(TASK_MODEL, "action_open_document", [[task.id]]);
     await this.action.doAction(action);
+  }
+
+  async openApprovals(approval) {
+    await this.action.doAction({
+      type: "ir.actions.act_window",
+      name: approval.label,
+      res_model: approval.model,
+      views: [
+        [false, "list"],
+        [false, "form"],
+      ],
+      domain: [["id", "in", this.data.to_approve[approval.key]]],
+    });
   }
 
   async openTile(tile, viewType) {

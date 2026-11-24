@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A testing task opens the laboratory files of its sample, and downloads and opens Medilab Sync, for people with the
+     laboratory files permission. -->
+<odoo>
+    <record id="action_medilab_sync_download" model="ir.actions.act_url">
+        <field name="name">Download Medilab Sync</field>
+        <field name="url">/medilab/sync/download</field>
+        <field name="target">self</field>
+    </record>
+
+    <record id="action_medilab_sync_connect" model="ir.actions.act_url">
+        <field name="name">Open in Medilab Sync</field>
+        <field name="url">/medilab/sync/connect</field>
+        <field name="target">self</field>
+    </record>
+
+    <record id="view_medilab_task_form_laboratory_files" model="ir.ui.view">
+        <field name="name">medilab.task.form.laboratory.files</field>
+        <field name="model">medilab.task</field>
+        <field name="inherit_id" ref="view_medilab_task_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_open_laboratory_files"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="folder_open"
+                    invisible="document_model != 'medilab.sample.test'"
+                    groups="sol_laboratory.group_permission_laboratory_folder_create_all"
+                >
+                    <field name="laboratory_file_count" string="Files" widget="statinfo" />
+                </button>
+                <button
+                    name="%(action_medilab_sync_download)d"
+                    type="action"
+                    class="oe_stat_button"
+                    icon="download"
+                    string="Download Medilab Sync"
+                    invisible="document_model != 'medilab.sample.test'"
+                    groups="sol_laboratory.group_permission_laboratory_folder_create_all"
+                />
+                <button
+                    name="%(action_medilab_sync_connect)d"
+                    type="action"
+                    class="oe_stat_button"
+                    icon="open_in_new"
+                    string="Open in Medilab Sync"
+                    invisible="document_model != 'medilab.sample.test'"
+                    groups="sol_laboratory.group_permission_laboratory_folder_create_all"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -21,4 +21,8 @@ class IrUiMenu(models.Model, IrUiMenuBase):
         menu_id = self.env.ref(DEPARTMENTS_MENU).id
         if menu_id in result and self.env[MODEL_DEPARTMENT]._has_permission("read"):
             result.remove(menu_id)
+        # No MediLab feature uses Odoo's spreadsheet dashboards, so only administrators see them.
+        dashboards = self.env.ref("spreadsheet_dashboard.spreadsheet_dashboard_menu_root", raise_if_not_found=False)
+        if dashboards and not self.env.user.has_group("base.group_system"):
+            result.append(dashboards.id)
         return result

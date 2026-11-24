@@ -1,0 +1,186 @@
+.o_form_view .o_form_sheet {
+    .o_test_result_head.o_test_result_head {
+        margin-bottom: 1rem;
+
+        > h1 {
+            font-size: $ml-font-size-md;
+            font-weight: 600;
+            letter-spacing: $ml-letter-spacing-heading;
+        }
+    }
+
+    .o_test_result_meta,
+    .o_test_result_chips {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem 1rem;
+        font-size: $ml-font-size-sm;
+        color: $ml-text-muted;
+    }
+
+    .o_test_result_chips {
+        gap: 0.4rem;
+    }
+
+    .o_test_result_chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.15rem 0.65rem;
+        border-radius: $ml-radius-pill;
+        background: $ml-secondary-light;
+        color: $ml-text-secondary;
+        font-size: $ml-font-size-xs;
+        font-weight: 500;
+
+        &.o_chip_success {
+            background: $ml-success-soft;
+            color: $ml-success;
+        }
+
+        &.o_chip_warning {
+            background: $ml-warning-soft;
+            color: darken($ml-warning, 22%);
+        }
+    }
+
+    .o_test_result_meta.o_test_result_meta .o_field_widget.o_field_widget {
+        display: inline-flex;
+        min-height: 0;
+        padding: 0;
+    }
+
+    .o_test_result_text.o_test_result_text .o_field_widget.o_field_widget {
+        width: 100%;
+    }
+
+    .o_test_result_related,
+    .o_test_result_entered {
+        display: contents;
+    }
+
+    .o_test_result_cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(#{"min(20rem, 100%)"}, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+
+        > .o_test_result_card {
+            margin-bottom: 0;
+        }
+    }
+
+    .o_test_result_card {
+        min-width: 0;
+        margin-bottom: 1rem;
+        padding: 0.85rem 1.25rem 0.75rem;
+        background: $ml-surface;
+        border: 1px solid $ml-border;
+        border-radius: $ml-radius-lg;
+        box-shadow: $ml-shadow-form;
+        box-sizing: border-box;
+
+        > .alert {
+            margin-top: 0.75rem;
+        }
+    }
+
+    .o_test_result_card_title {
+        margin: 0 0 0.6rem;
+        font-size: $ml-font-size-xs;
+        font-weight: 600;
+        letter-spacing: $ml-letter-spacing-label;
+        text-transform: uppercase;
+        color: $ml-text-muted;
+    }
+
+    .o_test_result_inputs {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: end;
+    }
+
+    .o_test_result_value .o_input {
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+
+    .o_test_result_text,
+    .o_test_result_display,
+    .o_test_result_conclusion {
+        margin-top: 0.75rem;
+    }
+
+    .o_test_result_entry .o_form_label {
+        display: block;
+        margin-bottom: 0.2rem;
+        font-size: $ml-font-size-sm;
+        color: $ml-text-muted;
+    }
+
+    .o_test_result_conclusion [role="radiogroup"] {
+        display: inline-flex;
+        flex-direction: row;
+        border: 1px solid $ml-border-control;
+        border-radius: $ml-radius-sm;
+        overflow: hidden;
+
+        .o_radio_item {
+            position: relative;
+            margin: 0;
+            padding: 0;
+            min-height: 0;
+
+            + .o_radio_item {
+                border-left: 1px solid $ml-border-control;
+            }
+
+            input {
+                position: absolute;
+                margin: 0;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            label {
+                display: block;
+                margin: 0;
+                padding: 0.45rem 1rem;
+                cursor: pointer;
+                font-size: $ml-font-size-base;
+                color: $ml-text-secondary;
+            }
+
+            input:disabled + label {
+                cursor: default;
+                opacity: 0.55;
+            }
+
+            input:checked + label {
+                opacity: 1;
+                font-weight: 600;
+            }
+
+            input[data-value="pass"]:checked + label {
+                background: $ml-success-soft;
+                color: $ml-success;
+            }
+
+            input[data-value="fail"]:checked + label {
+                background: $ml-danger-soft;
+                color: $ml-danger;
+            }
+
+            input[data-value="insufficient"]:checked + label {
+                background: $ml-warning-soft;
+                color: darken($ml-warning, 22%);
+            }
+
+            input:focus-visible + label {
+                box-shadow: inset $ml-focus-ring;
+            }
+        }
+    }
+}
