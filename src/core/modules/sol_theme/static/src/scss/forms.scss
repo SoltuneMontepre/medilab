@@ -309,12 +309,20 @@
       padding-right: 0 !important;
     }
 
+    @media (min-width: 992px) {
+      > .col-lg-6 {
+        flex: 0 0 calc(50% - var(--gutter-x) * 0.5) !important;
+        width: calc(50% - var(--gutter-x) * 0.5) !important;
+        max-width: calc(50% - var(--gutter-x) * 0.5) !important;
+      }
+    }
+
     &:not(:has(> :nth-child(3):not(.o_invisible_modifier))) {
       @media (min-width: 992px) {
         > .o_inner_group,
         > [class*="col-"] {
-          flex: 1 1 0;
-          width: auto;
+          flex: 1 1 0 !important;
+          width: auto !important;
           max-width: 100%;
         }
       }
@@ -322,7 +330,8 @@
       @media (max-width: 991.98px) {
         > .o_inner_group,
         > [class*="col-"] {
-          flex: 0 0 100%;
+          flex: 0 0 100% !important;
+          width: 100% !important;
           max-width: 100%;
         }
       }
