@@ -14,6 +14,8 @@ jest.mock("expo-constants", () => ({ expoConfig: { version: "1.0.0" } }));
 const RELEASE_URL = "https://lab.example/medilab/api/v1/mobile/release/android/runtime-1/1.0.0";
 const APK_URL = "https://release.example/mobile/android/1.1.0/medilab-1.1.0.apk";
 const APK = "the signed APK of MediLab 1.1.0";
+// The global holding React Native's __DEV__, true in a development build.
+const runtime = globalThis as unknown as { __DEV__: boolean };
 
 async function sha256(text: string): Promise<string> {
   const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)));
@@ -34,6 +36,7 @@ describe("updates", () => {
   let foreground: (state: AppStateStatus) => void;
 
   beforeEach(() => {
+    jest.replaceProperty(runtime, "__DEV__", false);
     jest.replaceProperty(Platform, "OS", "android");
     jest.spyOn(AppState, "addEventListener").mockImplementation((_event, handler) => {
       foreground = handler;
@@ -161,6 +164,15 @@ describe("updates", () => {
 
   it("asks nothing in a build without the update certificate", async () => {
     jest.replaceProperty(Updates, "isEnabled", false);
+    const mediLab = fakeMediLab();
+    await openApp();
+
+    expect(screen.getByText("The app")).toBeOnTheScreen();
+    expect(mediLab.sent).toHaveLength(0);
+  });
+
+  it("asks nothing in a development build, whose launcher reports updates on", async () => {
+    jest.replaceProperty(runtime, "__DEV__", true);
     const mediLab = fakeMediLab();
     await openApp();
 
