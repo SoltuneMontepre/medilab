@@ -11,6 +11,8 @@ from odoo.addons.sol_laboratory.constants.models import (
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_task as TaskLaboratoryFilesBase
+
+    from odoo.orm.types import DomainType
 else:
     TaskLaboratoryFilesBase = object
 
@@ -31,7 +33,7 @@ class TaskLaboratoryFiles(models.Model, TaskLaboratoryFilesBase):
             return self.env[MODEL_SAMPLE]
         return self.env[MODEL_SAMPLE_TEST].sudo().browse(self.document_id).sample_id.with_env(self.env)
 
-    def _laboratory_files_domain(self):
+    def _laboratory_files_domain(self) -> "DomainType":
         # "in" rather than "=": a task of no sample must match no file, not the files of folders of no sample.
         return [("folder_id.sample_id", "in", self._testing_sample().ids)]
 

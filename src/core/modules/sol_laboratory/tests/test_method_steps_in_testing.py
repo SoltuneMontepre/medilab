@@ -17,6 +17,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_METHOD,
     MODEL_TESTING_METHOD_STEP,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
@@ -243,7 +244,7 @@ class TestMethodStepsInTesting(SchedulingCase):
             (MODEL_MACHINE_BOOKING, self.runner),
             (MODEL_SAMPLE_TEST, self.tester),
         ):
-            records = self.env[model].with_user(person.user_id)
+            records = dynamic_model(self.env, model).with_user(person.user_id)
             with self.subTest(model=model):
                 self.assertTrue(records.fields_get(["method_step_ids"], ["readonly"])["method_step_ids"]["readonly"])
                 form = etree.fromstring(records.get_views([(False, "form")])["views"]["form"]["arch"])

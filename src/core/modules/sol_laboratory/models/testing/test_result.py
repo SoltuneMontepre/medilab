@@ -445,7 +445,7 @@ class TestResult(models.Model, TestResultBase):
         """The tester confirms the text suggested for a value below the LOD or LOQ, in each language the report may be
         printed in; the measured value stays."""
         langs = [code for code, _name in self.env["res.lang"].get_installed()]
-        for result in self.filtered(lambda result: result.status == STATE_NONE and result.value_suggestion):
+        for result in self.filtered(lambda result: result.status == STATE_NONE and bool(result.value_suggestion)):
             result.value_text = result.value_suggestion
             result.update_field_translations(
                 "value_text", {lang: result._below_threshold_text(result.with_context(lang=lang).env) for lang in langs}
