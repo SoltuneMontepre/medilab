@@ -11,6 +11,7 @@ STATUS_COMPLETED = "completed"
 STATUS_CANCELLED = "cancelled"
 # The statuses the customer sees that are not order statuses.
 STATUS_QUOTED = "quoted"
+STATUS_PROCESSING = "processing"
 STATUS_WAITING = "waiting"
 STATUS_TESTING = "testing"
 

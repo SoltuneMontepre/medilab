@@ -9,10 +9,12 @@ from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import (
     FINISHED_STATUSES,
     PORTAL_SUMMARY_ITEMS,
+    QUOTATION_ACCEPTED,
     STATUS_CANCELLED,
     STATUS_COMPLETED,
     STATUS_CONFIRMED,
     STATUS_DRAFT,
+    STATUS_PROCESSING,
     STATUS_QUOTED,
     STATUS_SUBMITTED,
     STATUS_TESTING,
@@ -24,6 +26,7 @@ CUSTOMER_STATUSES = [
     (STATUS_DRAFT, "Draft"),
     (STATUS_SUBMITTED, "Submitted"),
     (STATUS_QUOTED, "Quoted"),
+    (STATUS_PROCESSING, "Processing"),
     (STATUS_WAITING, "Waiting"),
     (STATUS_TESTING, "Testing"),
     (STATUS_COMPLETED, "Completed"),
@@ -73,7 +76,7 @@ class SaleOrderCustomer(models.Model, SaleOrderBase):
             return self.with_context(partner_display_name_hide_company=True).web_read(specification)
         return super().web_read(specification)
 
-    @api.depends("order_status", "quotation_ids", "test_request_id.status")
+    @api.depends("order_status", "quotation_ids", "quotation_ids.status", "test_request_id.status")
     def _compute_customer_status(self):
         for order in self:
             order.customer_status = order._customer_status()
@@ -84,7 +87,10 @@ class SaleOrderCustomer(models.Model, SaleOrderBase):
             return self.order_status
         if self.order_status == STATUS_CONFIRMED:
             return REQUEST_STATUS_TO_CUSTOMER.get((self.sudo().test_request_id.status or ""), STATUS_WAITING)
-        return STATUS_QUOTED if self.sudo().quotation_ids else STATUS_SUBMITTED
+        quotations = self.sudo().quotation_ids
+        if any(quotation.status == QUOTATION_ACCEPTED for quotation in quotations):
+            return STATUS_PROCESSING
+        return STATUS_QUOTED if quotations else STATUS_SUBMITTED
 
     def _search_customer_status(self, operator, value):
         if operator not in ("in", "not in"):
@@ -97,9 +103,14 @@ class SaleOrderCustomer(models.Model, SaleOrderBase):
         """The orders the customer sees under the status, as _customer_status reads them."""
         if status == STATUS_DRAFT:
             return Domain("order_status", "=", STATUS_DRAFT)
-        if status in (STATUS_SUBMITTED, STATUS_QUOTED):
+        if status in (STATUS_SUBMITTED, STATUS_QUOTED, STATUS_PROCESSING):
             sent = Domain("order_status", "not in", (STATUS_DRAFT, STATUS_CONFIRMED, *FINISHED_STATUSES))
-            return sent & Domain("quotation_ids", "!=" if status == STATUS_QUOTED else "=", False)
+            if status == STATUS_SUBMITTED:
+                return sent & Domain("quotation_ids", "=", False)
+            accepted = Domain("quotation_ids", "any", [("status", "=", QUOTATION_ACCEPTED)])
+            if status == STATUS_PROCESSING:
+                return sent & accepted
+            return sent & Domain("quotation_ids", "!=", False) & ~accepted
         confirmed = Domain("order_status", "=", STATUS_CONFIRMED)
         if status == STATUS_WAITING:
             shown = list(REQUEST_STATUS_TO_CUSTOMER)

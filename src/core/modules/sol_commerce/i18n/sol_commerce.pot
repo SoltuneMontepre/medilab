@@ -6120,6 +6120,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__in_progress
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__processing
 msgid "Processing"
 msgstr ""
 
@@ -6288,7 +6289,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_quotation_send_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
 msgid "Order Quantity"
 msgstr ""
 

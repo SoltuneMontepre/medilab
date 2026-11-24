@@ -22,7 +22,7 @@
                     widget="badge"
                     decoration-success="customer_status == 'completed'"
                     decoration-warning="customer_status == 'waiting'"
-                    decoration-info="customer_status == 'testing'"
+                    decoration-info="customer_status in ('processing', 'testing')"
                     decoration-danger="customer_status == 'cancelled'"
                 />
                 <field
@@ -242,7 +242,7 @@
                         <field
                             name="customer_status"
                             widget="badge"
-                            decoration-info="customer_status in ('quoted', 'testing')"
+                            decoration-info="customer_status in ('quoted', 'processing', 'testing')"
                             decoration-warning="customer_status == 'waiting'"
                             decoration-success="customer_status == 'completed'"
                             decoration-danger="customer_status == 'cancelled'"

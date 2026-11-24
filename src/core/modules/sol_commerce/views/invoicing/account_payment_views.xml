@@ -8,7 +8,7 @@
             <xpath expr="//div[hasclass('oe_title')]" position="attributes">
                 <attribute name="invisible">not name or name == '/'</attribute>
             </xpath>
-            <xpath expr="//field[@name='currency_id']" position="attributes">
+            <xpath expr="//div[@name='amount_div']/field[@name='currency_id']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//field[@name='partner_id'][1]" position="after">
