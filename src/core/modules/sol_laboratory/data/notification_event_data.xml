@@ -252,6 +252,17 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_machine_booking_missed" model="mail.message.subtype">
+        <field name="name">Machine booking missed</field>
+        <field name="description">A booking's start passed before the tester started it</field>
+        <field name="code">machine_booking.missed</field>
+        <field name="res_model">medilab.machine.booking</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <record id="event_machine_booking_returned" model="mail.message.subtype">
         <field name="name">Machine booking returned to the plan</field>
         <field name="description">Leave or an unavailable location returned a booking that had not started to the plan</field>

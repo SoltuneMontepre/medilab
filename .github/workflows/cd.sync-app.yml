@@ -30,20 +30,20 @@ jobs:
             bundles: nsis
             target: ""
             packages: |
-              src-tauri/target/release/bundle/nsis/*.exe
+              src-tauri/target/release/bundle/nsis/*.exe=medilab-sync-windows-x64-setup.exe
           - label: macOS
             os: macos-15
             bundles: dmg
             target: aarch64-apple-darwin
             packages: |
-              src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
+              src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg=medilab-sync-macos-arm64.dmg
           - label: Linux
             os: ubuntu-24.04
             bundles: deb,rpm
             target: ""
             packages: |
-              src-tauri/target/release/bundle/deb/*.deb
-              src-tauri/target/release/bundle/rpm/*.rpm
+              src-tauri/target/release/bundle/deb/*.deb=medilab-sync-linux-amd64.deb
+              src-tauri/target/release/bundle/rpm/*.rpm=medilab-sync-linux-x86_64.rpm
     defaults:
       run:
         shell: bash
@@ -56,8 +56,8 @@ jobs:
         env:
           ODOO_URL: ${{ vars.MEDILAB_SYNC_ODOO_URL }}
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/* && ! "$ODOO_URL" =~ ^https:// ]]; then
-            echo "::error::Set the MEDILAB_SYNC_ODOO_URL Actions variable to the production Odoo address, starting with https://."
+          if [[ "$GITHUB_REF" == refs/tags/* && -n "$ODOO_URL" && ! "$ODOO_URL" =~ ^https:// ]]; then
+            echo "::error::Start the MEDILAB_SYNC_ODOO_URL Actions variable with https://, or remove it so the app takes the address from MediLab."
             exit 1
           fi
 
@@ -113,23 +113,25 @@ jobs:
           fi
           bun run tauri build "${args[@]}"
 
+      # Fixed names, so MediLab links to each installer of the latest release without knowing its version.
       - name: Collect packages
         env:
           PACKAGES: ${{ matrix.packages }}
         run: |
           mkdir -p release-packages
-          for pattern in $PACKAGES; do
-            found=false
+          for entry in $PACKAGES; do
+            pattern="${entry%%=*}"
+            files=()
             for file in $pattern; do
               if [[ -f "$file" ]]; then
-                cp "$file" release-packages/
-                found=true
+                files+=("$file")
               fi
             done
-            if [[ "$found" != true ]]; then
-              echo "::error::No package matches $pattern."
+            if [[ ${#files[@]} -ne 1 ]]; then
+              echo "::error::${#files[@]} packages match $pattern; expected one."
               exit 1
             fi
+            cp "${files[0]}" "release-packages/${entry#*=}"
           done
 
       - name: Upload packages

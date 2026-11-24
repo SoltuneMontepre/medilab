@@ -37,10 +37,13 @@ pub struct Folder {
 #[derive(Deserialize)]
 pub struct Sample {
     pub lab_code: String,
+    #[serde(default = "crate::api::default_true")]
+    pub open: bool,
 }
 impl Folder {
     pub fn into_dto(self, rules: Vec<RuleDto>) -> FolderDto {
         FolderDto {
+            sample_open: self.sample.as_ref().is_none_or(|sample| sample.open),
             id: self.id,
             name: self.name,
             logical_root: self.root,

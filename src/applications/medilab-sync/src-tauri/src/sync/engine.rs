@@ -1,4 +1,4 @@
-use crate::api::{ApiClient, FolderChangeDto, RuleDto};
+use crate::api::{ApiClient, FolderChangeDto, FolderDto, RuleDto};
 use crate::auth;
 use crate::config::AppSettings;
 use crate::error::{is_odoo_auth_failure, AppError, AppResult};
@@ -23,6 +23,7 @@ use crate::sync::part_budget::{PartBudget, PartPermit, DEFAULT_PART_BUDGET_MIB};
 use crate::sync::resume::{resume_transfers, RefreshTrigger};
 use crate::sync::retry::{is_connectivity_error, is_retryable, next_status};
 use crate::sync::rules::{matches_rules, relative_path, SyncRule};
+use crate::sync::sample_folders::bind_sample_folders;
 use crate::sync::status_events::{
     run_status_coalescer, StatusEventHub, DEFAULT_STATUS_COALESCE_INTERVAL,
 };
@@ -310,9 +311,9 @@ impl EngineHandle {
     }
 
     /// Đối chiếu danh sách folder trên server: cập nhật ngữ cảnh mẫu cho folder còn thấy được,
-    /// đánh dấu `denied` cho folder đã mất quyền truy cập.
+    /// đánh dấu `denied` cho folder đã mất quyền truy cập. Trả về danh sách folder server vừa gửi.
     #[tracing::instrument(level = "debug", name = "sync.refresh_folder_access", skip_all)]
-    async fn refresh_folder_access(&self, client: &ApiClient) -> AppResult<()> {
+    async fn refresh_folder_access(&self, client: &ApiClient) -> AppResult<Vec<FolderDto>> {
         let remotes = client.list_folders().await?;
         let remote_ids: HashSet<i64> = remotes.iter().map(|folder| folder.id).collect();
         for folder in self.db.list_folders()? {
@@ -325,7 +326,19 @@ impl EngineHandle {
                 self.db.set_folder_access_state(folder.id, "denied")?;
             }
         }
-        Ok(())
+        Ok(remotes)
+    }
+
+    /// Gắn folder của các mẫu đang thử vào thư mục chính đã chọn trong cài đặt, rồi quét các thư mục
+    /// vừa gắn; chưa chọn thư mục chính thì không làm gì.
+    async fn bind_sample_folders(&self, remotes: &[FolderDto]) {
+        let Some(home) = self.settings.lock().await.home_folder.clone() else {
+            return;
+        };
+        if bind_sample_folders(&self.db, Path::new(&home), remotes).unwrap_or(0) > 0 {
+            let _ = self.reconcile_all().await;
+            self.emit_files_changed();
+        }
     }
 
     /// Khi một job nhận 403/404: đối chiếu lại danh sách folder với server ngay (không chờ chu kỳ
@@ -1009,8 +1022,9 @@ impl EngineHandle {
             Err(AppError::NotLoggedIn) => return Ok(()),
             Err(err) => return Err(err),
         };
-        if let Err(err) = self.refresh_folder_access(&client).await {
-            tracing::warn!("folder access refresh failed: {err}");
+        match self.refresh_folder_access(&client).await {
+            Ok(remotes) => self.bind_sample_folders(&remotes).await,
+            Err(err) => tracing::warn!("folder access refresh failed: {err}"),
         }
         // Folder vừa gắn mà chưa hydrate xong (ví dụ lúc gắn đang mất mạng) được thử lại ở đây.
         self.hydrate_pending_folders().await;

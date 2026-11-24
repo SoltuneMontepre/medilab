@@ -1112,6 +1112,11 @@ msgid "Audit Entry"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_form
+msgid "Audit Log"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
 msgid "Back to my account"
 msgstr ""
@@ -6012,7 +6017,6 @@ msgstr ""
 msgid "on the laboratory's schedule"
 msgstr ""
 
-
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
@@ -6319,4 +6323,31 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "Condition"
+#: model:ir.model.fields,field_description:sol_commerce.field_account_move__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_notification_contact__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_line__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_request__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_provider__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_product_template__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_res_company__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__log_ids
+msgid "Log"
 msgstr ""

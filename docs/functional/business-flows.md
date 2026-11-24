@@ -193,7 +193,7 @@ flowchart TD
   - WF-04-A9: A tester locks a working file, edits it and unlocks it.
   - WF-04-A10: A tester browses and downloads a sample's files in the back office.
 - **Exceptions:**
-  - WF-04-E1: The head rejects the result with a reason; a new testing task opens, the tester retests with a new booking, the rejected result stays on record and the new one is approved.
+  - WF-04-E1: The head rejects the result with a reason; a new testing task opens for the same tester, who retests with a new booking, the rejected result stays on record and the new one is approved.
   - WF-04-E2: An unusual result warns before sending; the tester sends it anyway and the head sees the warning.
   - WF-04-E3: The head cancels a test that cannot be done, with a reason; the sample completes with its other tests approved.
   - WF-04-E4: Two testers change the same file from one version; the second upload is kept as a conflict, and the tester takes the server's version with a backup of their own and saves their changes again.

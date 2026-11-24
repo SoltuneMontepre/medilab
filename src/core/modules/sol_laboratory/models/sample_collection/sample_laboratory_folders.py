@@ -1,13 +1,22 @@
+from contextlib import suppress
 from typing import TYPE_CHECKING
 
 from psycopg2 import IntegrityError, errorcodes
 
 from odoo import api, fields, models
 from odoo.exceptions import ConcurrencyError, UserError
+from odoo.fields import Domain
 from odoo.tools import mute_logger
 
 from odoo.addons.sol_laboratory.constants.laboratory_files import PERMISSION_DENIED, RAW_DATA, RESULT, UPLOAD_ONLY
-from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FOLDER, MODEL_SAMPLE
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_LABORATORY_FOLDER,
+    MODEL_LABORATORY_FOLDER_MEMBER,
+    MODEL_RES_USERS,
+    MODEL_SAMPLE,
+    MODEL_SAMPLE_TEST,
+    MODEL_TASK,
+)
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
 if TYPE_CHECKING:
@@ -99,6 +108,36 @@ class SampleLaboratoryFolders(models.Model, SampleLaboratoryFoldersBase):
                     }
                 )
         return created.with_env(self.env)
+
+    @api.model
+    def _follow_assignment(self, tasks):
+        """Give the person each testing task is assigned to the raw-data and result folders of its sample. The folders
+        the sample lacks are created first, owned by the head of the task's department. A head or a person who cannot
+        use laboratory files is passed over, and so is an archived folder, so assigning a task never fails on them."""
+        tasks = tasks.sudo().filtered_domain(self.env[MODEL_TASK]._testing_domain()).filtered("assignee_id")
+        members = self.env[MODEL_LABORATORY_FOLDER_MEMBER].sudo()
+        people = tasks.assignee_id.user_id | tasks.department_id.manager_id.user_id
+        eligible = self.env[MODEL_RES_USERS].sudo().search(Domain("id", "in", people.ids) & members._eligible_domain())
+        folders = self.env[MODEL_LABORATORY_FOLDER].sudo()
+        for task in tasks:
+            sample = self.env[MODEL_SAMPLE_TEST].sudo().browse(task.document_id).sample_id
+            head = task.department_id.manager_id.user_id & eligible
+            if head:
+                # A name the head already uses for another folder is refused; Create Folders on the sample says so.
+                with suppress(UserError), self.env.cr.savepoint():
+                    sample._create_laboratory_folders(head)
+            person = task.assignee_id.user_id & eligible
+            if not person:
+                continue
+            shared = folders.search(
+                [
+                    ("sample_id", "=", sample.id),
+                    ("category", "in", SAMPLE_FOLDER_CATEGORIES),
+                    ("archived_at", "=", False),
+                ]
+            )
+            for folder in shared:
+                folder._add_member(person.id)
 
     def _create_laboratory_folder(self, vals):
         try:

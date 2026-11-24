@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::path::{Component, Path};
+use std::path::{Component, Path, PathBuf};
 
 /// Một rule đặt tên/lọc tệp áp cho một folder, cấu hình trong Odoo (khớp phần mở rộng, tiền
 /// tố, hoặc glob).
@@ -68,6 +68,16 @@ pub fn relative_path(root: &Path, file: &Path) -> Option<String> {
     Some(rel.to_string_lossy().replace('\\', "/"))
 }
 
+/// Đường dẫn trên máy của tệp `relative` trong thư mục `root`; `None` nếu `relative` là đường dẫn
+/// tuyệt đối hoặc chứa `..`, tức thoát khỏi thư mục.
+pub fn local_path(root: &Path, relative: &str) -> Option<PathBuf> {
+    let relative = Path::new(relative);
+    relative
+        .components()
+        .all(|c| matches!(c, Component::Normal(_) | Component::CurDir))
+        .then(|| root.join(relative))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -90,6 +100,20 @@ mod tests {
         assert!(matches_rules("ABC_RESULT.pdf", true, &rules));
         assert!(!matches_rules("XYZ_001.xlsx", true, &rules));
         assert!(!matches_rules("~$ABC.xlsx", true, &rules));
+    }
+
+    /// Đường dẫn trên máy của một tệp nằm trong thư mục đã gắn; đường dẫn tuyệt đối hoặc có `..`
+    /// thì bị từ chối.
+    #[test]
+    fn local_path_stays_inside_the_folder() {
+        let root = Path::new("/data/lab");
+        assert_eq!(
+            local_path(root, "HPLC/run-01.csv"),
+            Some(root.join("HPLC").join("run-01.csv"))
+        );
+        assert_eq!(local_path(root, "../secrets.txt"), None);
+        assert_eq!(local_path(root, "HPLC/../../secrets.txt"), None);
+        assert_eq!(local_path(root, "/etc/passwd"), None);
     }
 
     /// Nhiều rule bật cùng lúc phải khớp theo kiểu OR (khớp bất kỳ rule nào là đủ).

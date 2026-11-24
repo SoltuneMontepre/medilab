@@ -32,7 +32,7 @@ class TestDispatchPortal(HttpCase, DispatchCase):
     def test_a_subcontractor_user_sees_their_rejected_result_and_the_reason_beside_the_field(self):
         dispatch = self.receive_dispatch(self.outsource())
         result = self.enter_on_portal(dispatch, "7")
-        self.send_portal_result(result)
+        self.send_portal_result(result, conclusion="fail")
         self.as_person(result, self.head).action_reject("The blank was contaminated; measure it again.")
         self.sign_in(self.northern_user)
 

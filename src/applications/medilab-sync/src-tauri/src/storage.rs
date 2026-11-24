@@ -37,6 +37,9 @@ pub struct FolderRow {
     pub workflow_status: Option<String>,
     #[serde(default)]
     pub instrument_label: Option<String>,
+    /// `upload_only` hoặc `two_way` theo lần trả lời gần nhất của server; `None` khi chưa biết.
+    #[serde(default)]
+    pub sync_mode: Option<String>,
     #[serde(default = "default_access_ok")]
     pub access_state: String,
 }
@@ -272,7 +275,10 @@ impl Db {
         )?;
         tx.execute("UPDATE sync_file SET remote_file_id = NULL, remote_version_id = NULL, last_synced_hash = NULL, suppress_hash = NULL", [])?;
         tx.execute("UPDATE sync_job SET session_id = NULL, uploaded_parts = NULL, part_size = NULL, prepare_key = NULL, prepare_fingerprint = NULL, remote_file_id = NULL, remote_version_id = NULL, bytes_done = 0, status = CASE WHEN status IN ('running','retry_wait') THEN 'pending' ELSE status END", [])?;
-        tx.execute("DELETE FROM app_meta WHERE key LIKE 'change_cursor:%'", [])?;
+        tx.execute(
+            "DELETE FROM app_meta WHERE key LIKE 'change_cursor:%' OR key LIKE 'auto_bind_skip:%'",
+            [],
+        )?;
         tx.execute(
             "INSERT OR REPLACE INTO app_meta(key,value) VALUES('laboratory_api_version','1')",
             [],
@@ -448,7 +454,8 @@ impl Db {
         let mut stmt = conn.prepare(
             "SELECT id, local_path, remote_id, logical_root, enabled, recursive,
                     sample_name, sample_code, category, workflow_status, instrument_label,
-                    COALESCE(access_state, 'ok')
+                    COALESCE(access_state, 'ok'),
+                    (SELECT value FROM app_meta WHERE key = 'folder_mode:' || sync_folder.id)
              FROM sync_folder ORDER BY id",
         )?;
         let rows = stmt
@@ -466,6 +473,7 @@ impl Db {
                     workflow_status: row.get(9)?,
                     instrument_label: row.get(10)?,
                     access_state: row.get(11)?,
+                    sync_mode: row.get(12)?,
                 })
             })?
             .collect::<Result<Vec<_>, _>>()?;
@@ -496,6 +504,25 @@ impl Db {
         let conn = self.conn.lock();
         conn.execute("DELETE FROM app_meta WHERE key = ?1", params![key])?;
         Ok(())
+    }
+
+    /// Nhớ (hoặc quên) rằng người dùng đã ngừng đồng bộ folder này trên máy này, để nó không tự được
+    /// gắn lại vào thư mục chính.
+    pub fn set_auto_bind_skipped(&self, remote_id: i64, skipped: bool) -> AppResult<()> {
+        let key = format!("auto_bind_skip:{remote_id}");
+        if skipped {
+            return self.meta_set(&key, "1");
+        }
+        let conn = self.conn.lock();
+        conn.execute("DELETE FROM app_meta WHERE key = ?1", params![key])?;
+        Ok(())
+    }
+
+    /// True nếu người dùng đã ngừng đồng bộ folder này trên máy này.
+    pub fn auto_bind_skipped(&self, remote_id: i64) -> AppResult<bool> {
+        Ok(self
+            .meta_get(&format!("auto_bind_skip:{remote_id}"))?
+            .is_some())
     }
 
     /// True nếu folder còn cờ chờ hydrate.
@@ -2498,6 +2525,23 @@ mod tests {
         assert_eq!(db.meta_get("client_uid").unwrap().as_deref(), Some("pc-1"));
     }
 
+    /// Folder người dùng đã ngừng đồng bộ được nhớ để không tự gắn lại; đổi server thì quên hết, vì
+    /// id trên server khác chỉ folder khác.
+    #[test]
+    fn stopped_folders_are_remembered_until_the_server_changes() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = Db::open(&dir.path().join("t.db")).unwrap();
+        assert!(!db.auto_bind_skipped(42).unwrap());
+        db.set_auto_bind_skipped(42, true).unwrap();
+        assert!(db.auto_bind_skipped(42).unwrap());
+        db.set_auto_bind_skipped(42, false).unwrap();
+        assert!(!db.auto_bind_skipped(42).unwrap());
+        db.set_auto_bind_skipped(42, true).unwrap();
+        db.meta_set("laboratory_api_version", "rebind").unwrap();
+        db.migrate_laboratory_api().unwrap();
+        assert!(!db.auto_bind_skipped(42).unwrap());
+    }
+
     /// Ngữ cảnh mẫu LIMS và trạng thái truy cập bị từ chối phải được lưu và đọc lại đúng, rồi bị
     /// quarantined when account or server changes.
     #[test]
@@ -2526,6 +2570,7 @@ mod tests {
                 owner_name: None,
                 my_role: None,
                 can_manage_members: false,
+                sample_open: true,
             },
         )
         .unwrap();
@@ -2533,6 +2578,7 @@ mod tests {
         assert_eq!(row.sample_name.as_deref(), Some("Mẫu A"));
         assert_eq!(row.category.as_deref(), Some("result"));
         assert_eq!(row.instrument_label.as_deref(), Some("Analyzer-X"));
+        assert_eq!(row.sync_mode.as_deref(), Some("upload_only"));
         assert_eq!(row.access_state, "ok");
         db.set_folder_access_state(folder, "denied").unwrap();
         assert_eq!(db.list_folders().unwrap()[0].access_state, "denied");

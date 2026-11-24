@@ -27,7 +27,7 @@
 
 ## #173
 - **General working and report folders.** Creating a sample's folders adds its raw-data and result folders. Who creates additional general-purpose working-documents and reports folders, and when? This remains outside the current scope. Controlled report drafts and issued PDFs are covered by [Test reports](../docs/specs/test-reports.md); their creation is part of that workflow. (US-HD15, US-AD36, US-LH02)
-- **Names of sample folders.** Assumption: a sample's folders are named after its lab code and their category, such as `PTN.2026.0001 Raw Data`, with the roots `PTN.2026.0001-raw` and `PTN.2026.0001-result`. Is that the name the laboratory wants?
+- **Names of sample folders.** Assumption: a sample's folders are named after its lab code and their category, such as `PTN.26.11.0001 Raw Data`, with the roots `PTN.26.11.0001-raw` and `PTN.26.11.0001-result`. Is that the name the laboratory wants?
 
 ## #171 Online editing
 

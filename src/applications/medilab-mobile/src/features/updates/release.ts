@@ -19,9 +19,10 @@ const APK_TYPE = "application/vnd.android.package-archive";
 // Android's FLAG_GRANT_READ_URI_PERMISSION, so the installer reads the APK the app downloaded.
 const GRANT_READ_URI = 1;
 
-/** Whether the build takes updates: only a release build made with the update certificate has expo-updates on. */
+/** Whether the build takes updates: only a release build made with the update certificate has expo-updates on. A
+ * development build's launcher reports expo-updates on whatever the build, so it never takes any. */
 export function takesUpdates(): boolean {
-  return Updates.isEnabled && Updates.runtimeVersion !== null;
+  return !__DEV__ && Updates.isEnabled && Updates.runtimeVersion !== null;
 }
 
 /** Asks the MediLab the app was built for, which also serves its code updates, whether the phone must update; null

@@ -25,6 +25,10 @@ pub struct AppSettings {
     /// Số part của MỘT tệp được PUT cùng lúc (setting ẩn, như `upload_concurrency`).
     #[serde(default = "default_transfer_concurrency")]
     pub part_concurrency: i64,
+    /// Thư mục chính trên máy này: folder của các mẫu đang thử được tự gắn vào bên trong. Chưa chọn
+    /// thì không tự gắn gì.
+    #[serde(default)]
+    pub home_folder: Option<String>,
 }
 
 /// Mức song song mặc định của các setting concurrency ẩn.
@@ -42,11 +46,25 @@ fn default_locale() -> String {
     "vi".into()
 }
 
-/// URL Odoo mặc định: lấy từ biến môi trường lúc build, hoặc localhost cho dev.
+/// URL Odoo mặc định: lấy từ biến môi trường lúc build, localhost cho dev, rỗng cho bản release
+/// dùng chung (người dùng mở app từ nút trong MediLab để điền URL).
 pub fn default_odoo_url() -> String {
+    let fallback = if cfg!(debug_assertions) {
+        "http://localhost:8069"
+    } else {
+        ""
+    };
     option_env!("MEDILAB_SYNC_ODOO_URL")
-        .unwrap_or("http://localhost:8069")
+        .unwrap_or(fallback)
         .into()
+}
+
+/// Thư mục chính mặc định: `MediLab` trong Documents, hoặc trong thư mục người dùng nếu máy không
+/// có Documents.
+pub fn default_home_folder() -> Option<String> {
+    let dirs = directories::UserDirs::new()?;
+    let parent = dirs.document_dir().unwrap_or(dirs.home_dir());
+    Some(parent.join("MediLab").to_string_lossy().into_owned())
 }
 
 impl Default for AppSettings {
@@ -63,6 +81,7 @@ impl Default for AppSettings {
             upload_concurrency: default_transfer_concurrency(),
             download_concurrency: default_transfer_concurrency(),
             part_concurrency: default_transfer_concurrency(),
+            home_folder: None,
         }
     }
 }
@@ -93,6 +112,15 @@ mod tests {
         assert_eq!(settings.upload_concurrency, 3);
         assert_eq!(settings.download_concurrency, 3);
         assert_eq!(settings.part_concurrency, 3);
+        assert_eq!(settings.home_folder, None);
         assert_eq!(settings.odoo_url, "http://odoo");
+    }
+
+    #[test]
+    fn default_home_folder_is_medilab_in_the_user_folders() {
+        let home = super::default_home_folder().expect("user folders");
+        let user = directories::UserDirs::new().unwrap();
+        let parent = user.document_dir().unwrap_or(user.home_dir());
+        assert_eq!(std::path::Path::new(&home), parent.join("MediLab"));
     }
 }

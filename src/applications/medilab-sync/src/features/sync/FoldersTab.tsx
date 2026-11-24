@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type SubmitEvent } from "react";
 import { useT } from "../../locale";
 import type { MessageKey } from "../../i18n";
-import type { StatusDto } from "../../types";
-import { displayLocalPath, ToggleSwitch } from "../../components";
+import type { FolderRow, StatusDto } from "../../types";
+import { categoryLabel, displayLocalPath, ToggleSwitch } from "../../components";
 import { SharedFolders } from "../access/SharedFolders";
 
 /** True nếu app đang chạy trên Windows (theo user agent/platform của trình duyệt). */
@@ -136,6 +136,106 @@ function RuleKindSelect({
   );
 }
 
+const MODE_KEYS: Record<string, MessageKey> = {
+  upload_only: "folders.mode.upload_only",
+  two_way: "folders.mode.two_way",
+};
+
+/** Thuộc tính đầu vào của thẻ một thư mục đã thêm. */
+type FolderCardProps = {
+  folder: FolderRow;
+  busy: boolean;
+  onOpen: (folderId: number) => void;
+  onManageAccess: (remoteId: number, logicalRoot: string) => void;
+  onUnregister: (folderId: number, logicalRoot: string) => void;
+};
+
+/** Thẻ một thư mục đã thêm: tên, mẫu, chế độ đồng bộ, đường dẫn trên máy và các thao tác. */
+export function FolderCard({ folder, busy, onOpen, onManageAccess, onUnregister }: Readonly<FolderCardProps>) {
+  const t = useT();
+  const sample = folder.sample_name ?? folder.sample_code;
+  const modeKey = folder.sync_mode ? MODE_KEYS[folder.sync_mode] : undefined;
+  return (
+    <li className="rounded border p-3">
+      <div>
+        <div className="font-medium">{folder.logical_root}</div>
+        {sample ? (
+          <div className="text-slate-700">
+            {t("folders.sample")}: {sample}
+            {folder.category ? ` · ${categoryLabel(t, folder.category)}` : ""}
+          </div>
+        ) : null}
+        {folder.workflow_status ? (
+          <div className="text-slate-600">
+            {t("folders.workflow")}: {folder.workflow_status}
+          </div>
+        ) : null}
+        {folder.instrument_label ? (
+          <div className="text-slate-600">
+            {t("folders.instrument")}: {folder.instrument_label}
+          </div>
+        ) : null}
+        {modeKey ? <div className="text-slate-600">{t(modeKey)}</div> : null}
+        {folder.access_state === "unbound" ? <div className="text-amber-700">{t("folders.unbound")}</div> : null}
+        {folder.access_state === "denied" ? <div className="text-amber-700">{t("folders.denied")}</div> : null}
+        <div className="break-words text-slate-600" title={folder.local_path}>
+          {displayLocalPath(folder.local_path)}
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" className="btn btn-secondary" onClick={() => onOpen(folder.id)}>
+          {t("folders.open")}
+        </button>
+        {folder.remote_id != null ? (
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => onManageAccess(folder.remote_id as number, folder.logical_root)}
+          >
+            {t("access.manage")}
+          </button>
+        ) : null}
+        <button
+          type="button"
+          className="btn btn-danger"
+          disabled={busy}
+          onClick={() => onUnregister(folder.id, folder.logical_root)}
+        >
+          {t("folders.unregister")}
+        </button>
+      </div>
+    </li>
+  );
+}
+
+/** Thẻ thư mục chính: chọn một lần, sau đó thư mục của các mẫu được giao tự được gắn vào bên trong. */
+export function HomeFolderCard({
+  homeFolder,
+  busy,
+  onChoose,
+}: Readonly<{ homeFolder: string | null | undefined; busy: boolean; onChoose: () => void }>) {
+  const t = useT();
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-white p-4 lg:col-span-2">
+      <div className="text-sm">
+        <h2 className="text-base font-semibold">{t("home.title")}</h2>
+        <p className="text-slate-600">{t(homeFolder ? "home.set" : "home.unset")}</p>
+        {homeFolder ? (
+          <p className="break-words font-medium">{displayLocalPath(homeFolder)}</p>
+        ) : null}
+      </div>
+      <button
+        type="button"
+        className={`btn shrink-0 ${homeFolder ? "btn-secondary" : "btn-primary"}`}
+        disabled={busy}
+        onClick={onChoose}
+      >
+        {t(homeFolder ? "home.change" : "folders.choose")}
+      </button>
+    </div>
+  );
+}
+
 /** Thuộc tính đầu vào của tab Thư mục: giá trị form đăng ký folder (kể cả kéo-thả) và các callback thay đổi/đăng ký/hủy đăng ký. */
 type FoldersTabProps = {
   status: StatusDto;
@@ -154,10 +254,13 @@ type FoldersTabProps = {
   onRecursiveChange: (value: boolean) => void;
   onChooseFolder: () => void;
   onRegister: (event: SubmitEvent) => void;
+  onOpenFolder: (folderId: number) => void;
   onUnregister: (folderId: number, logicalRoot: string) => void;
   onManageAccess: (remoteId: number, logicalRoot: string) => void;
   onSharedBound: (status: StatusDto) => void;
   dropActive: boolean;
+  homeFolder: string | null | undefined;
+  onChooseHomeFolder: () => void;
 };
 
 /** Tab Thư mục: form đăng ký folder mới (kể cả kéo-thả) và danh sách folder đã đăng ký. */
@@ -178,17 +281,23 @@ export function FoldersTab({
   onRecursiveChange,
   onChooseFolder,
   onRegister,
+  onOpenFolder,
   onUnregister,
   onManageAccess,
   onSharedBound,
   dropActive,
+  homeFolder,
+  onChooseHomeFolder,
 }: Readonly<FoldersTabProps>) {
   const t = useT();
   const windowsHost = isWindowsHost();
+  // Chỉ đọc lúc mount: đổi `open` khi người dùng đang tắt công tắc sẽ làm khung gập lại giữa chừng.
+  const startAdvancedOpen = useRef(filterEnabled || !recursive).current;
   return (
     <div
       className={`grid gap-6 lg:grid-cols-2 ${dropActive ? "rounded-lg ring-2 ring-slate-700 ring-offset-2" : ""}`}
     >
+      <HomeFolderCard homeFolder={homeFolder} busy={busy} onChoose={onChooseHomeFolder} />
       <form className="space-y-4 rounded-lg border bg-white p-4" onSubmit={onRegister}>
         <h2 className="font-semibold">{t("folders.register")}</h2>
         <p className="text-sm text-slate-600">{t("folders.registerIntro")}</p>
@@ -219,40 +328,44 @@ export function FoldersTab({
           />
           <p className="mt-1 text-xs text-slate-500">{t("folders.logicalNameHint")}</p>
         </label>
-        <ToggleSwitch
-          checked={recursive}
-          label={t("folders.recursive")}
-          hint={t(recursive ? "folders.recursiveOnHint" : "folders.recursiveOffHint")}
-          onChange={onRecursiveChange}
-        />
-        <div className="rounded border border-slate-200 bg-slate-50 p-3">
+        {/* Mặc định đồng bộ mọi tệp nên các tuỳ chọn gập lại; mở sẵn khi đang khác mặc định để không ẩn bộ lọc đang áp dụng. */}
+        <details className="space-y-4" open={startAdvancedOpen}>
+          <summary className="cursor-pointer text-sm font-medium">{t("folders.advanced")}</summary>
           <ToggleSwitch
-            checked={filterEnabled}
-            label={t("folders.filter")}
-            hint={t(filterEnabled ? "folders.filterOnHint" : "folders.filterOffHint")}
-            onChange={onFilterEnabledChange}
+            checked={recursive}
+            label={t("folders.recursive")}
+            hint={t(recursive ? "folders.recursiveOnHint" : "folders.recursiveOffHint")}
+            onChange={onRecursiveChange}
           />
-          {filterEnabled ? (
-            <div className="mt-3 space-y-3">
-              <div className="text-sm">
-                <span id="rule-kind-label" className="font-medium">
-                  {t("folders.ruleKind")}
-                </span>
-                <RuleKindSelect value={ruleKind} labelId="rule-kind-label" onChange={onRuleKindChange} />
+          <div className="rounded border border-slate-200 bg-slate-50 p-3">
+            <ToggleSwitch
+              checked={filterEnabled}
+              label={t("folders.filter")}
+              hint={t(filterEnabled ? "folders.filterOnHint" : "folders.filterOffHint")}
+              onChange={onFilterEnabledChange}
+            />
+            {filterEnabled ? (
+              <div className="mt-3 space-y-3">
+                <div className="text-sm">
+                  <span id="rule-kind-label" className="font-medium">
+                    {t("folders.ruleKind")}
+                  </span>
+                  <RuleKindSelect value={ruleKind} labelId="rule-kind-label" onChange={onRuleKindChange} />
+                </div>
+                <label className="block text-sm">
+                  <span className="font-medium">{t(rulePatternLabelKey(ruleKind))}</span>
+                  <input
+                    className="mt-1 w-full rounded border bg-white px-3 py-2"
+                    value={rulePattern}
+                    placeholder={rulePatternPlaceholder(ruleKind)}
+                    onChange={(event) => onRulePatternChange(event.target.value)}
+                  />
+                  <p className="mt-1 text-xs text-slate-500">{t(rulePatternHintKey(ruleKind))}</p>
+                </label>
               </div>
-              <label className="block text-sm">
-                <span className="font-medium">{t(rulePatternLabelKey(ruleKind))}</span>
-                <input
-                  className="mt-1 w-full rounded border bg-white px-3 py-2"
-                  value={rulePattern}
-                  placeholder={rulePatternPlaceholder(ruleKind)}
-                  onChange={(event) => onRulePatternChange(event.target.value)}
-                />
-                <p className="mt-1 text-xs text-slate-500">{t(rulePatternHintKey(ruleKind))}</p>
-              </label>
-            </div>
-          ) : null}
-        </div>
+            ) : null}
+          </div>
+        </details>
         <div className="flex justify-end border-t border-slate-200 pt-3">
           <button
             className="btn btn-primary"
@@ -270,54 +383,14 @@ export function FoldersTab({
             <li className="text-slate-500">{t("folders.empty")}</li>
           ) : (
             status.folders.map((folder) => (
-              <li key={folder.id} className="flex items-start justify-between gap-3 rounded border p-3">
-                <div>
-                  <div className="font-medium">{folder.logical_root}</div>
-                  {folder.sample_name ? (
-                    <div className="text-slate-700">
-                      {t("folders.sample")}: {folder.sample_name}
-                      {folder.category ? ` · ${folder.category}` : ""}
-                    </div>
-                  ) : null}
-                  {folder.workflow_status ? (
-                    <div className="text-slate-600">
-                      {t("folders.workflow")}: {folder.workflow_status}
-                    </div>
-                  ) : null}
-                  {folder.instrument_label ? (
-                    <div className="text-slate-600">
-                      {t("folders.instrument")}: {folder.instrument_label}
-                    </div>
-                  ) : null}
-                  {folder.access_state === "unbound" ? <div className="text-amber-700">{t("folders.unbound")}</div> : null}
-                  {folder.access_state === "denied" ? (
-                    <div className="text-amber-700">{t("folders.denied")}</div>
-                  ) : null}
-                  <div className="break-words text-slate-600" title={folder.local_path}>
-                    {displayLocalPath(folder.local_path)}
-                  </div>
-                  <div className="text-xs text-slate-500">remote_id: {folder.remote_id ?? "—"}</div>
-                </div>
-                <div className="flex flex-wrap justify-end gap-2">
-                  {folder.remote_id != null ? (
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => onManageAccess(folder.remote_id as number, folder.logical_root)}
-                    >
-                      {t("access.manage")}
-                    </button>
-                  ) : null}
-                  <button
-                    type="button"
-                    className="btn btn-danger"
-                    disabled={busy}
-                    onClick={() => onUnregister(folder.id, folder.logical_root)}
-                  >
-                    {t("folders.unregister")}
-                  </button>
-                </div>
-              </li>
+              <FolderCard
+                key={folder.id}
+                folder={folder}
+                busy={busy}
+                onOpen={onOpenFolder}
+                onManageAccess={onManageAccess}
+                onUnregister={onUnregister}
+              />
             ))
           )}
         </ul>

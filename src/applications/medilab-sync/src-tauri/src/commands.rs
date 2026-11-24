@@ -5,13 +5,13 @@ use crate::api::{
 use crate::auth;
 use crate::config::AppSettings;
 use crate::error::{AppError, AppResult};
-use crate::storage::{FolderRow, JobRow, RemoteFileRow};
+use crate::storage::{Db, FolderRow, JobRow, RemoteFileRow};
 use crate::sync::engine::{to_rule_dtos, EngineHandle, StatusDto};
 use crate::sync::rules::SyncRule;
 use serde::{Deserialize, Serialize};
 #[cfg(target_os = "linux")]
 use std::io::ErrorKind;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 #[cfg(target_os = "linux")]
 use std::process::Command;
 use tauri::{AppHandle, State};
@@ -346,6 +346,15 @@ pub async fn unregister_sync_folder(
     folder_id: i64,
 ) -> Result<StatusDto, String> {
     let engine = state.engine.clone();
+    let folders = engine.db.list_folders()?;
+    if let Some(remote_id) = folders
+        .iter()
+        .find(|folder| folder.id == folder_id)
+        .and_then(|folder| folder.remote_id)
+    {
+        // Người dùng đã chủ động ngừng: không tự gắn lại folder mẫu này vào thư mục chính.
+        engine.db.set_auto_bind_skipped(remote_id, true)?;
+    }
     engine.db.delete_folder(folder_id).map_err(String::from)?;
     let _ = engine.reconcile_all().await;
     engine.emit_files_changed();
@@ -509,6 +518,7 @@ pub async fn bind_shared_folder(
         )
         .map_err(String::from)?;
     let _ = engine.db.apply_folder_lab_context(folder_id, &remote);
+    let _ = engine.db.set_auto_bind_skipped(remote.id, false);
     // Binding đã lưu xong. Hydrate ngay từ trạng thái hiện tại của folder trên server để hàng đợi
     // tải xuống có việc tức thì; hydrate lỗi (mất mạng...) không gỡ binding — cờ bền để poll thử lại.
     let _ = engine.db.set_needs_hydration(folder_id, true);
@@ -592,9 +602,18 @@ pub fn get_settings(state: State<'_, AppState>) -> Result<AppSettings, String> {
 pub async fn save_settings(
     app: AppHandle,
     state: State<'_, AppState>,
-    settings: AppSettings,
+    mut settings: AppSettings,
 ) -> Result<StatusDto, String> {
     crate::server_url::endpoint(&settings.odoo_url, "medilab/api/v1")?;
+    if let Some(home) = settings
+        .home_folder
+        .take()
+        .filter(|home| !home.trim().is_empty())
+    {
+        let home = ensure_dir(&home)?;
+        settings.home_folder = Some(home.to_string_lossy().into_owned());
+    }
+    let home_changed = state.engine.settings.lock().await.home_folder != settings.home_folder;
     let previous = state.engine.settings.lock().await.odoo_url.clone();
     if !crate::server_url::same_base(&previous, &settings.odoo_url) {
         state
@@ -631,6 +650,14 @@ pub async fn save_settings(
         let _ = app.autolaunch().enable();
     } else {
         let _ = app.autolaunch().disable();
+    }
+    if home_changed && settings.home_folder.is_some() {
+        // Gắn ngay folder của các mẫu đang thử, không chờ chu kỳ hỏi server kế tiếp; chạy nền để
+        // lưu cài đặt không phải chờ mạng.
+        let engine = state.engine.clone();
+        tauri::async_runtime::spawn(async move {
+            let _ = engine.poll_remote_changes().await;
+        });
     }
     state.engine.emit_status();
     state.engine.status_snapshot().map_err(String::from)
@@ -906,6 +933,77 @@ pub async fn open_office_editor(
     crate::browser::open_editor(&app, &base, file_id)
 }
 
+/// Đường dẫn trên máy của một tệp đã đồng bộ, theo id cục bộ của tệp.
+fn synced_file_path(db: &Db, file_id: i64) -> AppResult<PathBuf> {
+    let missing = || AppError::Message("Không tìm thấy tệp này trên máy".into());
+    let file = db.file_by_id(file_id)?.ok_or_else(missing)?;
+    let folder = db
+        .list_folders()?
+        .into_iter()
+        .find(|folder| folder.id == file.folder_id)
+        .ok_or(AppError::FolderNotFound)?;
+    crate::sync::rules::local_path(Path::new(&folder.local_path), &file.relative_path)
+        .ok_or_else(missing)
+}
+
+/// Bỏ tiền tố verbatim của Windows (`\\?\`, `\\?\UNC\`) mà `canonicalize` thêm vào: shell của
+/// Windows không mở được đường dẫn dạng đó.
+fn shell_path(path: &Path) -> String {
+    let text = path.to_string_lossy();
+    match text.strip_prefix(r"\\?\UNC\") {
+        Some(share) => format!(r"\\{share}"),
+        None => text.strip_prefix(r"\\?\").unwrap_or(&text).to_string(),
+    }
+}
+
+/// Mở một tệp bằng chương trình mặc định của nó, hoặc một thư mục trong trình quản lý tệp.
+fn open_local(app: &AppHandle, path: &Path) -> Result<(), String> {
+    if !path.exists() {
+        return Err("Không tìm thấy tệp hoặc thư mục này trên máy".into());
+    }
+    app.opener()
+        .open_path(shell_path(path), None::<&str>)
+        .map_err(|err| err.to_string())
+}
+
+/// Command: mở một thư mục đã gắn trong trình quản lý tệp.
+#[tauri::command]
+#[tracing::instrument(
+    level = "debug",
+    skip_all,
+    fields(command = "open_sync_folder", folder_id = folder_id)
+)]
+pub fn open_sync_folder(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    folder_id: i64,
+) -> Result<(), String> {
+    let folder = state
+        .engine
+        .db
+        .list_folders()?
+        .into_iter()
+        .find(|folder| folder.id == folder_id)
+        .ok_or_else(|| AppError::FolderNotFound.to_string())?;
+    open_local(&app, Path::new(&folder.local_path))
+}
+
+/// Command: mở một tệp đã đồng bộ bằng chương trình mặc định của nó.
+#[tauri::command]
+#[tracing::instrument(
+    level = "debug",
+    skip_all,
+    fields(command = "open_sync_file", file_id = file_id)
+)]
+pub fn open_sync_file(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    file_id: i64,
+) -> Result<(), String> {
+    let path = synced_file_path(&state.engine.db, file_id)?;
+    open_local(&app, &path)
+}
+
 /// Kiểm tra bản cập nhật mới trên endpoint Odoo đã cấu hình.
 ///
 /// Ordinary network/manifest failures are best effort; a typed migration refusal remains visible.
@@ -1024,8 +1122,45 @@ pub async fn open_client_download(
 
 #[cfg(test)]
 mod tests {
-    use super::{resolve_dropped_sync_folder_path, AppError};
+    use super::{resolve_dropped_sync_folder_path, shell_path, synced_file_path, AppError};
+    use crate::storage::Db;
     use std::fs;
+    use std::path::Path;
+
+    /// Tệp đã đồng bộ được mở theo đường dẫn của nó trong thư mục đã gắn; id lạ thì báo lỗi.
+    #[test]
+    fn synced_file_path_is_inside_its_bound_folder() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = Db::open(&dir.path().join("t.db")).unwrap();
+        let folder = db
+            .upsert_folder("/data/lab", "Lab", Some(42), true, &[])
+            .unwrap();
+        let file = db
+            .upsert_file(folder, "HPLC/run-01.csv", 1, 1, "00")
+            .unwrap();
+        assert_eq!(
+            synced_file_path(&db, file).unwrap(),
+            Path::new("/data/lab").join("HPLC").join("run-01.csv")
+        );
+        assert!(synced_file_path(&db, file + 1).is_err());
+    }
+
+    /// Shell của Windows không mở được đường dẫn verbatim mà `canonicalize` trả về.
+    #[test]
+    fn shell_path_drops_the_verbatim_prefix() {
+        assert_eq!(
+            shell_path(Path::new(r"\\?\C:\lab\run.csv")),
+            r"C:\lab\run.csv"
+        );
+        assert_eq!(
+            shell_path(Path::new(r"\\?\UNC\server\share\run.csv")),
+            r"\\server\share\run.csv"
+        );
+        assert_eq!(
+            shell_path(Path::new("/data/lab/run.csv")),
+            "/data/lab/run.csv"
+        );
+    }
 
     /// Tạo một thư mục tạm riêng cho test, đặt tên theo `label` + uuid để không đụng nhau.
     fn temp_dir(label: &str) -> std::path::PathBuf {

@@ -5,6 +5,7 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
 
+from odoo.addons.sol_laboratory.constants.approvals import STATE_REJECTED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE_BOOKING,
     MODEL_MAIL_MESSAGE,
@@ -73,14 +74,18 @@ class SampleTestPriority(models.Model, SampleTestPriorityBase):
                 test.priority = "normal"
 
     def _awaits_plan(self):
-        """Whether the department's plan places the test: it has not started, or its latest result is an interrupted
-        one the head of department assessed as needing a retest, which takes a new booking."""
+        """Whether the department's plan places the test: it has not started, or its latest result was rejected by the
+        head of department or interrupted and assessed as needing a retest, which takes a new booking. A rejected
+        correction is redone by a change request, not retested."""
         self.ensure_one()
         test = self.sudo()
         if test.status in PLANNED_TEST_STATUSES:
             return True
         latest = test.result_ids.sorted("id")[-1:]
-        return test.status in OPEN_STATUSES and latest.is_interrupted and latest.interruption_assessment == "retest"
+        retested = (latest.status == STATE_REJECTED and not latest.replaces_id) or (
+            latest.is_interrupted and latest.interruption_assessment == "retest"
+        )
+        return test.status in OPEN_STATUSES and retested
 
     def _plan_key(self, department):
         """Where the test goes in the department's plan: by priority class, then the earlier expected return date,

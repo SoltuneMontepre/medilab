@@ -83,7 +83,7 @@ class DispatchCase(ResultCase):
         dispatches = self.env[MODEL_SUBCONTRACT_DISPATCH].with_user(user)._portal_dispatches(user, dispatch.id)
         return dispatches._portal_enter_result(self.test.id, value, value_text)
 
-    def send_portal_result(self, result):
+    def send_portal_result(self, result, conclusion="pass"):
         """The lab QA sets the conclusion against the regulation and sends the subcontractor's result."""
-        self.as_person(result, self.tester).conclusion = "pass"
+        self.as_person(result, self.tester).conclusion = conclusion
         self.send(result)

@@ -52,7 +52,6 @@ def seed_results(env):
     rejected.with_user(head).action_reject(
         "The calibration check standard read 15% high; recalibrate the AAS and measure again."
     )
-    _test(retested, lead)._testing_task().with_user(tester).action_claim()
     retest = _enter(env, tester, _test(retested, lead), value_text="Not detected", conclusion="pass")
     retest.with_context(lang="vi_VN").value_text = "Không phát hiện"
     waiting_result = _test(waiting, lead).result_ids
@@ -72,7 +71,7 @@ def seed_results(env):
 
 def seed_assessments(env):
     """Results assessed against a requested regulation: a lead value below the LOD whose suggested text the tester
-    confirmed, keeping the measured value, and a lead result on lettuce, on which QCVN 8-2:2011/BYT sets no limit, sent
+    entered as its text, keeping the measured value, and a lead result on lettuce, on which QCVN 8-2:2011/BYT sets no limit, sent
     as insufficient basis."""
     if env.ref("sol_demo.demo_test_result_below_lod", raise_if_not_found=False):
         return
@@ -81,7 +80,11 @@ def seed_assessments(env):
     customer = env.ref("sol_demo.demo_customer_green_farm")
     water = _received_request(env, customer, [("Nước suối Green Farm 500 mL lô 1103", (lead,))])
     below_lod = _enter(env, tester, _test(water.sample_ids, lead), value=0.003)
-    below_lod.with_user(tester).action_use_value_suggestion()
+    below_lod.with_user(tester).value_text = below_lod.value_suggestion
+    langs = [code for code, _name in env["res.lang"].get_installed()]
+    below_lod.update_field_translations(
+        "value_text", {lang: below_lod._below_threshold_text(below_lod.with_context(lang=lang).env) for lang in langs}
+    )
     below_lod.with_user(tester).conclusion = "pass"
     lettuce = _received_request(
         env,
