@@ -8,7 +8,6 @@ from .signing_case import CREDENTIAL, SigningCase, self_signed
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_ENTRY,
     MODEL_JOB_ITEM,
-    MODEL_SIGNATURE,
     MODEL_SIGNING_CERTIFICATE,
 )
 from odoo.addons.sol_laboratory.constants.settings import DIGITAL_SIGNING_PARAMETER
@@ -17,7 +16,6 @@ from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_laboratory.services.pdf_signing import check_pdf
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
-ISSUED_EVENT = "sol_laboratory.event_test_report_issued"
 SIGNING_JOB = "sol_laboratory.scheduled_job_digital_signing_sign"
 
 
@@ -31,20 +29,6 @@ class TestDigitalSigning(SigningCase):
 
     def html(self, report):
         return self.env["ir.actions.report"]._render_qweb_html(TEST_REPORT_REPORT, report.ids)[0].decode()
-
-    def signature_rows(self, report):
-        return self.env[MODEL_SIGNATURE].search(
-            [("document_model", "=", report._name), ("document_id", "=", report.id), ("withdrawn_at", "=", False)]
-        )
-
-    def issued_messages(self, report):
-        return self.env["mail.message"].search(
-            [
-                ("model", "=", report._name),
-                ("res_id", "=", report.id),
-                ("subtype_id", "=", self.env.ref(ISSUED_EVENT).id),
-            ]
-        )
 
     def signing_items(self, report):
         return self.env[MODEL_JOB_ITEM].search(
@@ -176,7 +160,7 @@ class TestDigitalSigning(SigningCase):
         self.assertTrue(report.code)
         self.assertFalse(report.attachment_id)
         self.assertTrue(report.digital_signing_pending)
-        self.assertTrue(self.signature_rows(report))
+        self.assertTrue(self.standing_signatures(report))
         self.assertFalse(self.digital_signature(report))
         self.assertFalse(self.issued_messages(report))
         self.assertEqual(self.signing_items(report).status, "pending")
@@ -258,7 +242,7 @@ class TestDigitalSigning(SigningCase):
         self.assertEqual(len(self.viettel.signings()), 1)
         self.assertEqual((report.status, candidate.status), ("issued", "issued"))
         self.assertEqual(report.code, candidate.report_number)
-        self.assertEqual(self.signature_rows(report).document_hash, candidate.sha256)
+        self.assertEqual(self.standing_signatures(report).document_hash, candidate.sha256)
         self.assertEqual(len(self.issued_messages(report)), 1)
 
     def test_a_withdrawn_approval_stops_the_pending_signing(self):

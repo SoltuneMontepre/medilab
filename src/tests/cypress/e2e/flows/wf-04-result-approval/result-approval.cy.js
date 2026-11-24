@@ -3,7 +3,20 @@ import { MENU } from "../../../support/menus";
 import { step } from "../../../support/steps";
 import { call, callAs, callRefused, refAs, resolveRecord } from "../../../support/odoo";
 import { releaseFixtures } from "../wf-03-testing-scheduling/setup";
-import { LAB_HEAD, TESTER, approvedResult, assignedTest, bookedLead, enteredResult, leadInTesting, newRegulation, results, sentResult, testingTasks } from "./setup";
+import {
+  LAB_HEAD,
+  TESTER,
+  approveAsHead,
+  approvedResult,
+  assignedTest,
+  bookedLead,
+  enteredResult,
+  leadInTesting,
+  newRegulation,
+  results,
+  sentResult,
+  testingTasks,
+} from "./setup";
 
 const ACTIONS = ".o_form_view .o_statusbar_buttons";
 const CANCELLATION = "Mẫu không đủ thể tích để phân tích chì.";
@@ -59,13 +72,7 @@ describe("WF-04 Result entry and approval", () => {
           "The document has signatures; withdraw them before changing it.",
         );
         step("The head of department opens the result and approves it");
-        cy.signInAs("head_of_department");
-        openMenu(MENU.laboratory, MENU.results, MENU.testResults);
-        openRow(test.code);
-        cy.signRecord();
-        cy.get(`${ACTIONS} button[name=action_sign]`).should("not.exist");
-        cy.readRecord(result, ["status"]).its("status").should("eq", "approved");
-        cy.readRecord(test, ["status"]).its("status").should("eq", "approved");
+        approveAsHead(test, result);
       });
     });
   });

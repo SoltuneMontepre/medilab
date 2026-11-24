@@ -57,6 +57,38 @@ const STABLE_WAIT: Duration = Duration::from_millis(400);
 pub(crate) const LEGACY_PART_SIZE: i64 = 16 * 1024 * 1024;
 /// Thông báo lỗi (đáng thử lại) khi nội dung đọc để upload không khớp expected hash.
 const CHANGED_DURING_UPLOAD: &str = "Tệp đã thay đổi trong lúc tải lên, sẽ thử lại";
+/// Thông báo gắn vào job dừng vì phiên đăng nhập hết hạn (job vẫn `pending`).
+const SESSION_EXPIRED_MESSAGE: &str = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+
+/// Phần khác nhau giữa tải lên và tải xuống khi chốt lỗi của một job (`settle_transfer_error`).
+struct TransferErrors {
+    /// Chiều transfer trong log: `upload` hoặc `download`.
+    operation: &'static str,
+    /// Log khi phiên đăng nhập hết hạn.
+    auth_expired_log: &'static str,
+    /// Báo `sync-error` cho frontend khi phiên đăng nhập hết hạn.
+    notify_auth_expired: bool,
+    /// Phân loại lỗi 409 là đáng thử lại trong log.
+    conflict_retryable: bool,
+    /// Log khi job thất bại.
+    failed_log: &'static str,
+}
+
+const UPLOAD_ERRORS: TransferErrors = TransferErrors {
+    operation: "upload",
+    auth_expired_log: "auth expired; pausing worker and preserving queue",
+    notify_auth_expired: true,
+    conflict_retryable: true,
+    failed_log: "sync job failed",
+};
+
+const DOWNLOAD_ERRORS: TransferErrors = TransferErrors {
+    operation: "download",
+    auth_expired_log: "auth expired; pausing download worker and preserving queue",
+    notify_auth_expired: false,
+    conflict_retryable: false,
+    failed_log: "download job failed",
+};
 
 /// Chạy một công việc đồng bộ nặng trên blocking pool và giữ ngữ cảnh tracing hiện tại.
 async fn run_blocking<T, F>(work: F) -> AppResult<T>
@@ -661,81 +693,104 @@ impl EngineHandle {
             "sync job started"
         );
         if let Err(err) = self.upload_job(&job, &owned).await {
-            if matches!(err, AppError::Superseded) {
-                log_superseded(&job, "upload");
-                return;
-            }
-            if matches!(err, AppError::Paused | AppError::ClientUpdateRequired(_)) {
-                self.requeue_paused_job(&job, &owned);
-                return;
-            }
-            if is_odoo_auth_failure(&err) {
-                self.session.mark_expired("sync_job");
-                let _ = self.db.transition_owned_job(
-                    &owned,
-                    "pending",
-                    Some("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."),
-                    job.attempt_count,
-                    None,
-                    None,
-                    None,
-                );
-                tracing::warn!(
-                    job_id = job.id,
-                    logical_path = %job.relative_path,
-                    error_category = "unauthenticated",
-                    "auth expired; pausing worker and preserving queue"
-                );
+            self.settle_transfer_error(&job, &owned, &err, &UPLOAD_ERRORS)
+                .await;
+        }
+    }
+
+    /// Chốt lỗi của một job transfer: job bị thay thế thì bỏ kết quả; tạm dừng thì trả về hàng
+    /// đợi; hết phiên thì dừng worker và giữ nguyên hàng đợi; folder mất quyền thì tạm dừng job;
+    /// lỗi khác được ghi theo phân loại đáng-thử-lại hay thất bại hẳn rồi báo frontend.
+    async fn settle_transfer_error(
+        &self,
+        job: &JobRow,
+        owned: &RunningJob,
+        err: &AppError,
+        transfer: &TransferErrors,
+    ) {
+        if matches!(err, AppError::Superseded) {
+            log_superseded(job, transfer.operation);
+            return;
+        }
+        if matches!(err, AppError::Paused | AppError::ClientUpdateRequired(_)) {
+            self.requeue_paused_job(job, owned);
+            return;
+        }
+        if is_odoo_auth_failure(err) {
+            self.session.mark_expired("sync_job");
+            let _ = self.db.transition_owned_job(
+                owned,
+                "pending",
+                Some(SESSION_EXPIRED_MESSAGE),
+                job.attempt_count,
+                None,
+                None,
+                None,
+            );
+            tracing::warn!(
+                job_id = job.id,
+                logical_path = %job.relative_path,
+                error_category = "unauthenticated",
+                "{}",
+                transfer.auth_expired_log
+            );
+            if transfer.notify_auth_expired {
                 let _ = self.app.emit(
                     "sync-error",
                     serde_json::json!({
                         "jobId": job.id,
                         "path": job.relative_path,
-                        "message": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+                        "message": SESSION_EXPIRED_MESSAGE,
                         "category": "unauthenticated",
                     }),
                 );
-                self.emit_status();
-                return;
             }
-            if self.pause_job_if_access_lost(&job, &owned, &err).await {
-                return;
-            }
-            let attempt = job.attempt_count + 1;
-            let retryable = is_retryable(&err) || err.to_string().contains("409");
-            let decision = match record_job_failure(&self.db, &job, &owned, &err) {
-                Ok(Some(decision)) => decision,
-                Ok(None) => return log_superseded(&job, "upload failure"),
-                Err(db_err) => {
-                    tracing::warn!(job_id = job.id, "could not record upload failure: {db_err}");
-                    return;
-                }
-            };
-            tracing::warn!(
-                job_id = job.id,
-                logical_path = %job.relative_path,
-                attempt,
-                error_category = if !retryable {
-                    "fatal"
-                } else if is_connectivity_error(&err) {
-                    "connectivity"
-                } else {
-                    "server"
-                },
-                next_status = decision.status,
-                error = %decision.message,
-                "sync job failed"
-            );
-            let redacted = decision.message;
-            let _ = self.app.emit(
-                "sync-error",
-                serde_json::json!({
-                    "jobId": job.id,
-                    "path": job.relative_path,
-                    "message": redacted,
-                }),
-            );
+            self.emit_status();
+            return;
         }
+        if self.pause_job_if_access_lost(job, owned, err).await {
+            return;
+        }
+        let attempt = job.attempt_count + 1;
+        let retryable =
+            is_retryable(err) || (transfer.conflict_retryable && err.to_string().contains("409"));
+        let decision = match record_job_failure(&self.db, job, owned, err) {
+            Ok(Some(decision)) => decision,
+            Ok(None) => return log_superseded(job, &format!("{} failure", transfer.operation)),
+            Err(db_err) => {
+                tracing::warn!(
+                    job_id = job.id,
+                    "could not record {} failure: {db_err}",
+                    transfer.operation
+                );
+                return;
+            }
+        };
+        tracing::warn!(
+            job_id = job.id,
+            logical_path = %job.relative_path,
+            attempt,
+            error_category = if !retryable {
+                "fatal"
+            } else if is_connectivity_error(err) {
+                "connectivity"
+            } else {
+                "server"
+            },
+            next_status = decision.status,
+            error = %decision.message,
+            "{}",
+            transfer.failed_log
+        );
+        let redacted = decision.message;
+        let _ = self.app.emit(
+            "sync-error",
+            serde_json::json!({
+                "jobId": job.id,
+                "path": job.relative_path,
+                "message": redacted,
+            }),
+        );
     }
 
     /// Đưa job dừng ở điểm an toàn (tạm dừng hoặc folder vừa mất quyền) về `pending` mà không
@@ -906,74 +961,8 @@ impl EngineHandle {
             "sync job started"
         );
         if let Err(err) = self.download_job(&job, &owned).await {
-            if matches!(err, AppError::Superseded) {
-                log_superseded(&job, "download");
-                return;
-            }
-            if matches!(err, AppError::Paused | AppError::ClientUpdateRequired(_)) {
-                self.requeue_paused_job(&job, &owned);
-                return;
-            }
-            if is_odoo_auth_failure(&err) {
-                self.session.mark_expired("sync_job");
-                let _ = self.db.transition_owned_job(
-                    &owned,
-                    "pending",
-                    Some("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."),
-                    job.attempt_count,
-                    None,
-                    None,
-                    None,
-                );
-                tracing::warn!(
-                    job_id = job.id,
-                    logical_path = %job.relative_path,
-                    error_category = "unauthenticated",
-                    "auth expired; pausing download worker and preserving queue"
-                );
-                self.emit_status();
-                return;
-            }
-            if self.pause_job_if_access_lost(&job, &owned, &err).await {
-                return;
-            }
-            let attempt = job.attempt_count + 1;
-            let retryable = is_retryable(&err);
-            let decision = match record_job_failure(&self.db, &job, &owned, &err) {
-                Ok(Some(decision)) => decision,
-                Ok(None) => return log_superseded(&job, "download failure"),
-                Err(db_err) => {
-                    tracing::warn!(
-                        job_id = job.id,
-                        "could not record download failure: {db_err}"
-                    );
-                    return;
-                }
-            };
-            tracing::warn!(
-                job_id = job.id,
-                logical_path = %job.relative_path,
-                attempt,
-                error_category = if !retryable {
-                    "fatal"
-                } else if is_connectivity_error(&err) {
-                    "connectivity"
-                } else {
-                    "server"
-                },
-                next_status = decision.status,
-                error = %decision.message,
-                "download job failed"
-            );
-            let redacted = decision.message;
-            let _ = self.app.emit(
-                "sync-error",
-                serde_json::json!({
-                    "jobId": job.id,
-                    "path": job.relative_path,
-                    "message": redacted,
-                }),
-            );
+            self.settle_transfer_error(&job, &owned, &err, &DOWNLOAD_ERRORS)
+                .await;
         }
     }
 
