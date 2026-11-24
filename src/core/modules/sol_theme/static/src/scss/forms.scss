@@ -178,27 +178,31 @@
     max-width: none;
     justify-content: flex-start;
     flex-wrap: wrap;
+    column-gap: var(--gutter-x);
+    row-gap: 0.4rem;
 
     > .o_inner_group,
     > [class*="col-"] {
       min-width: 0;
-      padding-left: calc(var(--gutter-x) * 0.5);
-      padding-right: calc(var(--gutter-x) * 0.5);
-    }
-
-    > :first-child {
-      padding-left: 0;
-    }
-
-    > :last-child {
-      padding-right: 0;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
     }
 
     &:not(:has(> :nth-child(3):not(.o_invisible_modifier))) {
-      > .o_inner_group,
-      > [class*="col-"] {
-        flex: 1 1 0;
-        max-width: 100%;
+      @media (min-width: 992px) {
+        > .o_inner_group,
+        > [class*="col-"] {
+          flex: 1 1 0;
+          max-width: 100%;
+        }
+      }
+
+      @media (max-width: 991.98px) {
+        > .o_inner_group,
+        > [class*="col-"] {
+          flex: 0 0 100%;
+          max-width: 100%;
+        }
       }
     }
   }
