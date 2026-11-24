@@ -123,20 +123,13 @@ class TestResultAssessment(ResultCase):
         self.send(result)
         self.assertEqual(result.conclusion, "insufficient")
 
-    def test_a_value_below_the_lod_or_loq_suggests_a_text_with_the_copied_threshold(self):
-        cases = ((0.001, "<0.002 mg/g (below LOD)"), (0.004, "<0.006 mg/g (below LOQ)"), (0.008, False))
-        for value, suggestion in cases:
-            with self.subTest(value=value):
-                self.assertEqual(self.enter(value=value).value_suggestion, suggestion)
-
-    def test_the_tester_confirms_the_suggested_text_and_the_measured_value_stays(self):
+    def test_a_text_for_a_value_below_the_loq_keeps_the_measured_value(self):
         result = self.enter(value=0.004, conclusion="insufficient")
 
-        self.as_person(result, self.tester).action_use_suggestion()
+        self.as_person(result, self.tester).value_text = "<0.006 mg/g (below LOQ)"
 
         self.assertEqual(result.value_text, "<0.006 mg/g (below LOQ)")
         self.assertEqual(result.value, 0.004)
-        self.assertFalse(result.value_suggestion)
         self.send(result)
         with self.assertRaises(UserError):
             self.as_person(result, self.tester).write({"value_text": "<0.002 mg/g (below LOD)"})

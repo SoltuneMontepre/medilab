@@ -16360,11 +16360,6 @@ msgid "Such as the email or call the customer agreed in"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__value_suggestion
-msgid "Suggested Text"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.actions.server,name:sol_laboratory.ir_cron_sample_tests_at_risk_summary_ir_actions_server
 #: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_sample_tests_at_risk_summary
 msgid "Summary of sample tests at risk"
@@ -19455,18 +19450,6 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "below LOD"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "below LOQ"
-msgstr ""
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
 msgid "e.g. Viettel Post"
@@ -19686,16 +19669,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result_check.py:0
 msgid "%(value)s is outside the regulation limit, so it cannot pass; assess it as fail or insufficient basis."
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "<span>Below the detection or quantification limit, report it as</span>"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "Use This Text"
 msgstr ""
 
 #. module: sol_laboratory

@@ -117,20 +117,6 @@
                             <label for="value_text" />
                             <field name="value_text" readonly="status != 'none'" />
                         </div>
-                        <div
-                            class="alert alert-info mb-0 d-flex flex-wrap align-items-center gap-2"
-                            role="status"
-                            invisible="status != 'none' or value_text or not value_suggestion"
-                        >
-                            <span>Below the detection or quantification limit, report it as</span>
-                            <field name="value_suggestion" class="fw-bold" />
-                            <button
-                                name="action_use_suggestion"
-                                type="object"
-                                string="Use This Text"
-                                class="btn-secondary btn-sm"
-                            />
-                        </div>
                         <div class="o_test_result_display" invisible="not id">
                             <label for="value_display" />
                             <field name="value_display" />

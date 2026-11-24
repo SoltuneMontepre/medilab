@@ -19,7 +19,6 @@ export function result(values: Partial<Result> = {}): Result {
     value: 0.008,
     value_text: "",
     decimals: 3,
-    value_suggestion: "",
     comparison_requested: true,
     conclusion: "pass",
     conclusion_label: "Đạt",

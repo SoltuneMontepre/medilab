@@ -91,7 +91,6 @@ class TestResultMobile(models.Model, TestResultMobileBase):
             "value": None if result.value_text else result.value,
             "value_text": result.value_text or "",
             "decimals": result.value_decimals,
-            "value_suggestion": result.value_suggestion or "",
             "comparison_requested": result.comparison_requested,
             "conclusion": result.conclusion or None,
             "conclusion_label": conclusions.get(result.conclusion or "", ""),

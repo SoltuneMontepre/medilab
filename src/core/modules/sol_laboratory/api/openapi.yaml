@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.16.0
+  version: 1.17.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through, and Medilab Mobile signs phones
     in with. Every refusal answers `{"error": {"code", "message"}}` with the HTTP status of its code; a device acts on
@@ -4037,7 +4037,6 @@ components:
         - value
         - value_text
         - decimals
-        - value_suggestion
         - comparison_requested
         - conclusion
         - conclusion_label
@@ -4079,9 +4078,6 @@ components:
           type: string
         decimals:
           type: integer
-        value_suggestion:
-          description: The text suggested for a value below the LOD or LOQ; empty otherwise.
-          type: string
         comparison_requested:
           type: boolean
         conclusion:

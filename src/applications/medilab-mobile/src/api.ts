@@ -282,7 +282,6 @@ export interface Result extends ResultSummary {
   value: number | null;
   value_text: string;
   decimals: number;
-  value_suggestion: string;
   comparison_requested: boolean;
   conclusion: Conclusion | null;
   conclusion_label: string;

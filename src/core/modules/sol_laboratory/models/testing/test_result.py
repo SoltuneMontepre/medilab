@@ -30,7 +30,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TEST_RESULT_REJECTED
 from odoo.addons.sol_laboratory.fields.nullable_float import NullableFloat
 from odoo.addons.sol_laboratory.models.testing.machine_booking import ACTIVE_STATUSES
-from odoo.addons.sol_laboratory.services.number_text import plain_digits, plain_number
+from odoo.addons.sol_laboratory.services.number_text import plain_digits
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_test_result as TestResultBase
@@ -148,9 +148,6 @@ class TestResult(models.Model, TestResultBase):
         value_text = fields.Char(string="Text Result", translate=True)
         # The result as shown: its text, or its value with its decimals.
         value_display = fields.Char(string="Result", compute="_compute_value_display")
-        # Text suggested for a value below the LOD or LOQ, such as "<0.05 mg/L (below LOQ)", for the tester to confirm;
-        # empty otherwise.
-        value_suggestion = fields.Char(string="Suggested Text", compute="_compute_value_suggestion")
         # The unit of the value, copied from the way of testing on the sample type.
         unit_id = fields.Many2one(
             MODEL_MEASUREMENT_UNIT, string="Unit", compute="_compute_source", store=True, ondelete="restrict"
@@ -338,12 +335,6 @@ class TestResult(models.Model, TestResultBase):
                 self.env, result.value, digits=result.value_decimals, rounding_method="HALF-UP"
             )
 
-    @api.depends("value", "value_text", "lod", "loq", "unit_id")
-    @api.depends_context("lang")
-    def _compute_value_suggestion(self):
-        for result in self:
-            result.value_suggestion = not result.value_text and result._below_threshold_text(self.env)
-
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -441,16 +432,6 @@ class TestResult(models.Model, TestResultBase):
                 )
         return super().action_sign()
 
-    def action_use_suggestion(self):
-        """The tester confirms the text suggested for a value below the LOD or LOQ, in each language the report may be
-        printed in; the measured value stays."""
-        langs = [code for code, _name in self.env["res.lang"].get_installed()]
-        for result in self.filtered(lambda result: result.status == STATE_NONE and bool(result.value_suggestion)):
-            result.value_text = result.value_suggestion
-            result.update_field_translations(
-                "value_text", {lang: result._below_threshold_text(result.with_context(lang=lang).env) for lang in langs}
-            )
-
     def action_withdraw(self):
         """A sent result taken back by its tester gives them their testing task again."""
         withdrawn = super().action_withdraw()
@@ -489,17 +470,6 @@ class TestResult(models.Model, TestResultBase):
         if not self.parameter_method_id:
             return self.env[MODEL_PARAMETER_METHOD_SAMPLE_TYPE]
         return self.parameter_method_id.sudo()._applicability(self.sample_type_id)
-
-    def _below_threshold_text(self, env):
-        """The text for a value below the LOD, or else below the LOQ, with the copied threshold and unit in the
-        language of env, such as "<0.05 mg/L (below LOQ)"; False when the value is not below either."""
-        self.ensure_one()
-        for threshold, which in ((self.lod, env._("below LOD")), (self.loq, env._("below LOQ"))):
-            if threshold is not False and self.value < threshold:
-                shown = plain_number(env, threshold)
-                unit = self.unit_id.with_env(env).name
-                return f"<{shown} {unit} ({which})" if unit else f"<{shown} ({which})"
-        return False
 
     def _copy_limit_translations(self):
         # The computed copy holds one language; the report needs the limit text in each.

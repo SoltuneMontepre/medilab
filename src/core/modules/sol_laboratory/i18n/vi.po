@@ -17283,11 +17283,6 @@ msgid "No limit for this sample type"
 msgstr "Không có giới hạn cho loại mẫu này"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__value_suggestion
-msgid "Suggested Text"
-msgstr "Văn Bản Đề Xuất"
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result.py:0
 msgid ""
@@ -17326,18 +17321,6 @@ msgid ""
 msgstr ""
 "Hệ thống tự đặt chỉ tiêu của mẫu, thông tin nhập, trạng thái và các giá trị "
 "sao chép từ danh mục của kết quả."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "below LOD"
-msgstr "dưới LOD"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "below LOQ"
-msgstr "dưới LOQ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__outsourcing_method_ids
@@ -20115,16 +20098,6 @@ msgstr "%(value)s thấp hơn giới hạn quy chuẩn %(limit)s."
 #: code:addons/sol_laboratory/models/testing/test_result_check.py:0
 msgid "%(value)s is outside the regulation limit, so it cannot pass; assess it as fail or insufficient basis."
 msgstr "%(value)s nằm ngoài giới hạn quy chuẩn nên không thể đạt; hãy đánh giá là không đạt hoặc không đủ căn cứ."
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "<span>Below the detection or quantification limit, report it as</span>"
-msgstr "<span>Dưới giới hạn phát hiện hoặc định lượng, báo cáo là</span>"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "Use This Text"
-msgstr "Dùng nội dung này"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
