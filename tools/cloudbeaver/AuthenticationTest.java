@@ -3,6 +3,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -46,7 +47,8 @@ public final class AuthenticationTest {
             exchange.getResponseBody().write(bytes);
             exchange.close();
         });
-        var directory = Files.createTempDirectory("authentication-test-");
+        var directory = Files.createTempDirectory("authentication-test-",
+            PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
         var cookie = directory.resolve("cookie");
         var failure = directory.resolve("failure");
         server.start();

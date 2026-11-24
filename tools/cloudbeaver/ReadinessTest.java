@@ -2,6 +2,7 @@ import com.sun.net.httpserver.HttpServer;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -20,7 +21,8 @@ public final class ReadinessTest {
             exchange.close();
         });
         server.start();
-        var directory = Files.createTempDirectory("readiness-test-");
+        var directory = Files.createTempDirectory("readiness-test-",
+            PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
         var cookie = directory.resolve("cookie");
         var uri = URI.create("http://127.0.0.1:" + server.getAddress().getPort() + "/api/gql");
         try {

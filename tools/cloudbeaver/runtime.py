@@ -4,6 +4,7 @@ import hashlib
 import http.cookiejar
 import json
 import os
+import secrets
 import subprocess
 import sys
 import time
@@ -13,9 +14,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 IMAGE = "docker.io/dbeaver/cloudbeaver:26.2.2"
-PASSWORD = "LocalRegression9"
+# Synthetic credentials, new for each test run.
+PASSWORD = f"Local{secrets.token_hex(8)}9"
+DATABASE_PASSWORD = f"Database{secrets.token_hex(8)}9"
 SPECIAL_USER = 'regression"\\user'
-SPECIAL_PASSWORD = "Regression9\"'\\\n\t$`unicode-ệ"
+SPECIAL_PASSWORD = f"Regression9{secrets.token_hex(4)}\"'\\\n\t$`unicode-ệ"
 
 
 def engine(*args, check=True, input=None, timeout=600):
