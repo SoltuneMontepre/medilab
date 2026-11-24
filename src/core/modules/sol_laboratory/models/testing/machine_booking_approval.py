@@ -39,9 +39,7 @@ class MachineBookingApproval(models.Model, MachineBookingApprovalBase):
         return self.env._("A booking is reserved only when the head of the department approves it.")
 
     def action_approve(self):
-        """Approve proposed bookings: each reserves its tester, its machine when it needs one and its rooms together, or
-        the approval is refused when any of them was taken meanwhile or the plan found no slot before the due date. The
-        head of the department approves, and each tester is told."""
+        """Approve a proposed slot when its tester, machine and rooms are still free, then tell the tester."""
         self._check_permission("edit")
         for booking in self:
             if booking.status != "proposed":
@@ -79,7 +77,6 @@ class MachineBookingApproval(models.Model, MachineBookingApprovalBase):
                     )
                 )
             booking._set({"status": "scheduled"})
-        self._plan(self.sudo().department_id)
         self._notify_approved()
 
     def _notify_approved(self):

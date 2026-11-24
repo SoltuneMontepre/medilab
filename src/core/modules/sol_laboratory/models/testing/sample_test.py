@@ -413,17 +413,25 @@ class SampleTest(models.Model, SampleTestBase):
             task.write({"status": "assigned" if task.assignee_id else "open", "done_at": False})
 
     def action_approve_booking(self):
-        """Approve the slot the department's plan proposes for each test, recalculated first. Approving needs the
-        permission to edit bookings, which the head of the department has."""
+        """Approve each current proposed slot, recalculating the plan only when its proposal is missing or stale."""
         for test in self:
             task = test._testing_task()
             if test.sudo().booking_ids.filtered(lambda booking: booking.status in ("scheduled", "in_progress")):
                 raise UserError(self.env._("%s is already holding a machine.", test.display_name))
             if not task.assignee_id:
                 raise UserError(self.env._("Assign %s to a person before approving its booking.", test.display_name))
-            self.env[MODEL_MACHINE_BOOKING]._plan(task.sudo().department_id)
             proposal = test._proposed_booking()
-            if not proposal:
+            if (
+                not test._awaits_plan()
+                or not proposal
+                or not proposal.ends_at
+                or proposal.task_id != task
+                or proposal.person_id != task.assignee_id
+                or proposal.department_id != task.department_id
+            ):
+                self.env[MODEL_MACHINE_BOOKING]._plan(task.sudo().department_id)
+                proposal = test._proposed_booking()
+            if not proposal or not proposal.ends_at:
                 raise UserError(self.env._("No machine can finish %s before its due date.", test.display_name))
             proposal.with_env(self.env).action_approve()
 

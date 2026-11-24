@@ -83,21 +83,50 @@ class TestBookingApproval(SchedulingCase, LocationCase):
             for _ in range(32):
                 test = self.new_test(MONDAY + timedelta(days=2))
                 self.testing_task(test, self.other_tester)
+        plan_started = perf_counter()
         bookings._plan(self.department)
+        plan_elapsed = perf_counter() - plan_started
         proposals = bookings.search([("status", "=", "proposed"), ("department_id", "=", self.department.id)])
         proposal_count = len(proposals)
         self.assertEqual(proposal_count, 33)
 
-        with patch.object(type(bookings), "_plan", wraps=bookings._plan) as replan:
+        original_plan = type(bookings)._plan
+        plan_calls = 0
+
+        def count_plan_calls(model, departments):
+            nonlocal plan_calls
+            plan_calls += 1
+            return original_plan(model, departments)
+
+        with patch.object(type(bookings), "_plan", new=count_plan_calls):
             started = perf_counter()
             booking.sample_test_id.with_user(self.head.user_id).action_approve_booking()
             elapsed = perf_counter() - started
 
+        print(f"[scheduler-profile] proposed={proposal_count} action=_plan calls=1 elapsed={plan_elapsed:.3f}s")
         print(
             f"[scheduler-profile] proposed={proposal_count} action=action_approve_booking "
-            f"plan_calls={replan.call_count} elapsed={elapsed:.3f}s"
+            f"plan_calls={plan_calls} elapsed={elapsed:.3f}s"
         )
-        self.assertEqual(replan.call_count, 0)
+        self.assertEqual(plan_calls, 0)
+
+    def test_approving_without_a_current_proposal_recalculates_the_plan(self):
+        test = self.new_test(MONDAY + timedelta(minutes=10))
+        self.propose(test)
+        bookings = self.env[MODEL_MACHINE_BOOKING]
+        original_plan = type(bookings)._plan
+        plan_calls = 0
+
+        def count_plan_calls(model, departments):
+            nonlocal plan_calls
+            plan_calls += 1
+            return original_plan(model, departments)
+
+        with patch.object(type(bookings), "_plan", new=count_plan_calls):
+            with self.assertRaisesRegex(UserError, "No machine can finish"):
+                test.with_user(self.head.user_id).action_approve_booking()
+
+        self.assertEqual(plan_calls, 1)
 
     def test_the_tester_does_not_reserve_their_own_booking(self):
         booking = self.propose()
