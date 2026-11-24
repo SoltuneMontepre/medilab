@@ -140,36 +140,33 @@
   .o_form_renderer .o_inner_group {
     gap: 0.1rem 1rem !important;
     margin-bottom: 0 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
 
-    @media (min-width: 576px) {
+    &.o_form_fw_labels {
       grid-template-columns: minmax(0, 1fr) !important;
+    }
 
-      &.o_form_fw_labels {
-        grid-template-columns: minmax(0, 1fr) !important;
-      }
+    .o_cell.o_wrap_label,
+    .o_cell.o_wrap_input,
+    .o_cell.o_cell_custom {
+      grid-column: 1 / -1;
+      max-width: 100%;
+      width: 100%;
+      padding: 0 !important;
+    }
 
-      .o_cell.o_wrap_label,
-      .o_cell.o_wrap_input,
-      .o_cell.o_cell_custom {
-        grid-column: 1 / -1;
-        max-width: 100%;
-        width: 100%;
-        padding: 0 !important;
-      }
+    .o_cell.o_wrap_label {
+      margin: 0 !important;
+      padding-bottom: 0 !important;
+    }
 
-      .o_cell.o_wrap_label {
-        margin: 0 !important;
-        padding-bottom: 0 !important;
-      }
+    .o_cell.o_wrap_input {
+      margin: 0 0 0.4rem !important;
+      padding-bottom: 0 !important;
+    }
 
-      .o_cell.o_wrap_input {
-        margin: 0 0 0.4rem !important;
-        padding-bottom: 0 !important;
-      }
-
-      .o_cell.o_wrap_input:last-child {
-        margin-bottom: 0 !important;
-      }
+    .o_cell.o_wrap_input:last-child {
+      margin-bottom: 0 !important;
     }
   }
 
