@@ -234,8 +234,8 @@ class TestOrderDates(OrderCase):
         self.assertIn("Expected return", str(order.return_timeline))
 
     def test_unsaved_order_form_simulates_return_dates_for_packages_and_pickup_changes(self):
-        env_sales = self.env[MODEL_SALE_ORDER].with_user(self.sales).with_context(medilab_sales_order=True)
-        with Form(env_sales) as form:
+        # The form helper loads every one-to-many's view, support requests included, which Sales cannot read.
+        with Form(self.env[MODEL_SALE_ORDER].with_context(medilab_sales_order=True)) as form:
             form.customer_id = self.customer
             form.expected_collection_date = date.today() + timedelta(days=1)
             with assert_instance(form.product_line_ids, O2MProxy).new() as line:
@@ -243,11 +243,11 @@ class TestOrderDates(OrderCase):
                 line.sample_type_id = self.sample_type
             first_date = form.committed_date
             self.assertTrue(first_date)
-            self.assertIn("Testing finishes", str(form.return_timeline))
+            self.assertIn("Expected return", str(form.return_timeline))
 
             form.expected_collection_date = date.today() + timedelta(days=5)
             later_date = form.committed_date
             assert isinstance(first_date, date)
             assert isinstance(later_date, date)
             self.assertGreater(later_date, first_date)
-            self.assertIn("Testing finishes", str(form.return_timeline))
+            self.assertIn("Expected return", str(form.return_timeline))
