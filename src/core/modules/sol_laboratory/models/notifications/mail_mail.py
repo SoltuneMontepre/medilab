@@ -3,7 +3,12 @@ from typing import TYPE_CHECKING
 
 from odoo import fields, models
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_MAIL_MAIL, MODEL_RES_PARTNER
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_ENTRY,
+    MODEL_MAIL_MAIL,
+    MODEL_MAIL_NOTIFICATION,
+    MODEL_RES_PARTNER,
+)
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_mail_mail as MailMailBase
@@ -63,7 +68,10 @@ class MailMail(models.Model, MailMailBase):
         for mail in self:
             document = mail.mail_message_id._audit_document()
             if failure_type and not success_pids and not success_emails:
-                entries._log_event("error", self.env._("Email not sent: %s", failure_reason or failure_type), document)
+                # Without a reason, Odoo's failure type is shown by its label, not its code.
+                types = dict(self.env[MODEL_MAIL_NOTIFICATION]._fields["failure_type"]._description_selection(self.env))
+                reason = failure_reason or types.get(failure_type, failure_type)
+                entries._log_event("error", self.env._("Email not sent: %s", reason), document)
             else:
                 entries._log_event("integration", self.env._("Email sent: %s", mail.subject or ""), document)
         return super()._postprocess_sent_message(

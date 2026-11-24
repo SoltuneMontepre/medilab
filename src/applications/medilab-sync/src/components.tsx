@@ -1,5 +1,93 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useT } from "./locale";
-import { normalizeLocale, type Locale } from "./i18n";
+import { normalizeLocale, type Locale, type MessageKey, type Translate } from "./i18n";
+
+const CATEGORY_KEYS: Record<string, MessageKey> = {
+  raw: "folders.category.raw",
+  working: "folders.category.working",
+  result: "folders.category.result",
+  report: "folders.category.report",
+};
+
+/** Tên loại thư mục của mẫu bằng lời; loại chưa biết thì giữ nguyên giá trị máy chủ gửi. */
+export function categoryLabel(t: Translate, category: string): string {
+  const key = CATEGORY_KEYS[category];
+  return key ? t(key) : category;
+}
+
+/** Nội dung một câu hỏi xác nhận: câu hỏi, lời giải thích và nhãn nút thực hiện. */
+export type ConfirmOptions = {
+  title: string;
+  body: string;
+  confirmLabel: string;
+  danger?: boolean;
+};
+
+/** Hộp thoại xác nhận trong ứng dụng; nút thực hiện mang tên hành động, Esc hoặc Hủy để bỏ qua. */
+export function ConfirmDialog({
+  title,
+  body,
+  confirmLabel,
+  danger = false,
+  onConfirm,
+  onCancel,
+}: Readonly<ConfirmOptions & { onConfirm: () => void; onCancel: () => void }>) {
+  const t = useT();
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    ref.current?.showModal();
+  }, []);
+  return (
+    <dialog
+      ref={ref}
+      aria-labelledby="confirm-title"
+      className="m-auto w-full max-w-md rounded-lg border bg-white p-4 shadow-lg backdrop:bg-slate-900/40"
+      onCancel={(event) => {
+        event.preventDefault();
+        onCancel();
+      }}
+    >
+      <h2 id="confirm-title" className="text-lg font-semibold">
+        {title}
+      </h2>
+      <p className="mt-2 text-sm text-slate-600">{body}</p>
+      <div className="mt-4 flex justify-end gap-2">
+        <button type="button" className="btn btn-secondary" autoFocus onClick={onCancel}>
+          {t("action.cancel")}
+        </button>
+        <button type="button" className={`btn ${danger ? "btn-danger" : "btn-primary"}`} onClick={onConfirm}>
+          {confirmLabel}
+        </button>
+      </div>
+    </dialog>
+  );
+}
+
+/** Hỏi xác nhận bằng `ConfirmDialog`: `confirm()` trả về lựa chọn của người dùng, `dialog` là phần
+ * tử cần đặt vào cây render. */
+export function useConfirm() {
+  const [request, setRequest] = useState<(ConfirmOptions & { resolve: (confirmed: boolean) => void }) | null>(null);
+  const confirm = useCallback(
+    (options: ConfirmOptions) => new Promise<boolean>((resolve) => setRequest({ ...options, resolve })),
+    [],
+  );
+  /** Trả lời câu hỏi đang mở rồi đóng hộp thoại. */
+  function settle(confirmed: boolean) {
+    request?.resolve(confirmed);
+    setRequest(null);
+  }
+  const dialog = request ? (
+    <ConfirmDialog
+      title={request.title}
+      body={request.body}
+      confirmLabel={request.confirmLabel}
+      danger={request.danger}
+      onConfirm={() => settle(true)}
+      onCancel={() => settle(false)}
+    />
+  ) : null;
+  return { confirm, dialog };
+}
 
 /** Ô chọn ngôn ngữ giao diện (vi/en). */
 export function LanguageSwitch({
@@ -8,7 +96,7 @@ export function LanguageSwitch({
 }: Readonly<{ locale: string | undefined; onChange: (locale: Locale) => void }>) {
   const t = useT();
   return (
-    <label className="flex items-center gap-2 text-sm">
+    <label className="flex items-center gap-2 text-sm whitespace-nowrap">
       <span>{t("settings.language")}</span>
       <select
         className="rounded border border-slate-300 px-2 py-1"

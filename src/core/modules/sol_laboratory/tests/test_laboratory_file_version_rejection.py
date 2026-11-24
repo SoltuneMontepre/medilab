@@ -25,6 +25,9 @@ class TestLaboratoryFileVersionRejection(LaboratorySigningCase):
         notice = self.notices(version)
         self.assertEqual(notice.subtype_id, self.env.ref("sol_laboratory.event_laboratory_file_version_rejected"))
         self.assertIn("The calibration curve is missing.", (notice.body or ""))
+        # Files of several samples share a name, so the notice names the folder, as the version's list and form do.
+        self.assertIn(version.file_id.folder_id.display_name, (notice.body or ""))
+        self.assertEqual(self.as_person(version, self.head).folder_id, version.file_id.folder_id)
         self.assertEqual(notice.notification_ids.res_partner_id, self.saver.user_id.partner_id)
 
     def test_rejecting_without_a_reason_is_refused(self):

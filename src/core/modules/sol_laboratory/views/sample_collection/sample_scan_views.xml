@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <form>
                 <group>
-                    <field name="code" placeholder="PTN.2026.0001" />
+                    <field name="code" placeholder="PTN.26.01.0001" />
                 </group>
                 <footer>
                     <button name="action_confirm" type="object" string="Receive" class="btn-success" />

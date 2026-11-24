@@ -102,7 +102,7 @@ describe("SF-03 Change request on a signed document", () => {
         cy.signInAs("tester");
         cy.openRecord(result);
         cy.get(".o_field_widget[name=status] .o_arrow_button_current").should("contain", "Approved");
-        cy.get(".o_field_widget[name=is_replaced] input").should("be.checked");
+        cy.contains(".o_test_result_chip", "Replaced").should("be.visible");
         cy.contains(`${BUTTONS} button`, "Request a Change").should("not.exist");
         cy.readRecord(result, ["status", "version", "value", "is_replaced"]).should((read) => {
           expect(read).to.deep.equal({ id: result.id, status: "approved", version: 1, value: LEAD_VALUE, is_replaced: true });

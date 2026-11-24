@@ -3,6 +3,7 @@ import { useT } from "../../locale";
 import type { MessageKey } from "../../i18n";
 import type { SharedFolder, StatusDto, UnboundFolders } from "../../types";
 import { bindSharedFolder, chooseSyncFolder, listSharedFolders } from "../../lib/tauri";
+import { categoryLabel } from "../../components";
 
 const EMPTY: UnboundFolders = { shared: [], owned: [] };
 
@@ -94,10 +95,10 @@ export function SharedFolders({ boundCount, onBound }: SharedFoldersProps) {
                       {t("access.owner")}: {folder.owner_name ?? "—"} · {t("access.myRole")}:{" "}
                       {t(roleLabelKey(folder.my_role))}
                     </div>
-                    {folder.sample_name || folder.category ? (
+                    {folder.sample_name || folder.sample_code || folder.category ? (
                       <div className="text-xs text-slate-600">
-                        {t("folders.sample")}: {folder.sample_name ?? "—"}
-                        {folder.category ? ` · ${folder.category}` : ""}
+                        {t("folders.sample")}: {folder.sample_name ?? folder.sample_code ?? "—"}
+                        {folder.category ? ` · ${categoryLabel(t, folder.category)}` : ""}
                       </div>
                     ) : null}
                   </div>

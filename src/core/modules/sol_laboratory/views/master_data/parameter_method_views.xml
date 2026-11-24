@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_parameter_method_form" model="ir.ui.view">
+        <field name="name">medilab.parameter.method.form</field>
+        <field name="model">medilab.parameter.method</field>
+        <field name="arch" type="xml">
+            <form duplicate="0" delete="False">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <label for="parameter_id" />
+                        <h1><field name="parameter_id" readonly="id" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="method_id" />
+                            <field name="department_id" invisible="subcontractor_id" required="not subcontractor_id" />
+                            <field name="subcontractor_id" invisible="department_id" />
+                            <field name="allows_negative" />
+                        </group>
+                        <group>
+                            <field name="turnaround_days" />
+                            <field name="duration_minutes" invisible="subcontractor_id" />
+                            <field name="capacity" invisible="subcontractor_id" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Sample Types" name="sample_types">
+                            <field name="applicability_ids">
+                                <list editable="bottom">
+                                    <field name="sample_type_id" />
+                                    <field name="unit_id" />
+                                    <field name="lod" widget="nullable_float" />
+                                    <field name="loq" widget="nullable_float" />
+                                    <field name="result_decimals" />
+                                    <field name="is_default" />
+                                    <field name="is_accredited" optional="show" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -127,7 +127,12 @@ class LaboratoryFileVersionSigning(models.Model, LaboratoryFileVersionSigningBas
             EVENT_LABORATORY_FILE_VERSION_REJECTED,
             self,
             f"laboratory_file_version:{self.id}:{self.document_version}:rejected",
-            self.env._("%(version)s was rejected: %(reason)s", version=self.display_name, reason=reason),
+            self.env._(
+                "%(version)s in %(folder)s was rejected: %(reason)s",
+                version=self.display_name,
+                folder=self.sudo().folder_id.display_name,
+                reason=reason,
+            ),
             subject=self.display_name,
             partners=self.sudo().user_id.partner_id,
         )

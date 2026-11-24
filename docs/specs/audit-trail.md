@@ -67,7 +67,13 @@ Nobody edits or deletes an audit entry or change, administrators included: the m
 
 ### History of a document
 
-Every audited form has a **History** button in its button box, shown to those who can read the trail, that opens the entries of the document, of the documents under it and of the files attached to them, newest first; a form without a sheet gets the button box below its header. A model names the relations of the documents under it in `_audit_children`, such as `sample_ids` on a test request, `test_ids` on a sample and `order_line` on an order, and the history follows them recursively. Parts and files deleted since still show, found by the document their entries name.
+Every audited form has a **History** button in its button box, shown to those who can read the trail, that opens the entries of the document, of the documents under it and of the files attached to them, newest first; a form without a sheet gets the button box below its header. A model names the relations of the documents under it in `_audit_children`, such as `sample_ids` on a test request, `test_ids` on a sample, `result_ids` on a sample test and `order_line` on an order, and the history follows them recursively. Parts and files deleted since still show, found by the document their entries name.
+
+### Log of a form
+
+The forms of a task, a test request and a support request have an **Audit Log** tab, shown to those who can read the trail, that lists the same entries as the History button, newest first, with each entry's date, user, action, document type, changes and note. The forms of a sample and a sample test show the same entries as an **Audit Log** panel beside the sheet on wide screens and below it on narrow ones, instead of a tab. The panel is a feed like the chatter's: each entry shows its user's avatar and name, or its source when no user acted, its date, action and document type, then each change on its own line as `Field: old → new`, then its note.
+
+The panel on the form of a [sample test](../functional/laboratory_module/features/tester.md#1-planning-us-t01-to-us-t04-us-t19-to-us-t21) is for whoever reads sample tests, not only those who read the trail. It lists the entries of the test, its bookings and its results. The panel reads them with the `sample_test.read.all` permission, which gives read access to the entries and changes about sample tests and to no others, and not to the Audit Trail app. The panel on the form of a sample is the same for whoever reads samples: the `sample.read.all` permission gives read access to the entries and changes about samples and the documents directly under them, and to no others.
 
 ### Search and reports
 

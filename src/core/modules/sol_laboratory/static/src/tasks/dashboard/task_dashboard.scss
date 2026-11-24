@@ -40,6 +40,18 @@
         gap: 1rem;
     }
 
+    .o_task_bento_approve {
+        grid-template-areas:
+            "approve approve"
+            "mine all"
+            "mine finished";
+        grid-template-rows: auto auto 1fr;
+    }
+
+    .o_task_tile_approve {
+        grid-area: approve;
+    }
+
     .o_task_tile {
         display: flex;
         flex-direction: column;
@@ -369,6 +381,15 @@
         .o_task_bento {
             grid-template-columns: minmax(0, 1fr);
             grid-template-areas:
+                "mine"
+                "all"
+                "finished";
+            grid-template-rows: none;
+        }
+
+        .o_task_bento_approve {
+            grid-template-areas:
+                "approve"
                 "mine"
                 "all"
                 "finished";

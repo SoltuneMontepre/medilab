@@ -22,7 +22,16 @@ class TestLaboratoryApiSampleFolders(LaboratoryApiCase, LaboratorySampleFolderCa
         folder = self.api("GET", f"/folders/{self.results.id}", key=self.key).json()["folder"]
 
         sample = self.results.sample_id
-        self.assertEqual((folder["category"], folder["sample"]), (RESULT, {"id": sample.id, "lab_code": sample.code}))
+        self.assertEqual(
+            (folder["category"], folder["sample"]), (RESULT, {"id": sample.id, "lab_code": sample.code, "open": True})
+        )
+
+    def test_the_folder_of_a_completed_sample_says_its_sample_is_closed(self):
+        self.results.sample_id.sudo().status = "completed"
+
+        folder = self.api("GET", f"/folders/{self.results.id}", key=self.key).json()["folder"]
+
+        self.assertFalse(folder["sample"]["open"])
 
     def test_a_member_who_does_not_see_the_sample_gets_nothing_of_its_folder(self):
         listed = [folder["id"] for folder in self.api("GET", "/folders", key=self.outsiders_key).json()["folders"]]

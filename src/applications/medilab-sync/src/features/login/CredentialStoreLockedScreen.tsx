@@ -10,7 +10,7 @@ export function CredentialStoreLockedScreen({
 }: Readonly<{ busy: boolean; error: string | null; onUsePassword: () => void; onRetry: () => void }>) {
   const t = useT();
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-6">
+    <main className="login-page flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-md space-y-4 rounded-lg border bg-white p-6 shadow-sm">
         <h1 className="text-lg font-semibold">{t("keyring.lockedTitle")}</h1>
         <p className="text-sm text-slate-700">{t("keyring.lockedBody")}</p>

@@ -40,10 +40,11 @@
                     </span>
                 </div>
             </xpath>
-            <field name="is_reported" position="after">
-                <field name="is_interrupted" invisible="not is_interrupted" />
+            <xpath expr="//span[hasclass('o_test_result_chips')]" position="inside">
+                <field name="is_interrupted" invisible="1" />
+                <span class="o_test_result_chip o_chip_warning" invisible="not is_interrupted">Interrupted</span>
                 <field name="can_assess_interruption" invisible="1" />
-            </field>
+            </xpath>
         </field>
     </record>
 

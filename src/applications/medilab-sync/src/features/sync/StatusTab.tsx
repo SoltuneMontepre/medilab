@@ -1,7 +1,7 @@
-import { memo, useMemo, type ReactNode } from "react";
+import { Fragment, memo, useMemo, useState, type ReactNode } from "react";
 import { useT } from "../../locale";
 import type { MessageKey } from "../../i18n";
-import type { JobRow, RemoteFileRow, StatusDto } from "../../types";
+import type { FolderRow, JobRow, RemoteFileRow, StatusDto } from "../../types";
 import { canEditOnline } from "../office/officeFiles";
 
 /** Key thông điệp hiện cho một trạng thái job/tệp. */
@@ -37,20 +37,87 @@ export function jobPercent(job: JobRow): number {
   return Math.min(100, Math.floor((job.bytes_done / job.bytes_total) * 100));
 }
 
+/** Màu huy hiệu theo trạng thái: xanh = xong, đỏ = lỗi, vàng = cần chú ý hoặc chờ, xanh dương = đang chạy. */
+function statusTone(status: string, accessPaused = false): string {
+  if (accessPaused || status === "conflict" || status === "retry_wait") {
+    return "bg-amber-100 text-amber-800";
+  }
+  if (status === "failed" || status === "unauthenticated") {
+    return "bg-red-100 text-red-700";
+  }
+  if (status === "running") {
+    return "bg-sky-100 text-sky-800";
+  }
+  if (status === "pending") {
+    return "bg-slate-200 text-slate-700";
+  }
+  return "bg-emerald-100 text-emerald-800";
+}
+
+/** Nhãn trạng thái dạng huy hiệu màu, để lỗi và xung đột nổi bật giữa danh sách tệp. */
+function StatusBadge({ status, accessPaused = false }: Readonly<{ status: string; accessPaused?: boolean }>) {
+  const t = useT();
+  return (
+    <span
+      className={`inline-block rounded px-2 py-0.5 text-xs font-medium whitespace-nowrap ${statusTone(status, accessPaused)}`}
+    >
+      {t(accessPaused ? "status.access_paused" : statusMessageKey(status))}
+    </span>
+  );
+}
+
+/** Một câu nói rõ tình hình đồng bộ hiện tại và việc cần làm, đặt trên các thẻ đếm. */
+export function StatusSummary({
+  status,
+  onOpenFolders,
+}: Readonly<{ status: StatusDto; onOpenFolders?: () => void }>) {
+  const t = useT();
+  const attention = status.failed + status.conflict;
+  const working = status.pending + status.uploading + status.downloading;
+  let tone = "border-emerald-200 bg-emerald-50 text-emerald-900";
+  let text = t("summary.ok");
+  if (status.folders.length === 0) {
+    tone = "border-slate-200 bg-white text-slate-800";
+    text = t("summary.noFolders");
+  } else if (status.paused) {
+    tone = "border-amber-200 bg-amber-50 text-amber-900";
+    text = t("summary.paused");
+  } else if (attention > 0) {
+    tone = "border-red-200 bg-red-50 text-red-800";
+    text = t("summary.attention", { count: attention });
+  } else if (working > 0) {
+    tone = "border-sky-200 bg-sky-50 text-sky-900";
+    text = t("summary.working", { count: working });
+  }
+  return (
+    <output className={`mb-4 flex items-center justify-between gap-3 rounded-lg border px-4 py-3 ${tone}`}>
+      <span className="font-medium">{text}</span>
+      {status.folders.length === 0 && onOpenFolders ? (
+        <button type="button" className="btn btn-primary shrink-0" onClick={onOpenFolders}>
+          {t("summary.addFolder")}
+        </button>
+      ) : null}
+    </output>
+  );
+}
+
 /** Cột tiến độ của job: phần trăm hoàn thành, ví dụ `42%`. */
 export const JobProgress = memo(function JobProgress({ job }: Readonly<{ job: JobRow }>) {
   return <span className="tabular-nums">{jobPercent(job)}%</span>;
 });
 
-/** Bảng dùng chung cho các danh sách trên tab Trạng thái (job, tệp): tiêu đề, cột, và trạng thái rỗng. */
+/** Bảng dùng chung cho các danh sách trên tab Trạng thái (job, tệp): tiêu đề, ô công cụ bên phải
+ * tiêu đề, cột, và trạng thái rỗng. */
 export const StatusTable = memo(function StatusTable({
   title,
+  actions,
   columns,
   empty,
   isEmpty,
   children,
 }: Readonly<{
   title: string;
+  actions?: ReactNode;
   columns: ReactNode[];
   empty: string;
   isEmpty: boolean;
@@ -58,7 +125,10 @@ export const StatusTable = memo(function StatusTable({
 }>) {
   return (
     <div className="mt-6 overflow-hidden rounded-lg border bg-white">
-      <div className="border-b px-3 py-2 text-sm font-medium">{title}</div>
+      <div className="flex items-center justify-between gap-3 border-b px-3 py-2 text-sm font-medium">
+        <span>{title}</span>
+        {actions}
+      </div>
       <table className="w-full text-left text-sm">
         <thead className="bg-slate-50 text-slate-600">
           <tr>
@@ -93,10 +163,10 @@ export type StatusCardsProps = {
   pending: number;
   failed: number;
   conflict: number;
-  paused: boolean;
 };
 
-/** Nhóm thẻ đếm số lượng công việc theo từng trạng thái đồng bộ (đã memoize). */
+/** Bốn thẻ đếm: đã đồng bộ, đang xử lý (đang tải lên, tải xuống hoặc chờ), lỗi và xung đột (đã
+ * memoize). */
 export const StatusCards = memo(function StatusCards({
   completed,
   uploading,
@@ -104,25 +174,26 @@ export const StatusCards = memo(function StatusCards({
   pending,
   failed,
   conflict,
-  paused,
 }: Readonly<StatusCardsProps>) {
   const t = useT();
   const cards = [
-    [t("card.synced"), completed],
-    [t("card.uploading"), uploading],
-    [t("card.downloading"), downloading],
-    [t("card.pending"), pending],
-    [t("card.failed"), failed],
-    [t("card.conflict"), conflict],
-    [t("card.paused"), paused ? 1 : 0],
+    [t("card.synced"), completed, false],
+    [t("card.working"), uploading + downloading + pending, false],
+    [t("card.failed"), failed, true],
+    [t("card.conflict"), conflict, true],
   ] as const;
 
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
-      {cards.map(([label, value]) => (
-        <div key={String(label)} className="rounded-lg border bg-white p-4">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      {cards.map(([label, value, alert]) => (
+        <div
+          key={String(label)}
+          className={`rounded-lg border p-4 ${
+            alert && value > 0 ? "border-red-200 bg-red-50" : "bg-white"
+          }`}
+        >
           <div className="text-xs text-slate-500">{label}</div>
-          <div className="mt-1 text-2xl font-semibold">{value}</div>
+          <div className={`mt-1 text-2xl font-semibold ${value === 0 ? "text-slate-300" : ""}`}>{value}</div>
         </div>
       ))}
     </div>
@@ -149,7 +220,7 @@ export const JobRowView = memo(function JobRowView({
     <tr className="border-t">
       <td className="px-3 py-2">{job.relative_path}</td>
       <td className="px-3 py-2">
-        {t(accessPaused ? "status.access_paused" : statusMessageKey(job.status))}
+        <StatusBadge status={job.status} accessPaused={accessPaused} />
       </td>
       <td className="px-3 py-2">
         <JobProgress job={job} />
@@ -157,13 +228,15 @@ export const JobRowView = memo(function JobRowView({
       {accessPaused ? (
         <td className="px-3 py-2 text-amber-700">{t("status.access_paused.detail")}</td>
       ) : (
-        <td className="px-3 py-2 text-red-700">{job.last_error || "—"}</td>
+        <td className={`px-3 py-2 break-all ${job.last_error ? "text-red-700" : "text-slate-400"}`}>
+          {job.last_error || "—"}
+        </td>
       )}
       <td className="px-3 py-2">
         {!accessPaused && (job.status === "failed" || job.status === "retry_wait") ? (
           <button
             type="button"
-            className="btn btn-secondary px-2 py-1"
+            className="btn btn-secondary px-2 py-1 whitespace-nowrap"
             disabled={busy}
             onClick={() => onRetry(job.id)}
           >
@@ -230,7 +303,7 @@ export type ConflictResolveButtonsProps = {
   onAcceptServer: (fileId: number) => void;
 };
 
-/** Hai nút xử lý xung đột: giữ bản cục bộ hoặc dùng bản server (có xác nhận, đã memoize). */
+/** Hai nút xử lý xung đột: giữ bản cục bộ hoặc dùng bản server (đã memoize). */
 export const ConflictResolveButtons = memo(function ConflictResolveButtons({
   fileId,
   busy,
@@ -252,11 +325,7 @@ export const ConflictResolveButtons = memo(function ConflictResolveButtons({
         type="button"
         className="btn btn-secondary px-2 py-1"
         disabled={busy}
-        onClick={() => {
-          if (window.confirm(t("files.useServerConfirm"))) {
-            onAcceptServer(fileId);
-          }
-        }}
+        onClick={() => onAcceptServer(fileId)}
       >
         {t("files.useServer")}
       </button>
@@ -269,17 +338,19 @@ export type RemoteFileRowProps = {
   file: RemoteFileRow;
   category?: string | null;
   busy: boolean;
+  onOpenFile: (fileId: number) => void;
   onOpenHistory: (fileId: number, label: string) => void;
   onOpenOffice: (fileId: number, label: string) => void;
   onAcceptServer: (fileId: number) => void;
   onKeepLocal: (fileId: number) => void;
 };
 
-/** Một hàng hiển thị thông tin và thao tác tệp từ xa (lịch sử, office, xung đột, đã memoize). */
+/** Một hàng hiển thị thông tin và thao tác tệp từ xa (mở, lịch sử, office, xung đột, đã memoize). */
 export const RemoteFileRowView = memo(function RemoteFileRowView({
   file,
   category,
   busy,
+  onOpenFile,
   onOpenHistory,
   onOpenOffice,
   onAcceptServer,
@@ -289,9 +360,19 @@ export const RemoteFileRowView = memo(function RemoteFileRowView({
   return (
     <tr className="border-t">
       <td className="px-3 py-2">{file.relative_path}</td>
-      <td className="px-3 py-2">{t(statusMessageKey(file.status))}</td>
+      <td className="px-3 py-2">
+        <StatusBadge status={file.status} />
+      </td>
       <td className="px-3 py-2">
         <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="btn btn-secondary px-2 py-1"
+            disabled={busy}
+            onClick={() => onOpenFile(file.id)}
+          >
+            {t("files.open")}
+          </button>
           {file.remote_file_id ? (
             <button
               type="button"
@@ -326,48 +407,86 @@ export const RemoteFileRowView = memo(function RemoteFileRowView({
   );
 });
 
+/** Lọc tệp theo một phần đường dẫn, không phân biệt hoa thường; ô tìm trống thì giữ nguyên danh sách. */
+export function filterRemoteFiles(files: RemoteFileRow[], query: string): RemoteFileRow[] {
+  const needle = query.trim().toLowerCase();
+  return needle ? files.filter((file) => file.relative_path.toLowerCase().includes(needle)) : files;
+}
+
 /** Thuộc tính đầu vào cho bảng danh sách tệp từ xa. */
 export type RemoteFilesTableProps = {
   remoteFiles: RemoteFileRow[];
-  categories?: ReadonlyMap<number, string | null | undefined>;
+  folders: FolderRow[];
   busy: boolean;
+  onOpenFile: (fileId: number) => void;
   onOpenHistory: (fileId: number, label: string) => void;
   onOpenOffice: (fileId: number, label: string) => void;
   onAcceptServer: (fileId: number) => void;
   onKeepLocal: (fileId: number) => void;
 };
 
-/** Bảng hiển thị danh sách các tệp trên máy chủ đã đồng bộ hoặc xung đột (đã memoize). */
+/** Bảng các tệp trên máy chủ đã đồng bộ hoặc xung đột, xếp dưới tên thư mục của chúng, kèm ô tìm
+ * theo tên (đã memoize). */
 export const RemoteFilesTable = memo(function RemoteFilesTable({
   remoteFiles,
-  categories,
+  folders,
   busy,
+  onOpenFile,
   onOpenHistory,
   onOpenOffice,
   onAcceptServer,
   onKeepLocal,
 }: Readonly<RemoteFilesTableProps>) {
   const t = useT();
+  const [query, setQuery] = useState("");
   // Memoize mảng cột để không phá vỡ React.memo của StatusTable khi re-render (N-4).
   const columns = useMemo(() => [t("files.col.file"), t("files.col.status"), ""], [t]);
+  const groups = useMemo(() => {
+    const matching = filterRemoteFiles(remoteFiles, query);
+    return folders
+      .map((folder) => ({ folder, files: matching.filter((file) => file.folder_id === folder.id) }))
+      .filter((group) => group.files.length > 0);
+  }, [remoteFiles, folders, query]);
   return (
     <StatusTable
       title={t("files.title")}
+      actions={
+        remoteFiles.length > 0 ? (
+          <input
+            type="search"
+            className="rounded border px-2 py-1 font-normal"
+            value={query}
+            placeholder={t("files.search")}
+            aria-label={t("files.search")}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        ) : null
+      }
       columns={columns}
-      empty={t("files.empty")}
-      isEmpty={remoteFiles.length === 0}
+      empty={t(remoteFiles.length === 0 ? "files.empty" : "files.noMatch")}
+      isEmpty={groups.length === 0}
     >
-      {remoteFiles.map((file) => (
-        <RemoteFileRowView
-          key={file.id}
-          file={file}
-          category={categories?.get(file.folder_id)}
-          busy={busy}
-          onOpenHistory={onOpenHistory}
-          onOpenOffice={onOpenOffice}
-          onAcceptServer={onAcceptServer}
-          onKeepLocal={onKeepLocal}
-        />
+      {groups.map(({ folder, files }) => (
+        <Fragment key={folder.id}>
+          <tr className="border-t bg-slate-100">
+            <th colSpan={columns.length} scope="colgroup" className="px-3 py-1.5 text-xs font-semibold text-slate-700">
+              {folder.logical_root}
+            </th>
+          </tr>
+          {files.map((file) => (
+            <RemoteFileRowView
+              key={file.id}
+              file={file}
+              category={folder.category}
+              busy={busy}
+              onOpenFile={onOpenFile}
+              onOpenHistory={onOpenHistory}
+              onOpenOffice={onOpenOffice}
+              onAcceptServer={onAcceptServer}
+              onKeepLocal={onKeepLocal}
+            />
+          ))}
+        </Fragment>
       ))}
     </StatusTable>
   );
@@ -378,12 +497,13 @@ export type StatusTabProps = {
   status: StatusDto;
   busy: boolean;
   remoteFiles: RemoteFileRow[];
-  categories?: ReadonlyMap<number, string | null | undefined>;
   onRetry: (jobId: number) => void;
+  onOpenFile: (fileId: number) => void;
   onOpenHistory: (fileId: number, label: string) => void;
   onOpenOffice: (fileId: number, label: string) => void;
   onAcceptServer: (fileId: number) => void;
   onKeepLocal: (fileId: number) => void;
+  onOpenFolders?: () => void;
 };
 
 /** Tab Trạng thái: thẻ đếm theo loại, danh sách job, và danh sách tệp đã đồng bộ (đã memoize). */
@@ -392,10 +512,12 @@ export const StatusTab = memo(function StatusTab({
   busy,
   remoteFiles,
   onRetry,
+  onOpenFile,
   onOpenHistory,
   onOpenOffice,
   onAcceptServer,
   onKeepLocal,
+  onOpenFolders,
 }: Readonly<StatusTabProps>) {
   const deniedFolderIds = useMemo(
     () =>
@@ -409,6 +531,7 @@ export const StatusTab = memo(function StatusTab({
 
   return (
     <>
+      <StatusSummary status={status} onOpenFolders={onOpenFolders} />
       <StatusCards
         completed={status.completed}
         uploading={status.uploading}
@@ -416,7 +539,6 @@ export const StatusTab = memo(function StatusTab({
         pending={status.pending}
         failed={status.failed}
         conflict={status.conflict}
-        paused={status.paused}
       />
       <JobsTable
         jobs={status.jobs}
@@ -426,8 +548,9 @@ export const StatusTab = memo(function StatusTab({
       />
       <RemoteFilesTable
         remoteFiles={remoteFiles}
-        categories={new Map(status.folders.map((folder) => [folder.id, folder.category]))}
+        folders={status.folders}
         busy={busy}
+        onOpenFile={onOpenFile}
         onOpenHistory={onOpenHistory}
         onOpenOffice={onOpenOffice}
         onAcceptServer={onAcceptServer}

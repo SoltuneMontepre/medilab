@@ -141,7 +141,7 @@ class TestSubcontractDispatch(DispatchCase):
         result = self.enter()
 
         self.assertEqual(result.entered_by_id, self.tester.user_id)
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(UserError):
             result.machine_id = self.fast
 
     def test_a_rejected_outsourced_result_sends_the_test_back_to_its_subcontractor(self):

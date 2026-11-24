@@ -297,7 +297,37 @@
                         </page>
                     </notebook>
                 </sheet>
-                <chatter />
+                <div class="o_audit_aside" groups="sol_laboratory.group_permission_sample_read_all">
+                    <h3>Audit Log</h3>
+                    <field name="log_ids" mode="kanban" readonly="1">
+                        <kanban>
+                            <templates>
+                                <t t-name="card" class="flex-row">
+                                    <aside>
+                                        <field name="user_id" widget="many2one_avatar_user" invisible="not user_id" />
+                                        <span class="o_audit_system_avatar" invisible="user_id">
+                                            <i class="oi" data-icon="settings" />
+                                        </span>
+                                    </aside>
+                                    <main>
+                                        <div class="o_audit_entry_head">
+                                            <field name="user_id" class="fw-semibold text-truncate" invisible="not user_id" />
+                                            <field name="source" class="fw-semibold" invisible="user_id" />
+                                            <field name="create_date" class="ms-auto text-muted text-nowrap" />
+                                        </div>
+                                        <div class="text-muted">
+                                            <field name="action" />
+                                            ·
+                                            <field name="document_model" />
+                                        </div>
+                                        <field name="change_ids" widget="many2many_tags" />
+                                        <field name="note" class="text-muted" />
+                                    </main>
+                                </t>
+                            </templates>
+                        </kanban>
+                    </field>
+                </div>
             </form>
         </field>
     </record>

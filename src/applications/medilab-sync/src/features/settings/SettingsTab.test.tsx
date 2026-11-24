@@ -52,4 +52,22 @@ describe("SettingsTab and version display", () => {
     expect(html).toContain("Phiên bản ứng dụng: MediLab File Sync");
     expect(html).toContain("0.1.3");
   });
+
+  test("nhịp đồng bộ được gập lại và thời gian chờ tính bằng giây", () => {
+    const html = renderWithLocale(
+      <SettingsTab
+        settings={createMockSettings()}
+        busy={false}
+        onChange={() => {}}
+        onLocaleChange={() => {}}
+        onUpdateFound={() => {}}
+        onSubmit={(e) => e.preventDefault()}
+      />,
+      "en",
+    );
+    expect(html).toContain("<details");
+    expect(html).toContain("Wait before syncing starts (seconds)");
+    expect(html).toContain('value="1"');
+    expect(html).not.toContain('value="1000"');
+  });
 });

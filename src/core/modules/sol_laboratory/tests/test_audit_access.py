@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_ACTIONS_REPORT,
     MODEL_IR_ASSET,
     MODEL_IR_MAIL_SERVER,
+    MODEL_IR_SEQUENCE,
     MODEL_IR_UI_MENU,
     MODEL_IR_UI_VIEW,
     MODEL_JOB_ITEM,
@@ -88,9 +89,9 @@ class TestAuditAccess(AuditCase):
         # content, which the versions and uploads holding it describe. Failed sign-ins of laboratory files are counted,
         # not audited, as Odoo's log records them.
         # Users keep their personal data on their contact and get their access from their person's roles. Views,
-        # menus and reports change when modules are installed, accesses follow from permissions, groups from roles and
-        # permissions, and the mail server comes from the environment. Conversations and their members are Odoo's
-        # Discuss records, whose messages are not audited either.
+        # menus and reports change when modules are installed, sequences only number documents, accesses follow from
+        # permissions, groups from roles and permissions, and the mail server comes from the environment. Conversations
+        # and their members are Odoo's Discuss records, whose messages are not audited either.
         unaudited = {
             MODEL_AUDIT_ENTRY,
             MODEL_AUDIT_CHANGE,
@@ -118,6 +119,7 @@ class TestAuditAccess(AuditCase):
             MODEL_IR_ACTIONS_REPORT,
             MODEL_IR_ASSET,
             MODEL_IR_MAIL_SERVER,
+            MODEL_IR_SEQUENCE,
         }
 
         self.assertEqual(self.unaudited_documents("sol_laboratory"), unaudited)

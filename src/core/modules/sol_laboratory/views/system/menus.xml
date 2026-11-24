@@ -189,6 +189,11 @@
         sequence="5"
     />
 
+    <!-- Odoo's install requests show Apps to every regular user; only administrators install apps. -->
+    <record id="base.menu_management" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('base.group_system')])]" />
+    </record>
+
     <!-- Departments are Odoo's own menu in the Employees app. -->
     <menuitem id="menu_person" action="action_medilab_person" parent="hr.menu_hr_root" sequence="4" />
     <menuitem
@@ -236,7 +241,12 @@
         />
     </menuitem>
 
-    <menuitem id="menu_audit_root" name="Audit Trail" sequence="40">
+    <menuitem
+        id="menu_audit_root"
+        name="Audit Trail"
+        sequence="40"
+        groups="group_permission_audit_entry_read_all"
+    >
         <menuitem id="menu_audit_entry" action="action_medilab_audit_entry" sequence="10" />
         <menuitem id="menu_audit_report" action="action_medilab_audit_report" sequence="20" />
         <menuitem

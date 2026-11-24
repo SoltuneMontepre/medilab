@@ -135,6 +135,16 @@ export async function bindSharedFolder(payload: {
   return profiledInvoke<StatusDto>("bind_shared_folder", { args: payload });
 }
 
+/** Mở một thư mục đã đồng bộ trong trình quản lý tệp. */
+export async function openSyncFolder(folderId: number) {
+  return profiledInvoke<void>("open_sync_folder", { folderId });
+}
+
+/** Mở một tệp đã đồng bộ bằng chương trình mặc định của nó. */
+export async function openSyncFile(fileId: number) {
+  return profiledInvoke<void>("open_sync_file", { fileId });
+}
+
 /** Đặt lại một job lỗi để thử lại. */
 export async function retrySyncJob(jobId: number) {
   return profiledInvoke<StatusDto>("retry_sync_job", { jobId });

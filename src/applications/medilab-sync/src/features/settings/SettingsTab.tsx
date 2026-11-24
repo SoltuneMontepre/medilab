@@ -91,18 +91,20 @@ export function SettingsTab({
           <p className="mt-1 text-xs text-slate-500">{t("settings.odooHint")}</p>
         </label>
       </section>
-      <section className="space-y-4 border-t border-slate-200 pt-4">
-        <div>
-          <h2 className="font-semibold">{t("settings.section.timing")}</h2>
-          <p className="text-xs text-slate-500">{t("settings.section.timingHint")}</p>
-        </div>
+      <details className="space-y-4 border-t border-slate-200 pt-4">
+        <summary className="cursor-pointer font-semibold">{t("settings.section.timing")}</summary>
+        <p className="text-xs text-slate-500">{t("settings.section.timingHint")}</p>
         <label className="block text-sm">
           <span className="font-medium">{t("settings.debounce")}</span>
           <input
             type="number"
+            min="0"
+            step="0.1"
             className="mt-1 w-full rounded border px-3 py-2"
-            value={settings.debounce_ms}
-            onChange={(event) => onChange(withSettingsPatch(settings, { debounce_ms: Number(event.target.value) }))}
+            value={settings.debounce_ms / 1000}
+            onChange={(event) =>
+              onChange(withSettingsPatch(settings, { debounce_ms: Math.round(Number(event.target.value) * 1000) }))
+            }
           />
           <p className="mt-1 text-xs text-slate-500">{t("settings.debounceHint")}</p>
         </label>
@@ -128,7 +130,7 @@ export function SettingsTab({
           />
           <p className="mt-1 text-xs text-slate-500">{t("settings.pollHint")}</p>
         </label>
-      </section>
+      </details>
       <p className="border-t border-slate-200 pt-4 text-sm text-slate-600">
         {t("settings.device", { version: appVersion ? `${appVersion}` : "" })}
       </p>

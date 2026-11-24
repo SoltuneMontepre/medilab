@@ -89,7 +89,7 @@ class Sample(models.Model, SampleBase):
     _audit_children = ("test_ids", "handover_ids", "expected_sampling_ids", "return_ids")
 
     if not TYPE_CHECKING:
-        # Unique laboratory code (mã PTN) from a sequence, such as PTN.2026.0001; the only name testers see.
+        # Unique laboratory code (mã PTN) from a sequence, such as PTN.26.11.0001; the only name testers see.
         code = fields.Char(string="Lab Code", required=True, copy=False, readonly=True)
         # The test request the sample belongs to.
         request_id = fields.Many2one(
