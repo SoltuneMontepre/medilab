@@ -143,6 +143,7 @@ class TestRequestSimulation(models.Model, TestRequestSimulationBase):
         rooms = bookings._room_steps(way)
         sample = test.sample_id if test else self.env[MODEL_SAMPLE].browse()
         best = None
+        best_end = None
         for person in people:
             for machine, minutes in options:
                 length = _slot_length(minutes)
@@ -158,8 +159,9 @@ class TestRequestSimulation(models.Model, TestRequestSimulationBase):
                     sample=sample,
                     planned=planned,
                 )
-                if start and (best is None or start + length < best[1] + best[2]):
+                if start and (best_end is None or start + length < best_end):
                     best = (person, start, length, machine)
+                    best_end = start + length
         if not best:
             return bookings.browse()
         person, start, length, machine = best
