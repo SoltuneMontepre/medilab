@@ -360,7 +360,7 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
             self.env[MODEL_SALE_ORDER].browse(vals["order_id"])._check_content_freeze()
         if "sample_type_id" in vals and "sample_id" not in vals:
             mismatched = self.filtered(
-                lambda line: line.sample_id and line.sample_id.sample_type_id.id != vals["sample_type_id"]
+                lambda line: bool(line.sample_id and line.sample_id.sample_type_id.id != vals["sample_type_id"])
             )
             if mismatched:
                 super(SaleOrderLine, cast("SaleOrderLine", mismatched)).write({"sample_id": False})
