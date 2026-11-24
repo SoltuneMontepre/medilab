@@ -5,7 +5,7 @@ from psycopg2 import IntegrityError
 
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
-from odoo.tests import tagged
+from odoo.tests import Form, tagged
 from odoo.tools import mute_logger
 
 from .scheduling_case import MONDAY, SchedulingCase
@@ -84,6 +84,16 @@ class TestMachineScheduling(SchedulingCase):
 
         with self.assertRaisesRegex(UserError, f"{self.tester.display_name} is not free for"):
             second.with_user(self.head.user_id).write({"starts_at": first.starts_at})
+
+    def test_booking_form_updates_the_end_when_its_start_changes(self):
+        self.testing_task(self.test, self.tester)
+        booking = self.schedule(self.test, self.tester)
+        later = MONDAY + timedelta(hours=2)
+        form = Form(booking)
+
+        form.starts_at = later
+
+        self.assertEqual(form.ends_at, later + 3 * SLOT)
 
     def test_a_machine_under_repair_gets_no_bookings_and_its_bookings_move_to_another(self):
         self.testing_task(self.test, self.tester)
