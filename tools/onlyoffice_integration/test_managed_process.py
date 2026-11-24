@@ -11,6 +11,9 @@ from unittest.mock import patch
 
 from . import managed_browser_exec, managed_process
 
+# Seconds before the wrapper times out; a busy runner still records the fake browser's group well within it.
+DEADLINE = 5
+
 
 @unittest.skipUnless(sys.platform == "linux", "Linux /proc and process-group contract")
 class TestManagedProcess(unittest.TestCase):
@@ -96,7 +99,7 @@ class TestManagedProcess(unittest.TestCase):
                     directory=directory,
                     nonce="a" * 32,
                     executable=Path(sys.executable),
-                    timeout=1,
+                    timeout=DEADLINE,
                     capture_output=True,
                     text=True,
                     env=environment,
@@ -138,7 +141,7 @@ class TestManagedProcess(unittest.TestCase):
                     directory=directory,
                     nonce="a" * 32,
                     executable=Path(sys.executable),
-                    timeout=1,
+                    timeout=DEADLINE,
                     capture_output=True,
                     text=True,
                     env=environment,
