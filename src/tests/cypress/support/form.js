@@ -38,7 +38,7 @@ export function choose(field, label) {
 }
 
 // Filters the shown list by a search field, so a record past the first page is found too.
-export function search(text, { grouped = false, field } = {}) {
+export function search(text, { grouped = false, field, facet = true } = {}) {
   cy.get(".o_searchview_input").type(text);
   // Enter applies the first suggestion only once the suggestions are shown.
   cy.get(".o_searchview_autocomplete").should("contain", text);
@@ -51,16 +51,15 @@ export function search(text, { grouped = false, field } = {}) {
   } else {
     cy.get(".o_searchview_input").type("{enter}");
   }
-  cy.contains(".o_searchview_facet", text);
   cy.wait("@filtered");
+  if (facet) cy.contains(".o_searchview_facet", text);
 }
 
 // Opens a back-office menu as a user does: the app from the apps menu, then each section and entry of the menu bar,
 // given by their external IDs, so it works in every language.
 export function openMenu(app, ...entries) {
-  // An entry with a link has opened once the address is its link, /odoo/action-<id>, or the action path Odoo rewrites
-  // to, or once its form shows in a dialog, as the address stays. The navbar renders data-section as the menu id;
-  // actionID and actionPath come from that menu. A section only opens its list of entries.
+  // An entry with a link has opened once the address is its link, or once its form shows in a dialog, as the address
+  // stays; a section only opens its list of entries.
   const click = (selector) =>
     cy
       .get(selector)
@@ -76,15 +75,11 @@ export function openMenu(app, ...entries) {
             .then((menus) => {
               const menu = menus?.[menuId];
               const opened = [path];
-              if (menu?.actionID) {
-                opened.push(`/odoo/action-${menu.actionID}`);
-              }
-              if (menu?.actionPath) {
-                opened.push(`/odoo/${menu.actionPath}`);
-              }
+              if (menu?.actionID) opened.push(`/odoo/action-${menu.actionID}`);
+              if (menu?.actionPath) opened.push(`/odoo/${menu.actionPath}`);
               cy.window({ log: false }).should((win) => {
-                if (!win.document.querySelector(".modal .o_form_view")) {
-                  expect(win.location.pathname).to.be.oneOf([...new Set(opened)]);
+                if (!opened.includes(win.location.pathname)) {
+                  expect(Cypress.$(".modal:visible"), "the menu action dialog").to.have.length.greaterThan(0);
                 }
               });
             });

@@ -17,4 +17,4 @@ class OnboardingSource(models.Model, OnboardingSourceBase):
     @api.model
     def _seed_onboarding_demo(self):
         """Turn every source off, so a demo never reaches a source. Safe to run again."""
-        self.sudo().with_context(active_test=False).search([]).enabled = False
+        self.sudo().with_context(active_test=False).search([("enabled", "=", True)]).enabled = False

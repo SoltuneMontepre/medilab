@@ -1,10 +1,10 @@
-import type { Task, TaskDay } from "../api";
+import type { Me, Task, TaskDay } from "../api";
 
-// What the home of demo.tester reads: the person, then their day.
+// What the app of demo.tester reads: the person, the installed modules and their day.
 export const PERSON = "Nguyễn Văn An";
 export const GREETING = `Xin chào, ${PERSON}`;
 
-type Can = { create_tasks: boolean; assign_tasks: boolean; take_support_requests?: boolean };
+type Can = Partial<Me["can"]>;
 
 export function me(can?: Can) {
   return {
@@ -14,7 +14,14 @@ export function me(can?: Can) {
       login: "demo.tester",
       department: "Hoá",
       roles: ["Tester"],
-      can: can ?? { create_tasks: false, assign_tasks: false },
+      can: {
+        create_tasks: false,
+        assign_tasks: false,
+        read_handover_records: false,
+        scan_samples: false,
+        sign_results: false,
+        ...can,
+      },
     },
   };
 }
@@ -65,7 +72,12 @@ export function modules(...names: string[]) {
   return { status: 200, body: { modules: ["sol_laboratory", ...names] } };
 }
 
-/** The answers the home reads once it opens. */
-export function home(can?: Can, installed = modules()) {
-  return [me(can), day(), installed] as const;
+/** The answers the home reads once it opens: the person's day. */
+export function home(values: Partial<TaskDay> = {}) {
+  return [day(values)] as const;
+}
+
+/** The answers the navigation reads once the phone is signed in: the person and the installed modules. */
+export function person(can?: Can, installed = modules()) {
+  return [me(can), installed] as const;
 }

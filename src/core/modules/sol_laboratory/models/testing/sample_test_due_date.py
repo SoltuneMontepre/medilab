@@ -55,7 +55,7 @@ class SampleTestDueDate(models.Model, SampleTestDueDateBase):
             raise UserError(self.env._("Change the due date of a sample test with Change Due Date."))
         return super().write(vals)
 
-    @api.depends("sample_id.request_id.expected_date", "due_date_reason")
+    @api.depends("sample_id.request_id.committed_date", "due_date_reason")
     def _compute_due_date(self):
         # A due date the head changed stays until the head clears it.
         for test, due_date in self.filtered(lambda test: not test.due_date_reason)._automatic_due_dates().items():
@@ -68,7 +68,7 @@ class SampleTestDueDate(models.Model, SampleTestDueDateBase):
         margin = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("safety_margin_days")
         due_dates = {}
         for test in self:
-            expected = test.sudo().sample_id.request_id.expected_date
+            expected = test.sudo().sample_id.request_id.committed_date
             due_dates[test] = expected and self._end_of_day(expected - timedelta(days=margin))
         return due_dates
 
@@ -79,7 +79,7 @@ class SampleTestDueDate(models.Model, SampleTestDueDateBase):
         zone = ZoneInfo(self.env.company.tz or "UTC")
         return datetime.combine(day, END_OF_DAY, tzinfo=zone).astimezone(UTC).replace(tzinfo=None)
 
-    @api.depends("due_date", "due_date_reason", "sample_id.request_id.expected_date")
+    @api.depends("due_date", "due_date_reason", "sample_id.request_id.committed_date")
     def _compute_due_date_conflict(self):
         automatic_due_dates = self._automatic_due_dates()
         for test in self:

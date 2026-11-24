@@ -155,12 +155,18 @@ describe("SF-05 Machine calibration and unavailability", () => {
       });
 
       addService("Calibration", { date: inDays(0), due: inDays(365) });
+      callAs(TESTER, "medilab.sample.test", "read", [[test], ["outsourcing_suggested", "recommended_start"]]).then(
+        ([read]) => {
+          expect(read.outsourcing_suggested).to.equal(false);
+          expect(read.recommended_start).to.be.a("string");
+        },
+      );
       cy.signInAs("head_of_department");
       openTest(test);
-      cy.get(".o_form_view .alert.alert-warning").should("not.exist");
-      cy.intercept("POST", "**/medilab.sample.test/action_approve_booking").as("scheduled");
+      cy.contains(".o_form_view .alert.alert-warning", NO_MACHINE).should("not.exist");
+      cy.intercept("POST", "**/medilab.sample.test/action_approve_booking").as("approved");
       cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("be.visible").and("be.enabled").click();
-      cy.wait("@scheduled").its("response.body.error").should("not.exist");
+      cy.wait("@approved").its("response.body.error").should("not.exist");
       bookingsOf(fixture).then(([booking]) => {
         expect(booking.status).to.equal("scheduled");
         expect(booking.machine_id[0]).to.equal(fixture.machine);
@@ -255,7 +261,7 @@ describe("SF-05 Machine calibration and unavailability", () => {
           });
         });
 
-        // The maintenance falls overdue: the plan's proposals cannot be accepted.
+        // The maintenance falls overdue: the plan's proposals cannot be approved.
         setMaintenanceInterval(30);
         addService("Maintenance", { date: inDays(-100) });
         callRefused("medilab.sample.test", "action_approve_booking", [[fixture.tests[0]]]).should("contain", NO_MACHINE);

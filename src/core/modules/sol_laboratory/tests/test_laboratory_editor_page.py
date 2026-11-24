@@ -88,6 +88,12 @@ class TestLaboratoryEditorPage(HttpCase, LaboratoryEditingCase, LaboratorySample
         self.assertRegex(version, r"\A[0-9a-f]{12}\Z")
         self.assertEqual(page.xpath("//script[contains(@src, 'editor.js')]/@src"), [f"{ASSETS}editor.js?v={version}"])
         self.assertEqual(page.xpath("//link[contains(@href, 'editor.css')]/@href"), [f"{ASSETS}editor.css?v={version}"])
+        origin = os.environ[PUBLIC_URL_VARIABLE]
+        self.assertEqual(page.xpath("//link[@rel='preconnect']/@href"), [origin])
+        self.assertEqual(
+            page.xpath("//link[@rel='preload' and @as='script']/@href"),
+            [origin + "/web-apps/apps/api/documents/api.js"],
+        )
 
     def test_the_editor_follows_the_theme_of_the_back_office(self):
         for scheme, theme in (("light", "theme-light"), ("dark", "theme-dark")):

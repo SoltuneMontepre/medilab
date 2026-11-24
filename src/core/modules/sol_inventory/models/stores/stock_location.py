@@ -102,23 +102,26 @@ class StockLocation(models.Model, StockLocationBase):
         return self.env[MODEL_ANALYTIC_ACCOUNT].sudo().search(domain)
 
     def unlink(self):
-        # Odoo deletes the locations inside a location along with it; they are deleted or moved first. Odoo finds
-        # them with a search that skips archived ones, so an archived location is deleted with archived ones included.
+        # Check the requested locations before Odoo expands the recordset to include their descendants.
         if not self.env.context.get(MODULE_UNINSTALL_FLAG):
-            inside = (
-                self.sudo()
-                .with_context(active_test=False)
-                .search(Domain("location_id", "in", self.ids) & Domain("id", "not in", self.ids))
-            )
-            if inside:
-                raise UserError(
-                    self.env._(
-                        "%(locations)s cannot be deleted while these locations are inside: %(inside)s.",
-                        locations=format_list(self.env, inside.location_id.mapped("display_name")),
-                        inside=format_list(self.env, inside.mapped("display_name")),
-                    )
-                )
+            self._check_no_locations_inside()
+        # Odoo's recursive deletion must find archived locations as well.
         return super(StockLocation, self.with_context(active_test=False)).unlink()
+
+    def _check_no_locations_inside(self):
+        inside = (
+            self.sudo()
+            .with_context(active_test=False)
+            .search(Domain("location_id", "in", self.ids) & Domain("id", "not in", self.ids))
+        )
+        if inside:
+            raise UserError(
+                self.env._(
+                    "%(locations)s cannot be deleted while these locations are inside: %(inside)s.",
+                    locations=format_list(self.env, inside.location_id.mapped("display_name")),
+                    inside=format_list(self.env, inside.mapped("display_name")),
+                )
+            )
 
     def _referrers_in_use(self, referrers):
         # Odoo's moves and transfers are finished once done or cancelled, and its quants hold stock only while their

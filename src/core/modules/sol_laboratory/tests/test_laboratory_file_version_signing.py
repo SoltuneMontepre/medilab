@@ -1,5 +1,5 @@
 from odoo.exceptions import AccessError, UserError
-from odoo.fields import Command
+from odoo.fields import Command, Datetime
 from odoo.tests import tagged
 
 from .audit_case import AuditLookup
@@ -12,7 +12,17 @@ from odoo.addons.sol_laboratory.constants.approvals import (
     STATE_REJECTED,
 )
 from odoo.addons.sol_laboratory.constants.laboratory_files import NOT_FOUND
-from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FILE_VERSION, MODEL_LABORATORY_FOLDER
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_DEPARTMENT,
+    MODEL_LABORATORY_FILE_VERSION,
+    MODEL_LABORATORY_FOLDER,
+    MODEL_PARAMETER_METHOD,
+    MODEL_SAMPLE_TEST,
+    MODEL_TASK,
+    MODEL_TEST_REPORT,
+    MODEL_TESTING_METHOD,
+)
+from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
@@ -98,6 +108,75 @@ class TestLaboratoryFileVersionSigning(AuditLookup, LaboratorySigningCase):
                 with self.assertRaises((UserError, AccessError)):
                     self.sign(version, person)
         self.assertFalse(self.signatures(version))
+
+    def test_the_saver_may_reject_but_may_not_sign_their_version(self):
+        version = self.result_version()
+        self.saver.permission_ids |= self.permissions("laboratory_file_version.sign.all")
+        self.saver.role_ids |= self.signer_role
+
+        self.assertFalse(self.as_person(version, self.saver).approval_can_sign)
+        with self.assertRaises(UserError):
+            self.sign(version, self.saver)
+
+        self.as_person(version, self.saver).action_reject("The result needs correction.")
+
+        self.assertEqual(self.signatures(version).decision, DECISION_REJECTED)
+
+    def test_same_department_signer_may_belong_to_any_department_that_tested_the_sample(self):
+        self.chain.level_ids.same_department = True
+        other_department = self.env[MODEL_DEPARTMENT].create({"name": "Microbiology"})
+        second_method = self.env[MODEL_TESTING_METHOD].create(
+            {"code": "SMEWW 3113B:2017", "name": "Lead by GF-AAS", "field_id": self.testing_field.id}
+        )
+        other_parameter = self.create_parameter("Copper", self.group)
+        other_way = self.env[MODEL_PARAMETER_METHOD].create(
+            {"parameter_id": other_parameter.id, "method_id": second_method.id, "department_id": other_department.id}
+        )
+        self.offer(other_parameter, self.sample_type, other_way)
+        other_test = self.env[MODEL_SAMPLE_TEST].create(
+            {"sample_id": self.sample.id, "parameter_id": other_parameter.id, "parameter_method_id": other_way.id}
+        )
+        self.env[MODEL_TASK]._create_for_event(
+            SAMPLE_RECEIVED_TRIGGER, document=self.sample.test_ids[0], department=self.department
+        )
+        self.env[MODEL_TASK]._create_for_event(
+            SAMPLE_RECEIVED_TRIGGER, document=other_test, department=other_department
+        )
+        other_head = self.create_person(
+            "Do Thi Giang", other_department, "giang.do", permissions=SIGNER_PERMISSIONS, roles=self.signer_role
+        )
+        unauthorized_department = self.env[MODEL_DEPARTMENT].create({"name": "Chemistry"})
+        unauthorized = self.create_person(
+            "Nguyen Van Long",
+            unauthorized_department,
+            "long.nguyen",
+            permissions=SIGNER_PERMISSIONS,
+            roles=self.signer_role,
+        )
+        self.results.member_ids = [
+            Command.create({"user_id": other_head.user_id.id}),
+            Command.create({"user_id": unauthorized.user_id.id}),
+        ]
+        version = self.result_version()
+
+        self.assertTrue(self.as_person(version, other_head).approval_can_sign)
+        self.assertFalse(self.as_person(version, unauthorized).approval_can_sign)
+        with self.assertRaises(UserError):
+            self.sign(version, unauthorized)
+        self.sign(version, other_head)
+
+    def test_withdrawal_is_refused_once_a_test_report_has_been_issued(self):
+        version = self.result_version()
+        self.sign(version)
+        report = self.env[MODEL_TEST_REPORT].sudo().create(
+            {"request_id": self.request.id, "language": self.request.report_language}
+        )
+        report.write({"issued_at": Datetime.now()})
+
+        self.assertFalse(self.as_person(version, self.head).approval_can_withdraw)
+        with self.assertRaises(UserError):
+            self.as_person(version, self.head).action_withdraw()
+        self.assertFalse(self.signatures(version).withdrawn_at)
 
     def test_rejecting_a_version_needs_a_reason(self):
         version = self.result_version()

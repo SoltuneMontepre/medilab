@@ -4,7 +4,8 @@ import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import type { Conclusion, Result } from "../../api";
 import type { MessageKey } from "../../i18n";
 import { useT } from "../../locale";
-import { colors, styles as shared } from "../../styles";
+import { styles as shared } from "../../styles";
+import { colors, fontSize, radius, space } from "../../theme";
 import { Button } from "../shared/Button";
 import { parseNumber, typedNumber } from "./resultNumber";
 
@@ -86,43 +87,49 @@ export function ResultForm({
   }
 
   return (
-    <View style={shared.section}>
+    <View style={styles.form}>
       <Choices options={KINDS} chosen={kind} onChoose={setKind} />
       {kind === "number" ? (
-        <TextInput
-          accessibilityLabel={t("result.value", { unit })}
-          testID="result-value"
-          placeholder={t("result.value", { unit })}
-          keyboardType="decimal-pad"
-          style={shared.input}
-          value={number}
-          onChangeText={setNumber}
-        />
+        <View style={styles.field}>
+          <Text style={shared.label}>{t("result.value", { unit })}</Text>
+          <TextInput
+            accessibilityLabel={t("result.value", { unit })}
+            testID="result-value"
+            placeholder="0,000"
+            placeholderTextColor={colors.textMuted}
+            keyboardType="decimal-pad"
+            style={[shared.input, styles.number]}
+            value={number}
+            onChangeText={setNumber}
+          />
+        </View>
       ) : (
-        <TextInput
-          accessibilityLabel={t("result.textValue")}
-          placeholder={t("result.textHint")}
-          style={shared.input}
-          value={text}
-          onChangeText={setText}
-        />
+        <View style={styles.field}>
+          <Text style={shared.label}>{t("result.textValue")}</Text>
+          <TextInput
+            accessibilityLabel={t("result.textValue")}
+            placeholder={t("result.textHint")}
+            placeholderTextColor={colors.textMuted}
+            style={shared.input}
+            value={text}
+            onChangeText={setText}
+          />
+        </View>
       )}
       {comparisonRequested && (
-        <>
+        <View style={styles.field}>
           <Text style={shared.label}>{t("result.conclusion")}</Text>
           {result?.limit_missing && <Text style={shared.detail}>{t("result.limitMissing")}</Text>}
           <Choices options={CONCLUSIONS} chosen={conclusion} onChoose={setConclusion} />
-        </>
+        </View>
       )}
       {invalid && (
         <Text accessibilityRole="alert" style={shared.error}>
           {invalid}
         </Text>
       )}
-      <Button label={t("result.save")} onPress={submit} primary disabled={busy} testID="result-save" />
-      {onCancel && (
-        <Button label={t("result.cancel")} onPress={onCancel} />
-      )}
+      <Button label={t("result.save")} icon="content-save-outline" onPress={submit} tone="primary" disabled={busy} testID="result-save" />
+      {onCancel && <Button label={t("result.cancel")} onPress={onCancel} />}
     </View>
   );
 }
@@ -135,24 +142,40 @@ function Choices<T extends string>({
   const t = useT();
   return (
     <View style={styles.choices} accessibilityRole="radiogroup">
-      {options.map(({ value, label }) => (
-        <Pressable
-          key={value}
-          accessibilityRole="radio"
-          accessibilityState={{ checked: chosen === value }}
-          style={[styles.choice, chosen === value && styles.chosen]}
-          testID={`choice-${value}`}
-          onPress={() => onChoose(value)}
-        >
-          <Text style={shared.label}>{t(label)}</Text>
-        </Pressable>
-      ))}
+      {options.map(({ value, label }) => {
+        const selected = chosen === value;
+        return (
+          <Pressable
+            key={value}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: selected }}
+            testID={`choice-${value}`}
+            style={[styles.choice, selected && styles.chosen]}
+            onPress={() => onChoose(value)}
+          >
+            <Text style={[styles.choiceText, selected && styles.chosenText]}>{t(label)}</Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  choices: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  choice: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 },
-  chosen: { borderColor: colors.primary, borderWidth: 2 },
+  form: { gap: space.lg },
+  field: { gap: 6 },
+  number: { fontSize: 22, fontWeight: "600" },
+  choices: { flexDirection: "row", flexWrap: "wrap", gap: space.sm },
+  choice: {
+    minHeight: 40,
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.pill,
+    paddingHorizontal: space.lg,
+    backgroundColor: colors.surface,
+  },
+  chosen: { borderColor: colors.primary, backgroundColor: colors.primary },
+  choiceText: { fontSize: fontSize.base, fontWeight: "500", color: colors.textSecondary },
+  chosenText: { color: colors.textOnPrimary, fontWeight: "600" },
 });

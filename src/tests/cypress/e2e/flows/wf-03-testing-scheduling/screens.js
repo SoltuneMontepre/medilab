@@ -31,7 +31,7 @@ export function cancellation(test) {
 }
 
 // The date and time on a user's clock for an Odoo UTC value, as the calendar labels its days and slots.
-function wallClock(value, zone) {
+export function wallClock(value, zone) {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: zone,
     year: "numeric",
@@ -52,23 +52,38 @@ const minutesOf = (time) => {
   return hour * 60 + minute;
 };
 
+const SNAP_MINUTES = 15;
+
 // The calendar draws a lane every half hour and snaps a drop to the quarter hour, so a time between two lanes is not
-// a lane of its own. Yields the lane a time falls in and how far into it the time lies, from 0 to 1.
-function laneOf(time) {
+// a lane of its own. Yields the lane a time, in minutes, falls in and how far into it the time lies, from 0 to 1.
+function laneOf(wanted) {
   const lanes = Cypress.$(".fc-timegrid-slot-lane[data-time]").toArray();
   const starts = lanes.map((lane) => minutesOf(lane.dataset.time));
-  const wanted = minutesOf(time);
   const index = starts.findLastIndex((start) => start <= wanted);
-  expect(index, `the calendar lane of ${time}`).to.be.at.least(0);
+  expect(index, `the calendar lane of minute ${wanted}`).to.be.at.least(0);
   const length = starts[1] - starts[0];
   return { lane: lanes[index], fraction: (wanted - starts[index]) / length };
 }
 
 // The height on the screen of a time in the calendar.
-function timeTop(time) {
-  const { lane, fraction } = laneOf(time);
+function timeTop(minutes) {
+  const { lane, fraction } = laneOf(minutes);
   const box = lane.getBoundingClientRect();
   return box.top + fraction * box.height;
+}
+
+// Moves the dragged booking's preview to a time of a day: the pointer goes by the distance from the preview to the
+// time, as often as the preview, snapped to the quarter hour, is not there yet.
+function moveDragTo(point, x, y, date, time, tries = 3) {
+  cy.document({ log: false }).trigger("mousemove", { ...point(x, y), scrollBehavior: false });
+  cy.document({ log: false }).then((document) => {
+    const mirror = document.querySelector(`.fc-timegrid-col[data-date="${date}"] .fc-event-mirror`);
+    expect(mirror, `the preview of the drag on ${date}`).to.exist;
+    const gap = timeTop(minutesOf(time)) - mirror.getBoundingClientRect().top;
+    if (Math.abs(gap) < 1) return cy.document({ log: false }).trigger("mouseup", { ...point(x, y), scrollBehavior: false });
+    expect(tries, `the preview of the drag at ${time} on ${date}`).to.be.above(1);
+    return moveDragTo(point, x, y + gap, date, time, tries - 1);
+  });
 }
 
 // Opens the Machine Schedule calendar on the week of a booking and drags the booking from its start to the slot.
@@ -87,7 +102,8 @@ export function dragBookingToSlot(booking, slot, zone) {
   // The booking's slot goes to the upper part of the calendar's own scroller, away from the edges where a drag scrolls it,
   // as far as the scroller goes: a slot late in the day stays lower.
   const lanes = ".fc-timegrid-slot-lane[data-time]";
-  const offsetInScroller = ($lanes) => timeTop(from.time) - $lanes.closest(".fc-scroller")[0].getBoundingClientRect().top;
+  const offsetInScroller = ($lanes) =>
+    timeTop(minutesOf(from.time) + SNAP_MINUTES / 2) - $lanes.closest(".fc-scroller")[0].getBoundingClientRect().top;
   const scrolledTop = ($lanes) => {
     const scroller = $lanes.closest(".fc-scroller")[0];
     const wanted = scroller.scrollTop + offsetInScroller($lanes) - SCROLLED_SLOT_OFFSET;
@@ -105,11 +121,16 @@ export function dragBookingToSlot(booking, slot, zone) {
       expect($column, `the day of the slot, ${to.date}, in the booking's week`).to.have.length(1);
       const column = $column[0].getBoundingClientRect();
       const point = (clientX, clientY) => ({ button: 0, clientX, clientY, pageX: clientX + window.scrollX, pageY: clientY + window.scrollY });
-      const grabbed = point(eventBox.left + eventBox.width / 2, eventBox.top + eventBox.height / 2);
-      const dropped = point(column.left + column.width / 2, grabbed.clientY + timeTop(to.time) - timeTop(from.time));
-      cy.wrap($event).trigger("mousedown", { ...grabbed, scrollBehavior: false });
+      // FullCalendar can cover an event's DOM hit target with a neighboring event, so keep the booking coordinates for this synthetic drag.
+      const grabbed = point(eventBox.left + eventBox.width / 2, timeTop(minutesOf(from.time) + SNAP_MINUTES / 2));
+      expect(grabbed.clientY, "the grab point inside the booking").to.be.within(eventBox.top, eventBox.bottom);
+      cy.wrap($event).trigger("mousedown", grabbed.clientX - eventBox.left, grabbed.clientY - eventBox.top, {
+        ...grabbed,
+        force: true,
+        scrollBehavior: false,
+      });
       cy.document().trigger("mousemove", { ...point(grabbed.clientX + 1, grabbed.clientY + 1), scrollBehavior: false });
-      cy.document().trigger("mousemove", { ...dropped, scrollBehavior: false });
-      cy.document().trigger("mouseup", { ...dropped, scrollBehavior: false });
+      const y = grabbed.clientY + timeTop(minutesOf(to.time)) - timeTop(minutesOf(from.time));
+      moveDragTo(point, column.left + column.width / 2, y, to.date, to.time);
     });
 }

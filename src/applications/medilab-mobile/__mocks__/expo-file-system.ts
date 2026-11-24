@@ -1,4 +1,4 @@
-import { memoryFiles } from "../src/testing/memoryFiles";
+import { memoryDownloads, memoryFiles } from "../src/testing/memoryFiles";
 
 type Place = string | File | Directory;
 
@@ -22,6 +22,20 @@ export class File {
     return memoryFiles.has(this.uri);
   }
 
+  get contentUri(): string {
+    return this.uri.replace("file://", "content://");
+  }
+
+  // Downloads what the address answers in the tests, failing as a phone without a connection does for any other.
+  static async downloadFileAsync(url: string, destination: File): Promise<File> {
+    const content = memoryDownloads.get(url);
+    if (content === undefined) {
+      throw new Error(`Nothing to download at ${url}.`);
+    }
+    memoryFiles.set(destination.uri, content);
+    return destination;
+  }
+
   create(): void {
     memoryFiles.set(this.uri, "");
   }
@@ -32,6 +46,10 @@ export class File {
 
   async text(): Promise<string> {
     return memoryFiles.get(this.uri) ?? "";
+  }
+
+  async bytes(): Promise<Uint8Array<ArrayBuffer>> {
+    return new TextEncoder().encode(memoryFiles.get(this.uri) ?? "");
   }
 
   async base64(): Promise<string> {
@@ -69,4 +87,4 @@ export class Directory {
   }
 }
 
-export const Paths = { document: new Directory("file:///documents") };
+export const Paths = { document: new Directory("file:///documents"), cache: new Directory("file:///cache") };

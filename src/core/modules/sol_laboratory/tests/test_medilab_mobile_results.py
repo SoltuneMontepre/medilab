@@ -37,8 +37,8 @@ class TestMedilabMobileResults(SanityCheckCase, PhoneCalls):
             headers=headers,
         )
 
-    def signed_on_phone(self, person, result_id, body=CONFIRMED):
-        return self.on_phone(person, "POST", f"/results/{result_id}/sign", body)
+    def signed_on_phone(self, person, result_id, body=None):
+        return self.on_phone(person, "POST", f"/results/{result_id}/sign", body if body is not None else CONFIRMED)
 
     # The sample test
 
@@ -191,6 +191,13 @@ class TestMedilabMobileResults(SanityCheckCase, PhoneCalls):
         self.assertApiRefused(ACTION_REFUSED, self.signed_on_phone(self.other_tester, result["id"]))
         path = f"/results/{result['id']}/reject"
         self.assertApiRefused(ACTION_REFUSED, self.on_phone(self.other_tester, "POST", path, {"reason": "Too high."}))
+
+    def test_only_a_person_who_signs_after_the_tester_is_offered_the_results_to_sign(self):
+        def can_sign(person):
+            return self.answered(self.on_phone(person, "GET", "/me"))["can"]["sign_results"]
+
+        self.assertTrue(can_sign(self.head))
+        self.assertFalse(can_sign(self.tester))
 
     def test_a_head_approves_their_own_result_on_the_phone(self):
         self.take_task(self.head)

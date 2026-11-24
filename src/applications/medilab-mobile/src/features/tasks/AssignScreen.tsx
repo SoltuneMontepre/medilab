@@ -1,14 +1,19 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 
 import { ApiError, type TaskDetail } from "../../api";
 import { failed, useLoad, type Load } from "../../load";
 import { useT } from "../../locale";
 import { useSession } from "../../session";
 import { styles as shared } from "../../styles";
-import { Unreachable } from "../connection/Unreachable";
+import { ActionProblem } from "../connection/ActionProblem";
+import { LoadNotice } from "../connection/LoadNotice";
+import { ActionBar } from "../shared/ActionBar";
+import { RecordHead } from "../shared/RecordHead";
+import { Screen } from "../shared/Screen";
+import { Sheet } from "../shared/Sheet";
+import { Fact } from "./TaskRow";
 import { AssigneePicker, type Assignee } from "./AssigneePicker";
 
 /** Assigns a task to a person or a department's queue, as the web's Assign does: moving it away from its person or
@@ -52,55 +57,58 @@ export function AssignScreen() {
     }
   }
 
+  const task = load.state === "ready" ? load.value : null;
   return (
-    <SafeAreaView style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={shared.title}>{t("assign.title")}</Text>
-        {load.state === "loading" && <ActivityIndicator accessibilityLabel={t("loading")} />}
-        {load.state === "unreachable" && <Unreachable onRetry={reload} />}
-        {load.state === "gone" && <Text style={shared.error}>{t("task.gone")}</Text>}
-        {load.state === "refused" && <Text style={shared.error}>{load.message}</Text>}
-        {load.state === "ready" && (
-          <>
-            <Text style={shared.label}>{load.value.name}</Text>
-            <Text style={shared.detail}>
-              {t("assign.current", { who: load.value.assignee || load.value.department || "-" })}
-            </Text>
+    <Screen
+      title={t("assign.title")}
+      footer={
+        task && (
+          <ActionBar
+            actions={[
+              {
+                key: "assign",
+                label: t("assign.submit"),
+                tone: "primary",
+                icon: "account-arrow-right-outline",
+                disabled: !chosen || busy,
+                testID: "assign-submit",
+                onPress: assign,
+              },
+            ]}
+          >
+            <ActionProblem problem={problem} gone={t("task.gone")} onRetry={assign} />
+          </ActionBar>
+        )
+      }
+    >
+      <LoadNotice load={load} gone={t("task.gone")} onRetry={reload} />
+      {task && (
+        <>
+          <RecordHead title={task.name}>
+            <Fact icon="account-outline" text={t("assign.current", { who: task.assignee || task.department || "-" })} />
+          </RecordHead>
+          <Sheet>
             <AssigneePicker chosen={chosen} onChoose={setChosen} departments />
-            <TextInput
-              accessibilityLabel={t("assign.reason")}
-              placeholder={t("assign.reason")}
-              style={[shared.input, styles.reason]}
-              value={reason}
-              onChangeText={setReason}
-              multiline
-            />
-            <Text style={shared.detail}>{t("assign.reasonHint")}</Text>
-            {problem?.state === "unreachable" && <Unreachable onRetry={assign} />}
-            {problem?.state === "refused" && (
-              <Text accessibilityRole="alert" style={shared.error}>
-                {problem.message}
-              </Text>
-            )}
-            {problem?.state === "gone" && <Text style={shared.error}>{t("task.gone")}</Text>}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityState={{ disabled: !chosen || busy }}
-              disabled={!chosen || busy}
-              style={shared.primaryButton}
-              onPress={assign}
-            >
-              <Text style={shared.primaryButtonText}>{t("assign.submit")}</Text>
-            </Pressable>
-          </>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+          </Sheet>
+          <Sheet>
+            <View style={styles.field}>
+              <Text style={shared.label}>{t("assign.reason")}</Text>
+              <TextInput
+                accessibilityLabel={t("assign.reason")}
+                style={[shared.input, shared.multiline]}
+                value={reason}
+                onChangeText={setReason}
+                multiline
+              />
+              <Text style={shared.detail}>{t("assign.reasonHint")}</Text>
+            </View>
+          </Sheet>
+        </>
+      )}
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1 },
-  content: { padding: 24, gap: 12 },
-  reason: { minHeight: 72, textAlignVertical: "top" },
+  field: { gap: 6 },
 });

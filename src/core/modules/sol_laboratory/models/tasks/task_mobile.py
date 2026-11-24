@@ -98,7 +98,7 @@ class TaskMobile(models.Model, TaskMobileBase):
                 "done_at": api_datetime(task.done_at),
                 "department": task.sudo().department_id.display_name or "",
                 "assignee": task.sudo().assignee_id.name or "",
-                "location": task.sampling_location_id.display_name or "",
+                "location": task.place or task.sampling_location_id.display_name or "",
                 "closed_by_system": task.closed_by_system,
                 "document": documents.get(task.id),
             }
@@ -155,7 +155,7 @@ class TaskMobile(models.Model, TaskMobileBase):
         open_and_mine = self.is_mine and self.status in OPEN_STATUSES
         return {
             "claim": self.in_my_queue,
-            "start": self.is_mine and self.status == "assigned",
+            "start": self.can_start,
             "done": open_and_mine and not self.closed_by_system,
             "assign": self._may_assign() and self.can_edit and self.status not in FINAL_STATUSES,
         }

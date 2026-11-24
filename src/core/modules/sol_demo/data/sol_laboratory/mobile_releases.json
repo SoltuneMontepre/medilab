@@ -1,0 +1,58 @@
+{
+  "releases": [
+    {
+      "platform": "android",
+      "kind": "code",
+      "runtime_version": "7b045729655462c0c9ff57ceb72d3ed02d9ec17c",
+      "version": "1.0.0",
+      "pub_date": "2026-10-01T03:00:00.000Z",
+      "manifest": "{\"id\":\"0f6c4b8e-3c51-4d3f-9a59-1d3a2a0c1001\",\"createdAt\":\"2026-10-01T03:00:00.000Z\",\"runtimeVersion\":\"7b045729655462c0c9ff57ceb72d3ed02d9ec17c\",\"launchAsset\":{\"hash\":\"klIfw8vZZL3J9YSpkbif3apXVO0cyW1tQkRTOGacEwU\",\"key\":\"47cd76e43f74bbc2e1baaf194d07e1fa\",\"contentType\":\"application/javascript\",\"fileExtension\":\".bundle\",\"url\":\"https://release.medilab.example/mobile/android/1.0.0/update/_expo/static/js/android/entry.hbc\"},\"assets\":[],\"metadata\":{},\"extra\":{\"expoClient\":{\"name\":\"MediLab\",\"slug\":\"medilab-mobile\",\"version\":\"1.0.0\"}}}",
+      "signature": "ZGVtbyBzaWduYXR1cmUgb2YgMS4wLjAsIHZlcmlmaWVkIGJ5IG5vIHBob25l"
+    },
+    {
+      "platform": "android",
+      "kind": "install",
+      "runtime_version": "7b045729655462c0c9ff57ceb72d3ed02d9ec17c",
+      "version": "1.0.0",
+      "pub_date": "2026-10-01T03:00:00.000Z",
+      "url": "https://release.medilab.example/mobile/android/1.0.0/medilab-1.0.0.apk",
+      "sha256": "6ab8fe7c25bc85a91ec85e25bc874032b137820224c3eb26b24da36563d51aa5"
+    },
+    {
+      "platform": "android",
+      "kind": "code",
+      "runtime_version": "7b045729655462c0c9ff57ceb72d3ed02d9ec17c",
+      "version": "1.1.0",
+      "pub_date": "2026-11-02T03:00:00.000Z",
+      "manifest": "{\"id\":\"0f6c4b8e-3c51-4d3f-9a59-1d3a2a0c1100\",\"createdAt\":\"2026-11-02T03:00:00.000Z\",\"runtimeVersion\":\"7b045729655462c0c9ff57ceb72d3ed02d9ec17c\",\"launchAsset\":{\"hash\":\"f70hDr7BH2WpcZDvkAeVxLjaOAWvP1objR0nJVaykso\",\"key\":\"7d23ff901039aef6293954d33d23c066\",\"contentType\":\"application/javascript\",\"fileExtension\":\".bundle\",\"url\":\"https://release.medilab.example/mobile/android/1.1.0/update/_expo/static/js/android/entry.hbc\"},\"assets\":[],\"metadata\":{},\"extra\":{\"expoClient\":{\"name\":\"MediLab\",\"slug\":\"medilab-mobile\",\"version\":\"1.1.0\"}}}",
+      "signature": "ZGVtbyBzaWduYXR1cmUgb2YgMS4xLjAsIHZlcmlmaWVkIGJ5IG5vIHBob25l"
+    },
+    {
+      "platform": "android",
+      "kind": "install",
+      "runtime_version": "7b045729655462c0c9ff57ceb72d3ed02d9ec17c",
+      "version": "1.1.0",
+      "pub_date": "2026-11-02T03:00:00.000Z",
+      "url": "https://release.medilab.example/mobile/android/1.1.0/medilab-1.1.0.apk",
+      "sha256": "0f01738e72e55c9d8df87e04b04bf18f9f495e15a3fefdcc6c2c449dccdc3a5b"
+    },
+    {
+      "platform": "android",
+      "kind": "code",
+      "runtime_version": "7b045729655462c0c9ff57ceb72d3ed02d9ec17c",
+      "version": "1.1.1",
+      "pub_date": "2026-11-03T03:00:00.000Z",
+      "manifest": "{\"id\":\"0f6c4b8e-3c51-4d3f-9a59-1d3a2a0c1101\",\"createdAt\":\"2026-11-03T03:00:00.000Z\",\"runtimeVersion\":\"7b045729655462c0c9ff57ceb72d3ed02d9ec17c\",\"launchAsset\":{\"hash\":\"xXUskxWKoLyH9GZQV7PTCja5ljRfxCUKaTaPPORid84\",\"key\":\"872ccd9c6dce18ce6ea4d5106540f089\",\"contentType\":\"application/javascript\",\"fileExtension\":\".bundle\",\"url\":\"https://release.medilab.example/mobile/android/1.1.1/update/_expo/static/js/android/entry.hbc\"},\"assets\":[],\"metadata\":{},\"extra\":{\"expoClient\":{\"name\":\"MediLab\",\"slug\":\"medilab-mobile\",\"version\":\"1.1.1\"}}}",
+      "signature": "ZGVtbyBzaWduYXR1cmUgb2YgMS4xLjEsIHZlcmlmaWVkIGJ5IG5vIHBob25l"
+    },
+    {
+      "platform": "android",
+      "kind": "install",
+      "runtime_version": "7b045729655462c0c9ff57ceb72d3ed02d9ec17c",
+      "version": "1.1.1",
+      "pub_date": "2026-11-03T03:00:00.000Z",
+      "url": "https://release.medilab.example/mobile/android/1.1.1/medilab-1.1.1.apk",
+      "sha256": "62e3b886efcd84ab6692a6deae28409ef9307aa031faaded97f2b3084f3850fa"
+    }
+  ]
+}

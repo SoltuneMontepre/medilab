@@ -40,6 +40,9 @@
                         />
                     </div>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="alert alert-warning" role="alert" invisible="not role_archive_warning" groups="sol_laboratory.group_role_administrator">
+                        <field name="role_archive_warning" nolabel="1" />
+                    </div>
                     <div class="oe_title">
                         <label for="name" />
                         <h1><field name="name" /></h1>

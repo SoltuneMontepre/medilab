@@ -75,7 +75,8 @@ class NotificationPreference(models.Model, NotificationPreferenceBase):
     @api.model
     def _push_choices(self):
         """Every event the signed-in user may be notified of, with whether its push reaches their phones: on unless they
-        turned it off, and always on for a mandatory event. An event the administrator turned off is left out."""
+        turned it off, and always on for a mandatory event. An event the administrator turned off is left out, and so is
+        an event about documents the user may not read."""
         events = (
             self.env[MODEL_MAIL_MESSAGE_SUBTYPE]
             .sudo()
@@ -93,4 +94,5 @@ class NotificationPreference(models.Model, NotificationPreferenceBase):
             )
             .event_id
         )
-        return [(event, event.mandatory or event not in turned_off) for event in events.with_env(self.env)]
+        readable = events.with_env(self.env).filtered(lambda event: event._documents_readable())
+        return [(event, event.mandatory or event not in turned_off) for event in readable]

@@ -21,6 +21,9 @@ class SaleAdvancePaymentInv(models.TransientModel, SaleAdvancePaymentInvBase):
         """Let the accountant, and a holder of the order's invoice permission, create the invoices of confirmed orders,
         which only the accountant posts. Neither may edit the order Odoo writes the invoiced lines on. Odoo opens the
         new invoices on screens only the accountant reads, so sales goes back to the order."""
+        self.sale_order_ids._check_manual_invoice_allowed()
+        if self.advance_payment_method != "delivered":
+            raise UserError(self.env._("The advance invoice is posted when its payment is verified."))
         if self.env.su:
             return super().create_invoices()
         if self.env.user.has_group(BILLING_GROUP):

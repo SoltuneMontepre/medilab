@@ -27,37 +27,45 @@ function readRequest(id) {
   );
 }
 
-// The id of an order's test request, which sample delivery staff confirm.
-function confirmOrderRequest(order) {
-  return callAs(SALES, "sale.order", "read", [[order.id], ["test_request_id"]]).then(([read]) => {
-    const id = read.test_request_id[0];
-    callAs(STAFF, "medilab.test.request", "action_confirm", [[id]]);
-    return cy.wrap(id);
-  });
+// The id of an order's test request.
+function orderRequestId(order) {
+  return callAs(SALES, "sale.order", "read", [[order.id], ["test_request_id"]]).then(([read]) => read.test_request_id[0]);
 }
 
-// The test request of a confirmed and paid order, confirmed by sample delivery staff, its samples expected.
+// The test request of a confirmed and paid order, with its samples expected.
 export function orderRequest() {
-  return orderAt("confirmed").then(confirmOrderRequest).then(readRequest);
+  return orderAt("paid").then(orderRequestId).then(readRequest);
 }
 
 // The sample collection task sales start on a confirmed order, waiting in the queue of sample delivery staff, with the
 // order's confirmed test request, as `{ request, task }`; the task also carries the order's name.
-export const orderCollectionTask = helper("orderCollectionTask", function orderCollectionTask() {
-  return orderAt("confirmed").then((order) => {
+export function orderCollectionTask() {
+  return orderAt("paid").then((order) => {
     callAs(SALES, "sale.order", "action_start_sample_collection", [[order.id]]);
     callAs(SALES, "sale.order", "read", [[order.id], ["name"]]).then(([read]) => (order.name = read.name));
-    return confirmOrderRequest(order).then((id) =>
-      callAs(STAFF, "medilab.task", "search_read", [[["document_model", "=", "medilab.test.request"], ["document_id", "=", id], ["status", "=", "open"]]], {
-        fields: ["name"],
-      }).then((tasks) => {
+    return orderRequestId(order).then((id) =>
+      callAs(
+        STAFF,
+        "medilab.task",
+        "search_read",
+        [
+          [
+            ["document_model", "=", "medilab.test.request"],
+            ["document_id", "=", id],
+            ["status", "=", "open"],
+          ],
+        ],
+        {
+          fields: ["name"],
+        },
+      ).then((tasks) => {
         expect(tasks, "collection tasks").to.have.length(1);
         const task = { model: "medilab.task", id: tasks[0].id, name: tasks[0].name, order: order.name };
         return readRequest(id).then((request) => ({ request, task }));
       }),
     );
   });
-});
+}
 
 // A test request sample delivery staff create for Nước Uống Sạch: one sample of bottled water per entry of
 // `samples`, each with the given parameters. Confirmed unless `confirm` is false.
@@ -73,7 +81,7 @@ export const staffRequest = helper("staffRequest", function staffRequest({ sampl
       callAs(STAFF, "medilab.test.request", "create", [
         {
           customer_id: refs.customer,
-          expected_date: expectedDate,
+          committed_date: expectedDate,
           sample_ids: samples.map((parameters, index) => [
             0,
             0,
@@ -100,20 +108,25 @@ export const receive = helper("receive", function receive(sample, condition = "g
   return callAs(STAFF, "medilab.sample", "action_receive", [[sample.id], "500 ml", condition, note, "Tủ lạnh 2"]);
 });
 
-// A handover record of a sample, signed by the customer on the phone of sample delivery staff.
-export const signedRecord = helper("signedRecord", function signedRecord(request, sample, quantity = "500 ml", device = false) {
-  return refAs(STAFF, "sol_demo.demo_person_sample_delivery_staff")
-    .then(({ id }) =>
-      callAs(STAFF, "medilab.handover.record", "create", [
-        {
-          request_id: request.id,
-          handed_over_by_name: "Phạm Thị Hoa",
-          received_by_id: id,
-          sample_ids: [[0, 0, { sample_id: sample.id, quantity, condition: "good" }]],
-        },
-      ]),
-    )
-    .then((id) => callAs(STAFF, "medilab.handover.record", "action_sign", [[id], PNG, device]).then(() => ({ model: "medilab.handover.record", id })));
+// A draft handover record of a sample, which sample delivery staff have the customer sign. Yields its id.
+export const draftRecord = helper("draftRecord", function draftRecord(request, sample, quantity = "500 ml") {
+  return refAs(STAFF, "sol_demo.demo_person_sample_delivery_staff").then(({ id }) =>
+    callAs(STAFF, "medilab.handover.record", "create", [
+      {
+        request_id: request.id,
+        handed_over_by_name: "Phạm Thị Hoa",
+        received_by_id: id,
+        sample_ids: [[0, 0, { sample_id: sample.id, quantity, condition: "good" }]],
+      },
+    ]),
+  );
+});
+
+// A handover record of a sample, signed by the customer.
+export const signedRecord = helper("signedRecord", function signedRecord(request, sample, quantity = "500 ml") {
+  return draftRecord(request, sample, quantity).then((id) =>
+    callAs(STAFF, "medilab.handover.record", "action_sign", [[id], PNG]).then(() => ({ model: "medilab.handover.record", id })),
+  );
 });
 
 // A sample collection task of a test request, assigned to sample delivery staff by an administrator, as `{ model, id, name }`.
@@ -137,11 +150,17 @@ export function inMinutes(minutes) {
 // The testing tasks of a sample's tests, whoever may see them.
 export const testingTasks = helper("testingTasks", function testingTasks(sample) {
   return callAs(STAFF, "medilab.sample", "read", [[sample.id], ["test_ids"]]).then(([read]) =>
-    callAs("demo.administrator", "medilab.task", "search_read", [
+    callAs(
+      "demo.administrator",
+      "medilab.task",
+      "search_read",
       [
-        ["document_model", "=", "medilab.sample.test"],
-        ["document_id", "in", read.test_ids],
+        [
+          ["document_model", "=", "medilab.sample.test"],
+          ["document_id", "in", read.test_ids],
+        ],
       ],
-    ], { fields: ["department_id", "status", "assignee_id"] }),
+      { fields: ["department_id", "status", "assignee_id"] },
+    ),
   );
 });

@@ -63,7 +63,7 @@ The harness requires context `kind-medilab-286-review`, a loopback API server an
 
 - A test file is named `<feature>.cy.js` under `src/tests/cypress/e2e/`. Business-flow specs belong to `flows/<flow>/`; feature specs without an owning flow belong to `features/<module>/<feature>/`. The [browser test layout](../../src/tests/cypress/e2e/README.md) maps issue scopes to directories and spec basenames.
 - Every feature has a browser test of its main path, written with the feature: it signs in as the demo user of the role that does the work, such as `demo.tester`, and walks the main path on the demo data.
-- The support entry point `cypress/support/e2e.js` registers the shared commands below, keeps Odoo from subscribing to web push, which the test browser cannot do, and ignores the browser's ResizeObserver loop notice, which a list that resizes while it redraws raises. Tests use them instead of copying sign-in, navigation or action steps. `call(<model>, <method>, <args>, <kwargs>)` from `cypress/support/odoo.js` calls a model method in the signed-in session and fails on an RPC error. Existing tests may still import `signIn(<login>)` from that file; it uses the same session handling as `cy.signInAs()`.
+- The support entry point `cypress/support/e2e.js` registers the shared commands below, keeps Odoo from subscribing to web push, which the test browser cannot do, hides the browser's service workers from Odoo, whose cached page and background fetches would load a user's first page twice at once, and ignores the browser's ResizeObserver loop notice, which a list that resizes while it redraws raises. Tests use them instead of copying sign-in, navigation or action steps. `call(<model>, <method>, <args>, <kwargs>)` from `cypress/support/odoo.js` calls a model method in the signed-in session and fails on an RPC error. Existing tests may still import `signIn(<login>)` from that file; it uses the same session handling as `cy.signInAs()`.
 - Tests use the app address `MEDILAB_URL`, default `http://localhost:8069`.
 - Tests run in a 1440 × 900 laptop viewport, set in `cypress.config.js`. A spec sets another viewport only to check a layout that depends on the window, such as a narrow menu bar.
 - Tests do not depend on data a previous test created.
@@ -72,7 +72,7 @@ The harness requires context `kind-medilab-286-review`, a loopback API server an
 
 ### Running browser tests
 
-Run commands from the repository root in PowerShell, Bash or your usual terminal. Install [Bun](https://bun.sh/docs/installation) and Node.js 22.x, 24.x or >=26 for Cypress 16, start Docker or Podman and prepare a local demo with the [README quick start](../../README.md#quick-start). Browser tests use `demo.<role>` accounts and change demo records.
+Run commands from the repository root in PowerShell, Bash or your usual terminal. Install [Bun](https://bun.sh/docs/installation) and Node.js 22.x, 24.x or >=26 for Cypress 16, start Docker or Podman and prepare a local demo with the [README quick start](../../README.md#quick-start). Browser tests use `demo.<role>` accounts and change demo records. The test runner uses `Asia/Ho_Chi_Minh` as its local timezone so browser date and time fields match the seeded lab users on hosts that default to UTC.
 
 1. Run `task test:e2e:help` to see the selected Odoo URL and the available commands.
 2. Run `task up` to start an existing demo, then open that URL in your browser and check that the login page loads. Use `task logs` if startup fails. A completed fresh demo already has its starting records; use it directly. For a disposable test environment without demo data, `task test:e2e:app` installs the modules and demo data into its application database, as CI does.
@@ -146,7 +146,7 @@ Use [Cypress Tap and AI Skills](../workflows/cypress-tap.md) when an agent write
 
 | Command | Use |
 | --- | --- |
-| `cy.signInAs(role)` | Sign in as `demo.<role>`, for example `tester`, `head_of_department` or `customer`. Read the password from `MEDILAB_DEMO_PASSWORD`, default `demo`. First unregister Odoo's service worker, as before every test: its update check after the previous backend page would get a new session cookie, which the login form's CSRF token does not match. Cache and validate the session within this spec file, then open the backend or portal as appropriate. |
+| `cy.signInAs(role)` | Sign in as `demo.<role>`, for example `tester`, `head_of_department` or `customer`. Read the password from `MEDILAB_DEMO_PASSWORD`, default `demo`. Cache and validate the session within this spec file, then open the backend or portal as appropriate. |
 | `cy.openRecord(record)` | Open the backend form of a record given by a full demo external ID such as `sol_demo.demo_test_result_retest`, or as `{ model, id }`, and yield `{ model, id }`. The current user's permissions apply. |
 | `cy.readRecord(record, fields)` | Read the named fields of that record in the current session and yield its values. `fields` must be a nonempty array. |
 | `cy.signRecord(action)` | Click the visible form button named `action`, default `action_sign`. |

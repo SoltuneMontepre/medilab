@@ -1,13 +1,16 @@
 from odoo.fields import Command
 
-from .demo_laboratory_content import content_writer
+from .demo_laboratory_content import content_writer, xlsx_content
 from odoo.addons.sol_laboratory.constants.laboratory_files import MEMBER_ROLE, RESTORED, RESULT, SYNCED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_MODEL_DATA,
     MODEL_LABORATORY_DEVICE,
     MODEL_LABORATORY_FILE,
+    MODEL_LABORATORY_FOLDER,
     MODEL_RES_USERS,
+    MODEL_TASK,
 )
+from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER
 from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 
 COMPUTERS = (
@@ -64,14 +67,20 @@ FILES = {
     "hplc_results": ("demo_laboratory_folder_hplc_results", "2026/HPLC-ket-qua-thang-10.xlsx"),
     "aas_run": ("demo_laboratory_folder_aas_raw_data", "run-0412.csv"),
 }
+HPLC_RESULT_CONTENTS = {
+    1: xlsx_content("Kết quả HPLC, bản 1"),
+    2: xlsx_content("Kết quả HPLC, bản 2"),
+    3: xlsx_content("Kết quả HPLC, bản 3"),
+    "aas": xlsx_content("Kết quả HPLC, bản AAS"),
+}
 # The saves of the demo files, in order: the file, who saved it from which computer, its content and the number of the
 # version it was made from.
 SAVES = (
-    ("hplc_results", "tester", "hplc_pc", "Kết quả HPLC, bản 1", None),
-    ("hplc_results", "chemistry_tester", "aas_pc", "Kết quả HPLC, bản 2", None),
-    ("hplc_results", "tester", "hplc_pc", "Kết quả HPLC, bản 3", None),
+    ("hplc_results", "tester", "hplc_pc", HPLC_RESULT_CONTENTS[1], None),
+    ("hplc_results", "chemistry_tester", "aas_pc", HPLC_RESULT_CONTENTS[2], None),
+    ("hplc_results", "tester", "hplc_pc", HPLC_RESULT_CONTENTS[3], None),
     # Saved on the AAS computer from version 2, after the tester had saved version 3: kept as a conflict.
-    ("hplc_results", "chemistry_tester", "aas_pc", "Kết quả HPLC, bản AAS", 2),
+    ("hplc_results", "chemistry_tester", "aas_pc", HPLC_RESULT_CONTENTS["aas"], 2),
     ("aas_run", "chemistry_tester", "aas_pc", "mau,Pb\nLAB-26-0412,0.012", None),
 )
 
@@ -147,7 +156,7 @@ def seed_laboratory_file_restores(env):
 
 # The saves of the lead results of the bottled water in testing, by the chemistry tester: the head of the department
 # signs the first, and the second is newer and not signed.
-SAMPLE_RESULT_SAVES = ("Pb: 0,004 mg/L", "Pb: 0,004 mg/L, lặp lại 0,005 mg/L")
+SAMPLE_RESULT_SAVES = (xlsx_content("Pb: 0,004 mg/L"), xlsx_content("Pb: 0,004 mg/L, lặp lại 0,005 mg/L"))
 
 
 def seed_sample_folders(env):
@@ -159,6 +168,10 @@ def seed_sample_folders(env):
     head = env.ref("sol_demo.demo_res_users_head_of_department")
     tester = env.ref("sol_demo.demo_res_users_chemistry_tester")
     sample = env.ref("sol_demo.demo_sample_bottled_water_testing")
+    test = sample.test_ids.filtered(lambda sample_test: sample_test.status == "testing")[:1]
+    test.ensure_one()
+    if not test._latest_testing_task():
+        env[MODEL_TASK]._create_for_event(SAMPLE_RECEIVED_TRIGGER, document=test, department=head.department_id)
     folders = sample._create_laboratory_folders(head)
     for folder in folders:
         folder.member_ids = [Command.create({"user_id": tester.id, "role": MEMBER_ROLE})]
@@ -185,3 +198,47 @@ def seed_sample_folders(env):
         for version in versions
     ]
     env[MODEL_IR_MODEL_DATA]._update_xmlids([{**xml_id, "noupdate": True} for xml_id in xml_ids])
+
+
+def seed_closed_sample_folder(env):
+    """The completed cabbage sample's result spreadsheet, which stays readable after the sample is closed."""
+    if env.ref("sol_demo.demo_laboratory_file_cabbage_results", raise_if_not_found=False):
+        return
+    sample = env.ref("sol_demo.demo_sample_cabbage_completed")
+    head = env.ref("sol_demo.demo_res_users_head_of_department")
+    sample.sudo().write({"status": "testing"})
+    sample._create_laboratory_folders(head)
+    result_folder = (
+        env[MODEL_LABORATORY_FOLDER].sudo().search([("sample_id", "=", sample.id), ("category", "=", RESULT)], limit=1)
+    )
+    result_folder.member_ids = [
+        Command.create({"user_id": env.ref("sol_demo.demo_res_users_tester").id, "role": MEMBER_ROLE})
+    ]
+    file = env[MODEL_LABORATORY_FILE]._get_or_create(result_folder, "2026/cabbage-results.xlsx")
+    content = xlsx_content("Kết quả thử nghiệm bắp cải")
+    version = file._add_version(
+        content=content_writer(env)(content),
+        source=SYNCED,
+        user=head,
+        device=env.ref("sol_demo.demo_laboratory_device_aas_pc"),
+    )
+    sample._follow_tests()
+    env[MODEL_IR_MODEL_DATA]._update_xmlids(
+        [
+            {
+                "xml_id": "sol_demo.demo_laboratory_folder_cabbage_completed_result",
+                "record": result_folder,
+                "noupdate": True,
+            },
+            {
+                "xml_id": "sol_demo.demo_laboratory_file_cabbage_results",
+                "record": file,
+                "noupdate": True,
+            },
+            {
+                "xml_id": f"sol_demo.demo_laboratory_file_version_cabbage_results_{version.number}",
+                "record": version,
+                "noupdate": True,
+            },
+        ]
+    )

@@ -99,3 +99,13 @@ class TaskReassign(models.TransientModel, TaskReassignBase):
         self.task_ids.filtered(
             lambda task: task.assignee_id != self.assignee_id or task.department_id != self.department_id
         ).write(vals)
+        holder = self.assignee_id.name or self.department_id.name or ""
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "type": "success",
+                "message": self.env._("%(count)s tasks go to %(holder)s.", count=len(self.task_ids), holder=holder),
+                "next": {"type": "ir.actions.act_window_close"},
+            },
+        }

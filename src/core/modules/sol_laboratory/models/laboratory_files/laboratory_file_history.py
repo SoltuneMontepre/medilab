@@ -46,6 +46,10 @@ class LaboratoryFileHistory(models.Model, LaboratoryFileHistoryBase):
         self._check_file_access(FILE_READ)
         if version.sudo().file_id != self.sudo():
             raise self._not_a_version()
+        if not version.sudo().content_id:
+            raise LaboratoryFileError(
+                NOT_FOUND, self.env._("This version's content was removed after administrator approval.")
+            )
         minutes = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("laboratory_file_url_minutes")
         address = version._read_address(minutes * 60)
         self.sudo()._audit("download", self.env._("Version %s", version.sudo().number))
@@ -59,6 +63,10 @@ class LaboratoryFileHistory(models.Model, LaboratoryFileHistoryBase):
         self._check_file_access(FILE_WRITE)
         if version.sudo().file_id != self.sudo():
             raise self._not_a_version()
+        if not version.sudo().content_id:
+            raise LaboratoryFileError(
+                NOT_FOUND, self.env._("This version's content was removed after administrator approval.")
+            )
         versions = self.env[MODEL_LABORATORY_FILE_VERSION]
         if device and key:
             restored = versions._created_with_key(device, key)

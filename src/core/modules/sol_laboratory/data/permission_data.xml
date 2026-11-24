@@ -1013,6 +1013,16 @@
         <field name="document_model">medilab.testing.method</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_committed_date_change_read_all" model="medilab.permission">
+        <field name="name">Read committed date changes</field>
+        <field name="document_model">medilab.committed.date.change</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_committed_date_change_create_all" model="medilab.permission">
+        <field name="name">Change committed return dates</field>
+        <field name="document_model">medilab.committed.date.change</field>
+        <field name="action">create</field>
+    </record>
     <record id="permission_testing_method_step_create_all" model="medilab.permission">
         <field name="name">Create testing method steps</field>
         <field name="document_model">medilab.testing.method.step</field>

@@ -29,6 +29,9 @@ describe("SF-08 test parameters and chemicals (F-29, F-31)", () => {
     pick("group_ids", "Physicochemical");
     pick("main_group_id", "Heavy metals");
     addWay("TCVN 7602:2007");
+    saveAndWait("medilab.test.parameter");
+    cy.reload();
+    cy.get(".o_field_widget[name=method_ids] .o_data_row").should("contain", "TCVN 7602:2007");
     addWay("ISO 17294-2:2016");
     saveAndWait("medilab.test.parameter");
     cy.reload();

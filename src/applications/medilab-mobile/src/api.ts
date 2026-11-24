@@ -127,7 +127,14 @@ export interface Me {
   login: string;
   department: string;
   roles: string[];
-  can: { create_tasks: boolean; assign_tasks: boolean; take_support_requests?: boolean };
+  can: {
+    create_tasks: boolean;
+    assign_tasks: boolean;
+    read_handover_records: boolean;
+    scan_samples: boolean;
+    sign_results: boolean;
+    take_support_requests?: boolean;
+  };
 }
 
 /** The installed MediLab modules, so the app shows only the screens of the modules installed. */
@@ -191,6 +198,7 @@ export interface TaskDay {
   overdue_count: number;
   due_today_count: number;
   finished_count: number;
+  finished_week_count: number;
   claimable_count: number;
   next_up: Task[];
   planned_today: Task[];
@@ -238,6 +246,7 @@ export interface Sample {
   handover: SampleHandover | null;
   tasks: Task[];
   can_add_photos: boolean;
+  tests_samples: boolean;
 }
 
 /** A photo of a sample MediLab has. */
@@ -379,4 +388,43 @@ export interface SupportMessage {
 export interface SupportRequestDetail extends SupportRequest {
   messages: SupportMessage[];
   actions: { take: boolean; answer: boolean };
+}
+
+export type HandoverRecordStatus = "draft" | "signed";
+
+/** A handover record as the list of records shows it. */
+export interface HandoverRecordSummary {
+  id: number;
+  code: string;
+  request: string;
+  handed_over_at: string;
+  handed_over_by: string;
+  status: HandoverRecordStatus;
+  signed_at: string | null;
+}
+
+/** A sample on a handover record, with what was handed over against what was expected. */
+export interface HandoverRecordSample {
+  code: string;
+  sample_type: string;
+  customer_sample_name: string | null;
+  expected_count: number;
+  actual_count: number;
+  quantity: string;
+  excess_material: string;
+  condition: string;
+  condition_note: string;
+}
+
+/** A handover record with its samples, the phone it was signed on and whether the customer may sign it now. */
+export interface HandoverRecord extends HandoverRecordSummary {
+  received_by: string;
+  signed_device: string;
+  samples: HandoverRecordSample[];
+  can_sign: boolean;
+}
+
+export interface HandoverRecordPage {
+  records: HandoverRecordSummary[];
+  next_after: number | null;
 }

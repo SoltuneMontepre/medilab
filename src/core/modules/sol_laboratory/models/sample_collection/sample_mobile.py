@@ -1,5 +1,3 @@
-import base64
-import binascii
 from typing import TYPE_CHECKING
 
 from odoo import api, models
@@ -9,12 +7,12 @@ from odoo.tools import format_list
 
 from odoo.addons.sol_laboratory.constants.laboratory_files import (
     IDEMPOTENCY_CONFLICT,
-    INVALID_REQUEST,
     PERMISSION_DENIED,
 )
-from odoo.addons.sol_laboratory.constants.medilab_mobile import ALREADY_CLAIMED, PHOTO_MAX_BYTES, TOO_LARGE
+from odoo.addons.sol_laboratory.constants.medilab_mobile import ALREADY_CLAIMED, PHOTO_MAX_BYTES
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_ATTACHMENT,
+    MODEL_PARAMETER_AUTHORIZATION,
     MODEL_PERSON,
     MODEL_SAMPLE,
     MODEL_SAMPLE_HANDOVER,
@@ -24,6 +22,7 @@ from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REQUEST_READER_GRO
 from odoo.addons.sol_laboratory.services.laboratory_api import api_datetime
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.mobile_documents import not_found
+from odoo.addons.sol_laboratory.services.mobile_uploads import decoded_base64
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_sample as SampleMobileBase
@@ -71,7 +70,19 @@ class SampleMobile(models.Model, SampleMobileBase):
             "handover": sample._mobile_handover(),
             "tasks": sample._claimable_testing_tasks()._mobile_values(),
             "can_add_photos": sample._may_add_photos(),
+            "tests_samples": self._person_tests_samples(),
         }
+
+    @api.model
+    def _person_tests_samples(self):
+        """Whether the person tests samples: they are in a department and the Lab Head authorized them to test a
+        parameter, so their department receives samples and its testing tasks reach them."""
+        person = self.env[MODEL_PERSON]._current()
+        if not person.department_id:
+            return False
+        return bool(
+            self.env[MODEL_PARAMETER_AUTHORIZATION].sudo().search_count([("person_id", "=", person.id)], limit=1)
+        )
 
     def _customer_visible(self):
         """Whether the person reads every test request, and so sees a sample's customer and its photos, as on the web."""
@@ -175,15 +186,9 @@ class SampleMobile(models.Model, SampleMobileBase):
 
 def _decoded_photo(env, data):
     """The photo the phone sent in base64; one over the limit is refused before it is decoded."""
-    photo = b""
-    # Four base64 characters hold three bytes, padding aside.
-    too_large = len(data) * 3 // 4 > PHOTO_MAX_BYTES + 2
-    if not too_large:
-        try:
-            photo = base64.b64decode(data, validate=True)
-        except binascii.Error as error:
-            raise LaboratoryFileError(INVALID_REQUEST, env._("The photo is not valid base64.")) from error
-        too_large = len(photo) > PHOTO_MAX_BYTES
-    if too_large:
-        raise LaboratoryFileError(TOO_LARGE, env._("A photo can be at most 10 MiB."))
-    return photo
+    return decoded_base64(
+        data,
+        PHOTO_MAX_BYTES,
+        env._("A photo can be at most 10 MiB."),
+        env._("The photo is not valid base64."),
+    )

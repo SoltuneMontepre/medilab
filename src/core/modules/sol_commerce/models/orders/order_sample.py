@@ -33,9 +33,10 @@ class OrderSample(models.Model, OrderSampleBase):
         customer_sample_name = fields.Char(string="Customer's Sample Name", required=True)
         # The sample type (nền mẫu), such as bottled drinking water.
         sample_type_id = fields.Many2one(MODEL_SAMPLE_TYPE, required=True, ondelete="restrict")
-        # Whether the sample is solid, liquid, gas or semi-solid.
+        # Whether the sample is solid, liquid, gas or semi-solid; empty for a sample created when the quotation is sent
+        # until its handover.
         physical_state = fields.Selection(
-            [("solid", "Solid"), ("liquid", "Liquid"), ("gas", "Gas"), ("semi_solid", "Semi-solid")], required=True
+            [("solid", "Solid"), ("liquid", "Liquid"), ("gas", "Gas"), ("semi_solid", "Semi-solid")]
         )
         # The regulation the sample's results are compared with; empty when none.
         regulation_id = fields.Many2one(MODEL_REGULATION, ondelete="restrict")

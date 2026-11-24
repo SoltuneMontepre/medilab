@@ -31,7 +31,8 @@ class LaboratoryApiConversations(http.Controller):
     )
     def post_message(self, device, body, channel_id, idempotency_key=None):
         channel = device.env[MODEL_DISCUSS_CHANNEL]._mobile_conversation(channel_id)
-        return post_from_phone(channel, device, body, idempotency_key)._mobile_values()[0]
+        message = post_from_phone(channel, device, body, idempotency_key, "mail.mt_comment")
+        return message._mobile_values()[0]
 
     @laboratory_api_route("/conversations/<int:channel_id>/seen", ["POST"], "markConversationSeen", permission=False)
     def mark_seen(self, device, body, channel_id):

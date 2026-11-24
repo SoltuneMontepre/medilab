@@ -124,13 +124,37 @@ describe("WF-07 laboratory file versions", () => {
     );
   });
 
+  // Cypress Author, 2026-11-20: a save of the current bytes must not create another stored version.
+  it("TC-F53-02 uploading the file's current bytes again leaves its content and version unchanged", () => {
+    const tag = runTag();
+    devices(tag, HEAD).then(([owner]) =>
+      ownFolder(owner, `F53 duplicate ${tag}`).then((folder) =>
+        upload(owner, folder, "result.xlsx", "result-a.xlsx").then(({ upload: first }) => {
+          expect(first.status).to.eq("completed");
+
+          upload(owner, folder, "result.xlsx", "result-a.xlsx").then(({ upload: repeated }) => {
+            expect(repeated).to.include({ status: "unchanged" });
+            expect(repeated.version).to.deep.eq(first.version);
+            fileAt(owner, folder, "result.xlsx").then((file) => {
+              expect(file.current_version.id).to.eq(first.version.id);
+              versionsOf(file, ["id", "number", "sha256"]).then((versions) => {
+                expect(versions).to.have.length(1);
+                expect(versions[0]).to.include({ id: first.version.id, number: 1, sha256: first.version.sha256 });
+              });
+            });
+          });
+        }),
+      ),
+    );
+  });
+
   // Restoring from Medilab Sync's history screen is Medilab Sync's.
   it("TC-WF04-A7 restoring an earlier version saves a new one with its bytes and keeps the others", () => {
     const tag = runTag();
     devices(tag, HEAD).then(([owner]) =>
       ownFolder(owner, `A7 ${tag}`).then((folder) => {
         const saved = [];
-        ["result-a.xlsx", "result-b.xlsx", "result-c.xlsx"].reduce(
+        ["result-a.xlsx", "result-b.xlsx", "result-c.xlsx", "result-a.xlsx", "result-b.xlsx"].reduce(
           (chain, name) =>
             chain.then(() =>
               upload(owner, folder, "result.xlsx", name, { baseVersionId: saved.at(-1)?.id }).then(({ upload: done }) => {
@@ -141,22 +165,22 @@ describe("WF-07 laboratory file versions", () => {
           cy.wrap(null),
         );
         cy.then(() => fileAt(owner, folder, "result.xlsx")).then((file) => {
-          const [first] = saved;
-          api(owner, "POST", `/folders/${folder.id}/files/${file.id}/versions/${first.id}/restore`, {
+          const third = saved[2];
+          api(owner, "POST", `/folders/${folder.id}/files/${file.id}/versions/${third.id}/restore`, {
             headers: { "Idempotency-Key": `${tag}-restore` },
           }).then((response) => {
             const restored = ok(response, "restore").version;
-            expect(restored).to.include({ number: 4, source: "restored", sha256: first.sha256, size: first.size });
-            downloaded(owner, folder, file, restored.id).then((bytes) => expect(bytes).to.deep.eq({ size: first.size, sha256: first.sha256 }));
+            expect(restored).to.include({ number: 6, source: "restored", sha256: third.sha256, size: third.size });
+            downloaded(owner, folder, file, restored.id).then((bytes) => expect(bytes).to.deep.eq({ size: third.size, sha256: third.sha256 }));
             fileAt(owner, folder, "result.xlsx").then((current) => expect(current.current_version.id).to.eq(restored.id));
             versionsOf(file).then((versions) => {
-              expect(versions.map(({ number }) => number)).to.deep.eq([1, 2, 3, 4]);
-              expect(versions.slice(0, 3).map(({ sha256 }) => sha256)).to.deep.eq(saved.map(({ sha256 }) => sha256));
-              expect(versions[3].restored_from_id[0]).to.eq(first.id);
+              expect(versions.map(({ number }) => number)).to.deep.eq([1, 2, 3, 4, 5, 6]);
+              expect(versions.slice(0, 5).map(({ sha256 }) => sha256)).to.deep.eq(saved.map(({ sha256 }) => sha256));
+              expect(versions[5].restored_from_id[0]).to.eq(third.id);
             });
             cy.signInAs("administrator");
             cy.visit(`/odoo/laboratory-files/${file.id}`);
-            cy.get(".o_field_widget[name=version_ids] .o_data_row").should("have.length", 4);
+            cy.get(".o_field_widget[name=version_ids] .o_data_row").should("have.length", 6);
             cy.get(".o_field_widget[name=version_ids] .o_data_row")
               .invoke("text")
               .should("match", /Restored/i);
@@ -303,16 +327,70 @@ describe("WF-07 laboratory file versions", () => {
                 expect(corrected.status).to.eq("completed");
                 cy.signInAs("head_of_department");
                 cy.visit(`/odoo/laboratory-file-versions/${corrected.version.id}`);
+                cy.intercept("POST", "/web/dataset/call_button/medilab.laboratory.file.version/action_sign").as("signedVersion");
                 cy.get("button[name=action_sign]").click();
                 confirmDialog();
+                cy.wait("@signedVersion").its("response.body.error").should("not.exist");
                 // "Not Signed" also contains the word.
                 cy.get(".o_form_view .o_field_widget[name=approval_state]").invoke("text").should("match", /^\s*Signed\s*$/);
                 callAs(ADMINISTRATOR, "medilab.laboratory.file.version", "read", [
                   [first.version.id, corrected.version.id],
                   ["approval_state", "number"],
                 ]).then((read) => {
-                  expect(read.find(({ number }) => number === 1).approval_state, "the rejected version stays rejected").to.eq("rejected");
-                  expect(read.find(({ number }) => number === 2).approval_state).to.eq("approved");
+                  const rejected = read.find(({ id }) => id === first.version.id);
+                  const signed = read.find(({ id }) => id === corrected.version.id);
+                  expect(rejected.approval_state, "the rejected version stays rejected").to.eq("rejected");
+                  expect(signed.approval_state, "the corrected version is approved").to.eq("approved");
+                });
+              });
+            });
+          }),
+        );
+      }),
+    );
+  });
+
+  // Cypress Author, 2026-11-20: a signature records the immutable version and hash it covers; a later save starts unsigned.
+  it("TC-F57-02 a signature belongs to its version and hash, and a newer version is not signed", () => {
+    const tag = runTag();
+    person(TESTER).then((tester) =>
+      sampleWithoutFolders().then((sample) => {
+        callAs(HEAD, "medilab.sample", "action_create_laboratory_folders", [[sample.id]]);
+        foldersOfSample(sample).then((folders) =>
+          devices(tag, HEAD, TESTER).then(([head, saver]) => {
+            const results = folders.find(({ category }) => category === "result");
+            addMember(head, results, tester);
+            upload(saver, results, `result-${tag}.xlsx`, "result-a.xlsx").then(({ upload: first }) => {
+              cy.signInAs("head_of_department");
+              cy.visit(`/odoo/laboratory-file-versions/${first.version.id}`);
+              cy.intercept("POST", "/web/dataset/call_button/medilab.laboratory.file.version/action_sign").as("signedVersion");
+              cy.get("button[name=action_sign]").click();
+              confirmDialog();
+              cy.wait("@signedVersion").its("response.body.error").should("not.exist");
+
+              upload(saver, results, `result-${tag}.xlsx`, "result-b.xlsx", { baseVersionId: first.version.id }).then(({ upload: newer }) => {
+                expect(newer.status).to.eq("completed");
+                callAs(ADMINISTRATOR, "medilab.laboratory.file.version", "read", [
+                  [first.version.id, newer.version.id],
+                  ["approval_state", "document_version", "sha256", "signature_ids"],
+                ]).then((versions) => {
+                  const signed = versions.find(({ id }) => id === first.version.id);
+                  const current = versions.find(({ id }) => id === newer.version.id);
+                  expect(signed).to.include({ approval_state: "approved", document_version: 1, sha256: first.version.sha256 });
+                  expect(current).to.include({ approval_state: "none", document_version: 1, sha256: newer.version.sha256 });
+                  expect(current.signature_ids).to.deep.eq([]);
+
+                  callAs(ADMINISTRATOR, "medilab.signature", "search_read", [
+                    [["document_model", "=", "medilab.laboratory.file.version"], ["document_id", "=", first.version.id]],
+                  ], { fields: ["document_id", "document_version", "document_hash", "decision"] }).then((signatures) => {
+                    expect(signatures).to.have.length(1);
+                    expect(signatures[0]).to.include({
+                      document_id: first.version.id,
+                      document_version: 1,
+                      document_hash: first.version.sha256,
+                      decision: "signed",
+                    });
+                  });
                 });
               });
             });

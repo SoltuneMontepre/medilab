@@ -8,13 +8,15 @@
                 <field name="code" />
                 <field name="customer_id" />
                 <field name="request_date" />
-                <field name="expected_date" />
+                <field name="requested_date" optional="hide" />
+                <field name="committed_date" />
+                <field name="priority" optional="show" widget="boolean_toggle" readonly="1" />
                 <field name="report_language" optional="hide" />
                 <field name="delivery_method" optional="hide" />
                 <field
                     name="status"
                     widget="badge"
-                    decoration-info="status in ('confirmed', 'paid', 'sample_received', 'testing')"
+                    decoration-info="status in ('confirmed', 'paid', 'on_credit', 'sample_received', 'testing')"
                     decoration-warning="status == 'awaiting_approval'"
                     decoration-success="status in ('completed', 'reported')"
                     decoration-danger="status == 'cancelled'"
@@ -38,6 +40,15 @@
                         groups="sol_laboratory.group_permission_test_request_edit_all"
                     />
                     <button
+                        name="%(action_medilab_committed_date_change)d"
+                        type="action"
+                        string="Change Committed Date"
+                        class="btn-secondary"
+                        context="{'default_request_id': id}"
+                        invisible="status in ('completed', 'reported', 'cancelled')"
+                        groups="sol_laboratory.group_permission_committed_date_change_create_all"
+                    />
+                    <button
                         name="action_print_labels"
                         type="object"
                         string="Print Labels"
@@ -49,7 +60,7 @@
                         type="object"
                         string="Cancel"
                         class="btn-danger"
-                        invisible="status not in ('draft', 'confirmed', 'paid', 'sample_received', 'testing')"
+                        invisible="status not in ('draft', 'confirmed', 'paid', 'on_credit', 'sample_received', 'testing')"
                         confirm="Cancel this test request with its samples and sample tests?"
                         groups="sol_laboratory.group_permission_test_request_edit_all"
                     />
@@ -68,7 +79,10 @@
                         <group>
                             <field name="customer_id" />
                             <field name="request_date" />
-                            <field name="expected_date" />
+                            <field name="requested_date" readonly="id" />
+                            <field name="committed_date" readonly="id" />
+                            <field name="priority" readonly="id" />
+                            <field name="turnaround_days" readonly="id" />
                             <field name="order_number" invisible="not order_number" />
                         </group>
                         <group string="Report">
@@ -122,6 +136,17 @@
                         </page>
                         <page string="Note" name="note">
                             <field name="note" />
+                        </page>
+                        <page string="Committed Date Changes" name="committed_date_changes" invisible="not committed_date_change_ids">
+                            <field name="committed_date_change_ids">
+                                <list>
+                                    <field name="create_date" string="Recorded On" />
+                                    <field name="create_uid" string="Recorded By" />
+                                    <field name="old_date" />
+                                    <field name="new_date" />
+                                    <field name="confirmation" />
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>

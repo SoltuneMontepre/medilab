@@ -1,14 +1,16 @@
 import { newRecord, openMenu, openRow, pick, save } from "../../../support/form";
-import { MENU } from "../../../support/menus";
+import { MENU, PORTAL_MENU } from "../../../support/menus";
 import { step } from "../../../support/steps";
+import { CUSTOMERS, clearCarts } from "../wf-01-order-to-test-request/setup";
 import { call, callAs, callRefused, refAs } from "../../../support/odoo";
-import { ADMINISTRATOR, PARAMETERS, TESTER, assignedTest, clearDrafts, inDays, outsourceDialog, outsourcedTest, reportedResult, resultAwaitingApproval, sentDispatch, shownDate, subcontractorResult, suggestedTest } from "./setup";
+import { ADMINISTRATOR, PARAMETERS, TESTER, assignedTest, clearDrafts, inDays, outsourceDialog, outsourcedTest, reportedResult, receivedDispatch, resultAwaitingApproval, sentDispatch, subcontractorResult, suggestedTest } from "./setup";
 
 const REASON = "Máy AAS đang sửa, khách hàng cần kết quả chì trước hạn.";
-const TRACKING = "Viettel Post, VTP 8402 1157 2210";
+const SERVICE = "Viettel Post";
+const TRACKING = "VTP 8402 1157 2210";
 const REPORT = "PKQ-NTL-2026-0412.pdf";
 
-const DISPATCH_FIELDS = ["status", "sample_test_ids", "write_date"];
+const FAILURE = "Xe giao mẫu hỏng giữa đường, thùng bảo quản mất lạnh.";
 const ACTIONS = ".o_form_view .o_statusbar_buttons";
 
 // A date as an English list shows it, such as "Nov 4"; another year follows it.
@@ -23,8 +25,9 @@ function openOutsource() {
 }
 
 describe("WF-05 Outsourced testing", () => {
-  it("TC-WF05-M lets the head accept a suggestion, staff carry the dispatch, the subcontractor enter the result and the head approve it", () => {
-    const expected = inDays(7);
+  it("TC-WF05-M lets the head accept a suggestion, staff carry the dispatch, the subcontractor confirm receipt and enter the result and the head approve it", () => {
+    // Northern returns lead results six days after the samples are sent.
+    const expected = inDays(6);
     clearDrafts();
     suggestedTest().then((test) => {
       step("The head of department outsources the suggested test");
@@ -38,8 +41,7 @@ describe("WF-05 Outsourced testing", () => {
       });
       cy.location("pathname").should("match", /medilab\.subcontract\.dispatch\/\d+$/);
       cy.contains(".o_field_widget[name=sample_test_ids] .o_data_row", test.code).should("be.visible");
-      step("The head sets the expected date and the courier, and sends the dispatch");
-      cy.get(".o_field_widget[name=expected_date] input").clear().type(shownDate(expected));
+      step("The head chooses the sample delivery staff who carry the dispatch");
       // Only people holding the sample delivery staff role named in the settings take a dispatch.
       cy.location("pathname").then((path) =>
         refAs(ADMINISTRATOR, "sol_demo.demo_person_tester").then((tester) =>
@@ -53,29 +55,41 @@ describe("WF-05 Outsourced testing", () => {
         ),
       );
       pick("courier_id", "Vo Van Tai");
-      cy.sendRecord("action_send");
-      cy.get(`${ACTIONS} button[name=action_receive]:visible`).should("exist");
+      save();
+      // Only the sample delivery staff of the dispatch hand it over.
+      cy.contains(`${ACTIONS} button`, "Hand Over").should("not.exist");
       cy.location("pathname").then((path) => {
         const dispatch = { model: "medilab.subcontract.dispatch", id: Number(path.split("/").pop()) };
-        cy.readRecord(dispatch, ["code", "status", "expected_date", "courier_id"]).then((read) => {
-          expect(read.status).to.equal("sent");
-          expect(read.expected_date).to.equal(expected);
-          expect(read.courier_id[1]).to.equal("Vo Van Tai");
+        cy.readRecord(dispatch, ["code"]).then((read) => {
+          step("Sample delivery staff take the dispatch from their dispatches to carry");
+          cy.signInAs("sample_delivery_staff");
+          openMenu(MENU.laboratory, MENU.schedule, MENU.dispatchesToCarry);
+          openRow(read.code);
+          cy.contains(`${ACTIONS} button:visible`, "Hand Over").click();
+          cy.get(".modal:visible").within(() => cy.get("button[name=action_hand_over]").click());
+          cy.get(".modal").should("not.exist");
+          cy.readRecord(dispatch, ["status", "sent_date", "expected_date", "courier_id"]).should((sent) => {
+            expect(sent.status).to.equal("sent");
+            expect(sent.sent_date).to.equal(inDays(0));
+            expect(sent.expected_date).to.equal(expected);
+            expect(sent.courier_id[1]).to.equal("Vo Van Tai");
+          });
           cy.readRecord(test, ["status"]).its("status").should("eq", "outsourced");
           step("The dispatch shows in the outsourcing schedule");
+          cy.signInAs("head_of_department");
           openMenu(MENU.laboratory, MENU.schedule, MENU.outsourcingSchedule);
           cy.get(".o_switch_view.o_list").click();
           cy.contains(".o_data_row", read.code).find("td[name=expected_date]").should("contain", listedDate(expected));
 
-          step("Sample delivery staff find the dispatch to carry");
-          cy.signInAs("sample_delivery_staff");
-          openMenu(MENU.laboratory, MENU.schedule, MENU.dispatchesToCarry);
-          cy.contains(".o_data_row", read.code).should("be.visible");
-
-          step("The subcontractor enters the result on the portal");
+          step("The subcontractor confirms receipt and enters the result on the portal");
           cy.signInAs("subcontractor");
           cy.get("a[href='/my/dispatches']:visible").first().click();
           cy.contains("a", read.code).click();
+          // No result is entered before the subcontractor confirms the samples arrived.
+          cy.get("input[name=value]").should("not.exist");
+          cy.contains("button", "Confirm Receipt").click();
+          cy.contains("button", "Confirm Receipt").should("not.exist");
+          cy.contains("p", "Received on").should("be.visible");
           // A negative concentration is refused with the system's message, which the address never carries.
           cy.contains("tr", test.code).within(() => {
             cy.get("input[name=value]").type("-1");
@@ -95,9 +109,11 @@ describe("WF-05 Outsourced testing", () => {
           expect(result.entered_by_id[1]).to.equal("Nguyen Thi Lan");
           step("The tester sends the subcontractor's result for approval");
           cy.signInAs("tester");
-          // The subcontractor's result waiting to be sent comes before any other.
+          // Outsourcing ended the tester's testing task, so the test is no longer theirs to work on.
           openMenu(MENU.laboratory, MENU.samples, MENU.sampleTests);
-          openRow(test.code);
+          cy.contains(".o_data_row", test.code).should("not.exist");
+          // The subcontractor's result waiting to be sent comes before any other.
+          cy.openRecord(test);
           cy.get(`${ACTIONS} button[name=action_enter_result]`).should("not.exist");
           openMenu(MENU.laboratory, MENU.results, MENU.testResults);
           openRow(test.code);
@@ -117,22 +133,27 @@ describe("WF-05 Outsourced testing", () => {
     });
   });
 
-  it("TC-WF05-A1 sends a dispatch by a delivery service with its tracking number", () => {
+  it("TC-WF05-A1 lets sample delivery staff hand a dispatch to a delivery service with its tracking number", () => {
     outsourcedTest().then(({ dispatch }) => {
-      step("The head of department sets the expected date and the delivery service's tracking number");
-      cy.signInAs("head_of_department");
+      refAs(ADMINISTRATOR, "sol_demo.demo_person_sample_delivery_staff").then((courier) =>
+        callAs(ADMINISTRATOR, "medilab.subcontract.dispatch", "write", [[dispatch.id], { courier_id: courier.id }]),
+      );
+      step("Sample delivery staff hand the dispatch to a delivery service");
+      cy.signInAs("sample_delivery_staff");
       cy.openRecord(dispatch);
-      cy.get(".o_field_widget[name=expected_date] input")
-        .clear()
-        .type(shownDate(inDays(10)));
-      cy.get(".o_field_widget[name=delivery_service] input").type(TRACKING);
-      step("The head sends the dispatch, which has no courier");
-      cy.sendRecord("action_send");
-      cy.get(`${ACTIONS} button[name=action_receive]:visible`).should("exist");
-      cy.readRecord(dispatch, ["status", "courier_id", "delivery_service"]).should((read) => {
+      cy.contains(`${ACTIONS} button:visible`, "Hand Over").click();
+      cy.get(".modal:visible").within(() => {
+        cy.get(".o_field_widget[name=delivery_service] input").type(SERVICE).blur();
+        // A delivery service needs its tracking number.
+        cy.get(".o_field_widget[name=tracking_number] input").type(TRACKING);
+        cy.get("button[name=action_hand_over]").click();
+      });
+      cy.readRecord(dispatch, ["status", "courier_id", "delivery_service", "tracking_number", "expected_date"]).should((read) => {
         expect(read.status).to.equal("sent");
-        expect(read.courier_id).to.equal(false);
-        expect(read.delivery_service).to.equal(TRACKING);
+        expect(read.courier_id[1]).to.equal("Vo Van Tai");
+        expect(read.delivery_service).to.equal(SERVICE);
+        expect(read.tracking_number).to.equal(TRACKING);
+        expect(read.expected_date).to.equal(inDays(6));
       });
     });
   });
@@ -181,8 +202,8 @@ describe("WF-05 Outsourced testing", () => {
         expect(read.emergency_outsource_reason).to.equal(REASON);
         expect(read.dispatch_ids).to.have.length(1);
       });
-      // Results of an outsourced test are entered once its dispatch is sent.
-      step("No result is entered before the dispatch is sent");
+      // Results of an outsourced test are entered once its subcontractor received the dispatch.
+      step("No result is entered before the dispatch is received");
       cy.signInAs("tester");
       cy.openRecord(test);
       cy.get(`${ACTIONS} button[name=action_enter_result]`).should("not.exist");
@@ -274,20 +295,15 @@ describe("WF-05 Outsourced testing", () => {
   });
 
   it("TC-WF05-E1 refuses to cancel a dispatch whose tests have results", () => {
-    sentDispatch().then((sent) => {
+    receivedDispatch().then((sent) => {
       step("The subcontractor enters a result");
       subcontractorResult(sent);
-      step("Cancelling the dispatch is refused");
+      step("The head sees no cancel action, and cancelling through RPC is refused");
       cy.signInAs("head_of_department");
       cy.openRecord(sent.dispatch);
-      cy.expectRefusal({
-        read: () => cy.readRecord(sent.dispatch, DISPATCH_FIELDS),
-        action: () => {
-          cy.get(`${ACTIONS} button[name=action_cancel]:visible`).click();
-          cy.get(".modal:visible .modal-footer .btn-primary").click();
-        },
-        message: "A dispatch whose sample tests have results cannot be cancelled.",
-      });
+      cy.get(`${ACTIONS} button[name=action_cancel]`).should("not.exist");
+      callRefused("medilab.subcontract.dispatch", "action_cancel", [[sent.dispatch.id]]).should("match", /Only a draft or sent dispatch can be cancelled/);
+      cy.readRecord(sent.dispatch, ["status"]).its("status").should("eq", "received");
     });
   });
 
@@ -355,19 +371,19 @@ describe("WF-05 Outsourced testing", () => {
   });
 
   // Generated by Cypress Author on 2026-11-08.
-  it("TC-WF05-E4 refuses to outsource a test through another way than the one the customer accepted → it keeps its accepted way", () => {
+  it("TC-WF05-E4 refuses to outsource a test with another method than the one the customer accepted → it keeps its accepted way", () => {
     assignedTest("lead", { days: 30, accepted: PARAMETERS.lead.inHouse }).then((test) => {
-      step("The head of department opens a test whose customer accepted the in-house way");
+      step("The head of department opens a test whose customer accepted a method no subcontractor tests");
       cy.signInAs("head_of_department");
       cy.openRecord(test);
-      // The parameter has a subcontracted way, but the customer accepted the in-house one.
-      cy.get(".o_form_view").should("contain", "Sales first obtains a revised quotation the customer accepts.");
+      // Northern tests lead by ICP-MS; the customer accepted AAS.
+      cy.get(".o_form_view").should("contain", "outsourcing it with another method needs a revised quotation the customer accepts.");
       cy.contains(`${ACTIONS} button`, "Outsource").should("not.exist");
-      step("Outsourcing it through another way is refused, and it keeps its accepted way");
+      step("Outsourcing it with another method is refused, and it keeps its accepted way");
       outsourceDialog(test, { reason: REASON }).then((wizard) =>
         callRefused("medilab.sample.test.outsource", "action_outsource", [[wizard]]).should(
           "match",
-          /is tested by .+, the way of testing the customer accepted; another way needs a revised quotation\.$/,
+          /with another method than the one the customer accepted; outsourcing through it needs a revised quotation the customer accepts\.$/,
         ),
       );
       refAs(ADMINISTRATOR, PARAMETERS.lead.inHouse).then((way) =>
@@ -377,6 +393,141 @@ describe("WF-05 Outsourced testing", () => {
           expect(read.dispatch_ids).to.be.empty;
         }),
       );
+    });
+  });
+
+  it("TC-WF05-A7 lets the head outsource a test accepted in-house to a subcontractor with the same method, without the customer", () => {
+    clearDrafts();
+    assignedTest("lead", { days: 30, accepted: PARAMETERS.lead.sameMethod }).then((test) => {
+      // No in-house machine runs ICP-MS in time, so the scheduler suggests outsourcing it.
+      step("The head of department accepts the suggestion for a test the customer accepted in-house by ICP-MS");
+      cy.signInAs("head_of_department");
+      cy.readRecord(test, ["outsourcing_suggested"]).its("outsourcing_suggested").should("eq", true);
+      cy.openRecord(test);
+      cy.get(".o_form_view").should("not.contain", "needs a revised quotation");
+      openOutsource().within(() => {
+        cy.get(".o_field_widget[name=parameter_method_id] input").invoke("val").should("match", /^Lead \(Pb\) – ISO 17294-2:2016 \(.+\)$/);
+        cy.get("button[name=action_outsource]").click();
+      });
+      step("Northern tests it, and the customer's accepted way stays");
+      cy.location("pathname").should("match", /medilab\.subcontract\.dispatch\/\d+$/);
+      refAs(ADMINISTRATOR, PARAMETERS.lead.way).then((northern) =>
+        refAs(ADMINISTRATOR, PARAMETERS.lead.sameMethod).then((accepted) =>
+          cy.readRecord(test, ["status", "parameter_method_id", "accepted_method_id"]).should((read) => {
+            expect(read.status).to.equal("outsourced");
+            expect(read.parameter_method_id[0]).to.equal(northern.id);
+            expect(read.accepted_method_id[0]).to.equal(accepted.id);
+          }),
+        ),
+      );
+    });
+  });
+
+  it("TC-WF05-E5 offers the customer each method once in the cart, never naming the subcontractor", () => {
+    clearCarts(CUSTOMERS.nuocSach);
+    step("The customer chooses bottled water for lead, which Chemistry and Northern both test by ICP-MS");
+    cy.signInAs("customer");
+    cy.get(`${PORTAL_MENU} a[href='/catalog']`).click();
+    cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
+    cy.location("pathname").should("eq", "/cart");
+    cy.get("select[name=sample_type_id]")
+      .first()
+      .find("option")
+      .contains(/Nước đóng chai|Bottled water/)
+      .invoke("val")
+      .then((value) => cy.get("select[name=sample_type_id]").first().select(String(value)));
+    step("Each method is offered once, and no way names who tests it");
+    cy.get("select[name=parameter_method_id]")
+      .first()
+      .find("option[value!='']")
+      .then((options) => {
+        const names = [...options].map((option) => option.textContent.trim());
+        expect(names).to.have.members(["Lead (Pb) – TCVN 7602:2007", "Lead (Pb) – ISO 17294-2:2016"]);
+      });
+    cy.get("main").should("not.contain", "Northern");
+  });
+
+  it("TC-WF05-E6 lets sample delivery staff record a failed delivery → the dispatch is cancelled and its test stays outsourced", () => {
+    sentDispatch().then(({ test, dispatch }) => {
+      step("The sample delivery staff record why the delivery failed");
+      cy.signInAs("sample_delivery_staff");
+      cy.openRecord(dispatch);
+      cy.contains(`${ACTIONS} button:visible`, "Delivery Failed").click();
+      cy.get(".modal:visible").within(() => {
+        cy.get(".o_field_widget[name=reason] textarea").type(FAILURE);
+        cy.get("button[name=action_confirm]").click();
+      });
+      cy.get(".modal").should("not.exist");
+      cy.readRecord(dispatch, ["status", "failure_reason"]).should((read) => {
+        expect(read.status).to.equal("cancelled");
+        expect(read.failure_reason).to.equal(FAILURE);
+      });
+      step("The test stays outsourced for a new dispatch");
+      cy.readRecord(test, ["status"]).its("status").should("eq", "outsourced");
+      cy.signInAs("head_of_department");
+      cy.openRecord(dispatch);
+      cy.get(".o_form_view").should("contain", FAILURE);
+      cy.contains(`${ACTIONS} button`, "Delivery Failed").should("not.exist");
+    });
+  });
+
+  it("TC-WF05-E7 tells the head about a lapsed accreditation; the head cancels the draft and moves its test to a subcontractor with the same method", () => {
+    cy.signInAs("head_of_department");
+    refAs(ADMINISTRATOR, "sol_demo.demo_subcontract_dispatch_accreditation_lapsed").then((dispatch) =>
+      cy.readRecord(dispatch, ["status", "sample_test_ids"]).then(({ status, sample_test_ids: [testId] }) => {
+        expect(status, "the seeded draft dispatch of a lapsed subcontractor").to.equal("draft");
+        const test = { model: "medilab.sample.test", id: testId };
+        step("The head cannot send the draft dispatch of a subcontractor whose accreditation lapsed");
+        callRefused("medilab.subcontract.dispatch", "action_send", [[dispatch.id]]).should("match", /accreditation has expired/);
+        step("The head cancels it and moves the test to Northern, which tests lead by the same method");
+        cy.openRecord(dispatch);
+        cy.get(`${ACTIONS} button[name=action_cancel]:visible`).click();
+        cy.get(".modal:visible .modal-footer .btn-primary").click();
+        cy.readRecord(dispatch, ["status"]).its("status").should("eq", "cancelled");
+        cy.openRecord(test);
+        cy.contains(`${ACTIONS} button:visible`, "Move to Another Subcontractor").click();
+        cy.get(".modal:visible").within(() => {
+          cy.get("[name=reason]").should("not.exist");
+          cy.get("button[name=action_outsource]").click();
+        });
+        cy.location("pathname").should("match", /medilab\.subcontract\.dispatch\/\d+$/);
+        refAs(ADMINISTRATOR, PARAMETERS.lead.way).then((northern) =>
+          cy.readRecord(test, ["status", "parameter_method_id"]).should((read) => {
+            expect(read.status).to.equal("outsourced");
+            expect(read.parameter_method_id[0]).to.equal(northern.id);
+          }),
+        );
+      }),
+    );
+  });
+
+  it("TC-WF05-A8 prints a dispatch with its sample tests and never the customer", () => {
+    sentDispatch().then(({ test, dispatch }) => {
+      step("The head of department prints the dispatch");
+      cy.signInAs("head_of_department");
+      cy.request(`/report/html/sol_laboratory.report_subcontract_dispatch/${dispatch.id}`).then(({ body }) => {
+        expect(body).to.contain(dispatch.code);
+        expect(body).to.contain(test.code);
+        expect(body).to.contain("ISO 17294-2:2016");
+        expect(body).not.to.contain(test.customerName);
+      });
+    });
+  });
+
+  it("TC-WF05-A9 lets a person with the subcontractor permission add its contact people", () => {
+    const name = `Người liên hệ ${Date.now()}`;
+    refAs(ADMINISTRATOR, "sol_demo.demo_subcontractor_southern_micro").then((subcontractor) => {
+      step("The administrator adds a contact person to the subcontractor");
+      cy.signInAs("administrator");
+      cy.openRecord(subcontractor);
+      cy.contains(".o_form_view .o_form_statusbar button:visible", "Add a Contact Person").click();
+      cy.get(".modal:visible").within(() => {
+        cy.get(".o_field_widget[name=name] input").type(name);
+        cy.get("button[name=action_add]").click();
+      });
+      cy.get(".modal").should("not.exist");
+      cy.contains(".o_notebook .nav-link", "Contact People").click();
+      cy.contains(".o_field_widget[name=contact_ids] .o_data_row", name).should("be.visible");
     });
   });
 });

@@ -45,15 +45,16 @@ class TestSubcontractDispatch(DispatchCase):
                 {"subcontractor_id": self.coastal.id}
             )
 
-    def test_a_dispatch_records_either_sample_delivery_staff_or_a_delivery_service(self):
+    def test_a_dispatch_records_its_delivery_service_with_the_tracking_number(self):
         dispatch = self.as_person(self.outsource(), self.head)
         dispatch.expected_date = "2026-10-16"
 
         with self.assertRaises(UserError):
             dispatch.action_send()
-        with self.assertRaises(ValidationError):
-            dispatch.write({"courier_id": self.courier.id, "delivery_service": "Viettel Post, VTP 8402 1157 2210"})
-        dispatch.delivery_service = "Viettel Post, VTP 8402 1157 2210"
+        dispatch.write({"courier_id": self.courier.id, "delivery_service": "Viettel Post"})
+        with self.assertRaisesRegex(UserError, "tracking number"):
+            dispatch.action_send()
+        dispatch.tracking_number = "VTP 8402 1157 2210"
         dispatch.action_send()
 
         self.assertEqual(dispatch.status, "sent")
@@ -61,13 +62,14 @@ class TestSubcontractDispatch(DispatchCase):
 
     def test_a_dispatch_moves_only_by_its_buttons_and_is_not_cancelled_once_results_exist(self):
         dispatch = self.send_dispatch(self.outsource())
-
         with self.assertRaises(UserError):
             dispatch.write({"status": "draft"})
+        dispatch.action_receive()
+
         self.enter()
         with self.assertRaises(UserError):
             dispatch.action_cancel()
-        self.assertEqual(dispatch.status, "sent")
+        self.assertEqual(dispatch.status, "received")
 
     def test_a_sent_dispatch_appears_on_the_outsourcing_schedule_with_its_expected_date(self):
         dispatch = self.outsource()
@@ -111,7 +113,7 @@ class TestSubcontractDispatch(DispatchCase):
         self.assertEqual(dispatches._portal_dispatches(self.southern_user), southern)
 
     def test_a_subcontractor_result_records_its_user_and_waits_for_approval_like_any_other(self):
-        dispatch = self.send_dispatch(self.outsource())
+        dispatch = self.receive_dispatch(self.outsource())
         portal = self.env[MODEL_SUBCONTRACT_DISPATCH].with_user(self.northern_user)
 
         result = portal._portal_dispatches(self.northern_user)._portal_enter_result(self.test.id, "0,008", "")
@@ -130,12 +132,12 @@ class TestSubcontractDispatch(DispatchCase):
         self.assertEqual(result.status, "approved")
         self.assertEqual(self.test.status, "approved")
 
-    def test_a_tester_enters_an_outsourced_result_only_once_the_dispatch_is_sent(self):
+    def test_a_tester_enters_an_outsourced_result_only_once_the_dispatch_is_received(self):
         dispatch = self.outsource()
         with self.assertRaises(UserError):
             self.enter()
 
-        self.send_dispatch(dispatch)
+        self.receive_dispatch(dispatch)
         result = self.enter()
 
         self.assertEqual(result.entered_by_id, self.tester.user_id)
@@ -143,7 +145,7 @@ class TestSubcontractDispatch(DispatchCase):
             result.machine_id = self.fast
 
     def test_a_rejected_outsourced_result_sends_the_test_back_to_its_subcontractor(self):
-        self.send_dispatch(self.outsource())
+        self.receive_dispatch(self.outsource())
         result = self.enter()
         self.send(result)
 

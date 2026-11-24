@@ -29,7 +29,7 @@ describe("DocumentScreen", () => {
     const openURL = jest.spyOn(Linking, "openURL").mockResolvedValue(undefined);
     await renderSignedIn(<DocumentScreen />);
 
-    expect(await screen.findByText("MS-2026-0042")).toBeOnTheScreen();
+    expect(await screen.findByRole("header", { name: "MS-2026-0042" })).toBeOnTheScreen();
     expect(mediLab.sent[0]).toMatchObject({
       url: "https://lab.example/medilab/api/v1/documents/medilab.sample/12",
       headers: { Authorization: "Bearer device-key" },

@@ -3,12 +3,12 @@ from datetime import timedelta
 from odoo import fields
 from odoo.fields import Command
 
-from .demo_laboratory_content import content_writer
+from .demo_laboratory_content import content_writer, xlsx_content
 from odoo.addons.sol_laboratory.constants.laboratory_files import MEMBER_ROLE
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_EDITING_SESSION
 
 # The content the two testers saved online in the lead results spreadsheet.
-ONLINE_CONTENT = "Pb: 0,004 mg/L, lặp lại 0,005 mg/L, trung bình 0,0045 mg/L"
+ONLINE_CONTENT = xlsx_content("Pb: 0,004 mg/L, lặp lại 0,005 mg/L, trung bình 0,0045 mg/L")
 # How long ago the chemistry tester left the spreadsheet open in the browser without working in it.
 IDLE_HOURS = 13
 

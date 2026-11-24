@@ -128,6 +128,35 @@ There is no administrator bypass in the mixin: the administrator holds every per
 | Archive                         | The Archive action appears only while `active` is writable for the user.                      |
 | Field, button, other view parts | `groups="sol_laboratory.group_permission_<code>"` on the view node.                               |
 
+### Field access
+
+This design uses the permissions an administrator assigns to a role or person; it has no separate administrator-managed rule per role and field. A field or view part with a permission group is shown only to a person who has that permission, directly or through a role. Editing a field also requires the applicable record-level `edit` permission and the record to be inside its scope. A permission group on a view controls that view element; it does not create a field-level API, export, report or e-mail restriction. Those paths continue to use the record-level permissions described above. A requirement to restrict a field across all those paths needs a separate design.
+
+The permission groups below gate fields in the interface. Field names are the technical names used by the model. A field listed under multiple permissions is available to a person with any listed permission. Fields not listed here follow the record-level read and edit permissions; global rules and feature-specific restrictions still apply.
+
+| Permission | Fields shown by the permission |
+| ---------- | ------------------------------ |
+| `customer.edit.all` | `citizen_id` |
+| `expected_sampling.read.all` | `amount`, `container_type`, `expected_sample_count`, `expected_sampling_ids`, `group_number`, `method_ids`, `objects`, `preservation`, `unit_id` |
+| `handover_record_sample.read.all` | `actual_count`, `condition`, `excess_material`, `expected_count`, `extra_count`, `handover_line_ids`, `missing_count`, `quantity`, `record_id` |
+| `laboratory_file_version.read.all` | `docx_version_id`, `preview_docx_version_id` |
+| `laboratory_folder.create.all` | `laboratory_folder_count` |
+| `laboratory_folder.edit.all` | `owner_id` |
+| `person.read.all`, `person.read.own_department`, `person.read.own_team` | `name`, `team_person_ids`, `work_email`, `work_phone` |
+| `report_template_version.read.all` | `made_available_at`, `number`, `preview_attachment_id`, `state`, `template_version_id`, `version_ids` |
+| `sample_return.create.all` | `code`, `customer_sample_name`, `returnable`, `sample_ids`, `sample_type_id`, `status` |
+| `sample_return.read.all` | `description`, `kind`, `return_ids`, `returned_at`, `returned_by_id`, `returned_to_name` |
+| `signature.read.all` | `signature_ids` |
+| `subcontract_dispatch.read.all` | `code`, `dispatch_ids`, `expected_date`, `sent_date`, `status`, `subcontractor_id` |
+| `task.read.all` | `department_id` |
+| `test_report_candidate.read.all` | `candidate_ids`, `create_date`, `create_uid`, `invalidated_reason`, `report_date`, `report_number`, `sha256`, `status`, `template_version_id` |
+| `test_report_draft.read.all` | `create_date`, `create_uid`, `draft_ids`, `template_version_id` |
+| `test_report.read.all` | `delivered_at`, `display_name`, `issued_at`, `language`, `report_ids`, `status`, `version` |
+| `test_request.read.all` | `photo_ids` |
+| `test_result.read.all` | `conclusion`, `entered_at`, `entered_by_id`, `is_reported`, `parameter_id`, `result_ids`, `sample_id`, `status`, `unit_id`, `value_display` |
+
+The same permission may gate buttons or whole view sections as well as fields. This table lists only fields, not those other view elements. The customer of a sample remains hidden from testers as a fixed laboratory rule, regardless of their role permissions.
+
 ### Archiving and deleting
 
 Departments and people follow [Archiving and deleting](../business/archiving-and-deleting.md); roles and permissions have no archive and are deleted once nothing refers to them. A role a person holds cannot be deleted, a department that people, teams or ways of testing name cannot be archived or deleted, a team that people belong to cannot be archived or deleted, and deleting a person removes them from their roles and takes the role and permission groups off their user.

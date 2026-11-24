@@ -1,11 +1,16 @@
 from lxml import etree
 
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tests import TransactionCase, new_test_user, tagged
 from odoo.tools.safe_eval import safe_eval
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS
-from odoo.addons.sol_laboratory.constants.settings import DEFAULT_SAFETY_MARGIN_DAYS, SAFETY_MARGIN_PARAMETER
+from odoo.addons.sol_laboratory.constants.settings import (
+    DEFAULT_MANDATORY_EMAIL_RETRY_COUNT,
+    DEFAULT_MANDATORY_EMAIL_RETRY_INTERVAL_HOURS,
+    DEFAULT_SAFETY_MARGIN_DAYS,
+    SAFETY_MARGIN_PARAMETER,
+)
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 SETTINGS_MENU = "sol_laboratory.menu_settings"
@@ -36,6 +41,19 @@ class TestSettings(TransactionCase):
         self.settings(self.administrator).create({"safety_margin_days": 5}).set_values()
 
         self.assertEqual(self.settings(self.clerk)._get_parameter("safety_margin_days"), 5)
+
+    def test_mandatory_email_retry_defaults_and_limits(self):
+        settings = self.settings(self.clerk)
+        self.assertEqual(settings._get_parameter("mandatory_email_retry_count"), DEFAULT_MANDATORY_EMAIL_RETRY_COUNT)
+        self.assertEqual(
+            settings._get_parameter("mandatory_email_retry_interval_hours"),
+            DEFAULT_MANDATORY_EMAIL_RETRY_INTERVAL_HOURS,
+        )
+
+        with self.assertRaises(ValidationError):
+            self.settings(self.administrator).create({"mandatory_email_retry_count": -1})
+        with self.assertRaises(ValidationError):
+            self.settings(self.administrator).create({"mandatory_email_retry_interval_hours": 0})
 
     def test_only_administrators_change_settings(self):
         parameters = self.env["ir.config_parameter"].with_user(self.clerk)
@@ -75,6 +93,8 @@ class TestSettings(TransactionCase):
         self.assertTrue(root.xpath("//app[@name='sol_laboratory']/block[@name='codes_setting_container']"))
         self.assertTrue(root.xpath("//app[@name='sol_laboratory']//setting[@id='medilab_code_formats']"))
         self.assertTrue(root.xpath("//app[@name='sol_laboratory']//field[@name='safety_margin_days']"))
+        self.assertTrue(root.xpath("//app[@name='sol_laboratory']//field[@name='mandatory_email_retry_count']"))
+        self.assertTrue(root.xpath("//app[@name='sol_laboratory']//field[@name='mandatory_email_retry_interval_hours']"))
 
     def test_code_formats_lists_the_medilab_sequences(self):
         action = self.env.ref("sol_laboratory.action_medilab_code_formats")

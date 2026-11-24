@@ -1,18 +1,22 @@
 import { randomUUID } from "expo-crypto";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, Text, TextInput } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import type { Conversation, PersonName } from "../../api";
 import { useT } from "../../locale";
 import { useAction } from "../../record";
 import { useSession } from "../../session";
-import { colors, styles as shared } from "../../styles";
+import { styles as shared } from "../../styles";
+import { colors, layout, radius, space } from "../../theme";
 import { ActionProblem } from "../connection/ActionProblem";
 import { conversationPath } from "../documents/documentPath";
 import { usePeople } from "../messages/usePeople";
-import { Button } from "../shared/Button";
+import { ActionBar } from "../shared/ActionBar";
+import { Avatar } from "../shared/Avatar";
+import { Icon } from "../shared/Icon";
+import { Screen } from "../shared/Screen";
+import { Sheet } from "../shared/Sheet";
 
 /** Starts a conversation: with one person it opens their direct conversation, the same as on the web; with several,
  * it creates a group with its name. */
@@ -65,52 +69,99 @@ export function NewConversationScreen() {
   }
 
   return (
-    <SafeAreaView style={shared.page}>
-      <ScrollView contentContainerStyle={shared.pageContent}>
-        <Text style={shared.title}>{t("conversations.new")}</Text>
+    <Screen
+      title={t("conversations.new")}
+      footer={
+        <ActionBar
+          actions={[
+            {
+              key: "start",
+              label: t(group ? "conversations.createGroup" : "conversations.openDirect"),
+              tone: "primary",
+              icon: group ? "account-multiple-plus-outline" : "message-outline",
+              disabled: !chosen.length || busy,
+              testID: "conversation-start",
+              onPress: start,
+            },
+          ]}
+        >
+          <ActionProblem problem={problem?.load ?? null} gone="" onRetry={problem?.retry ?? (() => undefined)} />
+        </ActionBar>
+      }
+    >
+      <View style={styles.search}>
+        <Icon name="magnify" />
         <TextInput
           testID="people-search"
           accessibilityLabel={t("conversations.findPeople")}
           placeholder={t("conversations.findPeople")}
-          style={shared.input}
+          placeholderTextColor={colors.textMuted}
+          style={styles.searchInput}
           value={query}
           onChangeText={setQuery}
         />
-        {found.map((person) => {
-          const picked = chosen.some((kept) => kept.id === person.id);
-          return (
-            <Pressable
-              key={person.id}
-              testID={`person-${person.id}`}
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: picked }}
-              accessibilityLabel={person.name}
-              style={[shared.card, picked && { borderColor: colors.primary }]}
-              onPress={() => toggle(person)}
-            >
-              <Text style={shared.label}>{person.name}</Text>
-            </Pressable>
-          );
-        })}
-        {group && (
-          <TextInput
-            testID="group-name"
-            accessibilityLabel={t("conversations.groupName")}
-            placeholder={t("conversations.groupName")}
-            style={shared.input}
-            value={name}
-            onChangeText={setName}
-          />
-        )}
-        <ActionProblem problem={problem?.load ?? null} gone="" onRetry={problem?.retry ?? (() => undefined)} />
-        <Button
-          testID="conversation-start"
-          primary
-          label={t(group ? "conversations.createGroup" : "conversations.openDirect")}
-          disabled={!chosen.length || busy}
-          onPress={start}
-        />
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+      {group && (
+        <Sheet>
+          <View style={styles.field}>
+            <Text style={shared.label}>{t("conversations.groupName")}</Text>
+            <TextInput
+              testID="group-name"
+              accessibilityLabel={t("conversations.groupName")}
+              placeholder={t("conversations.groupName")}
+              placeholderTextColor={colors.textMuted}
+              style={shared.input}
+              value={name}
+              onChangeText={setName}
+            />
+          </View>
+        </Sheet>
+      )}
+      {found.length > 0 && (
+        <Sheet>
+          {found.map((person) => {
+            const picked = chosen.some((kept) => kept.id === person.id);
+            return (
+              <Pressable
+                key={person.id}
+                testID={`person-${person.id}`}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: picked }}
+                accessibilityLabel={person.name}
+                style={({ pressed }) => [styles.person, pressed && styles.pressed]}
+                onPress={() => toggle(person)}
+              >
+                <Avatar name={person.name} size={36} />
+                <Text style={[shared.label, styles.name]}>{person.name}</Text>
+                <Icon
+                  name={picked ? "checkbox-marked" : "checkbox-blank-outline"}
+                  size={24}
+                  color={picked ? colors.primary : colors.borderControl}
+                />
+              </Pressable>
+            );
+          })}
+        </Sheet>
+      )}
+    </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  search: {
+    minHeight: layout.touch,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space.sm,
+    borderWidth: 1,
+    borderColor: colors.borderControl,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    paddingHorizontal: space.lg,
+  },
+  searchInput: { flex: 1, fontSize: 16, color: colors.text, paddingVertical: 10 },
+  field: { gap: 6 },
+  person: { minHeight: layout.touch, flexDirection: "row", alignItems: "center", gap: space.md },
+  pressed: { opacity: 0.6 },
+  name: { flex: 1 },
+});

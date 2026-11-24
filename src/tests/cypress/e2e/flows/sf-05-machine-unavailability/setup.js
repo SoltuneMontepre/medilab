@@ -24,9 +24,10 @@ function create(login, model, values) {
 export const calibration = (days = 365) => ({ kind: "calibration", service_date: inDays(0), next_due_date: inDays(days) });
 
 // Machines linked to one method of their own, all able to run the same way of testing, and tests of that way waiting
-// at the tester. The first `book` tests are booked as the tester accepts the department's plan; the others wait for
-// the plan. A machine is calibrated unless `calibrated` is false. Machines take the codes <tag>-A, <tag>-B, ..., so
-// the plan prefers the first one. The test registers the fixture first, so a failed setup is still released.
+// at the tester. The first `book` tests are booked as the head of department approves the department's plan; the
+// others wait for the plan. A machine is calibrated unless `calibrated` is false. Machines take the codes <tag>-A,
+// <tag>-B, ..., so the plan prefers the first one. The test registers the fixture first, so a failed setup is still
+// released.
 export function machineFixture({ tests = 1, book = tests, machines = 1, capacity = 1, calibrated = true } = {}, register = () => {}) {
   const fixture = { tag: `Cu-SF05-${Date.now()}`, tests: [], tasks: [], bookings: [], machines: [] };
   register(fixture);
@@ -89,7 +90,7 @@ export function machineFixture({ tests = 1, book = tests, machines = 1, capacity
     cy.then(() =>
       create(RECEPTION, "medilab.test.request", {
         customer_id: fixture.customer,
-        expected_date: inDays(30),
+        committed_date: inDays(30),
         sample_ids: [
           [
             0,
@@ -139,7 +140,7 @@ export function machineFixture({ tests = 1, book = tests, machines = 1, capacity
   return cy.then(() => fixture);
 }
 
-// The head approves the slot the department's plan proposes for the test, and yields the booking.
+// The head of department approves the slot the department's plan proposes for the test, and yields the booking.
 export function approve(fixture, test) {
   callAs(HEAD, "medilab.sample.test", "action_approve_booking", [[test]]);
   return callAs(ADMIN, "medilab.machine.booking", "search", [

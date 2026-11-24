@@ -30,7 +30,7 @@ describe("SampleScreen", () => {
     const mediLab = fakeMediLab({ status: 200, body: sample() }, { status: 200, body: received });
     await renderSignedIn(<SampleScreen />);
 
-    expect(await screen.findByText("PTN.2026.0042")).toBeOnTheScreen();
+    expect(await screen.findByRole("header", { name: "PTN.2026.0042" })).toBeOnTheScreen();
     expect(screen.getByText("Chai PET 500 mL")).toBeOnTheScreen();
     expect(screen.queryByText("Khách hàng")).toBeNull();
     expect(screen.getByText("Hoá chưa nhận mẫu.")).toBeOnTheScreen();
@@ -63,6 +63,18 @@ describe("SampleScreen", () => {
     expect(
       screen.getByText("Phòng ban của bạn không còn nhiệm vụ kiểm nghiệm nào chờ nhận trên mẫu này."),
     ).toBeOnTheScreen();
+  });
+
+  it("shows a person who does not test samples neither a handover nor testing tasks", async () => {
+    fakeMediLab({
+      status: 200,
+      body: sample({ handover: null, tasks: [], tests_samples: false, customer: "Công ty An Phú" }),
+    });
+    await renderSignedIn(<SampleScreen />);
+
+    expect(await screen.findByText("Công ty An Phú")).toBeOnTheScreen();
+    expect(screen.queryByRole("header", { name: "Bàn giao cho phòng ban" })).toBeNull();
+    expect(screen.queryByRole("header", { name: "Nhiệm vụ kiểm nghiệm chờ nhận" })).toBeNull();
   });
 
   it("claims the chosen testing tasks of the person's department", async () => {

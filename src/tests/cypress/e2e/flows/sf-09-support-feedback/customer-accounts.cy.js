@@ -1,5 +1,5 @@
-import { becomeVisitor, refAs } from "../../../support/odoo";
-import { latestQuotation, orderAt } from "../wf-01-order-to-test-request/setup";
+import { becomeVisitor, callAs, refAs } from "../../../support/odoo";
+import { orderAt } from "../wf-01-order-to-test-request/setup";
 
 describe("SF-09 customer accounts and profiles (F-03)", () => {
   it("TC-F03-01 lets a newly registered customer sign in and see only their own documents", () => {
@@ -28,23 +28,23 @@ describe("SF-09 customer accounts and profiles (F-03)", () => {
   });
 
   it("TC-F03-03 denies another customer the quotation, invoice and result", () => {
-    orderAt("sent").then((order) => {
-      cy.signInAs("sales");
-      latestQuotation(order.id).then((quotation) => {
-        refAs("demo.administrator", "sol_demo.demo_test_report_by_email").then((report) => {
-          cy.signInAs("individual");
-          cy.request({ url: `/orders/${order.id}/quotation`, failOnStatusCode: false })
-            .its("status")
-            .should("eq", 404);
-          const [invoiceId, invoiceName] = quotation.advance_invoice_id;
-          cy.request(`/my/invoices/${invoiceId}`).should((response) => {
-            expect(response.redirects, "sent back to the portal home").not.to.be.empty;
-            expect(response.body).not.to.contain(invoiceName);
+    orderAt("paid").then((order) => {
+      refAs("demo.administrator", "sol_demo.demo_test_report_by_email").then((report) => {
+        callAs("demo.sales", "sale.order", "read", [[order.id], ["invoice_ids"]]).then(([read]) => {
+          const invoiceIds = read.invoice_ids;
+          expect(invoiceIds, "invoices of the paid order").not.to.be.empty;
+          callAs("demo.accountant", "account.move", "read", [invoiceIds, ["name"]]).then((invoices) => {
+            cy.signInAs("individual");
+            cy.request({ url: `/orders/${order.id}/quotation`, failOnStatusCode: false }).its("status").should("eq", 404);
+            invoices.forEach((invoice) => {
+              cy.request({ url: `/my/invoices/${invoice.id}`, failOnStatusCode: false }).should((response) => {
+                expect(response.redirects, "sent back to the portal home").not.to.be.empty;
+                expect(response.body).not.to.contain(invoice.name);
+              });
+            });
           });
-          cy.request({ url: `/my/test-reports/${report.id}/download`, failOnStatusCode: false })
-            .its("status")
-            .should("eq", 404);
         });
+        cy.request({ url: `/my/test-reports/${report.id}/download`, failOnStatusCode: false }).its("status").should("eq", 404);
       });
     });
   });

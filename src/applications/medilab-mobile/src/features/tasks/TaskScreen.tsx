@@ -1,30 +1,38 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, Text, View } from "react-native";
 
 import type { SampleTest, TaskDetail } from "../../api";
-import type { MessageKey } from "../../i18n";
 import { failed, type Load } from "../../load";
 import { useT } from "../../locale";
 import { useRecord } from "../../record";
 import { useSession } from "../../session";
-import { colors, styles as shared } from "../../styles";
+import { styles as shared } from "../../styles";
+import { colors, fontSize, radius, space } from "../../theme";
 import { TestFacts } from "../bench/TestFacts";
 import { ActionProblem } from "../connection/ActionProblem";
 import { LoadNotice } from "../connection/LoadNotice";
 import { documentPath, resultPath, SAMPLE_TEST_MODEL, samplePath, sampleTestPath } from "../documents/documentPath";
-import { Button } from "../shared/Button";
-import { ChatterButton } from "../messages/ChatterButton";
-import { Facts, type Fact } from "../shared/Facts";
-import { formatMoment, statusKey } from "./taskText";
+import { ChatterLink } from "../messages/ChatterLink";
+import type { MessageKey } from "../../i18n";
+import { ActionBar, type BarAction } from "../shared/ActionBar";
+import { Button, type Tone } from "../shared/Button";
+import type { IconName } from "../shared/Icon";
+import { Facts, type Fact as FactRow } from "../shared/Facts";
+import { LinkRow } from "../shared/LinkRow";
+import { RecordHead } from "../shared/RecordHead";
+import { Screen } from "../shared/Screen";
+import { Sheet } from "../shared/Sheet";
+import { Fact } from "./TaskRow";
+import { formatMoment, isOverdue, statusKey, statusTone, whenText } from "./taskText";
 
 type Action = "claim" | "start" | "done";
 
-const ACTIONS: { action: Action; label: MessageKey }[] = [
-  { action: "claim", label: "task.claim" },
-  { action: "start", label: "task.start" },
-  { action: "done", label: "task.done" },
+// Claiming and starting move the task forward; marking it done finishes it.
+const ACTIONS: { action: Action; label: MessageKey; tone: Tone; icon: IconName }[] = [
+  { action: "claim", label: "task.claim", tone: "primary", icon: "hand-back-right-outline" },
+  { action: "start", label: "task.start", tone: "primary", icon: "play" },
+  { action: "done", label: "task.done", tone: "success", icon: "check" },
 ];
 
 /** A task as the person may read it, with the actions the web's form shows them: claiming it from their queue,
@@ -54,112 +62,123 @@ export function TaskScreen() {
     }
   }
 
+  const task = load.state === "ready" ? load.value : null;
+  const actions: BarAction[] = ACTIONS.filter(({ action }) => task?.actions[action]).map(
+    ({ action, label, tone, icon }) => ({
+      key: action,
+      label: t(label),
+      tone,
+      icon,
+      testID: `task-${action}`,
+      disabled: busy,
+      onPress: () => act(action),
+    }),
+  );
+  if (task?.actions.assign) {
+    actions.push({
+      key: "assign",
+      label: t("task.assign"),
+      icon: "account-arrow-right-outline",
+      testID: "task-assign",
+      onPress: () => router.push({ pathname: "/tasks/[id]/assign", params: { id } }),
+    });
+  }
+
   return (
-    <SafeAreaView style={shared.page}>
+    <Screen
+      title={task?.document?.code || task?.name || t("tasks.title")}
+      footer={
+        task && (
+          <ActionBar actions={actions}>
+            <ActionProblem
+              problem={problem?.load ?? null}
+              gone={t("task.gone")}
+              onRetry={() => problem && act(problem.action)}
+            />
+          </ActionBar>
+        )
+      }
+    >
       <LoadNotice load={load} gone={t("task.gone")} onRetry={reload} />
-      {load.state === "ready" && (
-        <ScrollView contentContainerStyle={shared.pageContent}>
-          <Details task={load.value} />
-          <ActionProblem
-            problem={problem?.load ?? null}
-            gone={t("task.gone")}
-            onRetry={() => problem && act(problem.action)}
-          />
-          {ACTIONS.filter(({ action }) => load.value.actions[action]).map(({ action, label }) => (
-            <Pressable
-              key={action}
-              testID={`task-${action}`}
-              accessibilityRole="button"
-              accessibilityState={{ disabled: busy }}
-              disabled={busy}
-              style={shared.primaryButton}
-              onPress={() => act(action)}
-            >
-              <Text style={shared.primaryButtonText}>{t(label)}</Text>
-            </Pressable>
-          ))}
-          {load.value.actions.assign && (
-            <Pressable
-              accessibilityRole="button"
-              style={shared.secondaryButton}
-              onPress={() => router.push({ pathname: "/tasks/[id]/assign", params: { id } })}
-            >
-              <Text style={shared.secondaryButtonText}>{t("task.assign")}</Text>
-            </Pressable>
-          )}
-          {load.value.document && !(load.value.samples.length && load.value.document.screen === "sample") && (
-            <Pressable
-              accessibilityRole="button"
-              style={shared.secondaryButton}
-              onPress={() => load.value.document && router.push(documentPath(load.value.document))}
-            >
-              <Text style={shared.secondaryButtonText}>
-                {t("task.openDocument", { code: load.value.document.code || load.value.name })}
-              </Text>
-            </Pressable>
-          )}
-          <ChatterButton document={{ model: "medilab.task", id: load.value.id, code: load.value.name }} />
-        </ScrollView>
-      )}
-    </SafeAreaView>
+      {task && <Details task={task} />}
+    </Screen>
   );
 }
 
 function Details({ task }: Readonly<{ task: TaskDetail }>) {
   const t = useT();
   const { language } = useSession();
-  const facts: Fact[] = [
+  const when = whenText(task, t, language);
+  const done = task.status === "done";
+  // The head shows the person and when the task is due, or was done; the sheet shows the rest.
+  const facts: FactRow[] = [
     ["task.type", task.type],
-    ["task.statusLabel", t(statusKey(task.status))],
-    ["task.deadlineLabel", task.deadline ? formatMoment(task.deadline, language) : ""],
+    ["task.deadlineLabel", done && task.deadline ? formatMoment(task.deadline, language) : ""],
     ["task.planned", task.planned_start ? formatMoment(task.planned_start, language) : ""],
     ["task.plannedEnd", task.planned_end ? formatMoment(task.planned_end, language) : ""],
-    ["task.doneAtLabel", task.done_at ? formatMoment(task.done_at, language) : ""],
     ["task.department", task.department],
-    ["task.assignee", task.assignee],
     ["task.assignedBy", task.assigned_by],
     ["task.location", task.location],
     ["task.reason", task.reassign_reason],
   ];
+  const opensDocument = task.document && !(task.samples.length && task.document.screen === "sample");
   return (
     <>
-      <Text style={shared.title}>{task.name}</Text>
-      {!!task.document?.code && <Text style={shared.detail}>{task.document.code}</Text>}
-      <Facts facts={facts} />
+      <RecordHead title={task.name} status={{ label: t(statusKey(task.status)), tone: statusTone(task.status) }}>
+        {!!when &&<Fact icon="clock-outline" text={when} alert={isOverdue(task)} />}
+        {!!task.assignee && <Fact icon="account-outline" text={task.assignee} />}
+      </RecordHead>
       {task.document?.model === SAMPLE_TEST_MODEL && <BenchTest id={task.document.id} />}
-      {!!task.note && <Text style={shared.text}>{task.note}</Text>}
-      {task.samples.length > 0 && (
-        <View style={shared.section}>
-          <Text accessibilityRole="header" style={shared.heading}>
-            {t("task.samples")}
-          </Text>
-          {task.samples.map((sample) => (
-            <Button
-              key={sample.id}
-              label={t("task.openDocument", { code: sample.code })}
-              onPress={() => router.push(samplePath(sample.id))}
-              testID={`collection-sample-${sample.id}`}
-            />
-          ))}
-        </View>
-      )}
       {task.steps.length > 0 && (
-        <View style={shared.section}>
-          <Text accessibilityRole="header" style={shared.heading}>
-            {t("task.steps")}
-          </Text>
+        <Sheet title={t("task.steps")}>
           {task.steps.map((step, index) => (
             <View key={`${index}-${step.instruction}`} style={styles.step}>
-              <Text style={shared.label}>
-                {t("task.step", { number: index + 1, minutes: step.minutes })}
-              </Text>
-              <Text style={shared.text}>{step.instruction}</Text>
-              {!!step.note && <Text style={shared.detail}>{step.note}</Text>}
-              {!!step.location && <Text style={shared.detail}>{t("task.stepLocation", { location: step.location })}</Text>}
+              <View style={styles.number}>
+                <Text style={styles.numberText}>{index + 1}</Text>
+              </View>
+              <View style={styles.stepText}>
+                <Text style={shared.label}>{t("task.step", { number: index + 1, minutes: step.minutes })}</Text>
+                <Text style={shared.text}>{step.instruction}</Text>
+                {!!step.note && <Text style={shared.detail}>{step.note}</Text>}
+                {!!step.location && <Fact icon="map-marker-outline" text={t("task.stepLocation", { location: step.location })} />}
+              </View>
             </View>
           ))}
-        </View>
+        </Sheet>
       )}
+      {task.samples.length > 0 && (
+        <Sheet title={t("task.samples")}>
+          {task.samples.map((sample) => (
+            <LinkRow
+              key={sample.id}
+              icon="test-tube"
+              label={t("task.openDocument", { code: sample.code })}
+              detail={sample.sampling_location}
+              testID={`collection-sample-${sample.id}`}
+              onPress={() => router.push(samplePath(sample.id))}
+            />
+          ))}
+        </Sheet>
+      )}
+      {!!task.note && (
+        <Sheet title={t("newTask.note")}>
+          <Text style={shared.text}>{task.note}</Text>
+        </Sheet>
+      )}
+      <Sheet title={t("task.info")}>
+        <Facts facts={facts} />
+      </Sheet>
+      <Sheet>
+        {opensDocument && task.document && (
+          <LinkRow
+            icon="file-document-outline"
+            label={t("task.openDocument", { code: task.document.code || task.name })}
+            testID="task-open-document"
+            onPress={() => task.document && router.push(documentPath(task.document))}
+          />
+        )}
+        <ChatterLink document={{ model: "medilab.task", id: task.id, code: task.name }} />
+      </Sheet>
     </>
   );
 }
@@ -174,18 +193,39 @@ function BenchTest({ id }: Readonly<{ id: number }>) {
   }
   const test = load.value;
   return (
-    <View style={shared.section}>
+    <Sheet title={t("test.title")}>
       <TestFacts test={test} />
       {test.can_enter_result && (
-        <Button label={t("test.enterResult")} onPress={() => router.push(sampleTestPath(id))} primary testID="task-enter-result" />
+        <Button
+          label={t("test.enterResult")}
+          icon="pencil-outline"
+          tone="primary"
+          onPress={() => router.push(sampleTestPath(id))}
+          testID="task-enter-result"
+        />
       )}
       {!test.can_enter_result && test.result && (
-        <Button label={t("test.openResult")} onPress={() => test.result && router.push(resultPath(test.result.id))} />
+        <LinkRow
+          icon="file-document-outline"
+          label={t("test.openResult")}
+          testID="task-open-result"
+          onPress={() => test.result && router.push(resultPath(test.result.id))}
+        />
       )}
-    </View>
+    </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
-  step: { borderLeftWidth: 3, borderLeftColor: colors.border, paddingLeft: 12, gap: 2 },
+  step: { flexDirection: "row", gap: space.md },
+  number: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primaryLight,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  numberText: { fontSize: fontSize.sm, fontWeight: "700", color: colors.primary },
+  stepText: { flex: 1, gap: 2 },
 });

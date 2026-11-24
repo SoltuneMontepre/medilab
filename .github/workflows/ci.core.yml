@@ -134,6 +134,8 @@ jobs:
       - name: Typecheck
         id: typecheck
         if: needs.changes.outputs.lint == 'true'
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
         run: task typecheck
 
       - name: Upload typecheck diagnostics
@@ -259,7 +261,7 @@ jobs:
   e2e:
     needs: [changes, build]
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 75
     env:
       COMPOSE_FILE: tools/infrastructure/docker-compose.yml
       NO_COLOR: 1

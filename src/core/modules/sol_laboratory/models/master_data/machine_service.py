@@ -98,6 +98,7 @@ class MachineService(models.Model, MachineServiceBase):
         # A calibration record can bring the calibration due date forward, past which the machine takes no bookings,
         # and a downtime takes the machine from the bookings it overlaps.
         if machines:
+            machines.flush_recordset(["next_calibration_date", "next_maintenance_date"])
             self.env[MODEL_MACHINE_BOOKING]._requeue(machines)
 
     def _in_use_domain(self):

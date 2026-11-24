@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="view_order_form_medilab" />
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
-                <page string="Support" name="support">
+                <page string="Support" name="support" invisible="not support_request_ids">
                     <field name="support_request_ids" readonly="1">
                         <list decoration-warning="status == 'open'" decoration-info="status == 'answered'" decoration-muted="status == 'closed'">
                             <field name="code" />

@@ -59,9 +59,7 @@ class SampleLaboratoryFolders(models.Model, SampleLaboratoryFoldersBase):
         return action
 
     def _check_can_create_laboratory_folders(self):
-        """Refuse the user who may not create the samples' folders: the head of a department that tests the sample
-        creates them from it, holding the laboratory files permission. Who creates a sample's folders, and when, is an
-        open question; the answer changes only this method."""
+        """Refuse anyone except a head of a department that tests the sample and holds the laboratory files permission."""
         self.env[MODEL_LABORATORY_FOLDER]._check_laboratory_files_permission()
         self.check_access("read")
         for sample in self:

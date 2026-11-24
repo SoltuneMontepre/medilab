@@ -5,8 +5,8 @@ import { useReloadOnReturn } from "./focus";
 import { failed, useLoad, type Load } from "./load";
 import { useSession } from "./session";
 
-/** Reads the record at the path of MediLab's API once the screen opens and again when the person returns to it. An
- * answer without content is a record gone. */
+/** Reads the record at the path of MediLab's API once the screen opens and again, still showing it, when the person
+ * returns to it. An answer without content is a record gone. */
 export function useRecord<T>(path: string) {
   const { call } = useSession();
   const read = useCallback(async () => {
@@ -17,7 +17,7 @@ export function useRecord<T>(path: string) {
     return record;
   }, [call, path]);
   const loaded = useLoad(read);
-  useReloadOnReturn(loaded.reload);
+  useReloadOnReturn(loaded.refresh);
   return loaded;
 }
 
