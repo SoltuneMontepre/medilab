@@ -314,6 +314,7 @@
         > .o_inner_group,
         > [class*="col-"] {
           flex: 1 1 0;
+          width: auto;
           max-width: 100%;
         }
       }
