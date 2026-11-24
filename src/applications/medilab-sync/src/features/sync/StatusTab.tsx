@@ -90,14 +90,14 @@ export function StatusSummary({
     text = t("summary.working", { count: working });
   }
   return (
-    <div className={`mb-4 flex items-center justify-between gap-3 rounded-lg border px-4 py-3 ${tone}`} role="status">
+    <output className={`mb-4 flex items-center justify-between gap-3 rounded-lg border px-4 py-3 ${tone}`}>
       <span className="font-medium">{text}</span>
       {status.folders.length === 0 && onOpenFolders ? (
         <button type="button" className="btn btn-primary shrink-0" onClick={onOpenFolders}>
           {t("summary.addFolder")}
         </button>
       ) : null}
-    </div>
+    </output>
   );
 }
 

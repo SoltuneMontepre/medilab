@@ -15,5 +15,9 @@ export function connectServer(link: string): string | null {
   if (!["http:", "https:"].includes(server.protocol) || server.username || server.password) {
     return null;
   }
-  return server.origin + server.pathname.replace(/\/+$/, "");
+  let path = server.pathname;
+  while (path.endsWith("/")) {
+    path = path.slice(0, -1);
+  }
+  return server.origin + path;
 }

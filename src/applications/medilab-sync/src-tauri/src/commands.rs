@@ -346,17 +346,14 @@ pub async fn unregister_sync_folder(
     folder_id: i64,
 ) -> Result<StatusDto, String> {
     let engine = state.engine.clone();
-    let folders = engine.db.list_folders().map_err(String::from)?;
+    let folders = engine.db.list_folders()?;
     if let Some(remote_id) = folders
         .iter()
         .find(|folder| folder.id == folder_id)
         .and_then(|folder| folder.remote_id)
     {
         // Người dùng đã chủ động ngừng: không tự gắn lại folder mẫu này vào thư mục chính.
-        engine
-            .db
-            .set_auto_bind_skipped(remote_id, true)
-            .map_err(String::from)?;
+        engine.db.set_auto_bind_skipped(remote_id, true)?;
     }
     engine.db.delete_folder(folder_id).map_err(String::from)?;
     let _ = engine.reconcile_all().await;
@@ -613,7 +610,7 @@ pub async fn save_settings(
         .take()
         .filter(|home| !home.trim().is_empty())
     {
-        let home = ensure_dir(&home).map_err(String::from)?;
+        let home = ensure_dir(&home)?;
         settings.home_folder = Some(home.to_string_lossy().into_owned());
     }
     let home_changed = state.engine.settings.lock().await.home_folder != settings.home_folder;
@@ -984,8 +981,7 @@ pub fn open_sync_folder(
     let folder = state
         .engine
         .db
-        .list_folders()
-        .map_err(String::from)?
+        .list_folders()?
         .into_iter()
         .find(|folder| folder.id == folder_id)
         .ok_or_else(|| AppError::FolderNotFound.to_string())?;
@@ -1004,7 +1000,7 @@ pub fn open_sync_file(
     state: State<'_, AppState>,
     file_id: i64,
 ) -> Result<(), String> {
-    let path = synced_file_path(&state.engine.db, file_id).map_err(String::from)?;
+    let path = synced_file_path(&state.engine.db, file_id)?;
     open_local(&app, &path)
 }
 
