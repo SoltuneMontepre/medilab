@@ -408,6 +408,9 @@
                 <attribute name="options">{'currency_field': 'currency_id'}</attribute>
                 <attribute name="readonly">1</attribute>
             </xpath>
+            <xpath expr="//list[@name='sol_list']/column[@name='sol_qty']" position="attributes">
+                <attribute name="string">Order Quantity</attribute>
+            </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='sol_qty']/field[@name='product_uom_qty']" position="attributes">
                 <attribute name="digits">[16, 0]</attribute>
             </xpath>
@@ -454,9 +457,10 @@
             </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="after">
                 <field name="sample_id" readonly="1" optional="hide" options="{'no_open': True}" />
-                <field name="sample_type_id" readonly="sample_id or linked_line_id" options="{'no_create': True}" optional="show" />
+                <field name="sample_type_id" readonly="linked_line_id" options="{'no_create': True}" optional="show" />
                 <field name="offered_method_ids" column_invisible="1" />
                 <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" context="{'medilab_way_by_method': True}" />
+                <field name="expected_sample_count" readonly="1" optional="show" />
                 <field name="expected_sample_summary" readonly="1" optional="show" />
             </xpath>
             <!-- The form of a line, used when the window is narrow, follows the list. -->
@@ -472,12 +476,16 @@
             </xpath>
             <xpath expr="//field[@name='order_line']/form/group/group/field[@name='name']" position="after">
                 <field name="sample_id" readonly="1" invisible="not sample_id" options="{'no_open': True}" />
-                <field name="sample_type_id" readonly="sample_id or linked_line_id" options="{'no_create': True}" />
+                <field name="sample_type_id" readonly="linked_line_id" options="{'no_create': True}" />
                 <field name="offered_method_ids" invisible="1" />
                 <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" context="{'medilab_way_by_method': True}" />
                 <field name="default_way_notice" class="text-warning" invisible="not default_way_notice" />
+                <field name="expected_sample_count" readonly="1" invisible="not expected_sample_count" />
                 <field name="expected_sample_summary" readonly="1" invisible="not expected_sample_summary" />
                 <field name="sampling_preservation" readonly="1" invisible="not sampling_preservation" />
+            </xpath>
+            <xpath expr="//field[@name='order_line']/form//label[@for='product_uom_qty']" position="attributes">
+                <attribute name="string">Order Quantity</attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']/form//label[@for='qty_delivered']" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -486,25 +494,9 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//page[@name='order_lines']" position="after">
-                <page string="Samples" name="samples">
-                    <field name="sample_ids">
-                        <list editable="bottom">
-                            <field name="sequence" widget="handle" />
-                            <field name="customer_sample_name" />
-                            <field name="sample_type_id" options="{'no_create': True}" />
-                            <field name="physical_state" />
-                            <field
-                                name="regulation_id"
-                                options="{'no_create': True}"
-                                domain="[
-                                    ('sample_type_ids', 'parent_of', sample_type_id),
-                                    '|', ('valid_from', '=', False), ('valid_from', '&lt;=', context_today().strftime('%Y-%m-%d')),
-                                    '|', ('valid_until', '=', False), ('valid_until', '&gt;=', context_today().strftime('%Y-%m-%d')),
-                                ]"
-                            />
-                            <field name="regulation_notice" class="text-warning" optional="show" />
-                        </list>
-                    </field>
+                <page string="Samples" name="samples" invisible="not has_collected_samples">
+                    <field name="has_collected_samples" invisible="1" />
+                    <field name="collected_samples_html" nolabel="1" readonly="1" />
                 </page>
                 <page string="Revisions" name="revisions" invisible="not quotation_ids">
                     <field name="quotation_ids" readonly="1">

@@ -22,8 +22,8 @@
                 <field name="line_ids">
                     <list editable="bottom" create="false" delete="false">
                         <field name="product_template_id" string="Parameter or package" readonly="1" />
-                        <field name="sample_id" readonly="1" />
-                        <field name="product_uom_qty" string="Quantity" readonly="1" digits="[16, 0]" />
+                        <field name="sample_type_id" readonly="1" />
+                        <field name="product_uom_qty" string="Order Quantity" readonly="1" digits="[16, 0]" />
                         <field name="price_unit" widget="monetary" options="{'currency_field': 'currency_id'}" />
                         <field name="discount" string="Discount (%)" digits="[16, 0]" />
                         <field name="tax_ids" widget="many2many_tags" readonly="1" />

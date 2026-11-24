@@ -1,4 +1,4 @@
-import { choose, newRecord, openMenu, openRow, openTab, pick, save, search } from "../../../support/form";
+import { choose, newRecord, openMenu, openRow, pick, save, search } from "../../../support/form";
 import { MENU, PORTAL_MENU } from "../../../support/menus";
 import { becomeVisitor, call, callAs, callRefused, refAs, resolveRecord, signIn } from "../../../support/odoo";
 import { step } from "../../../support/steps";
@@ -41,7 +41,6 @@ function expectAdvanceDueOnDeadline(order) {
 
 describe("WF-01 Order to confirmed test request", () => {
   it("TC-WF01-M takes a portal order through the quotation, payment and confirmation", () => {
-    const sampleName = `Mẫu nước ${Date.now()}`;
     clearCarts(CUSTOMERS.nuocSach);
     step("Customer fills a cart from the catalog");
     cy.signInAs("customer");
@@ -76,18 +75,11 @@ describe("WF-01 Order to confirmed test request", () => {
         cy.contains(".o_data_row", submitted.name).find("button[name=action_claim]").click();
         cy.contains(".o_data_row", submitted.name).should("not.exist");
 
-        step("Sales opens the order and puts its parameter on a sample");
+        step("Sales opens the order and checks its line and sample type");
+        const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+        callAs("demo.sales", "sale.order", "write", [[order.id], { expected_collection_date: tomorrow }]);
         openMenu(MENU.sales, MENU.orders);
         openRow(submitted.name);
-        openTab("samples");
-        cy.get(".o_field_widget[name=sample_ids] .o_field_x2many_list_row_add button").click();
-        cy.get(".o_selected_row .o_field_widget[name=customer_sample_name] input").type(sampleName);
-        pick("sample_type_id", "Nước đóng chai");
-        choose("physical_state", "Lỏng");
-        save();
-        openTab("order_lines");
-        cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=sample_id]").first().click();
-        pick("sample_id", sampleName);
         step("Sales asks for an online advance and sends the quotation");
         cy.sendQuotation(() => {
           choose("payment_method", "Trực tuyến");

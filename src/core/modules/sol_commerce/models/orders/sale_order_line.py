@@ -34,6 +34,8 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
     if not TYPE_CHECKING:
         # The sample the line is tested on.
         sample_id = fields.Many2one(MODEL_ORDER_SAMPLE, ondelete="restrict", index="btree_not_null", copy=False)
+        # Expected physical sample count calculated from sampling requirements and order quantity.
+        expected_sample_count = fields.Integer(string="Sample Quantity", compute="_compute_expected_sample_summary")
         # Concise sample volume and container summary shown inline on the order line.
         expected_sample_summary = fields.Char(string="Sample Volume", compute="_compute_expected_sample_summary")
         # Sample preservation condition shown when opening the order line form.
@@ -117,6 +119,7 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                 )
 
     @api.depends(
+        "product_uom_qty",
         "sample_type_id",
         "parameter_method_id",
         "parameter_method_id.method_id",
@@ -128,10 +131,13 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         for line in self:
             methods = (line.linked_line_ids | line).parameter_method_id.sudo().method_id
             if not line.sample_type_id or not methods:
+                line.expected_sample_count = 0
                 line.expected_sample_summary = False
                 line.sampling_preservation = False
                 continue
             rows, _missing = requirements._sampling_rows(line.sample_type_id, methods)
+            groups = {row["group"] for row in rows}
+            line.expected_sample_count = max(int(line.product_uom_qty), 1) * len(groups) if groups else 0
             volumes = []
             preservations = []
             for row in rows:
@@ -143,6 +149,11 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                     preservations.append(preservation)
             line.expected_sample_summary = ", ".join(volumes) or False
             line.sampling_preservation = ", ".join(preservations) or False
+
+    @api.onchange("sample_type_id")
+    def _onchange_sample_type_detach_sample(self):
+        if self.sample_id and self.sample_id.sample_type_id != self.sample_type_id:
+            self.sample_id = False
 
     @api.depends("sample_id.sample_type_id", "linked_line_id.sample_type_id")
     def _compute_sample_type_id(self):
@@ -347,6 +358,14 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         if vals.get("order_id") and self._content_lines():
             # A line moved onto another order changes that order's content too.
             self.env[MODEL_SALE_ORDER].browse(vals["order_id"])._check_content_freeze()
+        if "sample_type_id" in vals and "sample_id" not in vals:
+            mismatched = self.filtered(
+                lambda line: line.sample_id and line.sample_id.sample_type_id.id != vals["sample_type_id"]
+            )
+            if mismatched:
+                super(SaleOrderLine, mismatched).write({"sample_id": False})
+                if mismatched.linked_line_ids:
+                    super(SaleOrderLine, mismatched.linked_line_ids).write({"sample_id": False})
         result = super().write(vals)
         if "product_uom_qty" in vals:
             self._sync_package_part_quantities()

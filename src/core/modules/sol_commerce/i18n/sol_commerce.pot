@@ -3939,6 +3939,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__physical_state
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "Physical State"
 msgstr ""
 
@@ -4364,6 +4365,7 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_account_payment__received_at
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__received_at
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "Received At"
 msgstr ""
 
@@ -4688,6 +4690,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sample_id
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "Sample"
 msgstr ""
 
@@ -4705,6 +4708,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__sample_type_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__sample_type_id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sample_type_id
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "Sample Type"
 msgstr ""
 
@@ -6281,4 +6285,43 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__min_committed_date
 msgid "Min Committed Date"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_quotation_send_form
+msgid "Order Quantity"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__expected_sample_count
+msgid "Sample Quantity"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__collected_samples_html
+msgid "Collected Samples"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__has_collected_samples
+msgid "Has Collected Samples"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Lab Code"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Amount Received"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Condition"
 msgstr ""

@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
+from markupsafe import Markup, escape
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
@@ -83,6 +84,95 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             compute="_compute_show_unpaid_warning",
             compute_sudo=True,
         )
+        # True once sample collection has logged at least one physical sample on the test request.
+        has_collected_samples = fields.Boolean(compute="_compute_collected_samples_html", compute_sudo=True)
+        # Read-only table of collected physical samples logged after sample collection for Sales to check.
+        collected_samples_html = fields.Html(
+            string="Collected Samples",
+            compute="_compute_collected_samples_html",
+            sanitize=False,
+            compute_sudo=True,
+        )
+
+    @api.depends(
+        "test_request_id.sample_ids.status",
+        "test_request_id.sample_ids.received_at",
+        "test_request_id.sample_ids.received_quantity",
+        "test_request_id.sample_ids.condition",
+        "test_request_id.sample_ids.physical_state",
+    )
+    def _compute_collected_samples_html(self):
+        _ = self.env._
+        status_badges = {
+            "received": "text-bg-info",
+            "testing": "text-bg-info",
+            "awaiting_approval": "text-bg-warning",
+            "on_hold": "text-bg-warning",
+            "completed": "text-bg-success",
+            "reported": "text-bg-success",
+            "retained": "text-bg-secondary",
+            "disposed": "text-bg-secondary",
+            "returned": "text-bg-secondary",
+            "rejected": "text-bg-danger",
+            "cancelled": "text-bg-danger",
+        }
+        for order in self:
+            samples = order.sudo().test_request_id.sample_ids.filtered(
+                lambda s: s.status != "expected" or s.received_at or s.condition
+            )
+            if not samples:
+                order.has_collected_samples = False
+                order.collected_samples_html = False
+                continue
+            order.has_collected_samples = True
+            states = dict(samples._fields["physical_state"]._description_selection(self.env))
+            conditions = dict(samples._fields["condition"]._description_selection(self.env))
+            statuses = dict(samples._fields["status"]._description_selection(self.env))
+            rows = Markup("").join(
+                Markup(
+                    "<tr>"
+                    '<td class="fw-semibold">%s</td>'
+                    "<td>%s</td>"
+                    "<td>%s</td>"
+                    "<td>%s</td>"
+                    "<td>%s</td>"
+                    "<td>%s</td>"
+                    "<td>%s</td>"
+                    '<td><span class="badge rounded-pill %s">%s</span></td>'
+                    "</tr>"
+                )
+                % (
+                    escape(sample.code or ""),
+                    escape(sample.customer_sample_name or ""),
+                    escape(sample.sample_type_id.display_name or ""),
+                    escape(states.get(sample.physical_state, "") if sample.physical_state else ""),
+                    escape(sample.received_quantity or ""),
+                    escape(conditions.get(sample.condition, "") if sample.condition else ""),
+                    escape(format_datetime(self.env, sample.received_at) if sample.received_at else ""),
+                    status_badges.get(sample.status, "text-bg-secondary"),
+                    escape(statuses.get(sample.status, sample.status or "")),
+                )
+                for sample in samples.sorted("id")
+            )
+            order.collected_samples_html = Markup(
+                '<div class="bg-white border rounded-3 overflow-hidden">'
+                '<table class="table table-sm align-middle mb-0">'
+                '<thead class="table-light"><tr>'
+                "<th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th>"
+                "</tr></thead>"
+                "<tbody>%s</tbody>"
+                "</table></div>"
+            ) % (
+                escape(_("Lab Code")),
+                escape(_("Sample")),
+                escape(_("Sample Type")),
+                escape(_("Physical State")),
+                escape(_("Amount Received")),
+                escape(_("Condition")),
+                escape(_("Received At")),
+                escape(_("Status")),
+                rows,
+            )
 
     @api.depends(
         "payment_status",

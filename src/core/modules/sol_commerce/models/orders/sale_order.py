@@ -604,6 +604,7 @@ class SaleOrder(models.Model, SaleOrderBase):
             lines.filtered(lambda line, sample_type=sample_type: line.sample_type_id == sample_type).sudo().write(
                 {"sample_id": sample.id}
             )
+        self.sample_ids.filtered(lambda item: not item.line_ids).sudo().unlink()
 
     def _send_quotation(self):
         self.ensure_one()

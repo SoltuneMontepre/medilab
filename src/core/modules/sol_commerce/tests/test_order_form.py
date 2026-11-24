@@ -101,10 +101,13 @@ class TestOrderForm(OrderCase):
                 self.assertTrue(literal_eval(assert_instance(field.get("options"), str)).get("no_create"))
 
     def test_sample_master_data_cannot_be_created_from_the_order(self):
-        for name in ("sample_type_id", "regulation_id"):
-            with self.subTest(name=name):
-                field = self._nodes("//page[@name='samples']//field[@name=$name]", name=name)[0]
+        for path in ("//list[@name='sol_list']//field[@name='sample_type_id']", f"{LINE_FORM}//field[@name='sample_type_id']"):
+            with self.subTest(path=path):
+                field = self._nodes(path)[0]
                 self.assertTrue(literal_eval(assert_instance(field.get("options"), str)).get("no_create"))
+        for name in ("sample_id", "expected_sample_count", "expected_sample_summary"):
+            with self.subTest(readonly=name):
+                self.assertEqual(self._nodes(f"//list[@name='sol_list']//field[@name='{name}']")[0].get("readonly"), "1")
 
     def test_vietnamese_tells_customer_and_contact_apart(self):
         fields = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").fields_get(["customer_id", "partner_id"])
