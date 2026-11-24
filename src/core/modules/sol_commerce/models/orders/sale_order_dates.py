@@ -36,6 +36,8 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             readonly=False,
             copy=False,
         )
+        # Earliest date the date picker allows for Expected Return Date.
+        min_committed_date = fields.Date(compute="_compute_min_committed_date")
         # The customer's request for priority, and Sales's decision on it after the feasibility check.
         priority_request = fields.Selection(
             [("requested", "Requested"), ("accepted", "Accepted"), ("declined", "Declined")], copy=False
@@ -99,6 +101,19 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
                 order.committed_date = order.committed_date
                 continue
             order.committed_date = order._earliest_return_date()
+
+    @api.depends(
+        "order_line.parameter_method_id",
+        "expected_collection_date",
+        "priority",
+    )
+    def _compute_min_committed_date(self):
+        today = fields.Date.context_today(self)
+        for order in self:
+            if order.priority:
+                order.min_committed_date = today
+            else:
+                order.min_committed_date = order._earliest_return_date() or order.expected_collection_date or today
 
     def _collection_start(self, day):
         """The moment samples picked up on the day can be scheduled at the earliest: the end of that day in the

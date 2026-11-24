@@ -126,9 +126,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         advance_method = fields.Selection(
             [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash"), ("none", "No advance")],
             compute="_compute_advance_method",
-            inverse="_inverse_advance_method",
             store=True,
-            readonly=False,
         )
         # The percentage or fixed amount of the advance, depending on the advance mode.
         advance_value = fields.Float()
@@ -217,6 +215,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         now = fields.Datetime.now()
         sales = self.env.context.get("medilab_sales_order")
         for vals in vals_list:
+            self._split_advance_method(vals)
             if sales:
                 vals.setdefault("source", SOURCE_SALES)
                 vals.setdefault("user_id", self.env.uid)
@@ -238,6 +237,7 @@ class SaleOrder(models.Model, SaleOrderBase):
 
     def write(self, vals):
         self._check_portal_write(vals)
+        self._split_advance_method(vals)
         if "payment_deadline" in vals:
             self._lock_payment_orders()
         if {"payment_request_id", "on_credit"} & vals.keys() and not self.env.su:
@@ -522,16 +522,17 @@ class SaleOrder(models.Model, SaleOrderBase):
         for order in self:
             order.advance_method = ADVANCE_NONE if order.advance_mode == ADVANCE_NONE else order.payment_method
 
-    def _inverse_advance_method(self):
-        for order in self:
-            if order.advance_method == ADVANCE_NONE:
-                order.advance_mode = ADVANCE_NONE
-            elif order.advance_method:
-                order.payment_method = order.advance_method
-                if order.advance_mode == ADVANCE_NONE:
-                    order.advance_mode = False
-            else:
-                order.payment_method = False
+    @api.model
+    def _split_advance_method(self, vals):
+        """Turn an advance method given in vals into the payment method and the advance it stands for, which the
+        advance method is computed from."""
+        if "advance_method" not in vals:
+            return
+        method = vals.pop("advance_method")
+        if method == ADVANCE_NONE:
+            vals.setdefault("advance_mode", ADVANCE_NONE)
+        else:
+            vals.setdefault("payment_method", method or False)
 
     def _latest_quotation(self):
         self.ensure_one()

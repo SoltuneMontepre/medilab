@@ -49,6 +49,7 @@
             "sol_theme/static/src/scss/preferences.scss",
             "sol_theme/static/src/js/app_drawer.js",
             "sol_theme/static/src/js/boolean_button_group_field.js",
+            "sol_theme/static/src/js/datetime_field_min_date.js",
             "sol_theme/static/src/js/chatter_resize.js",
             "sol_theme/static/src/js/list_column_widths.js",
             "sol_theme/static/src/js/list_group_text.js",

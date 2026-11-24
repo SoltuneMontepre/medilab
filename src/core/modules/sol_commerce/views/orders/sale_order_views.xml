@@ -317,13 +317,14 @@
                 <!-- Sales sets the payment deadline when sending the quotation, and can extend it until the order is
                      confirmed. -->
                 <field name="payment_deadline" invisible="state == 'draft' or order_status in ('confirmed', 'completed', 'cancelled')" />
-                <field name="expected_collection_date" required="1" readonly="state != 'draft'" />
+                <field name="expected_collection_date" required="1" readonly="state != 'draft'" options="{'min_date': 'today'}" />
+                <field name="min_committed_date" invisible="1" />
                 <div class="text-warning" colspan="2" invisible="not turnaround_missing">
                     No standard turnaround yet: <field name="turnaround_missing" class="d-inline" />
                 </div>
                 <label for="committed_date" />
                 <div class="d-flex align-items-center gap-2">
-                    <field name="committed_date" readonly="state != 'draft'" class="flex-grow-1" />
+                    <field name="committed_date" readonly="state != 'draft'" options="{'min_date': 'min_committed_date'}" class="flex-grow-1" />
                     <widget name="medilab_open_tab" tab="timeline" icon="mdi:clock-outline" string="Timeline" invisible="not return_timeline" />
                 </div>
             </xpath>

@@ -34,7 +34,7 @@
                 <group class="mt-4">
                     <group string="Payment">
                         <field name="payment_deadline" />
-                        <field name="payment_method" required="1" />
+                        <field name="payment_method" required="advance_mode != 'none'" />
                         <field name="advance_mode" required="1" />
                         <field name="advance_value" string="Advance (%)" digits="[16, 0]" invisible="advance_mode != 'percentage'" />
                         <field name="advance_value" string="Advance Amount" widget="monetary" options="{'currency_field': 'currency_id'}" invisible="advance_mode != 'fixed'" />

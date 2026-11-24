@@ -6273,3 +6273,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__summary_html
 msgid "Summary Html"
 msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__min_committed_date
+msgid "Min Committed Date"
+msgstr ""
