@@ -66,6 +66,7 @@ SYSTEM_FIELDS = frozenset(
         "is_replaced",
         "check_warning",
         "booking_id",
+        "machine_id",
         *SOURCE_FIELDS,
         *LIMIT_FIELDS,
     }
@@ -83,7 +84,6 @@ CONTENT_FIELDS = frozenset(
         "value",
         "value_decimals",
         "value_text",
-        "machine_id",
         "started_at",
         "conclusion",
         *SOURCE_FIELDS,
@@ -195,12 +195,12 @@ class TestResult(models.Model, TestResultBase):
             ondelete="restrict",
             index=True,
         )
-        # The machine the measurement ran on, taken from the booking and correctable by the tester; empty when outsourced.
+        # The machine the measurement ran on, taken from the booking the form is saved with; empty when outsourced.
         machine_id = fields.Many2one(
-            MODEL_MACHINE, compute="_compute_measurement", store=True, readonly=False, ondelete="restrict"
+            MODEL_MACHINE, compute="_compute_measurement", store=True, readonly=True, ondelete="restrict"
         )
         # When the measurement started, taken from the booking's start and correctable by the tester.
-        started_at = fields.Datetime(string="Started At", compute="_compute_measurement", store=True, readonly=False)
+        started_at = fields.Datetime(string="Started At", compute="_compute_started_at", store=True, readonly=False)
         # The tester's assessment against the copied limit: pass, fail or insufficient basis; empty outside the requested
         # comparison.
         conclusion = fields.Selection([("pass", "Pass"), ("fail", "Fail"), ("insufficient", "Insufficient Basis")])
@@ -304,17 +304,31 @@ class TestResult(models.Model, TestResultBase):
                 result.limit_min_set or result.limit_max_set or result.limit_text
             )
 
+    # The start has its own compute: the form sends the editable start, and Odoo then leaves every field of the same
+    # compute method as it was given, which would lose the booking and machine.
     @api.depends("sample_test_id")
     def _compute_measurement(self):
         for result in self:
-            bookings = result.sample_test_id.sudo().booking_ids.filtered(
-                lambda other: other.status in (*ACTIVE_STATUSES, "done")
+            if result.replaces_id:
+                # A new version keeps the measurement of the version it replaces.
+                result.booking_id = result.replaces_id.booking_id
+                result.machine_id = result.replaces_id.machine_id
+                continue
+            test = result.sample_test_id.sudo()
+            # A retest is measured in a new booking, so a booking an earlier result was measured in is not taken again.
+            used = (test.result_ids - result).booking_id
+            booking = (
+                (test.booking_ids - used)
+                .filtered(lambda other: other.status in (*ACTIVE_STATUSES, "done"))
+                .sorted("starts_at")[-1:]
             )
-            booking = bookings.sorted("starts_at")[-1:]
-            # A new version keeps the booking of the version it replaces.
-            result.booking_id = result.replaces_id.booking_id if result.replaces_id else booking
+            result.booking_id = booking
             result.machine_id = booking.machine_id
-            result.started_at = booking.starts_at
+
+    @api.depends("booking_id")
+    def _compute_started_at(self):
+        for result in self:
+            result.started_at = result.replaces_id.started_at if result.replaces_id else result.booking_id.starts_at
 
     @api.depends("value", "value_decimals", "value_text")
     @api.depends_context("lang")
@@ -409,18 +423,6 @@ class TestResult(models.Model, TestResultBase):
             )
         return super().write(vals)
 
-    def action_use_value_suggestion(self):
-        """The tester confirms the suggested text for a value below the LOD or LOQ, in each language; the measured
-        value stays as it was entered."""
-        self.ensure_one()
-        if not self.value_suggestion:
-            raise UserError(self.env._("Only a value below its LOD or LOQ has a suggested text."))
-        self.value_text = self.value_suggestion
-        langs = [code for code, _name in self.env["res.lang"].get_installed()]
-        self.update_field_translations(
-            "value_text", {lang: self._below_threshold_text(self.with_context(lang=lang).env) for lang in langs}
-        )
-
     def action_sign(self):
         self.ensure_one()
         if self.status == STATE_NONE:
@@ -438,6 +440,16 @@ class TestResult(models.Model, TestResultBase):
                     )
                 )
         return super().action_sign()
+
+    def action_use_suggestion(self):
+        """The tester confirms the text suggested for a value below the LOD or LOQ, in each language the report may be
+        printed in; the measured value stays."""
+        langs = [code for code, _name in self.env["res.lang"].get_installed()]
+        for result in self.filtered(lambda result: result.status == STATE_NONE and bool(result.value_suggestion)):
+            result.value_text = result.value_suggestion
+            result.update_field_translations(
+                "value_text", {lang: result._below_threshold_text(result.with_context(lang=lang).env) for lang in langs}
+            )
 
     def action_withdraw(self):
         """A sent result taken back by its tester gives them their testing task again."""
@@ -574,12 +586,16 @@ class TestResult(models.Model, TestResultBase):
             if state == STATE_APPROVED:
                 self.env[MODEL_TEST_REPORT]._follow_corrections(test.sample_id.request_id)
             if state == STATE_REJECTED and not self.replaces_id:
-                # The rejected result stays on record, and a new testing task with the reason waits in the queue of
-                # the department that tested it, unless one is still open. A rejected correction is redone by a change
-                # request.
+                # The rejected result stays on record, and a new testing task with the reason goes back to the tester
+                # who held the last one, or waits in the queue of the department that tested it when nobody did,
+                # unless one is still open. A rejected correction is redone by a change request.
                 task = test._latest_testing_task()
                 if task.status == "done":
-                    test._open_testing_task(task.department_id, self._approval_rejection_reason())
+                    retest = test._open_testing_task(task.department_id, self._approval_rejection_reason())
+                    if task.assignee_id:
+                        retest.write({"assignee_id": task.assignee_id.id, "status": "assigned"})
+                    # The retest is measured in a new booking, which the department's plan proposes to the head.
+                    self.env[MODEL_MACHINE_BOOKING]._plan(task.department_id)
 
     def _send_back(self, note):
         """The lab head sends approved results back to the department that tested them: their signatures are withdrawn,

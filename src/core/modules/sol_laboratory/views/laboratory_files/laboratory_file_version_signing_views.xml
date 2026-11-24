@@ -46,7 +46,14 @@
                     type="object"
                     string="Withdraw Signature"
                     class="btn-secondary"
-                    invisible="not approval_can_withdraw"
+                    invisible="not approval_can_withdraw or approval_state == 'rejected'"
+                />
+                <button
+                    name="action_withdraw"
+                    type="object"
+                    string="Withdraw Rejection"
+                    class="btn-secondary"
+                    invisible="not approval_can_withdraw or approval_state != 'rejected'"
                 />
             </xpath>
             <xpath expr="//header/field[@name='source']" position="after">
@@ -64,7 +71,7 @@
             <xpath expr="//sheet" position="inside">
                 <notebook groups="sol_laboratory.group_permission_signature_read_all">
                     <page string="Signatures" name="signatures">
-                        <field name="signature_ids" />
+                        <field name="signature_ids" mode="list" />
                     </page>
                 </notebook>
             </xpath>

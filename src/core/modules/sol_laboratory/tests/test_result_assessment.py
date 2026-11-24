@@ -129,22 +129,17 @@ class TestResultAssessment(ResultCase):
             with self.subTest(value=value):
                 self.assertEqual(self.enter(value=value).value_suggestion, suggestion)
 
-    def test_confirming_the_suggested_text_keeps_the_measured_value(self):
-        result = self.enter(value=0.001)
+    def test_the_tester_confirms_the_suggested_text_and_the_measured_value_stays(self):
+        result = self.enter(value=0.004, conclusion="insufficient")
 
-        self.as_person(result, self.tester).action_use_value_suggestion()
+        self.as_person(result, self.tester).action_use_suggestion()
 
-        self.assertEqual(result.value_text, "<0.002 mg/g (below LOD)")
-        self.assertEqual(result.value_display, "<0.002 mg/g (below LOD)")
-        self.assertEqual(result.value, 0.001)
+        self.assertEqual(result.value_text, "<0.006 mg/g (below LOQ)")
+        self.assertEqual(result.value, 0.004)
         self.assertFalse(result.value_suggestion)
-        self.assertEqual(result.conclusion, "pass", "Confirming the text leaves the tester's assessment as it was.")
-
-    def test_a_value_above_the_loq_has_no_text_to_confirm(self):
-        result = self.enter(value=0.008)
-
+        self.send(result)
         with self.assertRaises(UserError):
-            self.as_person(result, self.tester).action_use_value_suggestion()
+            self.as_person(result, self.tester).write({"value_text": "<0.002 mg/g (below LOD)"})
 
     def test_a_new_version_keeps_what_the_replaced_one_copied(self):
         result = self.enter()

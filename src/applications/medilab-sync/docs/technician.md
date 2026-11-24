@@ -22,15 +22,29 @@ Nếu đăng nhập lỗi: có thể bạn thiếu quyền laboratory files, ho�
 
 Sign in again. If a folder is shown as **Not bound**, its local files and queued work are preserved. Select the intended existing server folder and the same local directory to resume; do not remove the application data directory. Changing the server address requires a new sign-in so an old device key is not sent to another server.
 
+## Folders of your samples
+
+Ở tab **Thư mục**, chọn **Thư mục cho các mẫu của bạn** một lần (ví dụ `C:\MediLab`). Từ đó, mỗi khi bạn nhận hoặc được giao một nhiệm vụ thử nghiệm, app tự thêm thư mục của mẫu đó vào bên trong: `<mã PTN>\Raw Data` cho dữ liệu thô và `<mã PTN>\Results` cho kết quả. Bạn chỉ việc lưu file vào đó; không cần chọn đường dẫn cho từng mẫu, và trưởng bộ phận không cần tạo thư mục hay thêm bạn vào.
+
+App không tự thêm thư mục của mẫu đã hoàn thành hoặc đã hủy, và không tự thêm lại thư mục bạn đã bấm **Ngừng đồng bộ**; muốn dùng lại thì gắn tay như bên dưới. Trong MediLab, nhiệm vụ thử nghiệm có nút **Tệp** mở các file của mẫu.
+
 ## Bind a folder
+
+Các bước này dành cho thư mục không thuộc mẫu bạn đang thử, hoặc khi bạn muốn tự chọn nơi lưu.
 
 1. Trong Odoo hoặc hỏi người phụ trách, xác nhận bạn được dùng thư mục mẫu nào (thường là **Kết quả / RESULT**, đôi khi **Dữ liệu thô / RAW**).
 2. Trong app, chọn một **thư mục local** trên PC này (bộ chọn, dán đường dẫn, hoặc kéo thư mục từ trình quản lý file vào tab thư mục) và gắn nó với thư mục remote đó.
 3. Để RAW và RESULT ở các thư mục local **riêng**. Không trộn lẫn.
 
-Tên thư mục trên máy chủ tự điền theo tên thư mục bạn chọn; đổi được nếu cần. Mặc định app đồng bộ **mọi tệp** trong thư mục, kể cả thư mục con (công tắc **Gồm cả các thư mục con**, đang Bật). Chỉ bật **Chỉ đồng bộ một số tệp (tuỳ chọn)** khi bạn thật sự muốn giới hạn theo tên bắt đầu bằng, mẫu tên (dấu `*`), hoặc đuôi tệp; để trống điều kiện thì vẫn đồng bộ mọi tệp.
+Tên thư mục trên máy chủ tự điền theo tên thư mục bạn chọn; đổi được nếu cần. Sau khi đăng nhập lần đầu, app mở thẳng tab **Thư mục**. Mặc định app đồng bộ **mọi tệp** trong thư mục, kể cả thư mục con; các lựa chọn này nằm trong mục **Tuỳ chọn nâng cao** (đang gập, công tắc **Gồm cả các thư mục con** đang Bật). Chỉ bật **Chỉ đồng bộ một số tệp (tuỳ chọn)** khi bạn thật sự muốn giới hạn theo tên bắt đầu bằng, mẫu tên (dấu `*`), hoặc đuôi tệp; để trống điều kiện thì vẫn đồng bộ mọi tệp.
 
 App theo dõi thư mục local. Lưu một file (khớp điều kiện lọc, nếu có) sẽ xếp hàng một upload.
+
+Thẻ của thư mục cho biết nó **Chỉ tải lên** (máy này gửi tệp lên máy chủ và không tải về tệp người khác lưu) hay **Hai chiều** (cũng tải về tệp người khác lưu). Quản trị viên đổi chế độ này trong MediLab. **Mở thư mục** mở thư mục trong trình quản lý tệp.
+
+## Finding and opening files
+
+Ở **Trạng thái**, các tệp đã đồng bộ xếp dưới tên thư mục của chúng. Gõ một phần tên vào ô **Tìm tệp theo tên** để lọc, rồi bấm **Mở** để mở tệp bằng chương trình của nó. Tệp không còn trên máy này sẽ báo không tìm thấy.
 
 ## Status meanings
 

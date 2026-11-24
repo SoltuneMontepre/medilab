@@ -130,10 +130,27 @@ pub fn run() {
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
             show_main_window(app);
         }))
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
+            // Linux và bản dev Windows tự đăng ký scheme `medilab-sync`; lỗi (vd. thiếu xdg-utils) chỉ
+            // làm mất nút "Mở trong Medilab Sync", không được chặn app khởi động.
+            #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
+            {
+                use tauri_plugin_deep_link::DeepLinkExt;
+                if let Err(err) = app.deep_link().register_all() {
+                    tracing::warn!("Cannot register the medilab-sync link: {err}");
+                }
+            }
             let db = Db::open(&db_path())?;
-            let settings = db.load_settings().unwrap_or_default();
+            let mut settings = db.load_settings().unwrap_or_default();
+            // Chưa có thư mục chính thì dùng mặc định, để folder mẫu tự gắn ngay sau lần đăng nhập đầu.
+            if settings.home_folder.is_none() {
+                settings.home_folder = config::default_home_folder();
+                if let Err(err) = db.save_settings(&settings) {
+                    tracing::warn!("Cannot save the default home folder: {err}");
+                }
+            }
             let engine = EngineHandle::new(db, settings.clone(), app.handle().clone());
             engine.start();
             app.manage(AppState {
@@ -239,6 +256,8 @@ pub fn run() {
             commands::accept_server_version,
             commands::keep_local_conflict,
             commands::open_office_editor,
+            commands::open_sync_folder,
+            commands::open_sync_file,
             commands::list_sync_devices,
             commands::revoke_sync_device,
             commands::check_update,

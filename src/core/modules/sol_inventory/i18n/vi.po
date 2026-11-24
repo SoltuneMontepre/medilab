@@ -2749,3 +2749,23 @@ msgstr "Vị trí trong cơ sở"
 #: model:ir.model.fields,field_description:sol_inventory.field_res_partner__email_confirmation_token
 msgid "Email Confirmation Token"
 msgstr "Mã xác nhận email"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_product_product__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_product_template__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order_line__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__log_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_warehouse_orderpoint__log_ids
+msgid "Log"
+msgstr "Nhật Ký"

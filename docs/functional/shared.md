@@ -220,7 +220,7 @@ Work waiting for someone is a task with a deadline, and every person sees their 
 - **Reassigning.** Moving a task to another department, or an assigned task to another person, needs a reason, which is kept on the task and in the audit trail.
 - **Assignment notice.** Assigning a task to a person, when creating it or when moving it, sends the `task.assigned` notification to them, unless they assigned it to themselves. Claiming a task notifies nobody.
 - **To-do list.** A person's to-do list shows their open tasks, soonest deadline first. Clicking a task opens its document at the action to take, such as entering a result or signing.
-- **Dashboard.** The Tasks app opens on the person's day: today's planned tasks against the hours of the day, the next tasks to do with the action each needs, the tasks waiting in their queues to claim, and what they finished. From it, their tasks, their finished tasks and all the tasks they can see open as a list, a calendar or a timeline.
+- **Dashboard.** The Tasks app opens on the person's day: today's planned tasks against the hours of the day, the next tasks to do with the action each needs, the tasks waiting in their queues to claim, what they finished, and what waits for their approval or signature: results to approve, laboratory file versions to sign and bookings to approve, each opening the list of those records. From it, their tasks, their finished tasks and all the tasks they can see open as a list, a calendar or a timeline.
 - **Lifecycle.** Every task goes through the same statuses: open, assigned, in progress, then done or cancelled. The state of the work itself, such as a sample or a result, belongs to that document.
 - **Done.** A task created by the system is done when its work is done, such as when the result it asked for is submitted. A task created by hand is marked done by its assignee. Done tasks move to the person's completed list.
 
@@ -293,7 +293,7 @@ People of the laboratory write to each other in conversations, and about a docum
 
 - **Built on Odoo Discuss.** A conversation is an Odoo Discuss channel (`discuss.channel`): a direct conversation between two people, or a group conversation with a name and members. Its messages are Odoo messages (`mail.message`), with their files and photos as attachments. On the web, conversations are in Odoo's Discuss app.
 - **Internal.** Only people with an internal user take part in conversations. Customers and subcontractors never join one; a customer writes to sales through a support request.
-- **Chatter.** Messages about a document, such as a task, a sample or a test request, are posted in its chatter, where everyone who can read the document reads them.
+- **Chatter.** Messages about a document, such as a task or a test request, are posted in its chatter, where everyone who can read the document reads them.
 - **Mentions.** A message that mentions a person with @ notifies them on each channel they keep on (SH-11).
 - **Pushes.** A new message in a conversation is pushed to the Medilab Mobile devices of its members, except its author and the members who muted the conversation.
 
@@ -301,7 +301,7 @@ Acceptance criteria:
 
 - A message sent in a conversation on the web appears on the phones of its members, and a message sent from a phone appears on the web.
 - A customer or a subcontractor cannot be added to a conversation.
-- Mentioning a person in a sample's chatter notifies them on each channel they keep on.
+- Mentioning a person in a test request's chatter notifies them on each channel they keep on.
 - A message in a group conversation is pushed to every member except its author and those who muted it.
 - A record discussion does not grant access to records the participant cannot read.
 

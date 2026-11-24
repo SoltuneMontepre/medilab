@@ -43,7 +43,6 @@ class TestTestingStatistics(ResultCase):
         cls.send(rejected)
         cls.as_person(rejected, cls.head).action_reject("The blank read above the limit of detection.")
         cls.entered(rejected, datetime(2026, 10, 3, 8, 0))
-        cls.as_person(cls.arsenic._testing_task(), cls.tester).action_claim()
         retest = cls.enter(test=cls.arsenic)
         cls.entered(retest, datetime(2026, 10, 8, 8, 0))
         cls.sign(retest, datetime(2026, 10, 12, 8, 0))
