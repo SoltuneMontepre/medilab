@@ -1,4 +1,6 @@
 from datetime import timedelta
+from time import perf_counter
+from unittest.mock import patch
 
 from freezegun import freeze_time
 
@@ -73,6 +75,29 @@ class TestBookingApproval(SchedulingCase, LocationCase):
         messages, partners = self.notices(APPROVED_EVENT, booking)
         self.assertEqual(partners, self.tester.user_id.partner_id)
         self.assertIn(booking.display_name, messages.body or "")
+
+    def test_approving_an_unchanged_proposal_does_not_recalculate_unrelated_proposals(self):
+        booking = self.propose()
+        bookings = self.env[MODEL_MACHINE_BOOKING]
+        with patch.object(type(bookings), "_plan"):
+            for _ in range(32):
+                test = self.new_test(MONDAY + timedelta(days=2))
+                self.testing_task(test, self.other_tester)
+        bookings._plan(self.department)
+        proposals = bookings.search([("status", "=", "proposed"), ("department_id", "=", self.department.id)])
+        proposal_count = len(proposals)
+        self.assertEqual(proposal_count, 33)
+
+        with patch.object(type(bookings), "_plan", wraps=bookings._plan) as replan:
+            started = perf_counter()
+            booking.sample_test_id.with_user(self.head.user_id).action_approve_booking()
+            elapsed = perf_counter() - started
+
+        print(
+            f"[scheduler-profile] proposed={proposal_count} action=action_approve_booking "
+            f"plan_calls={replan.call_count} elapsed={elapsed:.3f}s"
+        )
+        self.assertEqual(replan.call_count, 0)
 
     def test_the_tester_does_not_reserve_their_own_booking(self):
         booking = self.propose()
