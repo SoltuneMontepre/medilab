@@ -946,6 +946,19 @@
       border-right: none !important;
     }
 
+    .o_statusbar_status {
+      flex-wrap: nowrap !important;
+      flex-shrink: 0;
+      align-items: center;
+
+      .o_arrow_button {
+        font-size: 0.72rem !important;
+        padding: 0.25rem 0.65rem 0.25rem 0.95rem !important;
+        white-space: nowrap;
+        min-height: 0;
+      }
+    }
+
     .o_arrow_button.o_arrow_button_current:not(.d-none),
     .o_arrow_button.btn-primary {
       background-color: $ml-primary-light !important;
