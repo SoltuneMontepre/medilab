@@ -69,7 +69,7 @@
                             />
                         </list>
                     </field>
-                    <p class="text-muted mt-3">A held-back move would finish after its internal due date, so its booking keeps its slot until Sales records the customer's agreement to a new committed return date. A move in conflict would move a booking the head placed by hand, which no revision moves.</p>
+                    <p class="text-muted mt-3">A held-back move would finish after its internal due date, so its booking keeps its slot until Sales records the customer's agreement to a new expected return date. A move in conflict would move a booking the head placed by hand, which no revision moves.</p>
                 </sheet>
             </form>
         </field>

@@ -37,7 +37,7 @@ class TestCommittedDateChange(RequestCase):
     def test_the_committed_date_changes_only_through_a_recorded_change(self):
         head = self.head_of(self.department).user_id
 
-        with self.assertRaisesRegex(UserError, "Change Committed Date"):
+        with self.assertRaisesRegex(UserError, "Change Return Date"):
             self.request.with_user(head).write({"committed_date": "2026-10-27"})
 
     def test_a_recorded_change_is_neither_edited_nor_deleted(self):

@@ -8,6 +8,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE_TYPE,
     MODEL_TEST_REQUEST,
 )
+from odoo.addons.sol_laboratory.constants.settings import SAFETY_MARGIN_PARAMETER
 from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
@@ -18,6 +19,8 @@ class RequestCase(MasterDataCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # The due dates the cases expect leave two working days before the expected return date, whatever the default.
+        cls.env["ir.config_parameter"].set_int(SAFETY_MARGIN_PARAMETER, 2)
         cls.customer = cls.env[MODEL_CUSTOMER].create({"name": "An Phu Beverage Co., Ltd.", "is_company": True})
         cls.sample_type = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled drinking water"})
         cls.applicability = cls.offer(cls.parameter, cls.sample_type)

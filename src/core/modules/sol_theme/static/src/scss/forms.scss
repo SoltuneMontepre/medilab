@@ -261,36 +261,33 @@
   .o_form_renderer .o_inner_group {
     gap: 0.1rem 1rem !important;
     margin-bottom: 0 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
 
-    @media (min-width: 576px) {
+    &.o_form_fw_labels {
       grid-template-columns: minmax(0, 1fr) !important;
+    }
 
-      &.o_form_fw_labels {
-        grid-template-columns: minmax(0, 1fr) !important;
-      }
+    .o_cell.o_wrap_label,
+    .o_cell.o_wrap_input,
+    .o_cell.o_cell_custom {
+      grid-column: 1 / -1;
+      max-width: 100%;
+      width: 100%;
+      padding: 0 !important;
+    }
 
-      .o_cell.o_wrap_label,
-      .o_cell.o_wrap_input,
-      .o_cell.o_cell_custom {
-        grid-column: 1 / -1;
-        max-width: 100%;
-        width: 100%;
-        padding: 0 !important;
-      }
+    .o_cell.o_wrap_label {
+      margin: 0 !important;
+      padding-bottom: 0 !important;
+    }
 
-      .o_cell.o_wrap_label {
-        margin: 0 !important;
-        padding-bottom: 0 !important;
-      }
+    .o_cell.o_wrap_input {
+      margin: 0 0 0.4rem !important;
+      padding-bottom: 0 !important;
+    }
 
-      .o_cell.o_wrap_input {
-        margin: 0 0 0.4rem !important;
-        padding-bottom: 0 !important;
-      }
-
-      .o_cell.o_wrap_input:last-child {
-        margin-bottom: 0 !important;
-      }
+    .o_cell.o_wrap_input:last-child {
+      margin-bottom: 0 !important;
     }
   }
 
@@ -302,27 +299,41 @@
     max-width: none;
     justify-content: flex-start;
     flex-wrap: wrap;
+    column-gap: var(--gutter-x);
+    row-gap: 0.4rem;
 
     > .o_inner_group,
     > [class*="col-"] {
       min-width: 0;
-      padding-left: calc(var(--gutter-x) * 0.5);
-      padding-right: calc(var(--gutter-x) * 0.5);
+      padding-left: 0 !important;
+      padding-right: 0 !important;
     }
 
-    > :first-child {
-      padding-left: 0;
-    }
-
-    > :last-child {
-      padding-right: 0;
+    @media (min-width: 992px) {
+      > .col-lg-6 {
+        flex: 0 0 calc(50% - var(--gutter-x) * 0.5) !important;
+        width: calc(50% - var(--gutter-x) * 0.5) !important;
+        max-width: calc(50% - var(--gutter-x) * 0.5) !important;
+      }
     }
 
     &:not(:has(> :nth-child(3):not(.o_invisible_modifier))) {
-      > .o_inner_group,
-      > [class*="col-"] {
-        flex: 1 1 0;
-        max-width: 100%;
+      @media (min-width: 992px) {
+        > .o_inner_group,
+        > [class*="col-"] {
+          flex: 1 1 0 !important;
+          width: auto !important;
+          max-width: 100%;
+        }
+      }
+
+      @media (max-width: 991.98px) {
+        > .o_inner_group,
+        > [class*="col-"] {
+          flex: 0 0 100% !important;
+          width: 100% !important;
+          max-width: 100%;
+        }
       }
     }
   }
@@ -549,14 +560,27 @@
       width: 100%;
     }
 
+    > div,
+    > div > div,
+    span.o_input,
     .o_input,
     input {
       background-color: transparent !important;
       border: none !important;
+      border-radius: 0 !important;
       box-shadow: none !important;
+      outline: none !important;
       min-height: 0 !important;
       padding: 0 !important;
       color: $ml-text !important;
+
+      &:hover,
+      &:focus,
+      &:focus-visible {
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+      }
     }
 
     input.o_input {
@@ -760,6 +784,14 @@
       .o_field_badge
     ):not(.o_field_radio):not(.o_field_image):not(.o_field_html):not(.o_field_x2many):not(.o_field_one2many):not(.o_field_many2many):not(
       .o_field_statusbar
+    ):not(.o_field_priority):not(.o_field_signature):not(.o_field_binary):not(.o_field_many2many_binary),
+  .o_inner_group
+    .o_cell
+    > .d-flex
+    > .o_field_widget.o_readonly_modifier:not(.o_field_boolean):not(.o_field_boolean_toggle):not(.o_field_boolean_button_group):not(
+      .o_field_badge
+    ):not(.o_field_radio):not(.o_field_image):not(.o_field_html):not(.o_field_x2many):not(.o_field_one2many):not(.o_field_many2many):not(
+      .o_field_statusbar
     ):not(.o_field_priority):not(.o_field_signature):not(.o_field_binary):not(.o_field_many2many_binary) {
     min-height: 2.25rem;
     padding: 0.35rem 0.75rem;
@@ -912,6 +944,19 @@
 
     &:not(:has(.o_statusbar_status)) .o_statusbar_buttons {
       border-right: none !important;
+    }
+
+    .o_statusbar_status {
+      flex-wrap: nowrap !important;
+      flex-shrink: 0;
+      align-items: center;
+
+      .o_arrow_button {
+        font-size: 0.72rem !important;
+        padding: 0.25rem 0.65rem 0.25rem 0.95rem !important;
+        white-space: nowrap;
+        min-height: 0;
+      }
     }
 
     .o_arrow_button.o_arrow_button_current:not(.d-none),

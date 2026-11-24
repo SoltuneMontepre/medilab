@@ -5,7 +5,7 @@
         <field name="model">medilab.committed.date.change</field>
         <field name="arch" type="xml">
             <form>
-                <p class="text-muted">Change the committed return date only after the customer agreed to the new date.</p>
+                <p class="text-muted">Change the expected return date only after the customer agreed to the new date.</p>
                 <group>
                     <field name="request_id" readonly="1" force_save="1" />
                     <field name="current_date" />
@@ -13,7 +13,7 @@
                     <field name="confirmation" placeholder="Such as the email or call the customer agreed in" />
                 </group>
                 <footer>
-                    <button name="action_record" type="object" string="Change Committed Date" class="btn-primary" />
+                    <button name="action_record" type="object" string="Change Return Date" class="btn-primary" />
                     <button special="cancel" string="Discard" class="btn-secondary" />
                 </footer>
             </form>
@@ -21,7 +21,7 @@
     </record>
 
     <record id="action_medilab_committed_date_change" model="ir.actions.act_window">
-        <field name="name">Change Committed Date</field>
+        <field name="name">Change Return Date</field>
         <field name="res_model">medilab.committed.date.change</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>

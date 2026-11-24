@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
@@ -12,7 +12,12 @@ from odoo.addons.sol_commerce.constants.models import (
 )
 from odoo.addons.sol_commerce.constants.orders import FROZEN_LINE_FIELDS, PORTAL_LOCKED_LINE_FIELDS
 from odoo.addons.sol_laboratory.constants.catalog import WAY_BY_METHOD
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PARAMETER_METHOD, MODEL_SAMPLE_TYPE
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_PARAMETER_METHOD,
+    MODEL_SAMPLE_TYPE,
+    MODEL_SAMPLING_REQUIREMENT,
+)
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 if TYPE_CHECKING:
@@ -29,6 +34,12 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
     if not TYPE_CHECKING:
         # The sample the line is tested on.
         sample_id = fields.Many2one(MODEL_ORDER_SAMPLE, ondelete="restrict", index="btree_not_null", copy=False)
+        # Expected physical sample count calculated from sampling requirements and order quantity.
+        expected_sample_count = fields.Integer(string="Sample Quantity", compute="_compute_expected_sample_summary")
+        # Concise sample volume and container summary shown inline on the order line.
+        expected_sample_summary = fields.Char(string="Sample Volume", compute="_compute_expected_sample_summary")
+        # Sample preservation condition shown when opening the order line form.
+        sampling_preservation = fields.Char(string="Preservation", compute="_compute_expected_sample_summary")
         # The sample type the line is tested on: chosen in the cart, or the type of its sample; a package's parameter
         # takes its package's.
         sample_type_id = fields.Many2one(
@@ -106,6 +117,51 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                         sample_type=line.sample_id.sample_type_id.display_name,
                     )
                 )
+
+    @api.depends(
+        "product_id",
+        "product_uom_qty",
+        "sample_type_id",
+        "parameter_method_id",
+        "parameter_method_id.method_id",
+        "linked_line_ids.parameter_method_id",
+        "linked_line_ids.parameter_method_id.method_id",
+    )
+    def _compute_expected_sample_summary(self):
+        requirements = self.env[MODEL_SAMPLING_REQUIREMENT].sudo()
+        for line in self:
+            ways = (line.linked_line_ids | line)._resolved_ways()
+            methods = self.env[MODEL_PARAMETER_METHOD].concat(ways).sudo().method_id
+            if not line.sample_type_id or not methods:
+                line.expected_sample_count = 0
+                line.expected_sample_summary = False
+                line.sampling_preservation = False
+                continue
+            rows, _missing = requirements._sampling_rows(line.sample_type_id, methods)
+            groups = {row["group"] for row in rows}
+            line.expected_sample_count = max(int(line.product_uom_qty), 1) * len(groups) if groups else 0
+            volumes = []
+            preservations = []
+            for row in rows:
+                amount = f"{row['amount']:g} {row['unit'].name}" if row.get("unit") else f"{row['amount']:g}"
+                container = row["requirements"][:1].container_type
+                volumes.append(f"{amount} ({container})" if container else amount)
+                preservation = row["requirements"][:1].preservation
+                if preservation and preservation not in preservations:
+                    preservations.append(preservation)
+            line.expected_sample_summary = ", ".join(volumes) or False
+            line.sampling_preservation = ", ".join(preservations) or False
+
+    @api.onchange("product_template_id")
+    def _onchange_product_template_id(self):
+        super()._onchange_product_template_id()
+        if self.product_template_id and self.product_id.product_tmpl_id != self.product_template_id:
+            self.product_id = self.product_template_id.product_variant_id
+
+    @api.onchange("sample_type_id")
+    def _onchange_sample_type_detach_sample(self):
+        if self.sample_id and self.sample_id.sample_type_id != self.sample_type_id:
+            self.sample_id = False
 
     @api.depends("sample_id.sample_type_id", "linked_line_id.sample_type_id")
     def _compute_sample_type_id(self):
@@ -284,6 +340,27 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
             lambda line: not line.display_type and not line.is_downpayment and bool(line._own_parameter())
         )
 
+    def _resolved_ways(self):
+        """Ways of testing across parameter lines and not-yet-expanded package lines while editing."""
+        ways = []
+        for line in self:
+            if line.display_type or line.is_downpayment:
+                continue
+            if line._own_parameter():
+                if line.parameter_method_id:
+                    ways.append(line.parameter_method_id)
+                continue
+            package = line._package_of()
+            if package and not line.linked_line_ids and line.sample_type_id:
+                partner = line.order_id.partner_id
+                for parameter in package.line_ids.parameter_id:
+                    way = parameter._default_way(line.sample_type_id) & parameter._offered_ways(
+                        line.sample_type_id, partner
+                    )
+                    if way:
+                        ways.append(way)
+        return ways
+
     def _content_lines(self):
         # The lines of a down payment are Odoo's own bookkeeping and follow the invoice, confirmed or not.
         return self.filtered(lambda line: not line.is_downpayment)
@@ -310,6 +387,14 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         if vals.get("order_id") and self._content_lines():
             # A line moved onto another order changes that order's content too.
             self.env[MODEL_SALE_ORDER].browse(vals["order_id"])._check_content_freeze()
+        if "sample_type_id" in vals and "sample_id" not in vals:
+            mismatched = self.filtered(
+                lambda line: bool(line.sample_id and line.sample_id.sample_type_id.id != vals["sample_type_id"])
+            )
+            if mismatched:
+                super(SaleOrderLine, cast("SaleOrderLine", mismatched)).write({"sample_id": False})
+                if mismatched.linked_line_ids:
+                    super(SaleOrderLine, cast("SaleOrderLine", mismatched.linked_line_ids)).write({"sample_id": False})
         result = super().write(vals)
         if "product_uom_qty" in vals:
             self._sync_package_part_quantities()

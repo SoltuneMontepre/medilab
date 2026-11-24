@@ -1,6 +1,6 @@
 {
     "name": "Medilab - E-commerce",
-    "version": "20.0.1.21.0",
+    "version": "20.0.1.23.0",
     "summary": "Adds e-commerce features into the exising core laboratory module.",
     "category": "Services/Laboratory",
     "icon": "/sol_commerce/static/description/icon.svg",
@@ -57,6 +57,7 @@
         "views/orders/expected_sampling_templates.xml",
         "views/orders/order_template_views.xml",
         "views/orders/order_template_save_views.xml",
+        "views/orders/quotation_send_views.xml",
         "views/orders/sample_collection_start_views.xml",
         "views/orders/test_report_views.xml",
         "views/orders/quotation_agreement_views.xml",
@@ -79,6 +80,15 @@
         "views/notifications/portal_templates.xml",
         "views/system/menus.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "sol_commerce/static/src/views/html_record_link.js",
+            "sol_commerce/static/src/views/html_record_link.xml",
+            "sol_commerce/static/src/views/open_tab_widget.js",
+            "sol_commerce/static/src/views/open_tab_widget.xml",
+            "sol_commerce/static/src/views/return_timeline.css",
+        ],
+    },
     "post_init_hook": "use_vietnamese_accounting",
     "uninstall_hook": "keep_order_numbers",
     "application": True,

@@ -1,5 +1,6 @@
 from lxml import etree
 
+from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import Form, tagged
 from odoo.tests.form import O2MProxy
@@ -47,16 +48,17 @@ class TestOrderDiscount(OrderCase):
         assert isinstance(buttons, list)
         self.assertEqual(len(buttons), 1)
 
-    def test_the_discount_button_is_hidden_once_the_quotation_is_sent(self):
+    def test_the_discount_button_is_hidden_on_the_order_form(self):
         buttons = self.form_arch(self.sales).xpath(f"{DISCOUNT_BUTTON}[not(@disabled)]")
         assert isinstance(buttons, list)
         button = buttons[0]
         assert isinstance(button, etree._Element)
 
-        self.assertIn("state != 'draft'", button.get("invisible") or "")
+        self.assertEqual(button.get("invisible"), "1")
 
     def test_a_salesperson_gives_a_line_a_discount(self):
         order = self.make_quotable_order()
+        order.expected_collection_date = fields.Date.today()
         with (
             Form(order.with_user(self.sales)) as form,
             assert_instance(form.product_line_ids, O2MProxy).edit(0) as line,
@@ -109,10 +111,10 @@ class TestOrderDiscount(OrderCase):
         self.assertEqual(order._latest_quotation().amount_total, order.amount_total)
         self.assertEqual(order.order_status, "confirmed")
 
-    def test_a_fixed_amount_discount_is_not_offered(self):
+    def test_percentage_and_fixed_amount_discounts_are_offered(self):
         kinds = self.env[MODEL_SALE_ORDER_DISCOUNT]._fields["discount_type"].get_values(self.env)
 
-        self.assertEqual(sorted(kinds), ["so_discount", "sol_discount"])
+        self.assertEqual(sorted(kinds), ["amount", "so_discount", "sol_discount"])
 
     def test_a_sent_quotation_takes_no_discount(self):
         order = self.sent_order()

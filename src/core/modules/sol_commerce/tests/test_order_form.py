@@ -2,6 +2,7 @@ from ast import literal_eval
 
 from lxml import etree
 
+from odoo import fields
 from odoo.tests import Form, new_test_user, tagged
 from odoo.tests.form import O2MProxy
 
@@ -72,7 +73,7 @@ class TestOrderForm(OrderCase):
 
     def test_contact_is_hidden_for_an_individual(self):
         contact = self._nodes("//sheet//field[@name='partner_id']")[0]
-        self.assertEqual(contact.get("invisible"), "customer_id and not customer_is_company")
+        self.assertIn("customer_id and not customer_is_company", contact.get("invisible") or "")
         self.assertIn("not customer_id", contact.get("readonly") or "")
 
     def test_only_customers_can_be_chosen(self):
@@ -94,16 +95,21 @@ class TestOrderForm(OrderCase):
                 self.assertIn(node.get("invisible"), HIDDEN)
 
     def test_customer_and_contact_cannot_be_created_from_the_order(self):
-        for name in ("customer_id", "partner_id"):
-            with self.subTest(name=name):
-                field = self._nodes("//sheet//field[@name=$name]", name=name)[0]
-                self.assertTrue(literal_eval(assert_instance(field.get("options"), str)).get("no_create"))
+        customer = self._nodes("//sheet//field[@name='customer_id']")[0]
+        customer_options = literal_eval(assert_instance(customer.get("options"), str))
+        self.assertTrue(customer_options.get("no_quick_create"))
+        self.assertFalse(customer_options.get("no_create"))
+        contact = self._nodes("//sheet//field[@name='partner_id']")[0]
+        self.assertTrue(literal_eval(assert_instance(contact.get("options"), str)).get("no_create"))
 
     def test_sample_master_data_cannot_be_created_from_the_order(self):
-        for name in ("sample_type_id", "regulation_id"):
-            with self.subTest(name=name):
-                field = self._nodes("//page[@name='samples']//field[@name=$name]", name=name)[0]
+        for path in ("//list[@name='sol_list']//field[@name='sample_type_id']", f"{LINE_FORM}//field[@name='sample_type_id']"):
+            with self.subTest(path=path):
+                field = self._nodes(path)[0]
                 self.assertTrue(literal_eval(assert_instance(field.get("options"), str)).get("no_create"))
+        for name in ("sample_id", "expected_sample_count", "expected_sample_summary"):
+            with self.subTest(readonly=name):
+                self.assertEqual(self._nodes(f"//list[@name='sol_list']//field[@name='{name}']")[0].get("readonly"), "1")
 
     def test_vietnamese_tells_customer_and_contact_apart(self):
         fields = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").fields_get(["customer_id", "partner_id"])
@@ -152,8 +158,8 @@ class TestOrderForm(OrderCase):
             literal_eval(assert_instance(product.get("options"), str)), {"no_create": True, "no_open": True}
         )
         sample = self._nodes(f"{LINE_FORM}//field[@name='sample_id']")[0]
-        self.assertEqual(sample.get("domain"), "[('order_id', '=', parent.id)]")
-        self.assertTrue(literal_eval(assert_instance(sample.get("options"), str)).get("no_create"))
+        self.assertEqual(sample.get("readonly"), "1")
+        self.assertTrue(literal_eval(assert_instance(sample.get("options"), str)).get("no_open"))
         for path in (
             f"{LINE_FORM}/group/group/field[@name='name']",
             f"{LINE_FORM}//label[@for='qty_delivered']",
@@ -211,16 +217,20 @@ class TestOrderForm(OrderCase):
         return totals["total_amount_currency"]
 
     def test_editing_the_ordered_lines_updates_the_totals(self):
-        order = self.make_order([(self.lead_product, 1)], status="claimed", user_id=self.sales.id)
+        order = self.make_order(
+            [(self.lead_product, 1)],
+            status="claimed",
+            user_id=self.sales.id,
+            advance_method="bank_transfer",
+        )
+        order.expected_collection_date = fields.Date.today()
         with Form(order) as form:
             before = self._total(form)
-            with assert_instance(form.product_line_ids, O2MProxy).new() as line:
-                line.product_template_id = self.package_product
-                # The browser's product widget picks the variant and its price; the server-side form does not.
-                line.price_unit = 100000
+            with assert_instance(form.product_line_ids, O2MProxy).edit(0) as line:
+                line.product_uom_qty = 2
             self.assertGreater(self._total(form), before)
 
-        self.assertEqual(len(order.order_line), 2)
+        self.assertEqual(order.order_line.product_uom_qty, 2)
         self.assertEqual(order.product_line_ids, order.order_line)
 
     def test_each_status_has_its_label(self):

@@ -108,8 +108,3 @@ class OrderSample(models.Model, OrderSampleBase):
                 lambda row: row.order_sample_id == self
             ),
         }
-
-    def action_copy_sample(self):
-        """The Copy button: a button result must be serializable, so it does not return the copies."""
-        self.copy_sample()
-        return True

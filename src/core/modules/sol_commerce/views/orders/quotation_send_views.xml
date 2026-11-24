@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_quotation_send_form" model="ir.ui.view">
+        <field name="name">medilab.quotation.send.form</field>
+        <field name="model">medilab.quotation.send</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="order_id" invisible="1" force_save="1" />
+                <field name="currency_id" invisible="1" />
+                <field name="on_credit" invisible="1" />
+                <group>
+                    <group string="Customer">
+                        <field name="customer_id" string="Customer" readonly="1" options="{'no_open': True}" />
+                        <field name="customer_address" readonly="1" />
+                    </group>
+                    <group string="Recipient">
+                        <field name="partner_id" domain="[('id', 'child_of', customer_id)]" options="{'no_create': True}" context="{'partner_display_name_hide_company': True}" required="1" />
+                        <field name="partner_email" required="1" widget="email" />
+                        <field name="partner_phone" widget="phone" />
+                    </group>
+                </group>
+                <field name="line_ids">
+                    <list editable="bottom" create="false" delete="false">
+                        <field name="product_template_id" string="Parameter or package" readonly="1" />
+                        <field name="sample_type_id" readonly="1" />
+                        <field name="product_uom_qty" string="Order Quantity" readonly="1" digits="[16, 0]" />
+                        <field name="price_unit" widget="monetary" options="{'currency_field': 'currency_id'}" />
+                        <field name="discount" string="Discount (%)" digits="[16, 0]" />
+                        <field name="tax_ids" widget="many2many_tags" readonly="1" />
+                        <field name="currency_id" column_invisible="1" />
+                        <field name="price_subtotal" />
+                    </list>
+                </field>
+                <group class="mt-4">
+                    <group string="Payment">
+                        <field name="payment_deadline" />
+                        <field name="payment_method" required="advance_mode != 'none'" />
+                        <field name="advance_mode" required="1" />
+                        <field name="advance_value" string="Advance (%)" digits="[16, 0]" invisible="advance_mode != 'percentage'" />
+                        <field name="advance_value" string="Advance Amount" widget="monetary" options="{'currency_field': 'currency_id'}" invisible="advance_mode != 'fixed'" />
+                        <field name="balance_due" invisible="advance_mode == 'full' or on_credit" />
+                    </group>
+                    <group string="Total">
+                        <label for="discount_type" />
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <field name="discount_type" class="w-50" />
+                            <field name="discount_percentage" class="w-50" digits="[16, 0]" invisible="discount_type != 'percentage'" />
+                            <field name="discount_amount" class="w-50" invisible="discount_type != 'amount'" />
+                            <button name="action_apply_discount" type="object" string="Apply" class="btn-secondary text-nowrap" invisible="not discount_percentage and not discount_amount" />
+                        </div>
+                        <field name="tax_totals" widget="account-tax-totals-field" nolabel="1" colspan="2" readonly="1" class="mt-2" />
+                    </group>
+                </group>
+                <group string="Email &amp; Attachment">
+                    <field name="email_body" />
+                    <label for="attachment_name" />
+                    <div class="d-flex align-items-center gap-2">
+                        <field name="attachment_name" readonly="1" class="oe_inline fw-semibold" />
+                        <button name="action_preview" type="object" string="Preview PDF" class="btn-link p-0" />
+                    </div>
+                </group>
+                <footer>
+                    <button name="action_send" type="object" string="Send quotation" class="btn-primary" />
+                    <button name="action_preview" type="object" string="Preview" class="btn-secondary" />
+                    <button special="cancel" string="Discard" class="btn-secondary" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_quotation_send" model="ir.actions.act_window">
+        <field name="name">Send Quotation</field>
+        <field name="res_model">medilab.quotation.send</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

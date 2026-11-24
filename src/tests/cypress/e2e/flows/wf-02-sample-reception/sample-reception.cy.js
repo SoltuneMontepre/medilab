@@ -86,15 +86,23 @@ describe("WF-02 Sample reception and handover", () => {
       cy.readRecord(request, ["status"]).its("status").should("eq", "paid");
       openMenu(MENU.laboratory, MENU.samples, MENU.sampleList);
       openRow(sample.code);
+      cy.get(".o_field_widget[name=sample_type_id]").find("input").should("not.exist");
+      callRefused("medilab.sample", "write", [[sample.id], { note: "Change the sample's general notes" }]).should("contain", "Edit");
       step("Staff check the expected containers and record the sample's receipt");
       // Staff see the containers expected from the accepted quotation before they record the actual handover.
       openTab("expected_sampling");
       cy.get(".o_field_widget[name=expected_sample_count]").should("contain", "1");
       cy.get(".o_field_widget[name=expected_sampling_ids] .o_data_row").should("have.length", 1).and("contain", "Polyethylene bottle");
+      choose("physical_state", "Liquid");
       fillReceipt("Good");
       cy.get(".o_statusbar_buttons button[name=action_receive_entered]").click();
       cy.get(".o_statusbar_buttons button[name=action_receive_entered]").should("not.exist");
-      cy.readRecord(sample, ["status"]).its("status").should("eq", "received");
+      cy.readRecord(sample, ["status", "physical_state", "received_quantity", "storage_location"]).should("include", {
+        status: "received",
+        physical_state: "liquid",
+        received_quantity: "500 ml",
+        storage_location: "Tủ lạnh 2",
+      });
       cy.readRecord(request, ["status"]).its("status").should("eq", "sample_received");
 
       step("Staff print the labels of the test request");
@@ -114,7 +122,7 @@ describe("WF-02 Sample reception and handover", () => {
 
       step("The head of department scans the label, which queues the sample's testing task");
       cy.signInAs("head_of_department");
-      scanned(sample.code, () => openMenu(MENU.laboratory, MENU.samples, MENU.scanLabel));
+      scanned(sample.code);
       cy.readRecord(sample, ["handover_ids"]).then(({ handover_ids }) =>
         cy.readRecord({ model: "medilab.sample.handover", id: handover_ids[0] }, ["received_at"]).its("received_at").should("be.a", "string"),
       );

@@ -222,6 +222,7 @@ from . import (
     test_report_permission_migration,
     test_report_preparation,
     test_report_templates,
+    test_request_simulation,
     test_result_assessment,
     test_result_sanity_check,
     test_result_snapshot_migration,

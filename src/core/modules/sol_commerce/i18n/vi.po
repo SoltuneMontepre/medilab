@@ -400,11 +400,6 @@ msgid "Bank"
 msgstr "Ngân hàng"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
-msgid "Change committed date"
-msgstr "Đổi ngày hẹn trả kết quả"
-
-#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid ""
@@ -428,16 +423,6 @@ msgstr "Cảnh Báo Gỡ Thương Mại Điện Tử"
 #: model:ir.model,name:sol_commerce.model_medilab_committed_date_change
 msgid "Committed Date Change"
 msgstr "Thay Đổi Ngày Hẹn Trả Kết Quả"
-
-#. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__committed_date
-msgid "Committed Return Date"
-msgstr "Ngày Hẹn Trả Kết Quả"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-msgid "Committed return date"
-msgstr "Ngày hẹn trả kết quả"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
@@ -464,16 +449,6 @@ msgstr "Sửa đơn hàng của mình"
 #: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
 msgid "Enter the date you want the results as a date."
 msgstr "Hãy nhập ngày bạn muốn nhận kết quả theo định dạng ngày."
-
-#. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__estimated_result_date
-msgid "Estimated Return Date"
-msgstr "Ngày Trả Kết Quả Dự Kiến"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
-msgid "Fixed at sample receipt"
-msgstr "Được ấn định khi nhận mẫu"
 
 #. module: sol_commerce
 #. odoo-python
@@ -803,6 +778,7 @@ msgstr "Đã lưu trữ"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__attachment_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__attachment_name
 msgid "Attachment"
 msgstr "Tệp Đính Kèm"
 
@@ -904,24 +880,6 @@ msgid "Check if the contact is a company, otherwise it is a person"
 msgstr "Đánh dấu nếu liên hệ này là một công ty, không đánh dấu nếu là cá nhân"
 
 #. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
-msgid ""
-"Choose how the advance is paid, or no advance, before sending the quotation."
-msgstr ""
-"Hãy chọn cách thanh toán tạm ứng, hoặc không tạm ứng, trước khi gửi báo giá."
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
-msgid ""
-"Choose whether the advance is the full amount, a percentage or a fixed "
-"amount."
-msgstr ""
-"Hãy chọn tạm ứng là toàn bộ số tiền, một tỷ lệ phần trăm hay một số tiền cố "
-"định."
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_queue
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Claim"
@@ -972,6 +930,7 @@ msgstr "Xác nhận đơn hàng"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__confirmed
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__confirmed
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_form
 msgid "Confirmed"
 msgstr "Đã xác nhận"
 
@@ -1713,16 +1672,6 @@ msgstr "Chỉ Trưởng phòng kinh doanh mới được gửi báo giá không 
 
 #. module: sol_commerce
 #. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
-msgid ""
-"Only the Head of Sales can send a quotation without an advance. Choose how "
-"it is paid."
-msgstr ""
-"Chỉ Trưởng phòng kinh doanh mới được gửi báo giá không có tạm ứng. Hãy chọn "
-"cách thanh toán."
-
-#. module: sol_commerce
-#. odoo-python
 #: code:addons/sol_commerce/models/orders/quotation.py:0
 msgid "Only the customer of the order can accept its quotation."
 msgstr "Chỉ khách hàng của đơn hàng mới được chấp nhận báo giá này."
@@ -1840,6 +1789,7 @@ msgstr "Giá nhóm dịch vụ"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__paid
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__paid
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__paid
 msgid "Paid"
 msgstr "Đã thanh toán"
@@ -1995,16 +1945,6 @@ msgstr ""
 "thời điểm này. Hãy thống nhất ngày muộn hơn với khách hàng."
 
 #. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
-msgid ""
-"The committed return date is earlier than the standard turnaround allows, "
-"%s. Choose a later date or accept a priority request."
-msgstr ""
-"Ngày hẹn trả kết quả sớm hơn thời gian trả kết quả chuẩn cho phép, %s. Hãy "
-"chọn ngày muộn hơn hoặc chấp nhận yêu cầu ưu tiên."
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_test_report_form_payment_hold
 msgid "The customer receives this report once order"
 msgstr "Khách hàng nhận phiếu kết quả này khi đơn hàng"
@@ -2119,6 +2059,8 @@ msgid "Pay the advance invoice to accept this quotation."
 msgstr "Hãy thanh toán hóa đơn tạm ứng để chấp nhận báo giá này."
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_deadline
 msgid "Payment Deadline"
 msgstr "Hạn Thanh Toán"
@@ -2152,6 +2094,7 @@ msgstr "Điện thoại"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__physical_state
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "Physical State"
 msgstr "Trạng Thái Vật Lý"
 
@@ -2458,13 +2401,13 @@ msgstr "Sửa đổi báo giá"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__revision
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Revision"
-msgstr "Bản Sửa Đổi"
+msgstr "Phiên bản"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Revisions"
-msgstr "Các Bản Sửa Đổi"
+msgstr "Các phiên bản báo giá"
 
 #. module: sol_commerce
 #. odoo-python
@@ -2497,6 +2440,7 @@ msgstr "Nhân viên kinh doanh"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sample_id
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "Sample"
 msgstr "Mẫu"
 
@@ -2611,6 +2555,7 @@ msgstr "Bắt đầu thu mẫu"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__state
 msgid "Status"
 msgstr "Trạng Thái"
 
@@ -3618,6 +3563,7 @@ msgstr "Quá hạn"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__not_paid
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__not_paid
 msgid "Not paid"
 msgstr "Chưa thanh toán"
 
@@ -3629,6 +3575,7 @@ msgstr "Chỉ hóa đơn đã phát hành mới được gửi email."
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__partial
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__partial
 msgid "Partially paid"
 msgstr "Thanh toán một phần"
 
@@ -3959,7 +3906,7 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__waiting
 msgid "Waiting"
-msgstr "Đang chờ"
+msgstr "Chờ giao mẫu"
 
 #. module: sol_commerce
 #. odoo-python
@@ -4300,6 +4247,8 @@ msgid "Read support requests"
 msgstr "Xem yêu cầu hỗ trợ"
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
 msgid "Request"
 msgstr "Yêu cầu"
@@ -5328,6 +5277,7 @@ msgstr "Số đối tượng:"
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__preservation
 #: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sampling_preservation
 msgid "Preservation"
 msgstr "Điều kiện bảo quản"
 
@@ -5532,6 +5482,7 @@ msgstr "Phương thức"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__on_credit
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__on_credit
 msgid "On Credit"
 msgstr "Mua chịu"
 
@@ -5652,6 +5603,7 @@ msgstr "Thời điểm nhận tiền (giờ Việt Nam)"
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_account_payment__received_at
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__received_at
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "Received At"
 msgstr "Thời Điểm Nhận Tiền"
 
@@ -5990,7 +5942,7 @@ msgstr "Thông Báo Thanh Toán"
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__collection_summary
 msgid "Sample Collection"
-msgstr "Thu Mẫu"
+msgstr "Lịch lấy mẫu"
 
 #. module: sol_commerce
 #. odoo-python
@@ -6030,6 +5982,557 @@ msgstr "chưa có lịch hẹn"
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "not claimed yet"
 msgstr "chưa có người nhận"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Agree a sample collection appointment that is still to come."
+msgstr "Hãy hẹn lịch thu mẫu vào một thời điểm chưa qua."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Print quotation"
+msgstr "In báo giá"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_sample_test
+msgid "Sample Test"
+msgstr "Chỉ Tiêu Của Mẫu"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Send the quotation before printing it."
+msgstr "Gửi báo giá trước khi in."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+msgid "Apply"
+msgstr "Áp dụng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Change return date"
+msgstr "Đổi ngày trả kết quả"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__discount_percentage
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+msgid "Discount (%)"
+msgstr "Chiết khấu (%)"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__discount_amount
+msgid "Discount Amount"
+msgstr "Số tiền chiết khấu"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__partner_email
+msgid "E-mail"
+msgstr "Email"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__committed_date
+msgid "Expected Return Date"
+msgstr "Ngày Trả Kết Quả Dự Kiến"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__expected_collection_date
+msgid "Expected Sample Pickup"
+msgstr "Ngày Lấy Mẫu Dự Kiến"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Expected return date"
+msgstr "Ngày trả kết quả dự kiến"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation_send.py:0
+msgid "Give a discount amount above zero and at most the untaxed total."
+msgstr "Nhập số tiền chiết khấu lớn hơn 0 và không vượt quá tổng tiền trước thuế."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation_send.py:0
+msgid "Give a payment deadline that is still to come."
+msgstr "Chọn hạn thanh toán trong tương lai."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation_send.py:0
+msgid "Give a quotation discount between 0 and 100%."
+msgstr "Nhập chiết khấu báo giá từ 0 đến 100%."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+msgid "Preview"
+msgstr "Xem trước"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__discount_type
+msgid "Quotation Discount"
+msgstr "Chiết Khấu Báo Giá"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__returns_after_request
+msgid "Returns After Request"
+msgstr "Trả Sau Ngày Yêu Cầu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Sample pickup"
+msgstr "Ngày lấy mẫu"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid ""
+"Samples collected on %(day)s return results on %(ready)s, after the expected"
+" return date %(committed)s. Agree an earlier appointment, or change the "
+"return date with the customer first."
+msgstr "Mẫu thu ngày %(day)s sẽ có kết quả ngày %(ready)s, sau ngày trả kết quả dự kiến %(committed)s. Hãy hẹn ngày thu sớm hơn, hoặc thống nhất đổi ngày trả kết quả với khách hàng trước."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation_send.py:0
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_quotation_send
+#: model:ir.model,name:sol_commerce.model_medilab_quotation_send
+msgid "Send Quotation"
+msgstr "Gửi Báo Giá"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sample_test_risk.py:0
+msgid ""
+"Some tests of order %(order)s are at risk of missing the expected return "
+"date %(date)s. Agree a feasible date with the customer if the laboratory "
+"cannot catch up."
+msgstr "Một số phép thử của đơn hàng %(order)s có nguy cơ trễ ngày trả kết quả dự kiến %(date)s. Hãy thống nhất ngày khả thi với khách hàng nếu phòng thí nghiệm không kịp."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__tax_totals
+msgid "Tax Totals"
+msgstr "Tổng Thuế"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid ""
+"The expected return date is earlier than the laboratory can return results, "
+"%s. Choose a later date or accept a priority request."
+msgstr "Ngày trả kết quả dự kiến sớm hơn ngày phòng thí nghiệm có thể trả kết quả, %s. Hãy chọn ngày muộn hơn hoặc chấp nhận yêu cầu ưu tiên."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "The results are expected after the date the customer asked for."
+msgstr "Kết quả dự kiến trả sau ngày khách hàng yêu cầu."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__partner_id
+msgid "To"
+msgstr "Gửi đến"
+
+#. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_sale_order__turnaround_days
+msgid ""
+"Working days from sample receipt to results: the longest standard turnaround"
+" of the order's ways of testing, set on each way in the catalog."
+msgstr "Số ngày làm việc từ khi nhận mẫu đến khi có kết quả: thời gian trả kết quả chuẩn dài nhất trong các cách thử của đơn hàng, được đặt cho từng cách thử trong danh mục."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid "Choose how the customer pays before sending the quotation."
+msgstr "Chọn phương thức thanh toán của khách hàng trước khi gửi báo giá."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid ""
+"Choose whether the advance is the full amount, a percentage, a fixed amount "
+"or none."
+msgstr "Chọn tạm ứng toàn bộ, theo phần trăm, số tiền cố định hoặc không tạm ứng."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Advance (%)"
+msgstr "Tạm ứng (%)"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Advance Amount"
+msgstr "Số tiền tạm ứng"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "%s working days, the least the estimate gives"
+msgstr "%s ngày làm việc, mức tối thiểu của dự kiến"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "+%s working days"
+msgstr "+%s ngày làm việc"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Customer asked for %s."
+msgstr "Khách hàng yêu cầu ngày %s."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Expected return"
+msgstr "Trả kết quả dự kiến"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+msgid "Recipient"
+msgstr "Người nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__return_timeline
+msgid "Return Timeline"
+msgstr "Tiến Trình Trả Kết Quả"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Safety margin"
+msgstr "Số ngày dự phòng"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Samples received from"
+msgstr "Nhận mẫu từ"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Standard turnaround"
+msgstr "Hạn chuẩn"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "Testing finishes"
+msgstr "Thử nghiệm xong"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "for approval and signing"
+msgstr "để duyệt và ký"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
+msgid "on the laboratory's schedule"
+msgstr "theo lịch phòng thí nghiệm"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Quotation total"
+msgstr "Tổng báo giá"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Payment request"
+msgstr "Yêu cầu thanh toán"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Paid amount"
+msgstr "Đã thanh toán"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Due by"
+msgstr "Hạn thanh toán"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Remaining due"
+msgstr "Cần thanh toán"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Payment recorded; pending accounting confirmation."
+msgstr "Đã ghi nhận thanh toán; đang chờ kế toán xác nhận."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
+msgid "Confirmed by accounting"
+msgstr "Đã xác nhận"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
+msgid "Pending accounting confirmation"
+msgstr "Chờ kế toán xác nhận"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
+msgid "Rejected"
+msgstr "Đã từ chối"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Pending accounting confirmation:"
+msgstr "Đang chờ kế toán xác nhận:"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Recorded payments"
+msgstr "Các khoản thanh toán đã ghi nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__partial_pending
+msgid "Partial (pending confirmation)"
+msgstr "Thanh toán một phần (chờ xác nhận)"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__pending
+msgid "Pending confirmation"
+msgstr "Chờ kế toán xác nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__result_status
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Result"
+msgstr "Kết quả"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__collection_hold
+msgid "Awaiting sample payment"
+msgstr "Chờ thanh toán trước lấy mẫu"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__awaiting_samples
+msgid "Awaiting samples"
+msgstr "Chờ lấy mẫu"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__in_progress
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__processing
+msgid "Processing"
+msgstr "Đang xử lý"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__payment_hold
+msgid "Waiting for full payment"
+msgstr "Chờ thanh toán đủ"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__ready
+msgid "Ready"
+msgstr "Sẵn sàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Awaiting confirmation"
+msgstr "Đang chờ xác nhận"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_payment_collection_form
+msgid "Generate PayOS QR"
+msgstr "Tạo mã QR PayOS"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Scan to pay with PayOS"
+msgstr "Quét mã QR để thanh toán qua PayOS"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Open PayOS link"
+msgstr "Mở trang PayOS"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Print QR"
+msgstr "In mã QR"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Bank transfer QR"
+msgstr "Mã QR chuyển khoản"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Account number"
+msgstr "Số tài khoản"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Account holder"
+msgstr "Chủ tài khoản"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Transfer content"
+msgstr "Nội dung chuyển khoản"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "PayOS or a company bank account is not configured to generate a payment QR yet."
+msgstr "Chưa cấu hình PayOS hoặc tài khoản ngân hàng công ty để tạo mã QR thanh toán."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Payment</span>"
+msgstr "<span class=\"text-muted\">Thanh toán</span>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Result</span>"
+msgstr "<span class=\"text-muted\">Kết quả</span>"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__email_body
+msgid "Email message"
+msgstr "Nội dung email"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+msgid "Preview PDF"
+msgstr "Xem trước PDF"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+msgid "Email & Attachment"
+msgstr "Email & Tệp đính kèm"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Order Details"
+msgstr "Thông tin bổ sung"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Order was submitted"
+msgstr "Đơn hàng đã được gửi"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Order was claimed"
+msgstr "Đơn hàng đã được tiếp nhận"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Order was cancelled"
+msgstr "Đơn hàng đã bị huỷ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Remaining"
+msgstr "Còn lại"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__expected_sample_summary
+msgid "Sample Volume"
+msgstr "Lượng mẫu"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "Give an expected pickup day that has not passed."
+msgstr "Vui lòng chọn ngày lấy mẫu dự kiến chưa qua."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__payos_available
+msgid "Payos Available"
+msgstr "Hỗ trợ PayOS"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__qr_html
+msgid "Qr Html"
+msgstr "Mã QR"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__recorded_payments_html
+msgid "Recorded Payments Html"
+msgstr "Các khoản thanh toán đã ghi nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__summary_html
+msgid "Summary Html"
+msgstr "Tóm tắt"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__min_committed_date
+msgid "Min Committed Date"
+msgstr "Ngày trả kết quả tối thiểu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+msgid "Order Quantity"
+msgstr "Số lượng đơn"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__expected_sample_count
+msgid "Sample Quantity"
+msgstr "Số lượng mẫu"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__collected_samples_html
+msgid "Collected Samples"
+msgstr "Mẫu đã thu"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__has_collected_samples
+msgid "Has Collected Samples"
+msgstr "Có mẫu đã thu"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Lab Code"
+msgstr "Mã PTN"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Amount Received"
+msgstr "Lượng mẫu đã nhận"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Condition"
+msgstr "Tình trạng nhận"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Calculated once tests and sample type are selected"
+msgstr "Tự động tính khi chọn chỉ tiêu và loại mẫu"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_account_move__log_ids

@@ -38,10 +38,39 @@ class MachineBookingApproval(models.Model, MachineBookingApprovalBase):
     def _approval_required(self):
         return self.env._("A booking is reserved only when the head of the department approves it.")
 
+    def _proposed_slot_is_available(self):
+        self.ensure_one()
+        start, end = self.starts_at, self.ends_at
+        if not start or not end:
+            return False
+        test = self.sudo().sample_test_id
+        way = self._proposed_way()
+        rooms = self._room_steps(way)
+        length = end - start
+        planned = self.sudo().search(
+            [
+                ("department_id", "=", self.sudo().department_id.id),
+                ("status", "=", "proposed"),
+                ("id", "!=", self.id),
+                ("starts_at", "!=", False),
+            ]
+        )
+        slot = self._free_slot(
+            self.machine_id,
+            length,
+            self.person_id,
+            start + max(length, _rooms_end(rooms)),
+            start,
+            self,
+            rooms=rooms,
+            way=way,
+            sample=test.sample_id,
+            planned=planned,
+        )
+        return slot == start
+
     def action_approve(self):
-        """Approve proposed bookings: each reserves its tester, its machine when it needs one and its rooms together, or
-        the approval is refused when any of them was taken meanwhile or the plan found no slot before the due date. The
-        head of the department approves, and each tester is told."""
+        """Approve a proposed slot when its tester, machine and rooms are still free, then tell the tester."""
         self._check_permission("edit")
         for booking in self:
             if booking.status != "proposed":
@@ -58,20 +87,7 @@ class MachineBookingApproval(models.Model, MachineBookingApprovalBase):
             if test.parameter_method_id != way:
                 # The way's steps give the rooms the booking books.
                 test.parameter_method_id = way
-            rooms = self._room_steps(way)
-            length = end - start
-            slot = self._free_slot(
-                booking.machine_id,
-                length,
-                booking.person_id,
-                start + max(length, _rooms_end(rooms)),
-                start,
-                booking,
-                rooms=rooms,
-                way=way,
-                sample=test.sample_id,
-            )
-            if slot != start:
+            if not booking._proposed_slot_is_available():
                 raise UserError(
                     self.env._(
                         "The slot of %s was taken meanwhile; open the plan again for its new slot.",
@@ -79,7 +95,6 @@ class MachineBookingApproval(models.Model, MachineBookingApprovalBase):
                     )
                 )
             booking._set({"status": "scheduled"})
-        self._plan(self.sudo().department_id)
         self._notify_approved()
 
     def _notify_approved(self):

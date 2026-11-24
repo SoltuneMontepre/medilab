@@ -3,11 +3,14 @@ from unittest.mock import patch
 
 from odoo import fields
 from odoo.exceptions import UserError
-from odoo.tests import tagged
+from odoo.tests import Form, tagged
+from odoo.tests.form import O2MProxy
 
 from .order_case import OrderCase
+from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD, MODEL_TEST_REQUEST
 from odoo.addons.sol_laboratory.models.sample_collection.test_request_estimate import TestRequestEstimate
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -26,9 +29,10 @@ class TestOrderDates(OrderCase):
         order = self.make_quotable_order([(self.lead_product, 1), (self.package_product, 1)])
 
         self.assertEqual(order.turnaround_days, 7)
-        estimate = order.estimated_result_date
+        estimate = order._earliest_return_date()
         assert isinstance(estimate, date)
         self.assertGreater(estimate, date.today())
+        self.assertEqual(order.committed_date, estimate)
 
     def test_a_way_without_a_turnaround_keeps_the_quotation_from_being_sent(self):
         self.parameter.method_ids.turnaround_days = 0
@@ -38,28 +42,49 @@ class TestOrderDates(OrderCase):
         with self.assertRaisesRegex(UserError, "Set the standard turnaround"):
             order.with_user(self.sales).action_send_quotation()
 
-    def test_a_requested_date_the_turnaround_meets_becomes_the_committed_date(self):
+    def test_the_expected_return_date_starts_at_the_earliest_date_and_ignores_requested_date(self):
         order = self.make_quotable_order()
+        earliest = order._earliest_return_date()
         requested = date.today() + timedelta(days=60)
         order.requested_date = requested
 
         order.with_user(self.sales).action_send_quotation()
 
-        self.assertEqual(order.committed_date, requested)
+        self.assertEqual(order.committed_date, earliest)
+        self.assertNotEqual(order.committed_date, requested)
 
-    def test_an_earlier_requested_date_leaves_the_date_to_sample_receipt(self):
+    def test_the_turnaround_counts_from_the_advance_deadline(self):
+        # Received today the samples would meet the requested date; paid on the deadline they would not.
         order = self.make_quotable_order()
-        order.requested_date = date.today()
+        requests = self.env[MODEL_TEST_REQUEST]
+        order.requested_date = requests._date_after_working_days(date.today(), order.turnaround_days)
+        order.payment_deadline = fields.Datetime.now() + timedelta(days=10)
 
         order.with_user(self.sales).action_send_quotation()
 
-        self.assertFalse(order.committed_date)
+        committed, requested = order.committed_date, order.requested_date
+        assert isinstance(committed, date)
+        assert isinstance(requested, date)
+        self.assertGreater(committed, requested)
+
+    def test_without_an_advance_the_turnaround_counts_from_today(self):
+        order = self.make_quotable_order()
+        requests = self.env[MODEL_TEST_REQUEST]
+        requested = requests._date_after_working_days(date.today(), order.turnaround_days)
+        order.write({"advance_method": "none", "user_id": self.head.id, "requested_date": requested})
+
+        order.with_user(self.head).action_send_quotation()
+
+        committed = order.committed_date
+        assert isinstance(committed, date)
+        assert isinstance(requested, date)
+        self.assertLessEqual(committed, requested)
 
     def test_a_committed_date_earlier_than_the_turnaround_allows_is_refused(self):
         order = self.make_quotable_order()
         order.committed_date = date.today()
 
-        with self.assertRaisesRegex(UserError, "earlier than the standard turnaround"):
+        with self.assertRaisesRegex(UserError, "earlier than the laboratory can return results"):
             order.with_user(self.sales).action_send_quotation()
 
     def test_a_priority_request_must_be_decided_before_sending(self):
@@ -168,7 +193,7 @@ class TestOrderDates(OrderCase):
 
         request = order.sudo().test_request_id
         self.assertEqual(request.requested_date, order.requested_date)
-        self.assertEqual(request.committed_date, order.requested_date)
+        self.assertEqual(request.committed_date, order.committed_date)
         self.assertEqual(request.turnaround_days, 5)
 
     def test_the_priority_check_reserves_nothing_and_needs_a_subcontract_turnaround(self):
@@ -192,3 +217,37 @@ class TestOrderDates(OrderCase):
         self.assertFalse(check["feasible"])
         self.assertTrue(any("has no turnaround" in reason for reason in check["reasons"]))
         self.assertEqual(self.env["medilab.machine.booking"].search_count([]), bookings)
+
+    def test_the_order_shows_how_its_return_date_is_reached(self):
+        order = self.make_quotable_order()
+        order.write({"expected_collection_date": date.today() + timedelta(days=7), "requested_date": date.today()})
+
+        timeline = str(order.return_timeline)
+
+        for step in ("Sample pickup", "Standard turnaround", "Expected return", "Customer asked for"):
+            with self.subTest(step=step):
+                self.assertIn(step, timeline)
+        self.assertIn("text-warning", timeline)
+
+        order.with_user(self.sales).action_send_quotation()
+        order.invalidate_recordset(["return_timeline"])
+        self.assertIn("Expected return", str(order.return_timeline))
+
+    def test_unsaved_order_form_simulates_return_dates_for_packages_and_pickup_changes(self):
+        # The form helper loads every one-to-many's view, support requests included, which Sales cannot read.
+        with Form(self.env[MODEL_SALE_ORDER].with_context(medilab_sales_order=True)) as form:
+            form.customer_id = self.customer
+            form.expected_collection_date = date.today() + timedelta(days=1)
+            with assert_instance(form.product_line_ids, O2MProxy).new() as line:
+                line.product_template_id = self.package_product
+                line.sample_type_id = self.sample_type
+            first_date = form.committed_date
+            self.assertTrue(first_date)
+            self.assertIn("Expected return", str(form.return_timeline))
+
+            form.expected_collection_date = date.today() + timedelta(days=5)
+            later_date = form.committed_date
+            assert isinstance(first_date, date)
+            assert isinstance(later_date, date)
+            self.assertGreater(later_date, first_date)
+            self.assertIn("Expected return", str(form.return_timeline))

@@ -36,7 +36,7 @@
                         string="Receive"
                         class="btn-primary"
                         invisible="status != 'expected' or condition not in (False, 'good')"
-                        groups="sol_laboratory.group_permission_sample_edit_all"
+                        groups="sol_laboratory.group_permission_sample_edit_all,sol_laboratory.group_permission_sample_handover_create_all"
                     />
                     <button
                         name="action_receive_entered"
@@ -44,7 +44,7 @@
                         string="Reject"
                         class="btn-danger"
                         invisible="status != 'expected' or condition != 'unusable'"
-                        groups="sol_laboratory.group_permission_sample_edit_all"
+                        groups="sol_laboratory.group_permission_sample_edit_all,sol_laboratory.group_permission_sample_handover_create_all"
                     />
                     <button
                         name="action_receive_entered"
@@ -52,7 +52,7 @@
                         string="Put On Hold"
                         class="btn-secondary"
                         invisible="status != 'expected' or condition != 'insufficient'"
-                        groups="sol_laboratory.group_permission_sample_edit_all"
+                        groups="sol_laboratory.group_permission_sample_edit_all,sol_laboratory.group_permission_sample_handover_create_all"
                     />
                     <button
                         name="action_receive_more_entered"
@@ -60,7 +60,7 @@
                         string="Receive More"
                         class="btn-primary"
                         invisible="status != 'on_hold'"
-                        groups="sol_laboratory.group_permission_sample_edit_all"
+                        groups="sol_laboratory.group_permission_sample_edit_all,sol_laboratory.group_permission_sample_handover_create_all"
                     />
                     <button
                         name="action_request_recollection"
