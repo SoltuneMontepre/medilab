@@ -126,6 +126,10 @@ function queueOrderProgress(order, stage, { customer, advance, sample }, step) {
   if (reached("claimed")) {
     step(SALES, "action_claim");
     if (sample) cy.then(() => addSample(order));
+    if (stage === "claimed") {
+      const login = advance ? SALES : HEAD_OF_SALES;
+      step(login, "write", [advance ? { advance_method: "bank_transfer" } : { advance_method: "none" }]);
+    }
   }
   if (reached("sent")) {
     const login = advance ? SALES : HEAD_OF_SALES;

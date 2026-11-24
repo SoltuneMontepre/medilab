@@ -151,6 +151,9 @@ describe("WF-01 Order to confirmed test request", () => {
     newRecord("/odoo/lab-orders");
     pick("customer_id", "Công ty TNHH Nước Uống Sạch");
     pick("partner_id", "Phạm Thị Hoa");
+    openTab("payment");
+    choose("advance_method", "Chuyển khoản");
+    openTab("order_lines");
     step("Sales adds Lead (Pb), whose price fills in, and saves the order");
     cy.get(".o_field_widget[name=product_line_ids] .o_field_x2many_list_row_add button").first().click();
     pick("product_template_id", "Lead (Pb)");
