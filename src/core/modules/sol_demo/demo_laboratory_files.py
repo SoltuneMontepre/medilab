@@ -13,6 +13,8 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER
 from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 
+AAS_COMPUTER = "sol_demo.demo_laboratory_device_aas_pc"
+
 COMPUTERS = (
     (
         "demo_laboratory_device_hplc_pc",
@@ -140,7 +142,7 @@ def seed_laboratory_file_restores(env):
         content=content_writer(env)(run_content),
         source=SYNCED,
         user=env.ref("sol_demo.demo_res_users_chemistry_tester"),
-        device=env.ref("sol_demo.demo_laboratory_device_aas_pc"),
+        device=env.ref(AAS_COMPUTER),
     )
     env[MODEL_IR_MODEL_DATA]._update_xmlids(
         [
@@ -177,7 +179,7 @@ def seed_sample_folders(env):
         folder.member_ids = [Command.create({"user_id": tester.id, "role": MEMBER_ROLE})]
     results = folders.filtered(lambda folder: folder.category == RESULT)
     file = env[MODEL_LABORATORY_FILE]._get_or_create(results, "Pb-ket-qua.xlsx")
-    device = env.ref("sol_demo.demo_laboratory_device_aas_pc")
+    device = env.ref(AAS_COMPUTER)
     store = content_writer(env)
     versions = []
     for content in SAMPLE_RESULT_SAVES:
@@ -220,7 +222,7 @@ def seed_closed_sample_folder(env):
         content=content_writer(env)(content),
         source=SYNCED,
         user=head,
-        device=env.ref("sol_demo.demo_laboratory_device_aas_pc"),
+        device=env.ref(AAS_COMPUTER),
     )
     sample._follow_tests()
     env[MODEL_IR_MODEL_DATA]._update_xmlids(

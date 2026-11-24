@@ -104,7 +104,8 @@ class TestCloudBeaver(unittest.TestCase):
         runtime = self.runtime()
         runtime.prepare()
         runtime.helper(
-            'gson=(server/plugins/com.google.gson_*.jar); java -cp "/bootstrap-bin:${gson[0]}" Workspace start'
+            "gson=(server/plugins/com.google.gson_*.jar); "
+            'java -cp "/bootstrap-bin:${gson[0]}" medilab.cloudbeaver.Workspace start'
         )
         self.assertNotEqual(runtime.prepare(check=False).returncode, 0)
         runtime.start()
@@ -290,7 +291,8 @@ class TestCloudBeaver(unittest.TestCase):
         runtime = self.runtime()
         runtime.helper(
             'gson=(server/plugins/com.google.gson_*.jar); javac -cp "${gson[0]}" -d /bootstrap-bin '
-            '/bootstrap/*.java /regression/ReadinessTest.java; java -cp "/bootstrap-bin:${gson[0]}" ReadinessTest'
+            "/bootstrap/*.java /regression/ReadinessTest.java; "
+            'java -cp "/bootstrap-bin:${gson[0]}" medilab.cloudbeaver.ReadinessTest'
         )
 
 

@@ -30,7 +30,7 @@ METHOD_CODE = re.compile(
     r"(?:\s*\(\s*(e?\d{4})\s*\))?"  # reapproval year, such as (2019) or (e2003)
 )
 ROW = re.compile(r"^\s*(\d{1,3})\.(?=\s|$)", re.M)
-FIELD = re.compile(r"Lĩnh vực thử nghiệm\s*:\s*(.+?)\s*\n\s*Field of testing\s*:\s*(.+)")
+FIELD = re.compile(r"Lĩnh vực thử nghiệm\s*:\s*(.+)\n\s*Field of testing\s*:\s*(.+)")
 CERTIFICATE_CODE = re.compile(r"Code\s*:\s*([A-Z][A-Z ]*\d+)")
 ENGLISH_START = re.compile(
     r"\b(Determination|Measur\w*|Test\w*|Analysis|Detection|Enumeration|Identification|Quantification|Calculation)\b"

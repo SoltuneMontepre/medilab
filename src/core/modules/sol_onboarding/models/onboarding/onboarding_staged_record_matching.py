@@ -57,6 +57,13 @@ def is_iso_date(value: str) -> bool:
     return True
 
 
+def _same_value(key: str, current: str, wanted: str) -> bool:
+    """Whether a compared value of the matched record is the staged one; codes are compared normalized."""
+    if key == "code":
+        return normalize_code(current) == normalize_code(wanted)
+    return current == wanted
+
+
 # Bản Ghi Chờ Duyệt: the Laboratory record a staged record matches and the action it proposes.
 class OnboardingStagedRecordMatching(models.Model, OnboardingStagedRecordMatchingBase):
     _inherit = MODEL_ONBOARDING_STAGED_RECORD
@@ -192,10 +199,6 @@ class OnboardingStagedRecordMatching(models.Model, OnboardingStagedRecordMatchin
                 continue
             current = record[key]
             current = current.isoformat() if isinstance(current, date) else str(current or "")
-            if key == "code":
-                same = normalize_code(current) == normalize_code(wanted)
-            else:
-                same = current == wanted
-            if not same:
+            if not _same_value(key, current, wanted):
                 differences.append((key, current, wanted))
         return differences

@@ -1,8 +1,8 @@
 import { callAs, randomId } from "../../../support/odoo";
-import { ADMINISTRATOR, HEAD, OTHER_TESTER, PARAMETERS, TESTER, assign, receivedSample } from "../wf-03-testing-scheduling/setup";
+import { ADMINISTRATOR, HEAD, PARAMETERS, TESTER, assign, receivedSample } from "../wf-03-testing-scheduling/setup";
 import { api, ok, signInDevice } from "./device";
 
-export { ADMINISTRATOR, HEAD, OTHER_TESTER, TESTER };
+export { ADMINISTRATOR, HEAD, OTHER_TESTER, TESTER } from "../wf-03-testing-scheduling/setup";
 export const MICROBIOLOGY_TESTER = "demo.microbiology_tester";
 export const SALES = "demo.sales";
 
@@ -90,4 +90,28 @@ export function devices(tag, ...logins) {
   const signedIn = [];
   logins.forEach((login, index) => signInDevice(login, `PC-${tag}-${index}`).then((device) => signedIn.push(device)));
   return cy.then(() => signedIn);
+}
+
+// The result folder of a new sample, which its head of department creates and shares with the tester, with the tester and
+// the tester's device that saves into it.
+export function sharedResultFolder(tag) {
+  const shared = {};
+  return person(TESTER)
+    .then((tester) => {
+      shared.tester = tester;
+      return sampleWithoutFolders();
+    })
+    .then((sample) => {
+      callAs(HEAD, "medilab.sample", "action_create_laboratory_folders", [[sample.id]]);
+      return foldersOfSample(sample);
+    })
+    .then((folders) => {
+      shared.results = folders.find(({ category }) => category === "result");
+      return devices(tag, HEAD, TESTER);
+    })
+    .then(([head, saver]) => {
+      shared.saver = saver;
+      return addMember(head, shared.results, shared.tester);
+    })
+    .then(() => shared);
 }

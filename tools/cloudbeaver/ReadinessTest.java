@@ -1,3 +1,5 @@
+package medilab.cloudbeaver;
+
 import com.sun.net.httpserver.HttpServer;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -52,7 +54,6 @@ public final class ReadinessTest {
             Files.delete(directory);
         }
         reject(uri, cookie);
-        System.out.println("Readiness rejects setup, GraphQL errors, invalid bodies, redirects, HTTP errors and connection failure; session reused.");
     }
 
     static void reject(URI uri, java.nio.file.Path cookie) throws Exception {

@@ -80,4 +80,5 @@ def test_uninstalling_onboarding_keeps_accepted_master_data(env):
     assert not env[MODEL_SCHEDULED_JOB].search([("key", "=", CRAWL_JOB)]), "the crawl job is still there"
     kept = env["ir.cron"].with_context(active_test=False).browse(organisations_cron_id).exists()
     assert env[MODEL_SCHEDULED_JOB].search([("key", "=", ORGANISATIONS_JOB)]), "the audited organisations job is gone"
-    assert kept and not kept.active, "the cron of the audited organisations job is not kept turned off"
+    assert kept, "the cron of the audited organisations job is gone"
+    assert not kept.active, "the cron of the audited organisations job is not kept turned off"

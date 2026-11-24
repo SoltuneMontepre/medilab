@@ -486,6 +486,8 @@
   }
 
   .oe_title .o_required_modifier:not(.o_readonly_modifier) {
+    position: relative;
+
     input::placeholder,
     .o_input::placeholder {
       color: $ml-danger;
@@ -535,10 +537,6 @@
     position: absolute;
     top: 100%;
     left: 0;
-  }
-
-  .oe_title .o_required_modifier:not(.o_readonly_modifier) {
-    position: relative;
   }
 
   // CSS content cannot use .po translations, so the Vietnamese label is set by language here.

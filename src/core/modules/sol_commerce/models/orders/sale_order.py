@@ -429,9 +429,6 @@ class SaleOrder(models.Model, SaleOrderBase):
 
     def _cancel_laboratory_documents(self):
         """Cancel the test request and everything under it, once that model exists."""
-        if "medilab.test.request" not in self.env:
-            return
-        return
 
     def _laboratory_blocks_cancellation(self):
         """True once a test of the order's request is approved."""
