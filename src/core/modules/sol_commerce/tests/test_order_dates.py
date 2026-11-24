@@ -3,11 +3,14 @@ from unittest.mock import patch
 
 from odoo import fields
 from odoo.exceptions import UserError
-from odoo.tests import tagged
+from odoo.tests import Form, tagged
+from odoo.tests.form import O2MProxy
 
 from .order_case import OrderCase
+from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD, MODEL_TEST_REQUEST
 from odoo.addons.sol_laboratory.models.sample_collection.test_request_estimate import TestRequestEstimate
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -229,3 +232,22 @@ class TestOrderDates(OrderCase):
         order.with_user(self.sales).action_send_quotation()
         order.invalidate_recordset(["return_timeline"])
         self.assertIn("Expected return", str(order.return_timeline))
+
+    def test_unsaved_order_form_simulates_return_dates_for_packages_and_pickup_changes(self):
+        env_sales = self.env[MODEL_SALE_ORDER].with_user(self.sales).with_context(medilab_sales_order=True)
+        with Form(env_sales) as form:
+            form.customer_id = self.customer
+            form.expected_collection_date = date.today() + timedelta(days=1)
+            with assert_instance(form.product_line_ids, O2MProxy).new() as line:
+                line.product_template_id = self.package_product
+                line.sample_type_id = self.sample_type
+            first_date = form.committed_date
+            self.assertTrue(first_date)
+            self.assertIn("Testing finishes", str(form.return_timeline))
+
+            form.expected_collection_date = date.today() + timedelta(days=5)
+            later_date = form.committed_date
+            assert isinstance(first_date, date)
+            assert isinstance(later_date, date)
+            self.assertGreater(later_date, first_date)
+            self.assertIn("Testing finishes", str(form.return_timeline))

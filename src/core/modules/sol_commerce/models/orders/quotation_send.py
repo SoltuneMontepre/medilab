@@ -96,6 +96,7 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
     @api.depends(
         "order_id",
         "order_id.amount_total",
+        "line_ids.price_total",
         "partner_id",
         "payment_deadline",
         "advance_mode",
@@ -203,6 +204,7 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
             {"sale_order_id": self.order_id.id, **values}
         ).action_apply_discount()
         self.write({"discount_percentage": 0, "discount_amount": 0})
+        self._compute_email_body()
         return self._reopen()
 
     def action_preview(self):

@@ -119,6 +119,7 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                 )
 
     @api.depends(
+        "product_id",
         "product_uom_qty",
         "sample_type_id",
         "parameter_method_id",
@@ -129,7 +130,8 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
     def _compute_expected_sample_summary(self):
         requirements = self.env[MODEL_SAMPLING_REQUIREMENT].sudo()
         for line in self:
-            methods = (line.linked_line_ids | line).parameter_method_id.sudo().method_id
+            ways = (line.linked_line_ids | line)._resolved_ways()
+            methods = self.env[MODEL_PARAMETER_METHOD].concat(ways).sudo().method_id
             if not line.sample_type_id or not methods:
                 line.expected_sample_count = 0
                 line.expected_sample_summary = False
@@ -149,6 +151,12 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                     preservations.append(preservation)
             line.expected_sample_summary = ", ".join(volumes) or False
             line.sampling_preservation = ", ".join(preservations) or False
+
+    @api.onchange("product_template_id")
+    def _onchange_product_template_id(self):
+        super()._onchange_product_template_id()
+        if self.product_template_id and self.product_id.product_tmpl_id != self.product_template_id:
+            self.product_id = self.product_template_id.product_variant_id
 
     @api.onchange("sample_type_id")
     def _onchange_sample_type_detach_sample(self):
@@ -331,6 +339,27 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         return self.filtered(
             lambda line: not line.display_type and not line.is_downpayment and bool(line._own_parameter())
         )
+
+    def _resolved_ways(self):
+        """Ways of testing across parameter lines and not-yet-expanded package lines while editing."""
+        ways = []
+        for line in self:
+            if line.display_type or line.is_downpayment:
+                continue
+            if line._own_parameter():
+                if line.parameter_method_id:
+                    ways.append(line.parameter_method_id)
+                continue
+            package = line._package_of()
+            if package and not line.linked_line_ids and line.sample_type_id:
+                partner = line.order_id.partner_id
+                for parameter in package.line_ids.parameter_id:
+                    way = parameter._default_way(line.sample_type_id) & parameter._offered_ways(
+                        line.sample_type_id, partner
+                    )
+                    if way:
+                        ways.append(way)
+        return ways
 
     def _content_lines(self):
         # The lines of a down payment are Odoo's own bookkeeping and follow the invoice, confirmed or not.

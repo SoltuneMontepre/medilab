@@ -9,7 +9,11 @@ from odoo.tools.misc import format_date
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import ADVANCE_NONE, DATE_FIELDS
 from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE_DAYS, PAYMENT_DEADLINE_PARAMETER
-from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TEST, MODEL_TEST_REQUEST
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_PARAMETER_METHOD,
+    MODEL_SAMPLE_TEST,
+    MODEL_TEST_REQUEST,
+)
 from odoo.addons.sol_laboratory.models.sample_collection.committed_date_change import CHANGING_COMMITTED_DATE
 
 if TYPE_CHECKING:
@@ -69,7 +73,12 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
         for order in self:
             order.priority = order.priority_request == "accepted"
 
-    @api.depends("order_line.parameter_method_id.turnaround_days")
+    @api.depends(
+        "order_line.parameter_method_id.turnaround_days",
+        "product_line_ids.product_id",
+        "product_line_ids.sample_type_id",
+        "product_line_ids.parameter_method_id.turnaround_days",
+    )
     def _compute_turnaround_days(self):
         requests = self.env[MODEL_TEST_REQUEST]
         for order in self:
@@ -78,7 +87,12 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             frozen = order in order._frozen_by_quotation()
             order.turnaround_days = order.turnaround_days if frozen else turnaround["days"]
 
-    @api.depends("order_line.parameter_method_id.turnaround_days")
+    @api.depends(
+        "order_line.parameter_method_id.turnaround_days",
+        "product_line_ids.product_id",
+        "product_line_ids.sample_type_id",
+        "product_line_ids.parameter_method_id.turnaround_days",
+    )
     def _compute_turnaround_missing(self):
         requests = self.env[MODEL_TEST_REQUEST]
         for order in self:
@@ -88,6 +102,9 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
     @api.depends(
         "turnaround_days",
         "order_line.parameter_method_id",
+        "product_line_ids.product_id",
+        "product_line_ids.sample_type_id",
+        "product_line_ids.parameter_method_id",
         "expected_collection_date",
         "requested_date",
         "payment_deadline",
@@ -104,6 +121,9 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
 
     @api.depends(
         "order_line.parameter_method_id",
+        "product_line_ids.product_id",
+        "product_line_ids.sample_type_id",
+        "product_line_ids.parameter_method_id",
         "expected_collection_date",
         "priority",
     )
@@ -136,15 +156,22 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             raise UserError(self.env._("Give the date you want the results to ask for priority."))
         self.sudo().write({"requested_date": requested, "priority_request": "requested" if priority else False})
 
+    def _estimation_lines(self):
+        """Lines whose ways of testing feed turnaround and schedule simulation, following unsaved form edits."""
+        self.ensure_one()
+        if self._origin:
+            return self.product_line_ids
+        return self.product_line_ids or self.order_line
+
     def _ways(self):
         # The ways of testing the order's parameters are tested by, a package's parameters included.
         self.ensure_one()
-        return self.order_line._way_lines().parameter_method_id
+        return self.env[MODEL_PARAMETER_METHOD].concat(self._estimation_lines()._resolved_ways())
 
     def _test_ways(self):
         """The way of each test the order brings the laboratory: one for each parameter line, a package's included."""
         self.ensure_one()
-        return [line.parameter_method_id for line in self.order_line._way_lines() if line.parameter_method_id]
+        return self._estimation_lines()._resolved_ways()
 
     def action_accept_priority(self):
         """Accept the customer's priority request when the feasibility check says the requested date can be met; the

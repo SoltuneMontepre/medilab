@@ -46,7 +46,7 @@
                             <field name="discount_type" class="w-50" />
                             <field name="discount_percentage" class="w-50" digits="[16, 0]" invisible="discount_type != 'percentage'" />
                             <field name="discount_amount" class="w-50" invisible="discount_type != 'amount'" />
-                            <button name="action_apply_discount" type="object" string="Apply" class="btn-secondary" invisible="not discount_percentage and not discount_amount" />
+                            <button name="action_apply_discount" type="object" string="Apply" class="btn-secondary text-nowrap" invisible="not discount_percentage and not discount_amount" />
                         </div>
                         <field name="tax_totals" widget="account-tax-totals-field" nolabel="1" colspan="2" readonly="1" class="mt-2" />
                     </group>

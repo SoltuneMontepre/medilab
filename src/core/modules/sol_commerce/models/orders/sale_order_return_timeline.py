@@ -22,7 +22,14 @@ class SaleOrderReturnTimeline(models.Model, SaleOrderReturnTimelineBase):
         return_timeline = fields.Html(compute="_compute_return_timeline", sanitize=False)
 
     @api.depends(
-        "expected_collection_date", "turnaround_days", "order_line.parameter_method_id", "committed_date", "state"
+        "expected_collection_date",
+        "turnaround_days",
+        "order_line.parameter_method_id",
+        "product_line_ids.product_id",
+        "product_line_ids.sample_type_id",
+        "product_line_ids.parameter_method_id",
+        "committed_date",
+        "state",
     )
     def _compute_return_timeline(self):
         for order in self:
