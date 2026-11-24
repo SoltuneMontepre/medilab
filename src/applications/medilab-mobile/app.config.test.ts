@@ -1,9 +1,20 @@
-import appConfig, { DEFAULT_SERVER_URL, DEFAULT_VERSION, versionCode } from "./app.config";
+import appConfig, { DEFAULT_SERVER_URL, DEFAULT_VERSION, versionCode, WINDOWS_CMAKE_VERSION } from "./app.config";
+
+// Builds the config as on the given operating system.
+function buildOn(platform: NodeJS.Platform) {
+  Object.defineProperty(process, "platform", { value: platform });
+  return appConfig({ config: {} } as never);
+}
 
 describe("app config", () => {
   const original = { ...process.env };
+  const platform = process.platform;
+  beforeEach(() => {
+    Object.defineProperty(process, "platform", { value: "linux" });
+  });
   afterEach(() => {
     process.env = { ...original };
+    Object.defineProperty(process, "platform", { value: platform });
   });
 
   it("builds a local build with the default version and no runtime version", () => {
@@ -78,5 +89,17 @@ describe("app config", () => {
   it("takes no update in a build without the update certificate", () => {
     delete process.env.MEDILAB_MOBILE_UPDATE_CERTIFICATE;
     expect(appConfig({ config: {} } as never).updates).toEqual({ enabled: false });
+  });
+
+  it("builds the native code on Windows with a CMake whose Ninja reaches long paths", () => {
+    process.env.MEDILAB_URL = "https://lab.example";
+    expect(buildOn("win32").plugins).toContainEqual([
+      "expo-build-properties",
+      { ios: { useFrameworks: "dynamic" }, android: { cmakeVersion: WINDOWS_CMAKE_VERSION } },
+    ]);
+    expect(buildOn("linux").plugins).toContainEqual([
+      "expo-build-properties",
+      { ios: { useFrameworks: "dynamic" }, android: {} },
+    ]);
   });
 });
