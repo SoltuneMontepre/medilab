@@ -97,10 +97,10 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
     def _compute_committed_date(self):
         for order in self:
             # A sent quotation, a confirmed order and an accepted priority request keep the date they have.
-            if order.priority_request == "accepted" or order.state != "draft" or order in order._frozen_by_quotation():
-                order.committed_date = order.committed_date
-                continue
-            order.committed_date = order._earliest_return_date()
+            keep = (
+                order.priority_request == "accepted" or order.state != "draft" or order in order._frozen_by_quotation()
+            )
+            order.committed_date = order.committed_date if keep else order._earliest_return_date()
 
     @api.depends(
         "order_line.parameter_method_id",

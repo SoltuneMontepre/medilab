@@ -119,7 +119,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         }
         for order in self:
             samples = order.sudo().test_request_id.sample_ids.filtered(
-                lambda s: s.status != "expected" or s.received_at or s.condition
+                lambda s: bool(s.status != "expected" or s.received_at or s.condition)
             )
             if not samples:
                 order.has_collected_samples = False
@@ -148,10 +148,10 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                     escape(sample.sample_type_id.display_name or ""),
                     escape(states.get(sample.physical_state, "") if sample.physical_state else ""),
                     escape(sample.received_quantity or ""),
-                    escape(conditions.get(sample.condition, "") if sample.condition else ""),
+                    escape(conditions.get(sample.condition or "", "")),
                     escape(format_datetime(self.env, sample.received_at) if sample.received_at else ""),
-                    status_badges.get(sample.status, "text-bg-secondary"),
-                    escape(statuses.get(sample.status, sample.status or "")),
+                    status_badges.get(sample.status or "", "text-bg-secondary"),
+                    escape(statuses.get(sample.status or "", sample.status or "")),
                 )
                 for sample in samples.sorted("id")
             )

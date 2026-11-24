@@ -60,7 +60,8 @@ class TestOrderDates(OrderCase):
         order.with_user(self.sales).action_send_quotation()
 
         committed, requested = order.committed_date, order.requested_date
-        assert isinstance(committed, date) and isinstance(requested, date)
+        assert isinstance(committed, date)
+        assert isinstance(requested, date)
         self.assertGreater(committed, requested)
 
     def test_without_an_advance_the_turnaround_counts_from_today(self):
@@ -72,7 +73,8 @@ class TestOrderDates(OrderCase):
         order.with_user(self.head).action_send_quotation()
 
         committed = order.committed_date
-        assert isinstance(committed, date) and isinstance(requested, date)
+        assert isinstance(committed, date)
+        assert isinstance(requested, date)
         self.assertLessEqual(committed, requested)
 
     def test_a_committed_date_earlier_than_the_turnaround_allows_is_refused(self):
@@ -212,3 +214,18 @@ class TestOrderDates(OrderCase):
         self.assertFalse(check["feasible"])
         self.assertTrue(any("has no turnaround" in reason for reason in check["reasons"]))
         self.assertEqual(self.env["medilab.machine.booking"].search_count([]), bookings)
+
+    def test_the_order_shows_how_its_return_date_is_reached(self):
+        order = self.make_quotable_order()
+        order.write({"expected_collection_date": date.today() + timedelta(days=7), "requested_date": date.today()})
+
+        timeline = str(order.return_timeline)
+
+        for step in ("Sample pickup", "Standard turnaround", "Expected return", "Customer asked for"):
+            with self.subTest(step=step):
+                self.assertIn(step, timeline)
+        self.assertIn("text-warning", timeline)
+
+        order.with_user(self.sales).action_send_quotation()
+        order.invalidate_recordset(["return_timeline"])
+        self.assertIn("Expected return", str(order.return_timeline))

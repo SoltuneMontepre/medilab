@@ -58,7 +58,7 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
             rows = [(_("Quotation total"), currency.format(order.amount_total))]
             if request:
                 kinds = dict(request._fields["kind"]._description_selection(self.env))
-                rows.append((_("Payment request"), kinds.get(request.kind or "", request.kind)))
+                rows.append((_("Payment request"), kinds.get(request.kind or "", request.kind or "")))
                 if request.verified_amount:
                     rows.append((_("Paid amount"), currency.format(request.verified_amount)))
                 if request.deadline:

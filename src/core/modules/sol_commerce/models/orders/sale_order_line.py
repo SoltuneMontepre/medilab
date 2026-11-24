@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
@@ -363,9 +363,9 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                 lambda line: line.sample_id and line.sample_id.sample_type_id.id != vals["sample_type_id"]
             )
             if mismatched:
-                super(SaleOrderLine, mismatched).write({"sample_id": False})
+                super(SaleOrderLine, cast("SaleOrderLine", mismatched)).write({"sample_id": False})
                 if mismatched.linked_line_ids:
-                    super(SaleOrderLine, mismatched.linked_line_ids).write({"sample_id": False})
+                    super(SaleOrderLine, cast("SaleOrderLine", mismatched.linked_line_ids)).write({"sample_id": False})
         result = super().write(vals)
         if "product_uom_qty" in vals:
             self._sync_package_part_quantities()
