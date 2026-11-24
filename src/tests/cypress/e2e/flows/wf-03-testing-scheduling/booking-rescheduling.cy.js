@@ -1,6 +1,6 @@
 import { callAs } from "../../../support/odoo";
 import { save } from "../../../support/form";
-import { milliseconds, typeTime } from "../../features/laboratory/scheduling/setup";
+import { formTime, milliseconds, typeTime } from "../../features/laboratory/scheduling/setup";
 import { displayZone, dragBookingToSlot, wallClock } from "./screens";
 import { eventsGone, scheduleState } from "./state";
 import { HEAD, TESTER, awayFromQuarterHour, bookedOnOneMachine, book, assignedChromium, releaseFixtures, resetFixtures } from "./setup";
@@ -73,6 +73,9 @@ describe("SF-10 the head moves and cancels a department booking", () => {
           cy.visit(`/odoo/machine-schedule/${booking.id}`);
           cy.get('.o_field_widget[name="starts_at"]').should("not.have.class", "o_readonly_modifier");
           typeTime(slot, zone);
+          const duration = milliseconds(booking.ends_at) - milliseconds(booking.starts_at);
+          const movedEnd = new Date(milliseconds(slot) + duration).toISOString().replace("T", " ").slice(0, 19);
+          cy.get('.o_field_widget[name="ends_at"] input').should("have.value", formTime(movedEnd, zone));
           cy.intercept("POST", "/web/dataset/call_kw/medilab.machine.booking/web_save").as("savedBooking");
           save();
           cy.wait("@savedBooking").its("response.body.error").should("not.exist");

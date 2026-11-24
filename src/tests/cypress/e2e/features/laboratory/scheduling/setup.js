@@ -162,13 +162,17 @@ export function release(fixture) {
   ]).then((ids) => ids.length ? callAs(ADMIN, "medilab.machine.booking", "action_cancel", [ids]) : null);
 }
 
-export function typeTime(value, zone, field = "starts_at") {
+export function formTime(value, zone) {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit",
     hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
   }).formatToParts(new Date(`${value}Z`));
   const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
-  const text = `${values.month}/${values.day}/${values.year} ${values.hour}:${values.minute}:${values.second} ${values.dayPeriod}`;
+  return `${values.month}/${values.day}/${values.year} ${values.hour}:${values.minute}:${values.second} ${values.dayPeriod}`;
+}
+
+export function typeTime(value, zone, field = "starts_at") {
+  const text = formTime(value, zone);
   cy.get(`.o_field_widget[name="${field}"] .o_input`).first().focus();
   cy.get(`.o_field_widget[name="${field}"] input`).clear().type(text).blur();
 }

@@ -59,6 +59,32 @@ class TestMachineScheduling(SchedulingCase):
             second._set({"starts_at": first.starts_at + SLOT, "ends_at": first.ends_at + SLOT})
             self.env.flush_all()
 
+    def test_moving_a_booking_names_the_machine_that_blocks_it(self):
+        self.slow.status = "under_repair"
+        second_test = self.new_test()
+        self.testing_task(self.test, self.tester)
+        self.testing_task(second_test, self.other_tester)
+        first = self.schedule(self.test, self.tester)
+        second = self.schedule(second_test, self.other_tester)
+
+        self.assertEqual((first.machine_id, second.machine_id), (self.fast, self.fast))
+        with self.assertRaisesRegex(UserError, f"{self.fast.display_name} is not free for"):
+            second.with_user(self.other_tester.user_id).write({"starts_at": first.starts_at})
+
+    def test_moving_a_booking_names_the_tester_that_blocks_it(self):
+        self.testing_task(self.test, self.tester)
+        second_test = self.new_test()
+        self.testing_task(second_test, self.other_tester)
+        first = self.schedule(self.test, self.tester)
+        second = self.schedule(second_test, self.other_tester)
+
+        self.assertNotEqual(first.machine_id, second.machine_id)
+        second.with_user(self.other_tester.user_id).write({"starts_at": first.ends_at})
+        second._set({"person_id": self.tester.id})
+
+        with self.assertRaisesRegex(UserError, f"{self.tester.display_name} is not free for"):
+            second.with_user(self.head.user_id).write({"starts_at": first.starts_at})
+
     def test_a_machine_under_repair_gets_no_bookings_and_its_bookings_move_to_another(self):
         self.testing_task(self.test, self.tester)
         booking = self.schedule(self.test, self.tester)

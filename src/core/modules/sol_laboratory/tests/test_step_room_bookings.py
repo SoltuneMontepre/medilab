@@ -108,6 +108,14 @@ class TestStepRoomBookings(SchedulingCase, LocationCase):
         with self.assertRaises(UserError):
             booking.with_user(self.tester.user_id).write({"starts_at": MONDAY + timedelta(hours=2)})
 
+    def test_moving_a_booking_names_the_room_that_blocks_it(self):
+        booking = self.scheduled()
+        later = MONDAY + timedelta(hours=1)
+        self.book(self.room, later, hours=1)
+
+        with self.assertRaisesRegex(UserError, f"{self.room.display_name} is not free for"):
+            booking.with_user(self.tester.user_id).write({"starts_at": later})
+
     def test_cancelling_a_booking_cancels_its_room_bookings(self):
         booking = self.scheduled()
         events = booking.room_event_ids
