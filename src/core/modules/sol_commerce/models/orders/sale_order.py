@@ -530,7 +530,8 @@ class SaleOrder(models.Model, SaleOrderBase):
             return
         method = vals.pop("advance_method")
         if method == ADVANCE_NONE:
-            vals.setdefault("advance_mode", ADVANCE_NONE)
+            # No advance wins over an advance mode given with it, as it did when one field held both.
+            vals["advance_mode"] = ADVANCE_NONE
         else:
             vals.setdefault("payment_method", method or False)
 
