@@ -2,7 +2,7 @@
 
 The owner authorized ignoring confirmed SonarQube false positives. `sonar-project.properties` scopes each exclusion to one rule and one file; other rules continue to scan those files. An exclusion does not approve arbitrary endpoints, untrusted command callers or weakened ownership checks. Review it again if a boundary below changes.
 
-The local tools rely on the trust boundary of the [local setup security review](local-setup-security-review.md). Findings that need an owner decision stay open and are not listed here; the CloudBeaver MD5 findings are assessed in the [CloudBeaver security and peer review](cloudbeaver-security-review.md#three-md5-findings).
+The local tools rely on the trust boundary of the [local setup security review](local-setup-security-review.md). Findings that need an owner decision stay open and are not listed here.
 
 | Exclusion | Rule and file | Reason and required controls |
 | --- | --- | --- |
@@ -23,7 +23,17 @@ The local tools rely on the trust boundary of the [local setup security review](
 | clusterServiceHttp | python:S5332; tools/cloudbeaver/kube_support.py | The regression probes call `cluster.local` service names inside a disposable test cluster, whose services have no TLS. Production traffic reaches CloudBeaver through the TLS ingress, which these probes do not stand in for. |
 | syncContractFixture | secrets:S2068; src/applications/medilab-sync/src-tauri/src/contract.rs | The flagged value is the synthetic `fixture` password of a unit-test sign-in body that checks OpenAPI contract validation. It authenticates nothing. |
 
+## Accepted risks
+
+A real finding the owner agreed to keep is marked Accepted in SonarQube with its reason, not excluded, so the rule keeps reporting new occurrences in the same file.
+
+| Rule and file | Approval | Reason, implications and compensating controls |
+| --- | --- | --- |
+| java:S4790; infra/cluster/cloudbeaver/bootstrap/Authentication.java | Owner (KietPham-VN), 2026-11-24 | CloudBeaver 26.2.2's local login requires the uppercase MD5 of the password, and no compatible secure alternative exists. See [Accepted risk](cloudbeaver-security-review.md#accepted-risk). |
+| python:S4790; tools/cloudbeaver/runtime.py | Owner (KietPham-VN), 2026-11-24 | The regression client speaks the same required protocol against disposable containers with credentials generated for each run. See [Accepted risk](cloudbeaver-security-review.md#accepted-risk). |
+
 ## Related documents
 
 - [Reports index](readme.md)
 - [Local setup security review](local-setup-security-review.md)
+- [CloudBeaver security and peer review](cloudbeaver-security-review.md)
