@@ -30,6 +30,10 @@ const BRAND = { primary: "#0a4d8c", accent: "#0083ef" };
 // The path MediLab serves code updates at, in the Expo Updates protocol.
 const UPDATES_PATH = "/medilab/api/v1/mobile/updates";
 
+// The CMake a build on Windows compiles the native libraries with: the Ninja of the Android Gradle plugin's default
+// CMake 3.22.1 cannot reach the long paths of their object files.
+export const WINDOWS_CMAKE_VERSION = "3.31.6";
+
 export default function appConfig({ config }: ConfigContext): ExpoConfig {
   const version = process.env.MEDILAB_MOBILE_VERSION || DEFAULT_VERSION;
   // The release pipeline names the native build a code update runs on; a local build names none.
@@ -43,6 +47,10 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
   const serverUrl = process.env.MEDILAB_URL || DEFAULT_SERVER_URL;
   // A build made for a MediLab served over HTTP, such as the local app, may reach one; other builds use HTTPS only.
   const allowsHttp = serverUrl.startsWith("http:");
+  const androidBuild = {
+    ...(allowsHttp ? { usesCleartextTraffic: true } : {}),
+    ...(process.platform === "win32" ? { cmakeVersion: WINDOWS_CMAKE_VERSION } : {}),
+  };
   const updateCertificate = process.env[UPDATE_CERTIFICATE] || undefined;
   // The app checks for updates itself, at start and back from a minute away, so expo-updates never checks on its own.
   const updates: ExpoConfig["updates"] = updateCertificate
@@ -102,10 +110,7 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
       ],
       // React Native Firebase reaches the Firebase Apple SDK through Swift Package Manager, which needs dynamic
       // frameworks.
-      [
-        "expo-build-properties",
-        { ios: { useFrameworks: "dynamic" }, android: allowsHttp ? { usesCleartextTraffic: true } : {} },
-      ],
+      ["expo-build-properties", { ios: { useFrameworks: "dynamic" }, android: androidBuild }],
       ...firebasePlugins,
     ],
     updates,
