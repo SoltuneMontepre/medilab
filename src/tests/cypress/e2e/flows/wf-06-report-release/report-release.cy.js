@@ -4,6 +4,7 @@ import { search } from "../../../support/form";
 import { ADMIN, BY_EMAIL, BY_POST, HEAD, LAB_HEAD, PARAMETERS, REISSUED, REPORT, STAFF, assignToTester, draftReport, personNames, reportHtml, testingTasks } from "./setup";
 
 const ACTIONS = ".o_form_view .o_statusbar_buttons";
+let stalePartnerForCleanup;
 // The report's prepared PDF that waits for signature or was issued.
 const signedCandidate = (report) =>
   callAs(
@@ -23,6 +24,19 @@ const signedCandidate = (report) =>
 
 // The record's fields as the administrator reads them.
 const readAs = (record, fields) => callAs(ADMIN, record.model, "read", [[record.id], fields]).its(0);
+
+// Change a printed business value after preparing the PDF so the stale-candidate case is deterministic.
+const makeCandidateStale = (report) =>
+  readAs(report, ["request_id"])
+    .then(({ request_id }) => callAs(ADMIN, "medilab.test.request", "read", [[request_id[0]], ["customer_id"]]))
+    .then(([request]) => callAs(ADMIN, "medilab.customer", "read", [[request.customer_id[0]], ["partner_id"]]))
+    .then(([customer]) => {
+      const partnerId = customer.partner_id[0];
+      return callAs(ADMIN, "res.partner", "read", [[partnerId], ["name"]]).then(([partner]) => {
+        stalePartnerForCleanup = { id: partnerId, name: partner.name };
+        return callAs(ADMIN, "res.partner", "write", [[partnerId], { name: "Changed after PDF preparation" }]);
+      });
+    });
 
 // The base64 content of a file the browser's session downloads.
 const downloaded = (url) => cy.request({ url, encoding: "base64" }).its("body");
@@ -86,6 +100,12 @@ function approveAgain(result) {
 }
 
 describe("WF-06 Report release", () => {
+  afterEach(() => {
+    if (!stalePartnerForCleanup) return;
+    const { id, name } = stalePartnerForCleanup;
+    stalePartnerForCleanup = undefined;
+    return callAs(ADMIN, "res.partner", "write", [[id], { name }]);
+  });
   it("TC-WF06-M issues the report with its number, delivers it by e-mail and lets the customer download it", () => {
     refAs(ADMIN, "sol_demo.demo_res_partner_nuoc_sach").then((customer) =>
       refAs(ADMIN, "sol_demo.demo_res_partner_hoa").then((hoa) =>
@@ -106,7 +126,17 @@ describe("WF-06 Report release", () => {
 
             step("The customer opens Test reports on the portal and downloads the report");
             cy.signInAs("customer");
-            cy.get("main a[href='/my/test-reports']").first().click();
+            cy.intercept("POST", "/my/counters", (request) => {
+              if (request.body.params?.counters?.test_report_count) {
+                request.alias = "portalTestReportCounters";
+              }
+            });
+            cy.visit("/my");
+            cy.wait("@portalTestReportCounters").then(({ response }) => {
+              expect(response.statusCode).to.equal(200);
+              expect(response.body.result.test_report_count).to.equal(1);
+            });
+            cy.get("main a[href='/my/test-reports']").first().should("be.visible").click();
             cy.contains("main", issued.code).should("be.visible");
             cy.request(`/my/test-reports/${report.id}/download`).its("headers.content-type").should("contain", "application/pdf");
           }),
@@ -182,13 +212,21 @@ describe("WF-06 Report release", () => {
     });
   });
 
-  it("TC-WF06-E1 keeps a report pending digital signing unissued, then issues its reviewed PDF once on retry", () => {
+  it("TC-WF06-E1 keeps a report with an out-of-date PDF pending digital signing", () => {
     refAs(ADMIN, "sol_demo.demo_test_report_pending").then((report) =>
-      signedCandidate(report).then((candidate) => {
-        readAs(report, ["status", "code", "attachment_id", "request_id"]).then((read) => {
+      signedCandidate(report)
+        .then((candidate) => makeCandidateStale(report).then(() => candidate))
+        .then((candidate) =>
+          readAs(report, ["status", "code", "attachment_id", "request_id", "candidate_current"]).then((read) => ({
+            candidate,
+            read,
+          })),
+        )
+        .then(({ candidate, read }) => {
           expect(read.status).to.equal("pending_signing");
           expect(read.code).to.equal(candidate.report_number);
           expect(read.attachment_id).to.equal(false);
+          expect(read.candidate_current).to.equal(false);
 
           step("A report waiting for its digital signature cannot be delivered");
           cy.signInAs("sample_delivery_staff");
@@ -204,26 +242,17 @@ describe("WF-06 Report release", () => {
           cy.signInAs("lab_head");
           listRows("reports-to-sign").should("not.contain.text", read.request_id[1]);
           cy.openRecord(report);
-          cy.get(".o_form_view .alert-warning").should("contain.text", "Viettel Sign");
+          cy.get(".o_form_view .alert-warning").should("contain.text", "prepared PDF no longer matches");
           cy.get(`${ACTIONS} button[name=action_sign]`).should("not.exist");
-          // Digital signing is off in the demo, so the retry issues the reviewed PDF as it is.
-          cy.get(`${ACTIONS} button[name=action_retry_digital_signing]`).click();
           cy.get(`${ACTIONS} button[name=action_retry_digital_signing]`).should("not.exist");
-          cy.get(`${ACTIONS} button[name=action_download]`).should("be.visible");
-        });
-        step("The report is issued with its reserved number");
-        readAs(report, ["status", "code"]).should((read) => {
-          expect(read.status).to.equal("issued");
-          expect(read.code).to.equal(candidate.report_number);
-        });
-        signedCandidate(report).its("status").should("eq", "issued");
-        callRefused(REPORT, "action_retry_digital_signing", [[report.id]]).should("be.a", "string");
-        step("The customer downloads the PDF the lab head reviewed");
-        downloaded(`/web/content/${candidate.attachment_id[0]}`).then((reviewed) => {
-          cy.signInAs("customer");
-          downloaded(`/my/test-reports/${report.id}/download`).should("eq", reviewed);
-        });
-      }),
+          callRefused(REPORT, "action_retry_digital_signing", [[report.id]]).should("contain", "no longer matches its sources");
+          step("A stale candidate cannot issue the report");
+          return readAs(report, ["status", "code", "attachment_id"]).should((final) => {
+            expect(final.status).to.equal("pending_signing");
+            expect(final.code).to.equal(candidate.report_number);
+            expect(final.attachment_id).to.equal(false);
+          });
+        }),
     );
   });
 
@@ -363,7 +392,11 @@ describe("WF-06 feature acceptance criteria", () => {
       cy.signInAs("sample_delivery_staff");
       cy.openRecord(report);
       cy.get(`${ACTIONS} button[name=action_record_delivery]`).should("not.exist");
-      callRefused(REPORT, "action_record_delivery", [[report.id]]).should("match", /^Only an issued report not delivered yet can be delivered: /);
+      callRefused(REPORT, "action_record_delivery", [[report.id]]).should("contain", "Only an issued report");
+      readAs(report, ["status", "delivered_at"]).should((read) => {
+        expect(read.status).to.equal("draft");
+        expect(read.delivered_at).to.equal(false);
+      });
       cy.signInAs("customer");
       cy.request({ url: `/my/test-reports/${report.id}/download`, failOnStatusCode: false })
         .its("status")
@@ -374,8 +407,30 @@ describe("WF-06 feature acceptance criteria", () => {
       cy.request({ url: `/my/test-reports/${report.id}/download`, failOnStatusCode: false })
         .its("status")
         .should("eq", 404);
-      cy.signInAs("customer");
-      cy.request(`/my/test-reports/${report.id}/download`).its("status").should("eq", 200);
+      readAs(report, ["status", "attachment_id", "request_id"]).then((issued) => {
+        expect(issued.status).to.equal("issued");
+        expect(issued.attachment_id[0]).to.be.a("number");
+        return readAs({ model: "medilab.test.request", id: issued.request_id[0] }, ["customer_id"]).then(
+          (request) =>
+            refAs(ADMIN, "sol_demo.demo_customer_nuoc_sach").then((customer) => {
+              expect(request.customer_id[0]).to.equal(customer.id);
+              cy.signInAs("customer");
+              cy.request(`/my/test-reports/${report.id}/download`).its("status").should("eq", 200);
+            }),
+        );
+      });
+      cy.signInAs("individual");
+      cy.intercept("POST", "/my/counters", (request) => {
+        if (request.body.params?.counters?.test_report_count) {
+          request.alias = "portalTestReportCounters";
+        }
+      });
+      cy.visit("/my");
+      cy.wait("@portalTestReportCounters").then(({ response }) => {
+        expect(response.statusCode).to.equal(200);
+        expect(response.body.result.test_report_count).to.equal(0);
+      });
+      cy.get("main a[href='/my/test-reports']").should("not.be.visible");
     });
   });
 

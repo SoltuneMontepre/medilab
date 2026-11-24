@@ -69,11 +69,17 @@ class TestMachineConditions(ResultCase):
 
         self.assertEqual(machine._usable_until(), datetime.min)
         self.assertFalse(self.recommend())
+        self.assertTrue(self.test.outsourcing_suggested)
         with self.assertRaisesRegex(ValidationError, "no valid calibration"), self.env.cr.savepoint():
             self.place(machine, MONDAY, MONDAY + SLOT)
 
+        self.service(machine, "calibration", "2026-10-12", next_due_date="2026-10-11")
+        self.assertFalse(self.recommend())
+        self.assertTrue(self.test.outsourcing_suggested)
+
         self.service(machine, "calibration", "2026-10-12", next_due_date="2027-10-12")
         self.assertEqual(self.recommend(), (machine, MONDAY))
+        self.assertFalse(self.test.outsourcing_suggested)
 
     def test_overdue_maintenance_blocks_new_bookings_until_it_is_recorded(self):
         self.fast.maintenance_interval_days = 30

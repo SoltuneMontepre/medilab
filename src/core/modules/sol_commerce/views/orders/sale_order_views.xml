@@ -510,7 +510,14 @@
                         <list decoration-muted="status == 'replaced'">
                             <field name="revision" />
                             <field name="code" />
-                            <field name="status" />
+                            <field
+                                name="status"
+                                widget="badge"
+                                decoration-success="status == 'accepted'"
+                                decoration-info="status == 'sent'"
+                                decoration-danger="status in ('declined', 'expired')"
+                                decoration-muted="status == 'replaced'"
+                            />
                             <field name="sent_at" />
                             <field name="currency_id" column_invisible="1" />
                             <field name="amount_total" />
@@ -664,7 +671,7 @@
                             decoration-success="status == 'accepted'"
                             decoration-info="status == 'sent'"
                             decoration-danger="status in ('declined', 'expired')"
-                            decoration-muted="status == 'superseded'"
+                            decoration-muted="status == 'replaced'"
                         />
                     </group>
                     <group>
@@ -689,8 +696,9 @@
                         <field name="deadline" />
                         <field name="currency_id" column_invisible="1" />
                         <field name="amount" />
-                        <field name="verified_amount" />
-                        <field name="remaining_amount" />
+                        <field name="verified_amount" string="Confirmed" />
+                        <field name="pending_amount" string="Pending" />
+                        <field name="remaining_amount" string="Remaining" />
                     </list>
                 </field>
             </form>

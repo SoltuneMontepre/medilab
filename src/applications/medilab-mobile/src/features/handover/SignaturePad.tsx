@@ -1,7 +1,7 @@
 import { memo, type Dispatch, type SetStateAction } from "react";
 import { StyleSheet, View, type GestureResponderEvent } from "react-native";
 
-import { colors } from "../../styles";
+import { colors, radius } from "../../theme";
 import { PNG_HEIGHT, PNG_WIDTH, segments, type Point, type Stroke } from "./signaturePng";
 
 // The ink's width on the screen.
@@ -73,10 +73,11 @@ const Ink = memo(function Ink({ from, to }: Readonly<{ from: Point; to: Point }>
 const styles = StyleSheet.create({
   pad: {
     aspectRatio: PNG_WIDTH / PNG_HEIGHT,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    backgroundColor: "#ffffff",
+    borderWidth: 1.5,
+    borderStyle: "dashed",
+    borderColor: colors.borderControl,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
     overflow: "hidden",
   },
   ink: { position: "absolute", height: INK, borderRadius: INK / 2, backgroundColor: colors.text },

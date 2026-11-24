@@ -22,6 +22,7 @@
                     name="action_reject_payment"
                     type="object"
                     string="Reject"
+                    class="btn-danger"
                     invisible="state != 'draft' or not method"
                     groups="account.group_account_invoice"
                 />

@@ -24,6 +24,9 @@ export function versionCode(version: string): number {
 // signature against. Only a release build has it; a build without it takes no updates.
 const UPDATE_CERTIFICATE = "MEDILAB_MOBILE_UPDATE_CERTIFICATE";
 
+// The theme's primary colour, behind the splash screen, and the mark's accent, behind the adaptive icon.
+const BRAND = { primary: "#0a4d8c", accent: "#0083ef" };
+
 // The path MediLab serves code updates at, in the Expo Updates protocol.
 const UPDATES_PATH = "/medilab/api/v1/mobile/updates";
 
@@ -41,7 +44,7 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
   // A build made for a MediLab served over HTTP, such as the local app, may reach one; other builds use HTTPS only.
   const allowsHttp = serverUrl.startsWith("http:");
   const updateCertificate = process.env[UPDATE_CERTIFICATE] || undefined;
-  // The app checks for updates itself, at start and back in the foreground, so expo-updates never checks on its own.
+  // The app checks for updates itself, at start and back from a minute away, so expo-updates never checks on its own.
   const updates: ExpoConfig["updates"] = updateCertificate
     ? {
         enabled: true,
@@ -59,6 +62,8 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
     ...(runtimeVersion ? { runtimeVersion } : {}),
     scheme: "medilab",
     platforms: ["android", "ios"],
+    // The MediLab mark of the web's theme, sol_theme's medilab.svg.
+    icon: "./assets/icon.png",
     ios: {
       bundleIdentifier: "com.medilab.mobile",
       supportsTablet: true,
@@ -68,12 +73,15 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
       package: "com.medilab.mobile",
       versionCode: versionCode(version),
       googleServicesFile,
+      adaptiveIcon: { foregroundImage: "./assets/adaptive-icon.png", backgroundColor: BRAND.accent },
       // A new install opens Android's installer on the APK the app downloaded.
       permissions: ["android.permission.REQUEST_INSTALL_PACKAGES"],
     },
     plugins: [
       "expo-router",
       "expo-secure-store",
+      // The app opens on the web's navbar colour with the MediLab mark.
+      ["expo-splash-screen", { image: "./assets/logo.png", imageWidth: 112, backgroundColor: BRAND.primary }],
       // The camera reads sample labels and photographs samples; the app records no sound.
       [
         "expo-camera",

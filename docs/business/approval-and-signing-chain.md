@@ -6,6 +6,7 @@
 - A signed document is locked: it cannot be changed or discarded, even by its owner.
 - Until the document's process is completed, a signer at any level, the final level included, can withdraw their own signature, even after losing the permission or the role of their level. Withdrawing follows the timeline: it is refused only while a signature given after theirs stands.
 - Once a result, report or quotation completes its process, no signature can be withdrawn; changes use a change request producing a linked version. The one exception is the Lab Head's rejection of an unissued report, which withdraws the approvals of the results it names.
+- For a laboratory file version, issuing a test report for its sample completes the process. At a `same_department` level, any department that tested the sample qualifies; the person who saved a version may reject it but may not sign it.
 - The Head of Department approves results, including results they entered. Other result entrants cannot approve their own results. The Lab Head reviews the approved results and signs the final report, including reports with results self-approved by a Head of Department.
 - A person signs at most one level of a document version. A Head of Department approving a result they entered is the only exception.
 - A document keeps the chain levels it had when its signing process started; a changed chain applies only to signing processes started afterwards. The signing process of a document version starts with its first signature or rejection.

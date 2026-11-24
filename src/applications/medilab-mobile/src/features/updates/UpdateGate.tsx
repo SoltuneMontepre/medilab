@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { ActivityIndicator, AppState } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityIndicator, AppState, StyleSheet, View } from "react-native";
 
 import { useT } from "../../locale";
 import { useSession } from "../../session";
-import { styles } from "../../styles";
+import { colors } from "../../theme";
 import { checkRelease, installApk, installCode, takesUpdates, type Release } from "./release";
 import { UpdatingScreen } from "./UpdatingScreen";
 
 type Gate = { kind: "checking" } | { kind: "open" } | { kind: "updating"; release: Release; failed: boolean };
+
+// Android also sends the app to the background while it shows a permission dialog, the camera, a picker or the
+// installer it opened itself; a shorter absence is that, not the person leaving the app.
+const AWAY_MS = 60_000;
 
 async function install(release: Release): Promise<boolean> {
   if (release.action === "code") {
@@ -22,7 +25,7 @@ async function install(release: Release): Promise<boolean> {
 }
 
 /** Keeps the app shut behind the updating screen while MediLab has an update for the phone. The app asks when it starts
- * and whenever it comes back to the foreground; the person cannot skip the update. */
+ * and whenever the person comes back to it after a minute away; the person cannot skip the update. */
 export function UpdateGate({ children }: Readonly<{ children: ReactNode }>) {
   const t = useT();
   const { language } = useSession();
@@ -67,8 +70,15 @@ export function UpdateGate({ children }: Readonly<{ children: ReactNode }>) {
 
   useEffect(() => {
     void check();
+    let leftAt: number | null = null;
     const subscription = AppState.addEventListener("change", (state) => {
-      if (state === "active") {
+      if (state !== "active") {
+        leftAt ??= Date.now();
+        return;
+      }
+      const away = leftAt !== null && Date.now() - leftAt >= AWAY_MS;
+      leftAt = null;
+      if (away) {
         void check();
       }
     });
@@ -77,9 +87,9 @@ export function UpdateGate({ children }: Readonly<{ children: ReactNode }>) {
 
   if (gate.kind === "checking") {
     return (
-      <SafeAreaView style={styles.screen}>
-        <ActivityIndicator accessibilityLabel={t("update.checking")} />
-      </SafeAreaView>
+      <View style={styles.checking}>
+        <ActivityIndicator size="large" color={colors.primary} accessibilityLabel={t("update.checking")} />
+      </View>
     );
   }
   if (gate.kind === "updating") {
@@ -87,3 +97,7 @@ export function UpdateGate({ children }: Readonly<{ children: ReactNode }>) {
   }
   return children;
 }
+
+const styles = StyleSheet.create({
+  checking: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.bg },
+});

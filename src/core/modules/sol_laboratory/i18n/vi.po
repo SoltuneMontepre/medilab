@@ -468,6 +468,24 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "A recorded change of a committed return date cannot be deleted."
+msgstr "Không thể xóa một lần thay đổi ngày hẹn trả kết quả đã ghi nhận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "A recorded change of a committed return date cannot be edited."
+msgstr "Không thể sửa một lần thay đổi ngày hẹn trả kết quả đã ghi nhận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "A completed or cancelled sample's folders are read-only."
+msgstr "Thư mục của mẫu đã hoàn thành hoặc đã hủy chỉ được đọc, không thay đổi."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 #: code:addons/sol_laboratory/models/system/signature.py:0
 msgid "A rejection needs a reason."
@@ -7528,6 +7546,85 @@ msgid "Retention Until"
 msgstr "Lưu giữ đến"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__retention_review_required
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "Retention Review"
+msgstr "Rà soát thời hạn lưu trữ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__retention_approved_at
+msgid "Retention Approved On"
+msgstr "Duyệt xóa nội dung lúc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__retention_approved_by_id
+msgid "Retention Approved By"
+msgstr "Người duyệt xóa nội dung"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__content_removed_at
+msgid "Content Removed On"
+msgstr "Nội dung bị xóa lúc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_content__state__retention_removed
+msgid "Removed by retention"
+msgstr "Đã xóa theo thời hạn lưu trữ"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Approve Content Removal"
+msgstr "Duyệt xóa nội dung"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "This removes eligible unsigned file content from storage while preserving version history. Signed and shared content stays available. Approve removal?"
+msgstr "Thao tác này xóa nội dung tệp chưa ký đủ điều kiện khỏi nơi lưu trữ nhưng vẫn giữ lịch sử phiên bản. Nội dung đã ký và nội dung được chia sẻ vẫn khả dụng. Bạn có duyệt xóa không?"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only an archived folder past its retention date can be reviewed."
+msgstr "Chỉ có thể rà soát thư mục đã lưu trữ và đã quá hạn lưu giữ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This folder has not been flagged for retention review yet."
+msgstr "Thư mục này chưa được đánh dấu để rà soát thời hạn lưu trữ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This folder's retention removal was already approved."
+msgstr "Việc xóa nội dung theo thời hạn lưu giữ của thư mục này đã được duyệt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
+msgid "This version's content was removed after administrator approval."
+msgstr "Nội dung của phiên bản này đã bị xóa sau khi quản trị viên duyệt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid "This content is no longer available for a new version."
+msgstr "Nội dung này không còn khả dụng để tạo phiên bản mới."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Only approved retention removal removes verified content."
+msgstr "Chỉ thao tác xóa theo thời hạn lưu trữ đã được duyệt mới xóa nội dung đã xác minh."
+
+#. module: sol_laboratory
+#: model:ir.cron,name:sol_laboratory.ir_cron_laboratory_folder_retention_review
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_folder_retention_review
+msgid "Flag expired laboratory folders for review"
+msgstr "Đánh dấu thư mục phòng thí nghiệm quá hạn để rà soát"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine__status__retired
 msgid "Retired"
 msgstr "Ngừng sử dụng"
@@ -14570,6 +14667,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
+msgid "You saved this version, so another person must sign it."
+msgstr "Bạn đã lưu phiên bản này, vì vậy người khác phải ký."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_laboratory_folders.py:0
 msgid "Only the head of a department that tests %s creates its folders."
 msgstr "Chỉ trưởng phòng ban thử nghiệm %s mới được tạo thư mục của mẫu."
@@ -19591,6 +19694,110 @@ msgstr ""
 "phòng thí nghiệm nhập kết quả."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/res_partner.py:0
+msgid "Confirm your corrected email address by opening <a href=\"%s\">this link</a>."
+msgstr "Xác nhận địa chỉ email mới bằng cách mở <a href=\"%s\">liên kết này</a>."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/res_partner.py:0
+msgid "Confirm your email address"
+msgstr "Xác nhận địa chỉ email"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/res_partner.py:0
+msgid "Customer email address confirmed"
+msgstr "Khách hàng đã xác nhận địa chỉ email"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__email_confirmation
+msgid "Email Confirmation"
+msgstr "Xác nhận email"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__email_confirmation_token
+msgid "Email Confirmation Token"
+msgstr "Mã xác nhận email"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
+msgid "Email Delivery"
+msgstr "Gửi email"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__email_retry_attempts
+msgid "Email Retry Attempts"
+msgstr "Số lần thử gửi lại email"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/email_confirmation.py:0
+msgid "Email address confirmed. Email delivery has resumed."
+msgstr "Địa chỉ email đã được xác nhận. Việc gửi email đã được tiếp tục."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_mail.py:0
+msgid "Email not sent because the recipient's address is bounced."
+msgstr "Không gửi email vì địa chỉ người nhận đã bị trả lại."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__mandatory_email_retry_interval_hours
+msgid "Hours to wait between retries of a mandatory customer email that failed temporarily."
+msgstr "Số giờ chờ giữa các lần thử gửi lại email khách hàng bắt buộc bị lỗi tạm thời."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__mandatory_email_retry_count
+msgid "How many times to retry a mandatory customer email after a temporary failure."
+msgstr "Số lần thử gửi lại email khách hàng bắt buộc sau khi gửi tạm thời thất bại."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
+msgid "Mandatory Email Retries"
+msgstr "Số lần thử gửi lại email bắt buộc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mandatory_email_retry_interval_hours
+msgid "Mandatory Email Retry Interval (hours)"
+msgstr "Khoảng thời gian giữa các lần thử gửi email bắt buộc (giờ)"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_notification.py:0
+msgid "Mandatory email permanently bounced after %(attempts)s attempts"
+msgstr "Email bắt buộc bị trả lại vĩnh viễn sau %(attempts)s lần thử"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__next_email_retry_at
+msgid "Next Email Retry At"
+msgstr "Thời điểm thử gửi email tiếp theo"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_config_settings.py:0
+msgid "The mandatory email retry count cannot be negative."
+msgstr "Số lần thử gửi lại email bắt buộc không được là số âm."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_config_settings.py:0
+msgid "The mandatory email retry interval must be at least 1 hour."
+msgstr "Khoảng thời gian thử gửi lại email bắt buộc phải ít nhất là 1 giờ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_mail.py:0
+msgid "The recipient's email address must be confirmed before sending."
+msgstr "Cần xác nhận địa chỉ email của người nhận trước khi gửi."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/email_confirmation.py:0
+msgid "This email confirmation link is invalid or has already been used."
+msgstr "Liên kết xác nhận email này không hợp lệ hoặc đã được sử dụng."
+
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__place
 msgid "Place"
 msgstr "Địa Điểm"
@@ -19684,3 +19891,9 @@ msgstr "Ngày Trả Kết Quả Dự Kiến Mới"
 #: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_create_all
 msgid "Change expected return dates"
 msgstr "Đổi ngày trả kết quả dự kiến"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "A version without stored content must record its retention removal."
+msgstr "Phiên bản không có nội dung lưu trữ phải ghi nhận việc xóa theo thời hạn lưu trữ."
