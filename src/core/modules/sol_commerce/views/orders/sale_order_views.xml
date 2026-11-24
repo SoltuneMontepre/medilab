@@ -12,7 +12,7 @@
             >
                 <field name="name" />
                 <field name="customer_id" />
-                <field name="partner_id" string="Contact" />
+                <field name="partner_id" string="Contact" context="{'partner_display_name_hide_company': True}" />
                 <field name="user_id" />
                 <field name="source" />
                 <field name="order_status" />
@@ -22,7 +22,7 @@
                     widget="badge"
                     decoration-success="customer_status == 'completed'"
                     decoration-warning="customer_status == 'waiting'"
-                    decoration-info="customer_status == 'testing'"
+                    decoration-info="customer_status in ('processing', 'testing')"
                     decoration-danger="customer_status == 'cancelled'"
                 />
                 <field
@@ -47,7 +47,7 @@
             <list create="false" default_order="submitted_at asc, id" decoration-warning="order_status == 'submitted'">
                 <field name="name" />
                 <field name="customer_id" />
-                <field name="partner_id" string="Contact" />
+                <field name="partner_id" string="Contact" context="{'partner_display_name_hide_company': True}" />
                 <field name="submitted_at" />
                 <field name="currency_id" column_invisible="1" />
                 <field name="catalog_total" />
@@ -116,21 +116,15 @@
                     type="object"
                     string="Send quotation"
                     class="btn-primary"
+                    context="{'medilab_quotation_dialog': True}"
                     invisible="order_status in ('draft', 'submitted', 'confirmed', 'completed', 'cancelled') or quotation_follow_up in ('unpaid', 'paid', 'accepted') and state != 'draft'"
-                />
-                <button
-                    name="action_revise_quotation"
-                    type="object"
-                    string="Revise quotation"
-                    class="btn-secondary"
-                    invisible="order_status != 'claimed' or not quotation_follow_up or state != 'sent'"
                 />
                 <button
                     name="action_confirm_order"
                     type="object"
                     string="Confirm order"
                     class="btn-success"
-                    invisible="order_status != 'claimed' or state == 'draft' or quotation_follow_up not in ('paid', 'accepted')"
+                    invisible="order_status != 'claimed' or state == 'draft' or quotation_follow_up not in ('paid', 'accepted') and not (source == 'sales' and advance_method == 'none' and quotation_follow_up == 'unpaid')"
                 />
                 <field name="has_open_collection" invisible="1" />
                 <button
@@ -141,19 +135,52 @@
                     context="{'medilab_collection_dialog': True}"
                     invisible="order_status != 'confirmed' or show_unpaid_warning or has_open_collection"
                 />
+                <button name="%(action_payment_collection)d" type="action" string="Record payment" class="btn-primary"
+                    context="{'default_order_id': id}" invisible="not can_record_collection" groups="base.group_user" />
+                <button
+                    name="action_awaiting_payment_confirmation"
+                    type="object"
+                    string="Awaiting confirmation"
+                    class="btn-warning"
+                    disabled="1"
+                    invisible="can_record_collection or not pending_amount or payment_status == 'paid' or state == 'cancel'"
+                    groups="base.group_user"
+                />
+                <button name="%(action_quotation_agreement)d" type="action" string="Record agreement" class="btn-secondary"
+                    context="{'default_order_id': id}" invisible="not can_record_agreement" groups="base.group_user" />
+                <span
+                    class="vr mx-2 align-self-center"
+                    style="height: 1.5rem;"
+                    invisible="(order_status != 'claimed' or not quotation_follow_up or state != 'sent') and (not quotation_follow_up or state == 'draft') and (order_status != 'confirmed' or not test_request_id) and not can_save_order_template"
+                />
+                <button
+                    name="action_revise_quotation"
+                    type="object"
+                    string="Revise quotation"
+                    class="btn-secondary"
+                    invisible="order_status != 'claimed' or not quotation_follow_up or state != 'sent'"
+                />
+                <button
+                    name="action_print_quotation"
+                    type="object"
+                    string="Print quotation"
+                    class="btn-secondary"
+                    invisible="not quotation_follow_up or state == 'draft'"
+                />
                 <button
                     name="action_change_committed_date"
                     type="object"
-                    string="Change committed date"
+                    string="Change return date"
                     class="btn-secondary"
                     invisible="order_status != 'confirmed' or not test_request_id"
                     groups="sol_laboratory.group_permission_committed_date_change_create_all"
                 />
-                <button name="%(action_payment_collection)d" type="action" string="Record payment" class="btn-primary"
-                    context="{'default_order_id': id}" invisible="not can_record_collection" groups="base.group_user" />
-                <button name="%(action_quotation_agreement)d" type="action" string="Record agreement" class="btn-secondary"
-                    context="{'default_order_id': id}" invisible="not can_record_agreement" groups="base.group_user" />
                 <button name="action_save_as_template" type="object" string="Save as template" class="btn-secondary" invisible="not can_save_order_template" groups="sol_laboratory.group_permission_order_template_create_all" />
+                <span
+                    class="vr mx-2 align-self-center"
+                    style="height: 1.5rem;"
+                    invisible="order_status in ('completed', 'cancelled')"
+                />
                 <button
                     name="action_sales_cancel"
                     type="object"
@@ -205,9 +232,6 @@
                 <div class="alert alert-warning" role="alert" invisible="not reorder_note" groups="base.group_user">
                     <field name="reorder_note" nolabel="1" readonly="1" />
                 </div>
-                <div class="alert alert-warning" role="alert" invisible="not payment_notice">
-                    <field name="payment_notice" nolabel="1" readonly="1" />
-                </div>
             </xpath>
             <!-- Each status says what it is about. -->
             <xpath expr="//div[hasclass('oe_title')]" position="inside">
@@ -218,7 +242,8 @@
                         <field
                             name="customer_status"
                             widget="badge"
-                            decoration-info="customer_status in ('quoted', 'waiting', 'testing')"
+                            decoration-info="customer_status in ('quoted', 'processing', 'testing')"
+                            decoration-warning="customer_status == 'waiting'"
                             decoration-success="customer_status == 'completed'"
                             decoration-danger="customer_status == 'cancelled'"
                         />
@@ -233,25 +258,48 @@
                             decoration-danger="quotation_follow_up in ('declined', 'expired')"
                         />
                     </div>
+                    <div class="d-flex align-items-center gap-2" invisible="state == 'draft'">
+                        <span class="text-muted">Payment</span>
+                        <field
+                            name="payment_badge_status"
+                            widget="badge"
+                            decoration-success="payment_badge_status == 'paid'"
+                            decoration-info="payment_badge_status == 'on_credit'"
+                            decoration-warning="payment_badge_status in ('pending', 'partial_pending', 'partial')"
+                            decoration-danger="payment_badge_status == 'not_paid'"
+                        />
+                    </div>
+                    <div class="d-flex align-items-center gap-2" invisible="not result_status">
+                        <span class="text-muted">Result</span>
+                        <field
+                            name="result_status"
+                            widget="badge"
+                            decoration-success="result_status in ('ready', 'reported')"
+                            decoration-info="result_status == 'in_progress'"
+                            decoration-warning="result_status in ('awaiting_samples', 'collection_hold', 'payment_hold')"
+                        />
+                    </div>
                 </div>
             </xpath>
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="before">
-                <field name="customer_id" domain="[('customer_ids', '!=', False)]" options="{'no_create': True}" />
+                <field name="customer_id" domain="[('customer_ids', '!=', False)]" options="{'no_quick_create': True}" context="{'medilab_create_customer': True, 'default_is_company': True}" />
                 <field name="customer_is_company" invisible="1" />
+                <field name="partner_is_company" invisible="1" />
             </xpath>
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="attributes">
                 <attribute name="widget">many2one</attribute>
-                <attribute name="context">{}</attribute>
-                <attribute name="options">{'no_create': True}</attribute>
+                <!-- The customer is shown above, so the contact shows only their own name. -->
+                <attribute name="context">{'partner_display_name_hide_company': True}</attribute>
+                <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
                 <attribute name="domain">[('id', 'child_of', customer_id)]</attribute>
-                <attribute name="invisible">customer_id and not customer_is_company</attribute>
+                <attribute name="invisible">(customer_id and not customer_is_company) or (state != 'draft' and partner_is_company)</attribute>
                 <attribute name="readonly">not customer_id or state in ['cancel', 'sale']</attribute>
             </xpath>
             <xpath expr="//group[@name='partner_details']" position="inside">
-                <field name="source" readonly="1" />
                 <field name="reordered_from_id" readonly="1" invisible="not reordered_from_id" />
+                <field name="requested_date" invisible="not requested_date" />
+                <field name="priority_request" invisible="not priority_request" decoration-warning="priority_request == 'requested'" widget="badge" />
                 <field name="test_request_id" readonly="1" invisible="not test_request_id" />
-                <field name="test_request_status" readonly="1" invisible="not test_request_id" />
                 <field name="collection_summary" invisible="not collection_summary" />
                 <field name="show_unpaid_warning" invisible="1" />
                 <field name="can_invoice_credit_order" invisible="1" />
@@ -261,20 +309,24 @@
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="before">
                 <field name="user_id" widget="many2one_avatar_user" />
             </xpath>
-            <!-- The quotation's validity no longer matters once the order is confirmed. -->
+            <!-- MediLab uses payment_deadline instead of Odoo's quotation validity date. -->
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="attributes">
-                <attribute name="invisible">state == 'sale' or order_status in ('confirmed', 'completed', 'cancelled')</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="after">
-                <field name="payment_deadline" invisible="order_status in ('confirmed', 'completed', 'cancelled')" />
-                <field name="requested_date" invisible="not requested_date and order_status in ('confirmed', 'completed', 'cancelled')" />
-                <field name="priority_request" invisible="not priority_request" decoration-warning="priority_request == 'requested'" widget="badge" />
-                <field name="turnaround_days" readonly="1" invisible="not turnaround_days" />
+                <!-- Sales sets the payment deadline when sending the quotation, and can extend it until the order is
+                     confirmed. -->
+                <field name="payment_deadline" invisible="state == 'draft' or order_status in ('confirmed', 'completed', 'cancelled')" />
+                <field name="expected_collection_date" required="1" readonly="state != 'draft'" options="{'min_date': 'today'}" />
+                <field name="min_committed_date" invisible="1" />
                 <div class="text-warning" colspan="2" invisible="not turnaround_missing">
                     No standard turnaround yet: <field name="turnaround_missing" class="d-inline" />
                 </div>
-                <field name="estimated_result_date" invisible="not turnaround_days or committed_date" />
-                <field name="committed_date" placeholder="Fixed at sample receipt" />
+                <label for="committed_date" />
+                <div class="d-flex align-items-center gap-2">
+                    <field name="committed_date" readonly="state != 'draft'" placeholder="Calculated once tests and sample type are selected" options="{'min_date': 'min_committed_date'}" class="flex-grow-1" />
+                    <widget name="medilab_open_tab" tab="timeline" icon="mdi:clock-outline" string="Timeline" invisible="not return_timeline" />
+                </div>
             </xpath>
             <xpath expr="//group[@name='sales_person']/field[@name='user_id']" position="replace" />
             <!-- The advance and the balance are set on the Payment tab; Odoo's payment terms, online signature,
@@ -288,10 +340,21 @@
             <xpath expr="//group[@name='sale_info']/field[@name='preferred_payment_method_line_id']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+            <xpath expr="//group[@name='sales_person']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='sale_info']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <xpath expr="//group[@name='sale_reporting']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//group[@name='sale_reporting']" position="after">
+                <group name="medilab_order_details" string="Order Details">
+                    <field name="source" readonly="1" />
+                    <field name="turnaround_days" readonly="1" invisible="not turnaround_days" />
+                    <field name="test_request_status" readonly="1" invisible="not test_request_id" />
+                </group>
                 <group name="medilab_timeline" string="Timeline">
                     <field name="submitted_at" readonly="1" invisible="not submitted_at" />
                     <field name="claimed_at" readonly="1" invisible="not claimed_at" />
@@ -332,12 +395,27 @@
             <xpath expr="//field[@name='order_line']/kanban/control/create[@name='add_note_control']" position="replace" />
             <xpath expr="//field[@name='order_line']/kanban/control/button[@name='action_add_from_catalog']" position="replace" />
             <xpath expr="//div[@name='so_button_below_order_lines']/widget[@name='combo_menu']" position="replace" />
-            <!-- Discounts are given before the quotation is sent, by whoever may change the order. -->
+            <!-- Discounts are given in the Send quotation dialog, with the prices the customer receives. -->
             <xpath expr="//div[@name='so_button_below_order_lines']/button[@name='action_open_discount_wizard'][not(@disabled)]" position="attributes">
-                <attribute name="invisible">locked or state != 'draft' or not order_can_edit</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//div[@name='so_button_below_order_lines']/widget[@name='discount_menu']" position="attributes">
-                <attribute name="invisible">locked or state != 'draft' or not order_can_edit</attribute>
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <!-- Prices are whole đồng and lines are counted in whole units. -->
+            <xpath expr="//list[@name='sol_list']/column[@name='price_unit']/field[@name='price_unit']" position="attributes">
+                <attribute name="widget">monetary</attribute>
+                <attribute name="options">{'currency_field': 'currency_id'}</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']/column[@name='sol_qty']" position="attributes">
+                <attribute name="string">Order Quantity</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']/column[@name='sol_qty']/field[@name='product_uom_qty']" position="attributes">
+                <attribute name="digits">[16, 0]</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']/field[@name='discount']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
             </xpath>
             <xpath expr="//list[@name='sol_list']/control/create[@name='add_product_control']" position="attributes">
                 <attribute name="string">Add a parameter or package</attribute>
@@ -378,10 +456,12 @@
                 <attribute name="column_invisible">1</attribute>
             </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="after">
-                <field name="sample_id" domain="[('order_id', '=', parent.id)]" options="{'no_create': True}" />
-                <field name="sample_type_id" readonly="sample_id or linked_line_id" options="{'no_create': True}" optional="show" />
+                <field name="sample_id" readonly="1" optional="hide" options="{'no_open': True}" />
+                <field name="sample_type_id" readonly="linked_line_id" options="{'no_create': True}" optional="show" />
                 <field name="offered_method_ids" column_invisible="1" />
                 <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" context="{'medilab_way_by_method': True}" />
+                <field name="expected_sample_count" readonly="1" optional="show" />
+                <field name="expected_sample_summary" readonly="1" optional="show" />
             </xpath>
             <!-- The form of a line, used when the window is narrow, follows the list. -->
             <xpath expr="//field[@name='order_line']/form//label[@for='product_id']" position="attributes">
@@ -395,11 +475,17 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']/form/group/group/field[@name='name']" position="after">
-                <field name="sample_id" domain="[('order_id', '=', parent.id)]" options="{'no_create': True}" />
-                <field name="sample_type_id" readonly="sample_id or linked_line_id" options="{'no_create': True}" />
+                <field name="sample_id" readonly="1" invisible="not sample_id" options="{'no_open': True}" />
+                <field name="sample_type_id" readonly="linked_line_id" options="{'no_create': True}" />
                 <field name="offered_method_ids" invisible="1" />
                 <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" context="{'medilab_way_by_method': True}" />
                 <field name="default_way_notice" class="text-warning" invisible="not default_way_notice" />
+                <field name="expected_sample_count" readonly="1" invisible="not expected_sample_count" />
+                <field name="expected_sample_summary" readonly="1" invisible="not expected_sample_summary" />
+                <field name="sampling_preservation" readonly="1" invisible="not sampling_preservation" />
+            </xpath>
+            <xpath expr="//field[@name='order_line']/form//label[@for='product_uom_qty']" position="attributes">
+                <attribute name="string">Order Quantity</attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']/form//label[@for='qty_delivered']" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -408,35 +494,23 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//page[@name='order_lines']" position="after">
-                <page string="Samples" name="samples">
-                    <field name="sample_ids">
-                        <list editable="bottom">
-                            <field name="sequence" widget="handle" />
-                            <field name="customer_sample_name" />
-                            <field name="sample_type_id" options="{'no_create': True}" />
-                            <field name="physical_state" />
-                            <field
-                                name="regulation_id"
-                                options="{'no_create': True}"
-                                domain="[
-                                    ('sample_type_ids', 'parent_of', sample_type_id),
-                                    '|', ('valid_from', '=', False), ('valid_from', '&lt;=', context_today().strftime('%Y-%m-%d')),
-                                    '|', ('valid_until', '=', False), ('valid_until', '&gt;=', context_today().strftime('%Y-%m-%d')),
-                                ]"
-                            />
-                            <field name="regulation_notice" class="text-warning" optional="show" />
-                            <button name="action_copy_sample" type="object" string="Copy" class="btn-secondary" />
-                        </list>
-                    </field>
-                    <separator string="Expected samples" />
-                    <field name="expected_sampling_html" readonly="1" />
+                <page string="Samples" name="samples" invisible="not has_collected_samples">
+                    <field name="has_collected_samples" invisible="1" />
+                    <field name="collected_samples_html" nolabel="1" readonly="1" />
                 </page>
                 <page string="Revisions" name="revisions" invisible="not quotation_ids">
                     <field name="quotation_ids" readonly="1">
                         <list decoration-muted="status == 'replaced'">
                             <field name="revision" />
                             <field name="code" />
-                            <field name="status" />
+                            <field
+                                name="status"
+                                widget="badge"
+                                decoration-success="status == 'accepted'"
+                                decoration-info="status == 'sent'"
+                                decoration-danger="status in ('declined', 'expired')"
+                                decoration-muted="status == 'replaced'"
+                            />
                             <field name="sent_at" />
                             <field name="currency_id" column_invisible="1" />
                             <field name="amount_total" />
@@ -447,49 +521,82 @@
                     </field>
                 </page>
                 <page string="Payment" name="payment">
-                    <group>
-                        <group>
-                            <field
-                                name="advance_method"
-                                required="order_status == 'claimed' and state == 'draft'"
-                                readonly="state != 'draft'"
-                            />
-                            <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" readonly="state != 'draft'" />
-                            <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" readonly="state != 'draft'" />
-                            <field name="balance_due" invisible="not advance_method or advance_mode == 'full' or on_credit" readonly="state != 'draft'" />
-                            <field name="on_credit" invisible="not on_credit" readonly="1" />
+                    <!-- Sales sets the advance in the Send quotation dialog; the tab shows it once sent. -->
+                    <group invisible="state == 'draft' and not pending_amount">
+                        <group invisible="state == 'draft'">
+                            <field name="payment_method" readonly="1" />
+                            <field name="advance_mode" readonly="1" />
                         </group>
-                        <group>
-                            <field name="payment_status" readonly="1" />
+                        <group invisible="advance_mode not in ('percentage', 'fixed') and (advance_mode == 'full' or on_credit) and not on_credit and not pending_amount">
+                            <field name="advance_value" string="Advance (%)" digits="[16, 0]" invisible="advance_mode != 'percentage'" readonly="1" />
+                            <field name="advance_value" string="Advance Amount" widget="monetary" options="{'currency_field': 'currency_id'}" invisible="advance_mode != 'fixed'" readonly="1" />
+                            <field name="balance_due" invisible="advance_mode == 'full' or on_credit" readonly="1" />
+                            <field name="on_credit" invisible="not on_credit" readonly="1" />
                             <field name="pending_amount" readonly="1" invisible="not pending_amount" />
                         </group>
                     </group>
                     <field name="payment_request_ids" readonly="1" invisible="not payment_request_ids">
                         <list decoration-muted="state == 'superseded'" decoration-warning="state == 'open'">
+                            <field name="order_id" column_invisible="1" />
                             <field name="quotation_id" />
                             <field name="kind" />
-                            <field name="state" />
+                            <field
+                                name="state"
+                                widget="badge"
+                                decoration-success="state == 'funded'"
+                                decoration-warning="state == 'open'"
+                                decoration-danger="state == 'expired'"
+                                decoration-muted="state == 'superseded'"
+                            />
                             <field name="deadline" />
                             <field name="currency_id" column_invisible="1" />
                             <field name="amount" />
-                            <field name="verified_amount" />
-                            <field name="pending_amount" />
-                            <field name="remaining_amount" />
+                            <field name="verified_amount" string="Confirmed" />
+                            <field name="pending_amount" string="Pending" />
+                            <field name="remaining_amount" string="Remaining" />
+                            <button
+                                name="%(action_payment_collection)d"
+                                type="action"
+                                string="Record payment"
+                                class="btn-link"
+                                context="{'default_order_id': order_id}"
+                                invisible="state not in ('open', 'expired') or remaining_amount &lt;= pending_amount"
+                            />
                         </list>
                         <form>
+                            <field name="order_id" invisible="1" />
+                            <field name="currency_id" invisible="1" />
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <button
+                                    name="%(action_payment_collection)d"
+                                    type="action"
+                                    string="Record payment"
+                                    class="btn-primary"
+                                    context="{'default_order_id': order_id}"
+                                    invisible="state not in ('open', 'expired') or remaining_amount &lt;= pending_amount"
+                                />
+                                <field name="state" widget="statusbar" statusbar_visible="open,funded" />
+                            </div>
+                            <div class="alert alert-info mb-3" role="status" invisible="not pending_amount">
+                                Pending accounting confirmation: <field name="pending_amount" class="fw-bold d-inline" />
+                            </div>
                             <group>
-                                <field name="quotation_id" />
-                                <field name="kind" />
-                                <field name="state" />
-                                <field name="deadline" />
-                                <field name="currency_id" invisible="1" />
-                                <field name="amount" />
-                                <field name="verified_amount" />
-                                <field name="pending_amount" />
-                                <field name="remaining_amount" />
+                                <group>
+                                    <field name="quotation_id" />
+                                    <field name="kind" />
+                                    <field name="deadline" />
+                                </group>
+                                <group>
+                                    <field name="amount" />
+                                    <field name="verified_amount" />
+                                    <field name="pending_amount" />
+                                    <field name="remaining_amount" />
+                                </group>
                             </group>
                         </form>
                     </field>
+                    <separator string="Recorded payments" invisible="not recorded_payments_html" />
+                    <field name="recorded_payments_html" nolabel="1" invisible="not recorded_payments_html" />
                     <separator string="Advance payments" invisible="not downpayment_line_ids" />
                     <field name="downpayment_line_ids" invisible="not downpayment_line_ids">
                         <list>
@@ -505,6 +612,9 @@
                             </group>
                         </form>
                     </field>
+                </page>
+                <page string="Timeline" name="timeline" invisible="not return_timeline">
+                    <field name="return_timeline" nolabel="1" readonly="1" />
                 </page>
                 <page string="Cancellation" name="cancellation" invisible="not cancellation_request_ids">
                     <field name="cancellation_request_ids">
@@ -533,6 +643,58 @@
                 <!-- A confirmed order's lines change only through a revised quotation. -->
                 <attribute name="readonly">state == 'cancel' or locked or order_status in ('confirmed', 'completed', 'cancelled')</attribute>
             </xpath>
+        </field>
+    </record>
+
+    <record id="view_medilab_quotation_form" model="ir.ui.view">
+        <field name="name">medilab.quotation.form</field>
+        <field name="model">medilab.quotation</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="currency_id" invisible="1" />
+                <group>
+                    <group>
+                        <field name="code" readonly="1" />
+                        <field name="order_id" readonly="1" options="{'no_open': True}" />
+                        <field name="revision" readonly="1" />
+                        <field
+                            name="status"
+                            widget="badge"
+                            readonly="1"
+                            decoration-success="status == 'accepted'"
+                            decoration-info="status == 'sent'"
+                            decoration-danger="status in ('declined', 'expired')"
+                            decoration-muted="status == 'replaced'"
+                        />
+                    </group>
+                    <group>
+                        <field name="sent_at" readonly="1" />
+                        <field name="amount_total" readonly="1" />
+                        <field name="attachment_id" readonly="1" />
+                        <field name="decline_reason" readonly="1" invisible="not decline_reason" />
+                        <field name="agreement_reference" readonly="1" invisible="not agreement_reference" />
+                    </group>
+                </group>
+                <field name="payment_request_ids" readonly="1" invisible="not payment_request_ids">
+                    <list>
+                        <field name="kind" />
+                        <field
+                            name="state"
+                            widget="badge"
+                            decoration-success="state == 'funded'"
+                            decoration-warning="state == 'open'"
+                            decoration-danger="state == 'expired'"
+                            decoration-muted="state == 'superseded'"
+                        />
+                        <field name="deadline" />
+                        <field name="currency_id" column_invisible="1" />
+                        <field name="amount" />
+                        <field name="verified_amount" string="Confirmed" />
+                        <field name="pending_amount" string="Pending" />
+                        <field name="remaining_amount" string="Remaining" />
+                    </list>
+                </field>
+            </form>
         </field>
     </record>
 
@@ -571,7 +733,7 @@
         <field name="res_model">sale.order</field>
         <field name="path">lab-orders</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{'medilab_sales_order': True}</field>
+        <field name="context">{'medilab_sales_order': True, 'partner_display_name_hide_company': True}</field>
         <field name="search_view_id" ref="view_medilab_sale_order_search" />
     </record>
     <record id="action_medilab_sale_order_view_list" model="ir.actions.act_window.view">

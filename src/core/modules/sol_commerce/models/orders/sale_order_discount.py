@@ -11,13 +11,13 @@ else:
     SaleOrderDiscountBase = object
 
 
-# Chiết Khấu Báo Giá: the discount Sales gives every line or the whole quotation, always a percentage.
+# Chiết Khấu Báo Giá: the discount Sales gives every line or the whole quotation, as a percentage or a fixed amount.
 class SaleOrderDiscount(models.TransientModel, SaleOrderDiscountBase):
     _inherit = MODEL_SALE_ORDER_DISCOUNT
 
     if not TYPE_CHECKING:
-        # Whether the percentage goes on every line or on one discount line for the whole quotation; a fixed amount
-        # is not offered.
+        # Whether a percentage goes on every line or on one discount line for the whole quotation, or a fixed amount
+        # comes off the whole quotation.
         discount_type = fields.Selection(
             selection="_selection_discount_type",
             default="sol_discount",
@@ -27,7 +27,8 @@ class SaleOrderDiscount(models.TransientModel, SaleOrderDiscountBase):
     def _selection_discount_type(self):
         every_line = self.env._("On every line")
         whole_quotation = self.env._("On the whole quotation")
-        return [("sol_discount", every_line), ("so_discount", whole_quotation)]
+        fixed_amount = self.env._("Fixed amount")
+        return [("sol_discount", every_line), ("so_discount", whole_quotation), ("amount", fixed_amount)]
 
     def _get_discountable_order_lines(self):
         """Only the ordered parameters and packages: never a down payment or an earlier discount line."""

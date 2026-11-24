@@ -978,11 +978,11 @@ model TestRequest {
   request_date DateTime @db.Date
   /// Date the customer wants the results.
   requested_date DateTime? @db.Date
-  /// Committed return date: the date Sales promised the customer the results. Only Sales changes it, with the customer's agreement; each change is a CommittedDateChange.
+  /// Expected return date: the date Sales promised the customer the results. Only Sales changes it, with the customer's agreement; each change is a CommittedDateChange.
   committed_date DateTime? @db.Date
   /// True for an accepted priority request: the feasibility check said the requested date can be met, so its tests are urgent.
   priority      Boolean  @default(false)
-  /// Working days results take from sample receipt, the longest standard turnaround of the accepted ways; receiving the first sample fixes the committed date with it when none was agreed.
+  /// Working days results take from sample receipt, the longest standard turnaround of the accepted ways; receiving the first sample fixes the expected return date with it when none was agreed.
   turnaround_days Int?
   /// Language the customer wants the report in: vi, en or bilingual.
   report_language String @default("bilingual") @db.VarChar
@@ -1008,7 +1008,7 @@ model TestRequest {
   reports      TestReport[]
   /// Handover records of the request's samples.
   handover_records HandoverRecord[]
-  /// Changes of the committed return date, the latest first.
+  /// Changes of the expected return date, the latest first.
   committed_date_changes CommittedDateChange[]
 
   @@index([customer_id])
@@ -1018,15 +1018,15 @@ model TestRequest {
   @@map("medilab_test_request")
 }
 
-/// A change of a test request's committed return date (Thay Đổi Ngày Hẹn Trả Kết Quả) that Sales recorded with the customer's agreement. Records are never edited or deleted; who recorded it and when are Odoo's creation fields.
+/// A change of a test request's expected return date (Thay Đổi Ngày Trả Kết Quả Dự Kiến) that Sales recorded with the customer's agreement. Records are never edited or deleted; who recorded it and when are Odoo's creation fields.
 model CommittedDateChange {
   /// Row identifier.
   id           Int         @id @default(autoincrement())
   /// The test request whose date changed.
   request_id   Int
-  /// The committed return date before the change.
+  /// The expected return date before the change.
   old_date     DateTime?   @db.Date
-  /// The committed return date after the change.
+  /// The expected return date after the change.
   new_date     DateTime    @db.Date
   /// How the customer confirmed the new date, such as the email or call it was agreed in.
   confirmation String      @db.Text
@@ -1184,7 +1184,7 @@ model SampleTest {
   quantity            Int              @default(1)
   /// waiting, assigned, testing, outsourced, result_entered, approved or cancelled.
   status              String           @db.VarChar
-  /// Internal due date, by which the result must be submitted: the end of the day, in the company's time zone, the safety margin before the request's committed return date, worked out when the sample test is created or that date changes, unless the head of department changed it by hand. Changing the safety margin does not change due dates already worked out.
+  /// Internal due date, by which the result must be submitted: the end of the day, in the company's time zone, the safety margin before the request's expected return date, worked out when the sample test is created or that date changes, unless the head of department changed it by hand. Changing the safety margin does not change due dates already worked out.
   due_date            DateTime?
   /// Why the head of department changed the due date by hand; empty while it is worked out from the safety margin.
   due_date_reason     String?          @db.Text
@@ -2135,7 +2135,7 @@ model PlanRevision {
   @@map("medilab_plan_revision")
 }
 
-/// One booking a plan revision moves, with its new interval. Its internal due date and committed return date are shown from its sample test and test request. Unique on (revision_id, booking_id).
+/// One booking a plan revision moves, with its new interval. Its internal due date and expected return date are shown from its sample test and test request. Unique on (revision_id, booking_id).
 model PlanRevisionMove {
   /// Row identifier.
   id             Int            @id @default(autoincrement())
@@ -2155,7 +2155,7 @@ model PlanRevisionMove {
   starts_at      DateTime
   /// New end of the booking.
   ends_at        DateTime
-  /// proposed, approved, held_back, conflict or applied. A move whose new end passes the internal due date is held back, keeping the booking's slot, until Sales records the customer's agreement to a new committed return date: the recalculation then proposes the move in a new revision, and when the customer refuses, the booking stays where it is. A pinned booking the plan would move is a conflict and is never applied. A move keeps its state when its revision is rejected or cancelled.
+  /// proposed, approved, held_back, conflict or applied. A move whose new end passes the internal due date is held back, keeping the booking's slot, until Sales records the customer's agreement to a new expected return date: the recalculation then proposes the move in a new revision, and when the customer refuses, the booking stays where it is. A pinned booking the plan would move is a conflict and is never applied. A move keeps its state when its revision is rejected or cancelled.
   status         String         @db.VarChar
   /// The head of department who approved the move.
   approved_by_id Int?

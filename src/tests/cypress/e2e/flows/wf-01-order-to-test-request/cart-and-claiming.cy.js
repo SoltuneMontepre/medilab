@@ -1,5 +1,5 @@
 import { becomeVisitor, call, callAs, callRefused, refAs } from "../../../support/odoo";
-import { openMenu, openRow, openTab } from "../../../support/form";
+import { openMenu, openRow } from "../../../support/form";
 import { MENU } from "../../../support/menus";
 import { CUSTOMERS, clearCarts, orderAt } from "./setup";
 
@@ -116,19 +116,21 @@ describe("WF-01 portal cart and order claiming (F-04, F-05)", () => {
           openRow(name);
         };
 
+        // The advance is chosen in the Send quotation dialog.
+        const advanceChoices = () => {
+          openOrder();
+          cy.get(".o_statusbar_buttons button[name=action_send_quotation]:visible").click();
+          return cy
+            .get(".modal:visible .o_field_widget[name=advance_mode] select option")
+            .then(($options) => [...$options].map((option) => option.value));
+        };
+
         cy.signInAs("sales");
-        openOrder();
-        openTab("payment");
-        cy.get(".o_field_widget[name=advance_method] input").click();
-        cy.contains("No advance").should("not.exist");
+        advanceChoices().should("not.include", '"none"');
 
         for (const role of ["head_of_sales", "administrator"]) {
           cy.signInAs(role);
-          openOrder();
-          openTab("payment");
-          cy.get(".o_field_widget[name=advance_method]").should("have.class", "o_required_modifier");
-          cy.get(".o_field_widget[name=advance_method] input").click();
-          cy.contains("No advance").should("be.visible");
+          advanceChoices().should("include", '"none"');
         }
       });
     });

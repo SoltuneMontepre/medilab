@@ -233,6 +233,7 @@
                     <filter name="group_status" string="Status" context="{'group_by': 'status'}" />
                     <filter name="group_type" string="Type" context="{'group_by': 'type_id'}" />
                     <filter name="group_department" string="Department" context="{'group_by': 'department_id'}" />
+                    <filter name="group_queue" string="Queue" context="{'group_by': 'queue_name'}" />
                     <filter name="group_assignee" string="Assignee" context="{'group_by': 'assignee_id'}" />
                 </group>
             </search>
@@ -294,7 +295,7 @@
         <field name="view_id" ref="view_medilab_task_queue_list" />
         <!-- A role's queue, such as sample collection for sample delivery staff, shows beside the departments'. -->
         <field name="domain">[('status', '=', 'open'), '|', ('department_id', '!=', False), ('type_id.route', '=', 'role')]</field>
-        <field name="context">{'create': False, 'search_default_group_department': 1}</field>
+        <field name="context">{'create': False, 'search_default_group_queue': 1}</field>
     </record>
 
     <record id="action_medilab_task" model="ir.actions.act_window">

@@ -438,7 +438,9 @@ model SaleOrder {
   date_order        DateTime
   /// Requested date: the date the customer wants the results.
   requested_date    DateTime?             @db.Date
-  /// Committed return date Sales promises on the quotation: the requested date when the standard turnaround meets it, or the date of an accepted priority request; empty when it is fixed at sample receipt. The confirmed order gives it to its test request.
+  /// The day Sales agreed with the customer for the samples to be picked up, which return dates count from.
+  expected_collection_date DateTime?      @db.Date
+  /// Expected return date Sales promises on the quotation: the requested date when the standard turnaround meets it, or the date of an accepted priority request; empty when it is fixed at sample receipt. The confirmed order gives it to its test request.
   committed_date    DateTime?             @db.Date
   /// Working days results take from sample receipt: the longest standard turnaround of the order's ways of testing, kept as it was when the quotation was sent.
   turnaround_days   Int?
@@ -446,7 +448,7 @@ model SaleOrder {
   priority_request  String?               @db.VarChar
   /// True for an accepted priority request, which makes the test request's tests urgent.
   priority          Boolean               @default(false)
-  /// When the advance must be paid; 3 days after sending by default, set by sales.
+  /// When the advance must be paid; 3 days after sending by default, set by sales when sending.
   payment_deadline  DateTime?
   /// online, bank_transfer, cash, or none when the Head of Sales sends without an advance.
   advance_method    String?               @db.VarChar

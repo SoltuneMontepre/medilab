@@ -85,7 +85,7 @@ class TestQuotationAdvance(OrderCase):
 
     def test_balance_installments_each_bill_the_amount_received(self):
         order = self.make_quotable_order()
-        order.write({"advance_mode": "percentage", "advance_value": 50})
+        order.write({"advance_mode": "percentage", "advance_value": 50, "balance_due": "before_report"})
         order.with_user(self.sales).action_send_quotation()
         advance = order.payment_request_id
         payments = self.env["account.payment"]

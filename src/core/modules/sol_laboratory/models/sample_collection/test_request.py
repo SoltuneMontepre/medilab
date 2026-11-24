@@ -63,14 +63,14 @@ class TestRequest(models.Model, TestRequestBase):
         request_date = fields.Date(required=True, default=fields.Date.context_today, index=True)
         # Date the customer wants the results.
         requested_date = fields.Date()
-        # Committed return date: the date Sales promised the customer the results. Only Sales changes it, with the
-        # customer's agreement, through Change Committed Date.
-        committed_date = fields.Date(string="Committed Return Date")
+        # Expected return date: the date Sales promised the customer the results. Only Sales changes it, with the
+        # customer's agreement, through Change Return Date.
+        committed_date = fields.Date(string="Expected Return Date")
         # True for an accepted priority request: the laboratory's check said it can meet the requested date, so the
         # request's tests are urgent.
         priority = fields.Boolean(string="Priority Order")
         # Working days results take from sample receipt, the longest standard turnaround of the accepted ways; it fixes
-        # the committed return date at receipt when none was agreed before.
+        # the expected return date at receipt when none was agreed before.
         turnaround_days = fields.Integer(string="Turnaround (working days)")
         # Language the customer wants the report in.
         report_language = fields.Selection(
@@ -118,7 +118,7 @@ class TestRequest(models.Model, TestRequestBase):
         cancelled_test_ids = fields.Many2many(
             MODEL_SAMPLE_TEST, string="Cancelled Tests", compute="_compute_cancelled_test_ids"
         )
-        # Changes of the committed return date, the latest first, each with the customer's confirmation.
+        # Changes of the expected return date, the latest first, each with the customer's confirmation.
         committed_date_change_ids = fields.One2many(
             MODEL_COMMITTED_DATE_CHANGE, "request_id", string="Committed Date Changes", readonly=True
         )

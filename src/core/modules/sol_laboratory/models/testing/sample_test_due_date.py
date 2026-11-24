@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERSON,
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_SAMPLE_TEST,
+    MODEL_TEST_REQUEST,
 )
 from odoo.addons.sol_laboratory.models.testing.sample_test import MEASURABLE_STATUSES
 
@@ -29,7 +30,7 @@ class SampleTestDueDate(models.Model, SampleTestDueDateBase):
 
     if not TYPE_CHECKING:
         # When the laboratory plans to finish the test: the end of the day, in the company's time zone, a safety margin
-        # before the request's expected date, worked out again when that date changes, unless the head of department
+        # in working days before the request's expected date, worked out again when that date changes, unless the head of department
         # changed it by hand.
         due_date = fields.Datetime(compute="_compute_due_date", store=True, readonly=False)
         # Why the head of department changed the due date by hand; empty while it is worked out from the safety margin.
@@ -62,14 +63,15 @@ class SampleTestDueDate(models.Model, SampleTestDueDateBase):
             test.due_date = due_date
 
     def _automatic_due_dates(self):
-        """Each test's due date from the safety margin: the end of the day, in the laboratory's time zone, the margin
-        before the request's expected date; False without an expected date."""
+        """Each test's due date from the safety margin: the end of the day, in the laboratory's time zone, the margin in
+        working days before the request's expected date; False without an expected date."""
         # The margin is read here and is not a dependency: changing it leaves due dates already stored.
         margin = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("safety_margin_days")
+        requests = self.env[MODEL_TEST_REQUEST]
         due_dates = {}
         for test in self:
             expected = test.sudo().sample_id.request_id.committed_date
-            due_dates[test] = expected and self._end_of_day(expected - timedelta(days=margin))
+            due_dates[test] = expected and self._end_of_day(requests._working_days_before(expected, margin))
         return due_dates
 
     @api.model

@@ -117,7 +117,7 @@
     </template>
 
     <template id="order_status" name="Order status">
-        <t t-set="status_classes" t-value="{'submitted': 'text-bg-warning', 'quoted': 'text-bg-warning', 'waiting': 'text-bg-warning', 'testing': 'text-bg-info', 'completed': 'text-bg-success', 'cancelled': 'text-bg-danger'}" />
+        <t t-set="status_classes" t-value="{'submitted': 'text-bg-warning', 'quoted': 'text-bg-warning', 'processing': 'text-bg-info', 'waiting': 'text-bg-warning', 'testing': 'text-bg-info', 'completed': 'text-bg-success', 'cancelled': 'text-bg-danger'}" />
         <span t-attf-class="badge #{status_classes.get(order.customer_status, 'text-bg-secondary')}" t-field="order.customer_status" />
     </template>
 

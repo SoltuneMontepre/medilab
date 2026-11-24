@@ -28,41 +28,40 @@ class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
     @api.model
     def fields_get(self, allfields=None, attributes=None):
         fields = super().fields_get(allfields, attributes)
-        advance_method = fields.get("advance_method")
-        if (
-            advance_method
-            and "selection" in advance_method
-            and not (self.env.su or self.env.user.has_group(ALL_ORDERS_GROUP))
-        ):
-            advance_method["selection"] = [
-                choice for choice in advance_method["selection"] if choice[0] != ADVANCE_NONE
-            ]
+        if self.env.su or self.env.user.has_group(ALL_ORDERS_GROUP):
+            return fields
+        # Only the Head of Sales is offered no advance.
+        for name in ("advance_mode", "advance_method"):
+            field = fields.get(name)
+            if field and "selection" in field:
+                field["selection"] = [choice for choice in field["selection"] if choice[0] != ADVANCE_NONE]
         return fields
 
     def _quotation_missing_field_errors(self, lines):
         missing = super()._quotation_missing_field_errors(lines)
-        if not self.advance_method:
-            missing.append(self.env._("Choose how the advance is paid, or no advance, before sending the quotation."))
-        elif self.advance_method != ADVANCE_NONE and not self.advance_mode:
-            missing.append(self.env._("Choose whether the advance is the full amount, a percentage or a fixed amount."))
+        if not self.advance_mode:
+            missing.append(
+                self.env._("Choose whether the advance is the full amount, a percentage, a fixed amount or none.")
+            )
+        elif self.advance_mode != ADVANCE_NONE and not self.payment_method:
+            missing.append(self.env._("Choose how the customer pays before sending the quotation."))
         return missing
 
     def _check_quotation_can_be_sent(self):
         super()._check_quotation_can_be_sent()
         if self.sudo()._latest_quotation().advance_invoice_id.amount_residual:
             raise UserError(self.env._("Settle the existing advance invoice before sending a revision."))
-        if not self.advance_method:
-            raise UserError(self.env._("Choose how the advance is paid, or no advance, before sending the quotation."))
-        if self.advance_method == ADVANCE_NONE:
-            if not (self.env.su or self.env.user.has_group(ALL_ORDERS_GROUP)):
-                raise UserError(
-                    self.env._("Only the Head of Sales can send a quotation without an advance. Choose how it is paid.")
-                )
-            return
         if not self.advance_mode:
             raise UserError(
-                self.env._("Choose whether the advance is the full amount, a percentage or a fixed amount.")
+                self.env._("Choose whether the advance is the full amount, a percentage, a fixed amount or none.")
             )
+        if self.advance_mode == ADVANCE_NONE:
+            if not (self.env.su or self.env.user.has_group(ALL_ORDERS_GROUP)):
+                raise UserError(self.env._("Only the Head of Sales can send a quotation without an advance."))
+            return
+        # Without an advance nothing is asked when sending, so the payment method may wait for the balance.
+        if not self.payment_method:
+            raise UserError(self.env._("Choose how the customer pays before sending the quotation."))
         if self.advance_mode == ADVANCE_PERCENTAGE and not 0 < self.advance_value <= 100:
             raise UserError(self.env._("The advance percentage must be above 0 and at most 100."))
         if self.advance_mode == ADVANCE_FIXED and self.advance_value <= 0:
@@ -121,6 +120,9 @@ class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
                 code=quotation.code,
                 deadline=deadline,
             )
+        custom_body = self.env.context.get("medilab_quotation_email_body")
+        if custom_body:
+            body = custom_body
         order.env[MODEL_MAIL_MESSAGE].raise_event(
             EVENT_QUOTATION_SENT,
             order.sudo(),

@@ -124,7 +124,8 @@ def seed_dates(env):
     orders["feasible"].requested_date = today + timedelta(days=30)
     later = orders["later"]
     later.write({"requested_date": today + timedelta(days=1)})
-    later.committed_date = later.estimated_result_date
+    # The earliest date Sales can promise, counted from the advance's payment deadline.
+    later.committed_date = later._earliest_return_date()
     accepted = orders["priority_accepted"]
     # The demo has no free slots to check, so the accepted request is written as Sales would leave it.
     accepted.write(

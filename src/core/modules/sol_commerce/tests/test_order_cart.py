@@ -40,7 +40,7 @@ class TestOrderCart(OrderCase):
 
         message = str(raised.exception)
         self.assertIn("Choose a sample type for these items", message)
-        self.assertIn("Choose how the advance is paid", message)
+        self.assertIn("Choose whether the advance is the full amount", message)
 
     def test_cart_total_excludes_vat_and_uses_the_package_price(self):
         order = self.make_order([(self.lead_product, 2), (self.package_product, 1)])

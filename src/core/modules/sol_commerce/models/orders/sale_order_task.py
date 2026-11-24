@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from odoo import models
+from odoo import api, models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import STATUS_CANCELLED, STATUS_SUBMITTED
@@ -16,6 +16,12 @@ else:
 # Đơn Hàng: the quotation task that follows an order from the sales queue to its first quotation.
 class SaleOrder(models.Model, SaleOrderBase):
     _inherit = MODEL_SALE_ORDER
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        orders = super().create(vals_list)
+        orders.filtered(lambda order: order.order_status == STATUS_SUBMITTED and not order.user_id)._create_quotation_task()
+        return orders
 
     def write(self, vals):
         result = super().write(vals)

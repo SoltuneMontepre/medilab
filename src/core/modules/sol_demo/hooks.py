@@ -49,7 +49,7 @@ def seed_demo(env):
     from .demo_mandatory_notices import seed_mandatory_notices
     from .demo_notifications import seed_notifications
     from .demo_order_templates import seed_order_templates
-    from .demo_orders import seed_orders, seed_report_payments, seed_request_orders
+    from .demo_orders import seed_order_payments, seed_orders, seed_request_orders
     from .demo_payment_requests import seed_payment_requests
     from .demo_phones import seed_phones
     from .demo_plan_revisions import seed_plan_revisions
@@ -106,4 +106,4 @@ def seed_demo(env):
     seed_signing_levels(env)
     seed_plan_revisions(env)
     seed_request_orders(env)
-    seed_report_payments(env)
+    seed_order_payments(env)

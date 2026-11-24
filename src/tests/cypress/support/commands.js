@@ -32,6 +32,16 @@ Cypress.Commands.add("readRecord", readRecord);
 Cypress.Commands.add("signRecord", (action = "action_sign") => clickAction(action));
 Cypress.Commands.add("sendRecord", (action = "action_send") => clickAction(action));
 
+// Sends the open order's quotation through its dialog.
+Cypress.Commands.add("sendQuotation", (beforeSend) => {
+  clickAction("action_send_quotation");
+  cy.get(".modal:visible").should("be.visible");
+  if (beforeSend) {
+    beforeSend();
+  }
+  cy.get(".modal:visible button[name=action_send]").click();
+});
+
 Cypress.Commands.add("rejectRecord", (reason, {
   button = `${ACTIONS} button.btn-danger:visible`,
   reasonField = '[name="reason"] textarea',

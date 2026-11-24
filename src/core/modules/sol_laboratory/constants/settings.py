@@ -1,7 +1,7 @@
 """System parameters of the Laboratory module and their defaults."""
 
 SAFETY_MARGIN_PARAMETER = "sol_laboratory.safety_margin_days"
-DEFAULT_SAFETY_MARGIN_DAYS = 2
+DEFAULT_SAFETY_MARGIN_DAYS = 1
 REMINDER_LEAD_PARAMETER = "sol_laboratory.reminder_lead_minutes"
 DEFAULT_REMINDER_LEAD_MINUTES = 15
 MANDATORY_EMAIL_RETRY_COUNT_PARAMETER = "sol_laboratory.mandatory_email_retry_count"
@@ -16,6 +16,8 @@ URGENCY_HOURS_PARAMETER = "sol_laboratory.urgency_hours"
 # No default: nobody carries dispatches until the administrator names the role.
 SAMPLE_DELIVERY_ROLE_PARAMETER = "sol_laboratory.sample_delivery_role_id"
 DEFAULT_URGENCY_HOURS = 24
+COLLECTION_TRAVEL_PARAMETER = "sol_laboratory.collection_travel_minutes"
+DEFAULT_COLLECTION_TRAVEL_MINUTES = 60
 CALIBRATION_WARNING_PARAMETER = "sol_laboratory.calibration_warning_days"
 MAINTENANCE_WARNING_PARAMETER = "sol_laboratory.maintenance_warning_days"
 REPAIR_WARNING_PARAMETER = "sol_laboratory.repair_warning_days"

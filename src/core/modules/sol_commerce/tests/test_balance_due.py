@@ -57,6 +57,23 @@ class TestBalanceDue(OrderCase):
 
         self.assertNotIn("Balance due", self.collection_tasks(order).note or "")
 
+    def test_a_verified_advance_lets_the_request_receive_samples_before_the_balance(self):
+        order = self.confirmed("before_report")
+        request = order.test_request_id
+        self.assertEqual(request.status, "paid")
+
+        request.sample_ids[:1].with_user(self.sales).sudo().action_receive(1, "good")
+
+        self.assertEqual(request.status, "sample_received")
+
+    def test_a_received_order_shows_no_collection_hold(self):
+        order = self.confirmed("before_collection")
+        order.test_request_id.status = "sample_received"
+        order.invalidate_recordset(["show_unpaid_warning", "payment_notice"])
+
+        self.assertFalse(order.show_unpaid_warning)
+        self.assertIn("paid in full", order.payment_notice or "")
+
     def test_the_balance_timing_stays_as_quoted(self):
         order = self.sent_order()
 

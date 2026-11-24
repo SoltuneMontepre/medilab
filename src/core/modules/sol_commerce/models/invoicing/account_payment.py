@@ -87,7 +87,7 @@ class AccountPayment(models.Model, AccountPaymentBase):
                 raise UserError(self.env._("This payment request no longer takes new payments."))
         else:
             request._check_takes_payments()
-        amount = self._validated_collection_amount(request, amount)
+        amount = self._validated_collection_amount(request, amount, subtract_pending=True)
         return self.create(
             {
                 **self._payment_values(request, amount, method),
@@ -116,9 +116,14 @@ class AccountPayment(models.Model, AccountPaymentBase):
         return self.state == "draft" and self.method in ("cash", "bank_transfer")
 
     @api.model
-    def _validated_collection_amount(self, invoice, amount):
+    def _validated_collection_amount(self, invoice, amount, *, subtract_pending=False):
         """The amount a new payment may collect. An empty amount means the whole residual."""
-        residual = invoice.remaining_amount if invoice._name == MODEL_PAYMENT_REQUEST else invoice.amount_residual
+        if invoice._name == MODEL_PAYMENT_REQUEST:
+            residual = invoice.remaining_amount
+            if subtract_pending:
+                residual = max(invoice.currency_id.round(residual - invoice.pending_amount), 0)
+        else:
+            residual = invoice.amount_residual
         if self._amount_omitted(amount):
             amount = residual
         else:

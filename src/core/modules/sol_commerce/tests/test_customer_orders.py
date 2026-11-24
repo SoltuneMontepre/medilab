@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.tests import Form, tagged
 
 from .order_case import OrderCase
@@ -37,8 +38,8 @@ class TestCustomerOrders(OrderCase):
 
         with Form(self.env[MODEL_SALE_ORDER].with_context(medilab_sales_order=True)) as order:
             order.customer_id = self.customer
-            order.advance_method = "bank_transfer"
             self.assertEqual(order.partner_id, lan)
+            order.expected_collection_date = fields.Date.today()
 
     def test_merging_moves_the_orders_to_the_matched_customer(self):
         registered = self.env["res.partner"].create({"name": "Cong ty Nuoc Sach (registered)", "vat": "0315678901"})
