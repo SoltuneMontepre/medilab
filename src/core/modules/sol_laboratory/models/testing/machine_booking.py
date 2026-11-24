@@ -1,6 +1,6 @@
 import math
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -59,7 +59,7 @@ class SlotConflict(NamedTuple):
     """A resource that blocks a requested move."""
 
     resource_type: str
-    display_name: str
+    display_name: str | Literal[False]
 
 
 class SlotAvailability(NamedTuple):
@@ -407,7 +407,7 @@ class MachineBooking(models.Model, MachineBookingBase):
         sample = self.sample_test_id.sample_id
         availability = self._slot_availability(start, length, until, rooms, way, sample)
         if availability.starts_at != start:
-            if not availability.conflict:
+            if not availability.conflict or not availability.conflict.display_name:
                 raise UserError(
                     self.env._("The resources for %(booking)s are not free at that time.", booking=self.display_name)
                 )

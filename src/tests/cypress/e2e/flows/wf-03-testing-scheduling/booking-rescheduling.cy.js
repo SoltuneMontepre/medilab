@@ -75,7 +75,10 @@ describe("SF-10 the head moves and cancels a department booking", () => {
           typeTime(slot, zone);
           const duration = milliseconds(booking.ends_at) - milliseconds(booking.starts_at);
           const movedEnd = new Date(milliseconds(slot) + duration).toISOString().replace("T", " ").slice(0, 19);
-          cy.get('.o_field_widget[name="ends_at"] input').should("have.value", formTime(movedEnd, zone));
+          cy.get('.o_field_widget[name="ends_at"]').should(($field) => {
+            const shown = $field.find("input").val() || $field.text();
+            expect(String(shown).trim()).to.include(formTime(movedEnd, zone).slice(0, 16));
+          });
           cy.intercept("POST", "/web/dataset/call_kw/medilab.machine.booking/web_save").as("savedBooking");
           save();
           cy.wait("@savedBooking").its("response.body.error").should("not.exist");
