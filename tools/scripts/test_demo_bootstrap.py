@@ -107,6 +107,20 @@ class SetCountryScriptTest(unittest.TestCase):
             )
 
 
+class NormalAppReadyTest(unittest.TestCase):
+    def test_invalid_saved_port_is_refused_before_any_request(self):
+        for port in ("8069@attacker.test", "0", "65536", ""):
+            with (
+                self.subTest(port=port),
+                patch.object(demo_bootstrap, "optional_volume_names", return_value=()),
+                patch.object(demo_bootstrap, "_compose"),
+                patch.object(demo_bootstrap, "urlopen") as urlopen,
+                self.assertRaisesRegex(BootstrapError, "saved Odoo port is invalid"),
+            ):
+                demo_bootstrap._normal_app_ready("project", "owner", {"MEDILAB_ODOO_PORT": port})
+            urlopen.assert_not_called()
+
+
 class DemoBootstrapEnvironmentTest(unittest.TestCase):
     def completed_selection(self, root):
         project = "medilab-bootstrap-test-01"

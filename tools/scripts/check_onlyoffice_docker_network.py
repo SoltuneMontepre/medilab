@@ -38,6 +38,22 @@ ROOT = Path(__file__).resolve().parents[2]
 RUNTIME_FILE = "runtime.json"
 
 
+def write_runtime(directory, public_port):
+    """Write the fixture runtime configuration with its public origin on the given port."""
+    (directory / RUNTIME_FILE).write_text(
+        json.dumps(
+            {
+                "format": 1,
+                "public_origin": f"http://localhost:{public_port}",
+                "storage_origin": "http://localhost:3900",
+                "storage_port": 3900,
+                "http_port": 8080,
+                "bucket": "synthetic-proof",
+            }
+        )
+    )
+
+
 def command(*arguments, check=True, timeout=120):
     result = subprocess.run(
         ["docker", *arguments],
@@ -226,10 +242,7 @@ class Proof:
         with socket.socket() as reserve:
             reserve.bind(("127.0.0.1", 0))
             public_port = reserve.getsockname()[1]
-        config_file = directory / RUNTIME_FILE
-        config = json.loads(config_file.read_text())
-        config["public_origin"] = f"http://localhost:{public_port}"
-        config_file.write_text(json.dumps(config))
+        write_runtime(directory, public_port)
         gateway = self.container(
             "gateway",
             base,
@@ -475,18 +488,7 @@ def main():
             directory = Path(temporary)
             directory.chmod(0o700)
             onlyoffice_tls.prepare(directory, proof.project, proof.owner)
-            (directory / RUNTIME_FILE).write_text(
-                json.dumps(
-                    {
-                        "format": 1,
-                        "public_origin": "http://localhost:8080",
-                        "storage_origin": "http://localhost:3900",
-                        "storage_port": 3900,
-                        "http_port": 8080,
-                        "bucket": "synthetic-proof",
-                    }
-                )
-            )
+            write_runtime(directory, 8080)
             protect(directory / RUNTIME_FILE)
             try:
                 proof.report.update(proof.run(directory, host.server_port))

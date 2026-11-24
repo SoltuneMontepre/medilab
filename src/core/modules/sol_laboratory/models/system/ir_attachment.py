@@ -46,7 +46,7 @@ class IrAttachment(models.Model, IrAttachmentBase):
     @api.model
     def _bucket_lock(self, fname):
         # One of 256 locks, so a transaction that writes many files holds few locks.
-        return hashlib.sha1(fname.encode()).digest()[0]
+        return hashlib.sha1(fname.encode(), usedforsecurity=False).digest()[0]
 
     @api.model
     def _file_write(self, fname, bin_value):
@@ -277,7 +277,7 @@ class IrAttachment(models.Model, IrAttachmentBase):
                 os.unlink(file.name)
                 raise
         if found:
-            os.chmod(file.name, 0o444)
+            os.chmod(file.name, 0o400)
             os.replace(file.name, path)
         else:
             os.unlink(file.name)

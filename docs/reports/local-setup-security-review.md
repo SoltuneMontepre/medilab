@@ -4,19 +4,7 @@ The local setup is developer tooling for the authorized OS user, selected checko
 
 ## Sonar dispositions
 
-The owner authorized ignoring confirmed false positives. `sonar-project.properties` scopes each exclusion to one rule and one file. Other rules continue to scan those files. These exclusions do not approve arbitrary endpoints, untrusted command callers or weakened ownership checks. Review them again if a boundary below changes.
-
-| Exclusion | Rule and file | Reason and required controls |
-| --- | --- | --- |
-| localGarageOwner | python:S7608; tools/onlyoffice/verify.py | `ExpectedBucketOwner` checks AWS account identity, which the pinned local Garage does not enforce. The verifier requires the expected bucket, fixed http://garage:3900 origin, scoped signing credentials and a UUID-only disposable key. Cleanup requires an explicit valid identity and accepts only 404 as proof of absence. Do not add a fictitious AWS account ID. |
-| fixedProxyRoutes | pythonsecurity:S5144; tools/onlyoffice/proxy.py | Request paths cannot select an upstream authority. `route` returns only fixed service tuples after exact Host/method/path checks. `safe_path` rejects absolute/network-path targets, traversal and recursive encoded separators. Redirects are validated and never followed by the proxy; upstream TLS is verified. |
-| localComposeOperator | pythonsecurity:S8705; tools/scripts/local_compose.py | Explicit local operator arguments to container run/exec are an intentional CLI capability. The executable and Compose project/files are fixed, commands are allowlisted, identity overrides and down flags are refused, and subprocess receives an argument vector without a shell. This wrapper must not accept remote command input. |
-| bootstrapOwnedArguments | pythonsecurity:S6350; tools/scripts/demo_bootstrap.py | Native subprocess arguments come from fixed command builders and validated private state, not an HTTP request. Format, exact config keys, generated volume names, project/worktree/owner and engine are checked before mutations. Private ancestor integrity and exclusive temporary writes protect the journal source. |
-| editorOwnedArguments | pythonsecurity:S6350; tools/scripts/onlyoffice.py | The same validated state and fixed native command builders constrain editor operations. Captured command failures are redacted. Shell escaping or moving the subprocess sink would not add a control. |
-| privateLocalPaths | pythonsecurity:S6549; tools/scripts/onlyoffice_state.py | Filesystem probes are local ownership checks without a remote response oracle. Supplied TLS paths must lexically match the expected owned path before probes. The managed ancestor chain, links/junctions, current-user ownership, POSIX modes and Windows ACLs remain checked. |
-| fixedLoopbackHealth | pythonsecurity:S5144; tools/scripts/onlyoffice_checks.py | Public health probes connect only to literal 127.0.0.1. `validated_port` rejects nonnumeric/out-of-range saved ports before HTTPConnection. State cannot change the destination host, scheme or path. |
-| metadataDenialProof | python:S1313; tools/scripts/check_onlyoffice_docker_network.py | 169.254.169.254 is the deliberate cloud metadata denial target. The synthetic network proof opens a bounded TCP connection and closes it without sending HTTP or reading metadata. Any reachability fails the isolation check. Replacing the literal would weaken that check. |
-| metadataDenialCheck | python:S1313; tools/scripts/onlyoffice_checks.py | The runtime isolation check uses the same TCP-only metadata denial target, alongside backend/host targets and positive controls. It fails if the isolated Document Server namespace can reach any forbidden target. |
+The Sonar exclusions of these tools and their required controls are listed in [Sonar dispositions](sonar-dispositions.md).
 
 ## Private state integrity
 

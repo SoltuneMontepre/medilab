@@ -269,20 +269,17 @@ class DockerNetworkProofTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
             config_file = directory / "runtime.json"
-            config_file.write_text(
-                json.dumps(
-                    {
-                        "public_origin": "http://localhost:8080",
-                        "bucket": "synthetic-proof",
-                    }
-                )
-            )
+            proof.write_runtime(directory, 8080)
 
             def create(*args):
                 self.assertEqual(
                     json.loads(config_file.read_text()),
                     {
+                        "format": 1,
                         "public_origin": f"http://localhost:{expected_port}",
+                        "storage_origin": "http://localhost:3900",
+                        "storage_port": 3900,
+                        "http_port": 8080,
                         "bucket": "synthetic-proof",
                     },
                 )
