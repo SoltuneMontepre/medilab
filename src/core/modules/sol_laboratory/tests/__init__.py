@@ -172,6 +172,7 @@ from . import (
     test_medilab_mobile_samples,
     test_medilab_mobile_sign_in,
     test_medilab_mobile_tasks,
+    test_medilab_sync_setup,
     test_method_step_access,
     test_method_steps,
     test_method_steps_in_testing,

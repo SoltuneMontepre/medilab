@@ -5953,6 +5953,12 @@ msgid "Download"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.act_url,name:sol_laboratory.action_medilab_sync_download
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form_laboratory_files
+msgid "Download Medilab Sync"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_digital_signature_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 msgid "Download PDF"
@@ -10897,6 +10903,12 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_version_form
 msgid "Open Preview"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_url,name:sol_laboratory.action_medilab_sync_connect
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form_laboratory_files
+msgid "Open in Medilab Sync"
 msgstr ""
 
 #. module: sol_laboratory

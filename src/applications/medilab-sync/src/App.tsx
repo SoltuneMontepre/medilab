@@ -10,6 +10,8 @@ import {
   type SubmitEvent,
 } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { getCurrent as getCurrentLinks, onOpenUrl } from "@tauri-apps/plugin-deep-link";
+import { connectServer } from "./features/login/connectLink";
 import type { AppSettings, ProgressDeltaDto, RemoteFileRow, StatusDto, SyncRule } from "./types";
 import { UpdateDialog } from "./features/update/UpdateDialog";
 import { AccessDialog } from "./features/access/AccessDialog";
@@ -268,6 +270,8 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
   const [busy, setBusy] = useState(false);
   const [odooUrl, setOdooUrl] = useState("");
   const [odooUrlHistory, setOdooUrlHistory] = useState(loadOdooUrlHistory);
+  // Địa chỉ từ link "Mở trong Medilab Sync" của MediLab; chỉ điền vào ô máy chủ khi chưa đăng nhập.
+  const [linkedServer, setLinkedServer] = useState<string | null>(null);
   const [logicalRoot, setLogicalRoot] = useState("");
   // Tên trên máy chủ tự gợi ý theo tên thư mục đã chọn cho tới khi người dùng tự sửa.
   // Là ref (không phải state) vì handler kéo-thả được đăng ký một lần và phải đọc giá trị mới nhất.
@@ -290,6 +294,26 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
   const [toggleSyncBusy, setToggleSyncBusy] = useState(false);
   const runToggleSync = useAsyncRunner(setToggleSyncBusy, setError);
   const { confirm, dialog: confirmDialog } = useConfirm();
+
+  useEffect(() => {
+    const takeLinks = (links: string[] | null) => {
+      const server = links?.map(connectServer).find((value) => value !== null);
+      if (server) {
+        setLinkedServer(server);
+      }
+    };
+    void getCurrentLinks().then(takeLinks).catch(() => {});
+    const stopListening = onOpenUrl(takeLinks);
+    return () => {
+      void stopListening.then((stop) => stop()).catch(() => {});
+    };
+  }, []);
+
+  useEffect(() => {
+    if (linkedServer && !status.logged_in) {
+      setOdooUrl(linkedServer);
+    }
+  }, [linkedServer, status.logged_in]);
 
   useEffect(() => {
     void getCurrentWindow()
@@ -661,6 +685,7 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
           error={error}
           odooUrl={odooUrl}
           odooUrlHistory={odooUrlHistory}
+          linkedHost={linkedServer && linkedServer === odooUrl ? new URL(linkedServer).host : null}
           sessionExpired={status.session_expired}
           locale={settings?.locale}
           onOdooUrlChange={setOdooUrl}

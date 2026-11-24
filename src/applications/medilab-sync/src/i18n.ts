@@ -28,6 +28,10 @@ const messages = {
     en: "Your session expired or this device was revoked. Please sign in again.",
   },
   "login.odooUrl": { vi: "Địa chỉ máy chủ", en: "Server address" },
+  "login.fromMediLab": {
+    vi: "Địa chỉ do MediLab tại {host} điền. Kiểm tra đúng MediLab của bạn trước khi nhập mật khẩu.",
+    en: "Filled in by MediLab at {host}. Check that it is your MediLab before you enter your password.",
+  },
   "login.odooUrl.history": { vi: "Chọn địa chỉ đã dùng", en: "Pick a previously used address" },
   "login.account": { vi: "Tài khoản", en: "Username" },
   "login.password": { vi: "Mật khẩu", en: "Password" },

@@ -2967,6 +2967,12 @@ msgid "Door"
 msgstr "Số nhà"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_url,name:sol_laboratory.action_medilab_sync_download
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form_laboratory_files
+msgid "Download Medilab Sync"
+msgstr "Tải Medilab Sync"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record__status__draft
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__draft
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__none
@@ -5807,6 +5813,12 @@ msgstr "Chỉ người đã ký mới có thể rút lại chữ ký."
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Open"
 msgstr "Đang mở"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_url,name:sol_laboratory.action_medilab_sync_connect
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form_laboratory_files
+msgid "Open in Medilab Sync"
+msgstr "Mở trong Medilab Sync"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__opened_by_id

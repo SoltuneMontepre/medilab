@@ -172,7 +172,8 @@ Follows [Laboratory files](../overview.md#laboratory-files) and [Medilab Sync](.
 
 | Rule        | Description |
 | ----------- | ----------- |
-| Sample folders | A tester given a testing task, by claiming it or by the head's assignment, becomes a member of the raw-data and result folders of its sample. With a home folder chosen in Medilab Sync, those folders appear inside it by themselves. The testing task opens the files of its sample. |
+| Setting up  | The testing task offers to download Medilab Sync and to open it with this MediLab's address, so on each computer the tester only installs it and signs in. |
+| Sample folders | A tester given a testing task, by claiming it or by the head's assignment, becomes a member of the raw-data and result folders of its sample. Those folders appear by themselves inside Medilab Sync's home folder, `MediLab` in Documents unless the tester chose another. The testing task opens the files of its sample. |
 | Syncing     | Medilab Sync uploads every saved file of a bound local folder that matches the folder's sync rules, and in two-way folders downloads the new current versions others saved. |
 | History     | Every version stays readable and downloadable; restoring one adds a new current version. |
 | Conflicts   | A conflict keeps both versions; the tester keeps their own file or takes the server's in Medilab Sync. |

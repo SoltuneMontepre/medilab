@@ -123,9 +123,9 @@ flowchart LR
 - `test-runner` installs Bun, Rust, Task and Linux Tauri libraries, builds the frontend, verifies Cargo availability and runs `task test:apps` from the repository root. This includes Sync frontend tests, locked Rust tests and Mobile tests. `test` fails unless this job passes.
 - The app embeds the built frontend when it compiles, so `lint` compiles against an empty stand-in `dist/index.html`; compilation and application tests use the built frontend.
 - A release starts by pushing a tag `filesync-v<version>`, such as `filesync-v1.2.3`. `cd-sync-app` writes that version into `package.json`, `tauri.conf.json` and `Cargo.toml` for the build only, so the repository keeps its own versions.
-- `package` builds on three runners at once: an NSIS installer on Windows, a DMG for Apple silicon on macOS, and deb and rpm packages on Linux. One failure stops the others.
-- `release` publishes the packages as a GitHub release for the tag, with notes generated from the merged pull requests. A version with a suffix, such as `1.2.3-rc.1`, is a pre-release.
-- The production Odoo address is built into the app from the `MEDILAB_SYNC_ODOO_URL` Actions variable. A tag build fails when it is not set or does not start with `https://`.
+- `package` builds on three runners at once: an NSIS installer on Windows, a DMG for Apple silicon on macOS, and deb and rpm packages on Linux. One failure stops the others. The packages get fixed names, `medilab-sync-windows-x64-setup.exe`, `medilab-sync-macos-arm64.dmg`, `medilab-sync-linux-amd64.deb` and `medilab-sync-linux-x86_64.rpm`, so Download Medilab Sync in MediLab links to the latest release's without knowing its version.
+- `release` publishes the packages as a GitHub release for the tag, with notes generated from the merged pull requests. A version with a suffix, such as `1.2.3-rc.1`, is a pre-release, which MediLab does not offer for download.
+- The packages serve every MediLab and have no address built in: the app takes it from Open in Medilab Sync. A build for one MediLab can still build its address in from the `MEDILAB_SYNC_ODOO_URL` Actions variable; a tag build fails when it is set and does not start with `https://`.
 - A manual run builds the packages without releasing them, to check a build before tagging.
 - The packages are not signed for automatic updates and are not uploaded to a bucket: the app checks the public Odoo updater, whose release catalog must be supplied only after artifact/signing-trust verification. See [Sync updates](../specs/sync-updates.md).
 

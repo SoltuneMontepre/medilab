@@ -9,12 +9,14 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 | Platforms     | Linux as DEB and RPM packages, and Windows. It is built with Tauri 2, Rust and React. |
 | Background    | It runs in the system tray, can start with the operating system, and keeps syncing while its window is closed. |
 | Languages     | Vietnamese by default, or English, chosen at sign-in, in the header or in the settings, and kept for the next start. |
+| Installing    | A testing task offers Download Medilab Sync to a person with the laboratory files permission. It gives the latest release's Windows installer to a Windows computer and its DEB package to a Linux x86_64 one; any other computer gets the release page, which also has the RPM package. The installers are the same for every MediLab. |
+| Opening       | Open in Medilab Sync, next to it, opens the application with this MediLab's address. Both stay on the testing task, for setting up another computer, such as an instrument's. |
 
 ## Signing in
 
 | Rule              | Description |
 | ----------------- | ----------- |
-| Server            | The MediLab address is filled in for the build and can be changed; production must use HTTPS. Every address signed in to successfully is remembered and offered again. |
+| Server            | Open in Medilab Sync fills in the address and names its host under it, so the person checks it is their MediLab before entering their password; a link that opens a signed-in application only shows its window. Otherwise the address is the one the application was built with, if any, and can be changed. Production must use HTTPS. Every address signed in to successfully is remembered and offered again. |
 | Login             | The person signs in with their MediLab login and password. The computer gets its own device key, kept in the operating system's credential store; the password is never stored. |
 | Locked store      | When the operating system has locked its credential store, the session has not ended: the application asks the person to unlock it and retry, and syncing that is already running carries on. |
 | Refused           | Signing in is refused to a person without the laboratory files permission and to a revoked device. |
@@ -28,7 +30,7 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 | Own folders       | A new local folder creates a laboratory folder named after it, which the person can rename. |
 | Shared folders    | Folders others share with the person are listed under Shared with you and bound by choosing a local folder; no second laboratory folder is created. |
 | Not bound here    | Folders the person owns but has not bound on this computer are listed separately, ready to bind. |
-| Home folder       | The person chooses one home folder on the computer, once, and can change it. The sample folders the person is a member of are then bound by themselves inside it, under the sample's lab code and the folder's category, such as `<lab code>/Raw Data` and `<lab code>/Results`, created when missing. A folder already bound stays where it is, a folder of a completed or cancelled sample is not bound, and a folder the person stopped syncing is not bound again until they bind it themselves. Without a home folder nothing is bound by itself. |
+| Home folder       | The home folder is `MediLab` in the person's Documents folder, or in their user folder on a computer without one, until the person chooses another. The sample folders the person is a member of are bound by themselves inside it, under the sample's lab code and the folder's category, such as `<lab code>/Raw Data` and `<lab code>/Results`, created when missing. A folder already bound stays where it is, a folder of a completed or cancelled sample is not bound, and a folder the person stopped syncing is not bound again until they bind it themselves. |
 | Raw and results   | Raw data and results are bound to separate local folders. |
 | Sync rules        | By default every file in the folder and its subfolders is synced. Under Advanced options, folded away until needed, the person can limit it by name prefix, name pattern with `*`, or extension, and can leave out subfolders. |
 | First start       | A person with no bound folder lands on the Folders tab after signing in, which opens with the home folder. |
@@ -67,7 +69,10 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 - A revoked device is signed out and cannot sync.
 - Binding a folder sends no local path to MediLab.
 - Binding a folder shared by someone else creates no second laboratory folder.
-- With a home folder chosen, the folders of a sample the person was just given to test are bound inside it without the person choosing a location.
+- A testing task offers Download Medilab Sync and Open in Medilab Sync to a person with the laboratory files permission.
+- Download Medilab Sync gives a Windows computer the Windows installer and a Linux x86_64 computer the DEB package of the latest release.
+- Open in Medilab Sync fills in this MediLab's address on the sign-in screen and names its host.
+- The folders of a sample the person was just given to test are bound inside the home folder without the person choosing a location, also on a new installation.
 - A sample folder the person stopped syncing is not bound again by itself.
 - Saving a document several times within the waiting time adds one version.
 - A file changed while the application was closed is uploaded at the next start.

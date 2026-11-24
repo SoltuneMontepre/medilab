@@ -10,6 +10,8 @@ type LoginScreenProps = {
   error: string | null;
   odooUrl: string;
   odooUrlHistory: string[];
+  /** Máy chủ của địa chỉ mà link từ MediLab vừa điền, để người dùng kiểm tra trước khi nhập mật khẩu. */
+  linkedHost: string | null;
   sessionExpired: boolean;
   locale: string | undefined;
   onOdooUrlChange: (value: string) => void;
@@ -23,6 +25,7 @@ export function LoginScreen({
   error,
   odooUrl,
   odooUrlHistory,
+  linkedHost,
   sessionExpired,
   locale,
   onOdooUrlChange,
@@ -53,6 +56,9 @@ export function LoginScreen({
         ) : null}
         <form className="mt-6 space-y-3" onSubmit={handleSubmit}>
           <OdooUrlField value={odooUrl} history={odooUrlHistory} onChange={onOdooUrlChange} />
+          {linkedHost ? (
+            <p className="text-sm text-slate-600">{t("login.fromMediLab", { host: linkedHost })}</p>
+          ) : null}
           <label className="block text-sm font-medium">
             <span>{t("login.account")}</span>
             <input
