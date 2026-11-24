@@ -100,7 +100,13 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking.py:0
-msgid "%(machine)s is not free for %(booking)s at that time."
+msgid "%(resource)s is not free for %(booking)s at that time."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "The resources for %(booking)s are not free at that time."
 msgstr ""
 
 #. module: sol_laboratory

@@ -55,6 +55,20 @@ class RoomUse(NamedTuple):
     machine_booking_id: Any
 
 
+class SlotConflict(NamedTuple):
+    """A resource that blocks a requested move."""
+
+    resource_type: str
+    display_name: str
+
+
+class SlotAvailability(NamedTuple):
+    """The next available start and the resource that blocks the requested start, if any."""
+
+    starts_at: datetime | None
+    conflict: SlotConflict | None
+
+
 def _round_up(moment):
     """The first slot boundary at or after the moment."""
     hour = moment.replace(minute=0, second=0, microsecond=0)
@@ -185,6 +199,14 @@ class MachineBooking(models.Model, MachineBookingBase):
         for booking in self:
             booking.method_hours = sum(booking.sudo().method_step_ids.mapped("duration_minutes")) / 60
 
+    @api.onchange("starts_at")
+    def _onchange_starts_at(self):
+        for booking in self:
+            original = booking._origin
+            if booking.status == "scheduled" and booking.starts_at and original.starts_at and original.ends_at:
+                length = original.ends_at - original.starts_at
+                booking.ends_at = _round_up(booking.starts_at) + length
+
     @api.constrains("starts_at", "machine_id", "status")
     def _check_shared_interval(self):
         now = fields.Datetime.now()
@@ -308,6 +330,70 @@ class MachineBooking(models.Model, MachineBookingBase):
         person = self.env[MODEL_PERSON]._current()
         self.filtered(lambda booking: not person or booking.person_id != person)._check_permission("edit")
 
+    def _slot_availability(self, start, length, not_after, rooms, way, sample):
+        """Find a move's next slot and identify the first independently unavailable resource."""
+        self.ensure_one()
+        machine = self.machine_id
+        person = self.person_id
+        working = self._working_time(person, start, not_after)
+        starts_at = self._free_slot(
+            machine,
+            length,
+            person,
+            not_after,
+            start,
+            self,
+            working=working,
+            rooms=rooms,
+            way=way,
+            sample=sample,
+        )
+        if starts_at == start:
+            return SlotAvailability(starts_at, None)
+
+        if not any(work_start <= start and work_end >= start + length for work_start, work_end in working):
+            return SlotAvailability(starts_at, SlotConflict("tester", person.display_name))
+
+        without_rooms = self._free_slot(
+            machine, length, person, not_after, start, self, working=working, way=way, sample=sample
+        )
+        empty_machine = self.env[MODEL_MACHINE].browse()
+        empty_person = self.env[MODEL_PERSON].browse()
+        if without_rooms == start:
+            for room in rooms:
+                room_slot = self._free_slot(
+                    empty_machine,
+                    length,
+                    empty_person,
+                    not_after,
+                    start,
+                    self,
+                    working=working,
+                    rooms=(room,),
+                )
+                if room_slot != start:
+                    return SlotAvailability(starts_at, SlotConflict("room", room[0].location_id.display_name))
+
+        machine_slot = self._free_slot(
+            machine,
+            length,
+            empty_person,
+            not_after,
+            start,
+            self,
+            working=working,
+            way=way,
+            sample=sample,
+        )
+        if machine and machine_slot != start:
+            return SlotAvailability(starts_at, SlotConflict("machine", machine.display_name))
+
+        person_slot = self._free_slot(empty_machine, length, person, not_after, start, self, working=working)
+        if person_slot != start:
+            return SlotAvailability(starts_at, SlotConflict("tester", person.display_name))
+
+        return SlotAvailability(starts_at, None)
+
     def _move(self, start):
         self.ensure_one()
         self._check_adjustable()
@@ -319,14 +405,16 @@ class MachineBooking(models.Model, MachineBookingBase):
         rooms = self._room_steps(way)
         until = start + max(length, _rooms_end(rooms))
         sample = self.sample_test_id.sample_id
-        slot = self._free_slot(
-            self.machine_id, length, self.person_id, until, start, self, rooms=rooms, way=way, sample=sample
-        )
-        if slot != start:
+        availability = self._slot_availability(start, length, until, rooms, way, sample)
+        if availability.starts_at != start:
+            if not availability.conflict:
+                raise UserError(
+                    self.env._("The resources for %(booking)s are not free at that time.", booking=self.display_name)
+                )
             raise UserError(
                 self.env._(
-                    "%(machine)s is not free for %(booking)s at that time.",
-                    machine=self.machine_id.name or self.person_id.name,
+                    "%(resource)s is not free for %(booking)s at that time.",
+                    resource=availability.conflict.display_name,
                     booking=self.display_name,
                 )
             )

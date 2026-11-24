@@ -3,6 +3,7 @@ from datetime import timedelta
 from freezegun import freeze_time
 from psycopg2 import IntegrityError
 
+from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import Form, tagged
@@ -93,7 +94,7 @@ class TestMachineScheduling(SchedulingCase):
 
         form.starts_at = later
 
-        self.assertEqual(form.ends_at, later + 3 * SLOT)
+        self.assertEqual(fields.Datetime.to_datetime(form.ends_at), later + 3 * SLOT)
 
     def test_a_machine_under_repair_gets_no_bookings_and_its_bookings_move_to_another(self):
         self.testing_task(self.test, self.tester)

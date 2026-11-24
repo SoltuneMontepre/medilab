@@ -11430,8 +11430,14 @@ msgstr "Bạn không thuộc phòng ban nhận mẫu."
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking.py:0
-msgid "%(machine)s is not free for %(booking)s at that time."
-msgstr "%(machine)s không trống cho %(booking)s vào lúc đó."
+msgid "%(resource)s is not free for %(booking)s at that time."
+msgstr "%(resource)s không rảnh cho %(booking)s vào lúc đó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "The resources for %(booking)s are not free at that time."
+msgstr "Các tài nguyên cho %(booking)s không rảnh vào lúc đó."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_slot_period
