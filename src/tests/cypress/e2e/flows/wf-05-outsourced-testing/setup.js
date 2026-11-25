@@ -27,6 +27,15 @@ export const PARAMETERS = {
   },
 };
 
+export const ACTIONS = ".o_form_view .o_statusbar_buttons";
+export const REASON = "Máy AAS đang sửa, khách hàng cần kết quả chì trước hạn.";
+
+// Opens the outsource dialog of the sample test form shown.
+export function openOutsource() {
+  cy.contains(`${ACTIONS} button:visible`, "Outsource").click();
+  return cy.get(".modal:visible");
+}
+
 // The subcontractor sol_demo seeds with an expired accreditation.
 export const EXPIRED_SUBCONTRACTOR = "sol_demo.demo_subcontractor_coastal_analytics";
 
