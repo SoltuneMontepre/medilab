@@ -24,9 +24,12 @@ Rules every screen follows, so the interface reads as one product. Colors by mea
 
 - **Icons on portal actions.** In the customer portal every action button and button-styled link shows an Odoo icon (`<i class="oi" data-icon="…">`) before its label, and the same action keeps the same icon and look on every page. A button that only closes a dialog and the cart's quantity steppers have none.
 - **Action beside its content.** A button sits next to the data it changes: row actions on the row, section actions in the section header.
+- **Stat buttons at the right.** A form's stat buttons, such as History, sit at the right of the control panel, next to the pager.
+- **Full breadcrumb.** On a wide window every level of the breadcrumb shows as a link, separated by "/", and never collapses into a menu. On every view, a trail sits in one row with the current title and starts with a back arrow to the previous level.
 - **Show the outcome first.** Totals, counts and the effect of an action update as the user edits, and a confirmation dialog states what will change before it is confirmed.
 - **Sticky controls.** The status bar, the main action buttons and a list's column headers stay visible while the page scrolls.
-- **Resizable chatter.** On a wide window, dragging the bar between a form and its chatter resizes the chatter, and the bar collapses the chatter to give the form the full width. The width and whether it is collapsed are kept in the browser's local storage only.
+- **Chatter ready to write.** A saved record's chatter opens with the Send message composer when the person may post on it.
+- **Resizable chatter.** On a wide window, dragging the edge between a form and its chatter resizes the chatter. A button at the end of the chatter's top bar collapses it to a narrow strip at the right, which expands it again when clicked. The width and whether it is collapsed are kept in the browser's local storage only.
 - **Predefined options.** Offer the common choices as one-click filters, groupings, default values or quick picks, and keep a custom option for anything else.
 
 ## Medilab Mobile

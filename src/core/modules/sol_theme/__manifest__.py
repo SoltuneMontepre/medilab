@@ -50,6 +50,7 @@
             "sol_theme/static/src/js/app_drawer.js",
             "sol_theme/static/src/js/boolean_button_group_field.js",
             "sol_theme/static/src/js/datetime_field_min_date.js",
+            "sol_theme/static/src/js/chatter_composer.js",
             "sol_theme/static/src/js/chatter_resize.js",
             "sol_theme/static/src/js/list_column_widths.js",
             "sol_theme/static/src/js/list_group_text.js",
@@ -59,6 +60,7 @@
             "sol_theme/static/src/xml/boolean_button_group_field.xml",
             "sol_theme/static/src/xml/form_status_indicator.xml",
             "sol_theme/static/src/xml/breadcrumbs.xml",
+            "sol_theme/static/src/xml/chatter.xml",
             "sol_theme/static/src/xml/view_button.xml",
         ],
         "web.assets_frontend": [
