@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
-    <!-- The chatter beside a form collapses from the end of its top bar. -->
     <t t-inherit="mail.Chatter" t-inherit-mode="extension">
+        <!-- The composer the chatter opens by itself leaves the focus on the form. -->
+        <xpath expr="//Composer" position="attributes">
+            <attribute name="autofocus">!this.composerOpenedQuietly</attribute>
+        </xpath>
+        <!-- The chatter beside a form collapses from the end of its top bar. -->
         <xpath expr="//div[hasclass('o-mail-Followers')]" position="after">
             <button
                 t-if="this.webChatterProps.isChatterAside and this.env.collapseChatter"
