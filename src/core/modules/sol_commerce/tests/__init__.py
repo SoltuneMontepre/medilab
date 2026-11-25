@@ -15,6 +15,7 @@ from . import (
     test_finance_reports,
     test_in_person_order,
     test_invoice_notices,
+    test_invoice_payment_details,
     test_invoice_tasks,
     test_invoices,
     test_notice_portal,
