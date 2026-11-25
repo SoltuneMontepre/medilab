@@ -56,18 +56,21 @@ patch(FormRenderer.prototype, {
   get chatterToggleLabel() {
     return this.state.chatterCollapsed ? _t("Expand the chatter") : _t("Collapse the chatter");
   },
+  get auditLogToggleLabel() {
+    return this.state.chatterCollapsed ? _t("Expand the audit log") : _t("Collapse the audit log");
+  },
 });
 
 // Odoo's resizable panel around a feed beside a form, with a button on the bar that collapses it.
-function resizablePanel(feed) {
+function resizablePanel(feed, label) {
   const toggle = createElement(
     "button",
     {
       type: "button",
       class: "o-mail-ChatterToggle",
       "t-on-click": "__comp__.toggleChatter",
-      "t-att-aria-label": "__comp__.chatterToggleLabel",
-      "t-att-title": "__comp__.chatterToggleLabel",
+      "t-att-aria-label": label,
+      "t-att-title": label,
       "t-att-aria-expanded": "__comp__.state.chatterCollapsed ? 'false' : 'true'",
     },
     [
@@ -101,8 +104,8 @@ function resizablePanel(feed) {
 }
 
 // Puts the feed in the resizable panel while the condition holds, and leaves it as it is otherwise.
-function wrapFeed(feed, condition) {
-  const aside = createElement("t", { "t-if": condition }, [resizablePanel(feed)]);
+function wrapFeed(feed, condition, label) {
+  const aside = createElement("t", { "t-if": condition }, [resizablePanel(feed, label)]);
   const other = createElement("t", { "t-else": "" }, [feed.cloneNode(true)]);
   feed.replaceWith(aside, other);
 }
@@ -117,12 +120,13 @@ patch(FormCompiler.prototype, {
       wrapFeed(
         container.querySelector("t[t-component='__comp__.mailComponents.Chatter']"),
         `${ASIDE_LAYOUTS}.includes(__comp__.mailLayout(${hasPreview}))`,
+        "__comp__.chatterToggleLabel",
       );
     }
     // A document's audit log sits beside the sheet where the form puts its parts in a row.
     const auditLog = res.querySelector(".o_form_renderer > .o_audit_aside");
     if (auditLog) {
-      wrapFeed(auditLog, `__comp__.uiService.size >= ${SIZES.XXL}`);
+      wrapFeed(auditLog, `__comp__.uiService.size >= ${SIZES.XXL}`, "__comp__.auditLogToggleLabel");
     }
     return res;
   },

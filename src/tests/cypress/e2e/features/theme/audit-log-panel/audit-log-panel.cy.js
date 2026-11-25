@@ -55,7 +55,7 @@ describe("Resizable audit log", () => {
   it("collapses to give the form the full width and reopens", () => {
     cy.openRecord(SAMPLE);
     rect(".o-mail-ChatterPanel").then((panel) => {
-      cy.get(".o-mail-ChatterToggle").should("have.attr", "aria-expanded", "true").click();
+      cy.get(".o-mail-ChatterToggle").should("have.attr", "aria-expanded", "true").and("have.attr", "title", "Collapse the audit log").click();
       cy.get(".o_audit_aside").should("not.be.visible");
       rect(".o_form_sheet_bg").its("right").should("be.greaterThan", 1440 - 40);
 
