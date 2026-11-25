@@ -33,7 +33,7 @@ class TestInvoiceAmountInWords(InvoicingCase, HttpCase):
         message = self.invoice.action_send_invoice()
 
         self.assertIn(VIETNAMESE_WORDS, html.decode())
-        self.assertIn(VIETNAMESE_WORDS, message.attachment_ids.raw.decode())
+        self.assertIn(VIETNAMESE_WORDS, bytes(message.attachment_ids.raw).decode())
 
     def test_an_english_customer_keeps_the_english_wording(self):
         self.partner.lang = "en_US"
