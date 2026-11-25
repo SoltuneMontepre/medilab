@@ -1,4 +1,4 @@
-# Vietnamese translations of Odoo's own view strings that Odoo does not translate yet.
+# Vietnamese translations of Odoo's own strings that Odoo does not translate yet.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0\n"
@@ -69,6 +69,11 @@ msgid "Company"
 msgstr "Công ty"
 
 #. module: portal
+#: model:portal.entry,name:portal.portal_entry_base
+msgid "Connection & Security"
+msgstr "Kết nối & Bảo mật"
+
+#. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.address_form_fields
 msgid "Country..."
 msgstr "Quốc gia..."
@@ -89,6 +94,18 @@ msgstr "Bỏ qua"
 #: model_terms:ir.ui.view,arch_db:auth_signup.signup
 msgid "Email"
 msgstr "Email"
+
+#. module: web
+#: model_terms:ir.ui.view,arch_db:web.login
+msgid "Enter your email"
+msgstr "Nhập email của bạn"
+
+#. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/core/session/check_identity.xml:0
+#: model_terms:ir.ui.view,arch_db:web.login
+msgid "Enter your password"
+msgstr "Nhập mật khẩu của bạn"
 
 #. module: auth_signup
 #: model_terms:ir.ui.view,arch_db:auth_signup.reset_password_email
@@ -123,6 +140,12 @@ msgstr "Tên"
 #: model_terms:ir.ui.view,arch_db:auth_signup.signup
 msgid "name@example.com"
 msgstr "ten@congty.vn"
+
+#. module: mail
+#. odoo-javascript
+#: code:addons/mail/static/src/core/common/thread.xml:0
+msgid "No messages yet."
+msgstr "Chưa có tin nhắn nào."
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.address_card

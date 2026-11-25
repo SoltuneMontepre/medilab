@@ -3304,6 +3304,7 @@ msgstr "Kiểm tra PayOS"
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_account_payment
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__timing
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_badge_status
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Payment"
