@@ -86,10 +86,14 @@ def start_docker():
 
 
 def volume_exists(name):
-    result = subprocess.run(
-        ["docker", "volume", "inspect", name], capture_output=True, check=False
-    )
-    return result.returncode == 0
+    """Whether Docker has the volume; an unreachable Docker raises instead of reading as a missing volume."""
+    names = subprocess.run(
+        ["docker", "volume", "ls", "--quiet"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.split()
+    return name in names
 
 
 def seed_volumes(config):

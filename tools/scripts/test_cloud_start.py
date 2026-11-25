@@ -3,6 +3,7 @@
 import io
 import json
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -184,6 +185,22 @@ class DiscardTest(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 self.discard(journal, removed=False)
             self.assertTrue(journal.exists())
+
+
+class VolumeTest(unittest.TestCase):
+    def test_a_volume_is_found_by_its_exact_name(self):
+        with patch("cloud_start.subprocess.run") as run:
+            run.return_value.stdout = "medilab_medilab-db-old\nmedilab_medilab-app\n"
+            self.assertFalse(cloud_start.volume_exists("medilab_medilab-db"))
+            self.assertTrue(cloud_start.volume_exists("medilab_medilab-app"))
+
+    def test_an_unreachable_docker_is_not_a_missing_volume(self):
+        error = subprocess.CalledProcessError(1, ["docker", "volume", "ls"])
+        with (
+            patch("cloud_start.subprocess.run", side_effect=error),
+            self.assertRaises(subprocess.CalledProcessError),
+        ):
+            cloud_start.volume_exists("medilab_medilab-db")
 
 
 @unittest.skipIf(sys.platform == "win32", "cloud sessions run on Linux")
