@@ -16,7 +16,7 @@ Step-by-step procedures for recurring tasks.
 - [Moving a node](moving-node.md): replace a production node, such as the Azure witness, with another machine without stopping the system
 - [CloudBeaver recovery](cloudbeaver-recovery.md): classify installation state, back up the workspace, review recovery and validate a GitOps rollout or rollback
 - [Cypress Tap and AI Skills](cypress-tap.md): author, review and debug browser tests with the project's skills and live E2E session
-- [Working in a cloud session](cloud-session.md): set up a Claude Code cloud environment with `task ai:env` and a setup script, then start the tools, database and app in a session
+- [Working in a cloud session](cloud-session.md): set up a Claude Code cloud environment with `task ai:env` and a setup script; each session starts Odoo from the seed database
 - [Type checking](type-checking.md): prepare registry interfaces, investigate diagnostics and recover owned preparation resources
 - [Odoo intelligence](odoo-intelligence.md): install and verify Odoo navigation across coding clients and isolated worktrees
 - [Releasing and rolling back portal notices](portal-notices-release.md): deploy the portal notice columns without losing a mandatory notice, and back up and restore first-open times around a rollback

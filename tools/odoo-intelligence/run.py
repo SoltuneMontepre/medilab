@@ -33,15 +33,19 @@ COMMANDS = {
     "hook-serena-codex-cleanup": ["serena-hooks", "cleanup", CODEX],
 }
 GIT_MESSAGE_HOOKS = {"hook-git-message": [], "hook-git-message-codex": [CODEX]}
+CLOUD_START_HOOK = "hook-cloud-start"
 
 project = Path(__file__).resolve().parent
 mode = sys.argv[1] if len(sys.argv) == 2 else None
 if mode in GIT_MESSAGE_HOOKS:
     script = str(project.parents[1] / ".claude/hooks/check_git_message.py")
     raise SystemExit(subprocess.call([sys.executable, script, *GIT_MESSAGE_HOOKS[mode]]))
+if mode == CLOUD_START_HOOK:
+    script = str(project.parents[1] / "tools/scripts/cloud_start.py")
+    raise SystemExit(subprocess.call([sys.executable, script, "hook"]))
 arguments = COMMANDS.get(mode)
 if arguments is None:
-    raise SystemExit(f"run.py takes one of: {', '.join([*COMMANDS, *GIT_MESSAGE_HOOKS])}.")
+    raise SystemExit(f"run.py takes one of: {', '.join([*COMMANDS, *GIT_MESSAGE_HOOKS, CLOUD_START_HOOK])}.")
 # Hooks run before every tool call, so they skip uv's lock check and use the environment the servers keep in sync.
 # Windows environments keep it in Scripts, others in bin; which() adds the platform's executable suffix.
 environment = os.pathsep.join(str(project / ".venv" / folder) for folder in ("Scripts", "bin"))

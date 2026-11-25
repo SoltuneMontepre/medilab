@@ -55,6 +55,7 @@ def test_claude_hooks_run_through_the_launcher_without_shell_variables():
     assert all(command.startswith(prefix) for command in commands)
     assert not any("$" in command for command in commands)
     assert sorted(command.removeprefix(prefix) for command in commands) == [
+        "hook-cloud-start",
         "hook-git-message",
         "hook-serena-activate",
         "hook-serena-auto-approve",
@@ -76,6 +77,7 @@ def test_launcher_starts_only_the_client_servers_and_hooks_with_fixed_arguments(
         assert result.returncode == 1, arguments
         assert "mcp, serena-claude-code, serena-ide, hook-serena-activate" in result.stderr, arguments
         assert "hook-git-message" in result.stderr, arguments
+        assert "hook-cloud-start" in result.stderr, arguments
 
 
 def test_launcher_passes_the_git_message_hook_exit_code():

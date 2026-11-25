@@ -43,7 +43,9 @@ RUN --mount=type=secret,id=proxy_ca,mode=0444 \
 
 ## Setup script
 
-- Run each step on its own: a failing step prints what to fix, the others still run, and the script exits with an error at the end.
+- Run each step on its own: a failing step writes what to fix to `/var/log/medilab-setup.log`, the others still run, and the script exits successfully, because a failing script stops the session from starting. `task cloud:start` prints that log.
+- Finish within about five minutes, or the environment is not cached and every session runs the script again. A longer step belongs in a workflow, as the seed database is built by `cd-seed`.
+- Leave nothing running: the cache keeps files, not processes. Start services in `task cloud:start`.
 - Download with `curl -f` to a file, then pass the file to the next tool.
 - Run steps that need the environment's variables, such as `DOPPLER_TOKEN`, in the session.
 

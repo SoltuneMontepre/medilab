@@ -17,6 +17,7 @@ tools/
 │   ├── onlyoffice.taskfile.yml Owned local ONLYOFFICE lifecycle and verification
 │   ├── sync.taskfile.yml       Native Sync development and verification
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
+│   ├── cloud.taskfile.yml      Claude Code cloud sessions: start Odoo from the seed database, and make the seed
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint, typecheck
 │   ├── test.taskfile.yml       tests: core, uninstall, typecheck, e2e, apps
 │   └── tf.taskfile.yml         Terraform: setup, init, plan, apply, output
@@ -28,6 +29,8 @@ tools/
     ├── ai_env.sh               ai:env: cloud environment variables from Doppler
     ├── odoo_source.sh          dev:odoo-source download and sparse checkout
     ├── compose_env.py          dev:compose-env: this checkout's compose project in tools/infrastructure/.env
+    ├── cloud_start.py          cloud:start and the SessionStart hook that runs it in a cloud session
+    ├── cloud_seed.py           cloud:seed: the volumes of a fresh demo setup as tar files
     ├── test_apps.sh            test:apps
     ├── test_shards.py          splits the Odoo test classes into shards for test:core
     ├── test_openapi.py         test:openapi comparison with the document on main

@@ -12,12 +12,13 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 | `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                           |
 | `ci-mobile-app` | every pull request, and every night for the Maestro flows                               | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                   |
 | `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails. |
+| `cd-seed`       | every night, and a push to `main` that changes its workflow, script, task or Dockerfile | Sets up a fresh demo database and publishes its volumes as the seed image of Claude Code cloud sessions.           |
 | `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                            |
 | `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                               |
 | `cd-reset`      | a manual run on `main`                                                                  | Recreates the production database and installs it again with the demo data.                                        |
 | `cd-sync-app`   | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                    |
 | `cd-mobile-app` | a `mobile-v*` tag                                                                       | Builds the signed Android APK and code update of the mobile app and publishes them to the release bucket.          |
-| `cd-cleanup`    | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                            |
+| `cd-cleanup`    | a closed pull request, merged or not, or a finished `cd-core` or `cd-seed`              | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                            |
 
 Every workflow can also be started by hand.
 
@@ -57,7 +58,7 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 - It runs `task ai:test`: the unit tests, the client config checks and Ruff. It uses no secrets, database or Doppler.
 - It does not install OdooLS, so the live OdooLS tests report skips and `task ai:verify` does not run; run both locally after `task ai:setup`.
 - `typecheck (Linux)` and `typecheck (Windows)` run the addon link safety and Pyright report tests of `tools/typecheck`, only when it or the workflow changes. Windows uses real directory junctions to verify that cleanup preserves unmanaged links and target files.
-- `logging (Linux)` and `logging (Windows)` run `task test:logging` and `task test:taskfiles` when the logging helpers, Task entrypoint, included taskfiles, module list, regression tests or their setup dependencies change. The module selection tests compile the real Task entrypoint and replace Python with a temporary probe for test environments, stopping before any container or database operation.
+- `logging (Linux)` and `logging (Windows)` run `task test:logging`, `task test:taskfiles` and the tests of `task cloud:start` when the logging helpers, Task entrypoint, included taskfiles, module list, regression tests or their setup dependencies change. The module selection tests compile the real Task entrypoint and replace Python with a temporary probe for test environments, stopping before any container or database operation.
 
 ## ci-infra and cd-infra
 
@@ -212,12 +213,22 @@ flowchart LR
 - `verify` and `rollback` reach Argo CD at the `ARGOCD_SERVER` Actions variable and read it with `ARGOCD_AUTH_TOKEN`, a token of the `release` account, which can only read the `odoo` application and its logs. The argocd CLI they install matches the Argo CD version of the `argocd` role.
 - A failed `publish` stops the run; a `schedule` run skips `publish` and only releases.
 
+## cd-seed
+
+`cd-seed` publishes the database that Claude Code cloud sessions start from; see [Working in a cloud session](../workflows/cloud-session.md#the-seed-database).
+
+- It runs every night at 02:00 in Asia/Ho_Chi_Minh, on a push to `main` that changes `tools/scripts/cloud_seed.py`, `tools/dockerfiles/seed.dockerfile`, `tools/taskfiles/cloud.taskfile.yml` or the workflow, and by hand. Pull requests never run it.
+- `task cloud:seed` runs the fresh demo setup of `task setup:fresh`, which builds the Odoo image from the checkout, then stops the stack and writes the database, Odoo file store and Garage volumes as tar files, with the commit they were made from; `tools/scripts/cloud_seed.py`.
+- `tools/dockerfiles/seed.dockerfile` packs them into `ghcr.io/soltunemontepre/medilab-seed`, tagged with the full commit SHA and `latest`. The package is public, so the setup script of a cloud session pulls it without credentials.
+- A seed is up to a day older than `main`. `task cloud:start` installs and upgrades the session's modules on it, so it still serves a newer checkout.
+
 ## Images
 
 - `cd-core` publishes `ghcr.io/soltunemontepre/medilab`, tagged with the full commit SHA and `latest`, and releases it as described in [cd-core](#cd-core).
 - Local, CI and production images build on the same Odoo, pinned by tag and digest in `ODOO_IMAGE` of `tools/dockerfiles/prod.dockerfile`, and `lint` runs `odoo-lint` on that image. `ODOO_SOURCE_REVISION` in `tools/taskfiles/dev.taskfile.yml` is the commit of 20.0 that nightly is built from. Odoo is upgraded by changing `ODOO_IMAGE`, `ODOO_SOURCE_REVISION` and `odoo_revision` in `tools/odoo-intelligence/odoo_intelligence/release.json` together.
 - Pull request images are never pushed to a registry.
 - After every `cd-core` run, `cd-cleanup` keeps the five newest tagged images and the images of the current and previous release, and deletes the other images and every untagged image.
+- `cd-seed` publishes `ghcr.io/soltunemontepre/medilab-seed`, as described in [cd-seed](#cd-seed). After every `cd-core` or `cd-seed` run, `cd-cleanup` keeps its two newest tagged images and deletes every untagged one.
 
 ## Artifacts and caches
 

@@ -11,7 +11,7 @@ on:
   pull_request:
     types: [closed]
   workflow_run:
-    workflows: [cd-core]
+    workflows: [cd-core, cd-seed]
     types: [completed]
   workflow_dispatch:
 
@@ -103,4 +103,12 @@ jobs:
           owner: soltunemontepre
           package: medilab
           keep-n-tagged: 5
+          delete-untagged: true
+
+      - name: Delete old seed images
+        uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          owner: soltunemontepre
+          package: medilab-seed
+          keep-n-tagged: 2
           delete-untagged: true

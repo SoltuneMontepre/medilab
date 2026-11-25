@@ -1,0 +1,16 @@
+version: "3"
+
+vars:
+  CLOUD_SEED_DIR: '{{.CLOUD_SEED_DIR | default ".local/cloud-seed"}}'
+
+tasks:
+  cloud:start:
+    desc: "Start Odoo in a Claude Code cloud session from the seeded demo database and upgrade this checkout's modules"
+    cmds:
+      - python tools/scripts/cloud_start.py run
+
+  cloud:seed:
+    desc: "Set up a fresh demo database in an empty checkout and save its volumes as the seed of cloud sessions, as cd-seed does"
+    cmds:
+      - python tools/scripts/demo_bootstrap.py setup
+      - python tools/scripts/cloud_seed.py {{.CLOUD_SEED_DIR}}

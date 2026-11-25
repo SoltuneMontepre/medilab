@@ -151,6 +151,8 @@ jobs:
               - "tools/scripts/test_demo_bootstrap.py"
               - "tools/scripts/test_local_compose.py"
               - "tools/scripts/test_compose_env.py"
+              - "tools/scripts/cloud_*.py"
+              - "tools/scripts/test_cloud_start.py"
               - "src/applications/medilab-sync/docker-compose.yml"
               - "tools/scripts/compose_env.py"
               - "tools/scripts/colorize_odoo_logs.py"
@@ -262,6 +264,10 @@ jobs:
       - name: Bootstrap lifecycle regression tests
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: python tools/scripts/test_demo_bootstrap.py
+
+      - name: Cloud session start regression tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/scripts -p 'test_cloud_start.py'
 
   onlyoffice-docker:
     name: ONLYOFFICE Docker network

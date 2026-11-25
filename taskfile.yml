@@ -24,6 +24,10 @@ includes:
     taskfile: tools/taskfiles/app.taskfile.yml
     dir: .
     flatten: true
+  cloud:
+    taskfile: tools/taskfiles/cloud.taskfile.yml
+    dir: .
+    flatten: true
   dev:
     taskfile: tools/taskfiles/dev.taskfile.yml
     dir: .
