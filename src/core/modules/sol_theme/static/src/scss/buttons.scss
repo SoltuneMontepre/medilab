@@ -320,14 +320,17 @@
         width: 100%;
     }
 
+    // The trail keeps its width, up to most of the row, so a long current title is cut before the earlier levels.
     .o_breadcrumb > .breadcrumb {
         display: flex;
+        flex: 0 0 auto;
         flex-wrap: nowrap;
         align-items: center;
         margin: 0;
         padding: 0;
         background: transparent;
         min-width: 0;
+        max-width: 60%;
 
         // A long name is cut so the short levels of the trail stay whole.
         > .breadcrumb-item {
@@ -529,6 +532,19 @@
         margin: 0 !important;
     }
 
+    // A label, count or date is a field widget, which forms size as an input. In a stat button it fits its text, so
+    // every button in the row keeps one height, centres its text beside the icon and never cuts the label.
+    .o_field_widget {
+        flex: 0 0 auto !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+    }
+
+    .o_stat_text,
+    .o_stat_value {
+        flex-shrink: 0;
+    }
+
     .o_field_statinfo,
     .o_stat_info {
         display: inline-flex !important;
@@ -541,4 +557,9 @@
             font-weight: 700;
         }
     }
+}
+
+// Forms stretch date and relational fields to their cell; a stat button's fields fit their text instead.
+.o-form-buttonbox .oe_stat_button .o_field_widget {
+    width: auto !important;
 }

@@ -54,6 +54,7 @@
             "sol_theme/static/src/js/chatter_resize.js",
             "sol_theme/static/src/js/list_column_widths.js",
             "sol_theme/static/src/js/list_group_text.js",
+            "sol_theme/static/src/js/odoo_translations.js",
             "sol_theme/static/src/js/user_menu.js",
             "sol_theme/static/src/js/view_button_loading.js",
             "sol_theme/static/src/xml/app_drawer.xml",
