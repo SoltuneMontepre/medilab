@@ -646,7 +646,7 @@ class Sample(models.Model, SampleBase):
 
     def _test_departments(self):
         self.ensure_one()
-        return self.env[MODEL_DEPARTMENT].union(*self._department_by_test().values())
+        return self.env[MODEL_DEPARTMENT].union(self._department_by_test().values())
 
     def _retention_department(self):
         # The department that keeps the sample: the first it was handed over to.
