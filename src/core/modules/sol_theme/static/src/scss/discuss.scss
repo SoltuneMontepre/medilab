@@ -83,6 +83,7 @@ $ml-chatter-bar-width: 1.25rem;
 }
 
 .o-mail-ChatterPanel {
+    flex-shrink: 0;
     max-width: 60vw;
 
     > .o_resizable_panel_handle {

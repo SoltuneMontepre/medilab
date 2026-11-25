@@ -1,6 +1,7 @@
 import { browser } from "@web/core/browser/browser";
 import { _t } from "@web/core/l10n/translation";
 import { ResizablePanel } from "@web/core/resizable_panel/resizable_panel";
+import { SIZES } from "@web/core/ui/ui_utils";
 import { patch } from "@web/core/utils/patch";
 import { createElement } from "@web/core/utils/xml";
 import { FormCompiler } from "@web/views/form/form_compiler";
@@ -57,9 +58,8 @@ patch(FormRenderer.prototype, {
   },
 });
 
-// Wraps the chatter beside a form in Odoo's resizable panel, with a button on the bar that collapses it.
-function wrapChatter(res, container) {
-  const chatter = container.querySelector("t[t-component='__comp__.mailComponents.Chatter']");
+// Odoo's resizable panel around a feed beside a form, with a button on the bar that collapses it.
+function resizablePanel(feed) {
   const toggle = createElement(
     "button",
     {
@@ -77,7 +77,7 @@ function wrapChatter(res, container) {
       }),
     ],
   );
-  const panel = createElement(
+  return createElement(
     "t",
     {
       "t-component": "__comp__.mailComponents.ResizablePanel",
@@ -92,16 +92,19 @@ function wrapChatter(res, container) {
         createElement("div", { class: "o-mail-ChatterPanelContent" }, [
           createElement("div", { class: "o-mail-ChatterBar flex-shrink-0 d-print-none" }, [toggle]),
           createElement("div", { class: "o-mail-ChatterBody flex-grow-1", "t-att-class": "{ 'd-none': __comp__.state.chatterCollapsed }" }, [
-            chatter.cloneNode(true),
+            feed.cloneNode(true),
           ]),
         ]),
       ]),
     ],
   );
-  const hasPreview = Boolean(res.querySelector(".o_attachment_preview"));
-  const aside = createElement("t", { "t-if": `${ASIDE_LAYOUTS}.includes(__comp__.mailLayout(${hasPreview}))` }, [panel]);
-  const beside = createElement("t", { "t-else": "" }, [chatter.cloneNode(true)]);
-  chatter.replaceWith(aside, beside);
+}
+
+// Puts the feed in the resizable panel while the condition holds, and leaves it as it is otherwise.
+function wrapFeed(feed, condition) {
+  const aside = createElement("t", { "t-if": condition }, [resizablePanel(feed)]);
+  const other = createElement("t", { "t-else": "" }, [feed.cloneNode(true)]);
+  feed.replaceWith(aside, other);
 }
 
 patch(FormCompiler.prototype, {
@@ -110,7 +113,16 @@ patch(FormCompiler.prototype, {
     const container = res.querySelector(".o-mail-Form-chatter:not(.o-isInFormSheetBg)");
     // Only a chatter that can sit beside the form has the class expression.
     if (container?.hasAttribute("t-attf-class")) {
-      wrapChatter(res, container);
+      const hasPreview = Boolean(res.querySelector(".o_attachment_preview"));
+      wrapFeed(
+        container.querySelector("t[t-component='__comp__.mailComponents.Chatter']"),
+        `${ASIDE_LAYOUTS}.includes(__comp__.mailLayout(${hasPreview}))`,
+      );
+    }
+    // A document's audit log sits beside the sheet where the form puts its parts in a row.
+    const auditLog = res.querySelector(".o_form_renderer > .o_audit_aside");
+    if (auditLog) {
+      wrapFeed(auditLog, `__comp__.uiService.size >= ${SIZES.XXL}`);
     }
     return res;
   },
