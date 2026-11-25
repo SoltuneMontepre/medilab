@@ -5,6 +5,7 @@ from odoo.tools.misc import format_amount, format_date, formatLang
 from odoo.tools.translate import code_translations
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TYPE
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 ENGLISH = "en_US"
 VIETNAMESE = "vi_VN"
@@ -33,10 +34,12 @@ class TestLanguages(TransactionCase):
         login = self.env.ref("web.login")
         security_card = self.env.ref("portal.portal_entry_base")
         chatter = code_translations.get_web_translations("sol_laboratory", VIETNAMESE)["messages"]
+        vietnamese_login = assert_instance(login.with_context(lang=VIETNAMESE).arch_db, str)
+        english_login = assert_instance(login.with_context(lang=ENGLISH).arch_db, str)
 
-        self.assertIn('placeholder="Nhập email của bạn"', login.with_context(lang=VIETNAMESE).arch_db)
-        self.assertIn('placeholder="Nhập mật khẩu của bạn"', login.with_context(lang=VIETNAMESE).arch_db)
-        self.assertIn('placeholder="Enter your email"', login.with_context(lang=ENGLISH).arch_db)
+        self.assertIn('placeholder="Nhập email của bạn"', vietnamese_login)
+        self.assertIn('placeholder="Nhập mật khẩu của bạn"', vietnamese_login)
+        self.assertIn('placeholder="Enter your email"', english_login)
         self.assertEqual(security_card.with_context(lang=VIETNAMESE).name, "Kết nối & Bảo mật")
         self.assertEqual(security_card.with_context(lang=ENGLISH).name, "Connection & Security")
         self.assertIn({"id": "No messages yet.", "string": "Chưa có tin nhắn nào."}, chatter)
