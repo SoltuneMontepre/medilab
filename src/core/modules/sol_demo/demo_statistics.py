@@ -32,7 +32,6 @@ def seed_statistics(env):
     rejected = _enter(env, tester, retested, value=0.2, conclusion="fail")
     rejected.with_user(tester).action_sign()
     rejected.with_user(head).action_reject("The blank read above the LOQ; prepare a new blank and measure again.")
-    retested._testing_task().with_user(tester).action_claim()
     retest = _approved(env, tester, head, retested, value=0.005)
 
     this_month = datetime.combine(fields.Date.today().replace(day=1), time(2))

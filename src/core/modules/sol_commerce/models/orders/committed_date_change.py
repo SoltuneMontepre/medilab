@@ -12,7 +12,7 @@ else:
     CommittedDateChangeBase = object
 
 
-# Thay Đổi Ngày Hẹn Trả Kết Quả: the order of the request shows the new committed return date too.
+# Thay Đổi Ngày Trả Kết Quả Dự Kiến: the order of the request shows the new expected return date too.
 class CommittedDateChange(models.Model, CommittedDateChangeBase):
     _inherit = MODEL_COMMITTED_DATE_CHANGE
 

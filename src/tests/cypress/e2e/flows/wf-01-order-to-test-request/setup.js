@@ -94,19 +94,21 @@ export function requestPaymentPath(order, request) {
 
 // The customer reports the bank transfer and the accountant verifies the receipt.
 export function payAdvance(order, customer = CUSTOMERS.nuocSach) {
-  return currentRequest(order).then((request) => {
-    const page = `/orders/${order.id}${request.kind === "advance" ? "/quotation" : ""}`;
-    portalPostAs(customer.login, page, requestPaymentPath(order, request), { method: "bank_transfer" });
-    return callAs("demo.accountant", "account.payment", "search", [
-      [
-        ["payment_request_id", "=", request.id],
-        ["state", "=", "draft"],
-      ],
-    ]).then((ids) => {
+  return currentRequest(order)
+    .then((request) => {
+      const page = `/orders/${order.id}${request.kind === "advance" ? "/quotation" : ""}`;
+      portalPostAs(customer.login, page, requestPaymentPath(order, request), { method: "bank_transfer" });
+      return callAs("demo.accountant", "account.payment", "search", [
+        [
+          ["payment_request_id", "=", request.id],
+          ["state", "=", "draft"],
+        ],
+      ]);
+    })
+    .then((ids) => {
       expect(ids, "reported transfer").to.have.length(1);
       return callAs("demo.accountant", "account.payment", "action_post", [ids]);
     });
-  });
 }
 
 // The customer declines the latest quotation on the portal with a reason.
@@ -121,16 +123,22 @@ export const reviseQuotation = helper("reviseQuotation", function reviseQuotatio
   return callAs(login, "sale.order", "action_send_quotation", [[order.id]]);
 });
 
+// Sales asks for a bank-transfer advance with the given terms; without an advance the Head of Sales waives it.
+function chooseAdvance(step, advance, terms = {}) {
+  const login = advance ? SALES : HEAD_OF_SALES;
+  step(login, "write", [advance ? { advance_method: "bank_transfer", ...terms } : { advance_method: "none" }]);
+  return login;
+}
+
 function queueOrderProgress(order, stage, { customer, advance, sample }, step) {
   const reached = (name) => STAGES.indexOf(stage) >= STAGES.indexOf(name);
   if (reached("claimed")) {
     step(SALES, "action_claim");
     if (sample) cy.then(() => addSample(order));
+    if (stage === "claimed") chooseAdvance(step, advance);
   }
   if (reached("sent")) {
-    const login = advance ? SALES : HEAD_OF_SALES;
-    step(login, "write", [advance ? { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 } : { advance_method: "none" }]);
-    step(login, "action_send_quotation");
+    step(chooseAdvance(step, advance, { advance_mode: "percentage", advance_value: 30 }), "action_send_quotation");
   }
   if (reached("accepted")) {
     if (advance) {

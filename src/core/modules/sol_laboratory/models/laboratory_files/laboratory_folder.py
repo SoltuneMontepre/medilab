@@ -330,8 +330,13 @@ class LaboratoryFolder(models.Model, LaboratoryFolderBase):
                 FOLDER_DISABLED, self.env._("This laboratory folder is turned off: its files are read, not changed.")
             )
 
+    def _sample_open(self):
+        """False once the folder's sample is completed or cancelled, which makes the folder read-only."""
+        self.ensure_one()
+        return self.sudo().sample_id.status not in ("completed", "cancelled")
+
     def _check_sample_open(self):
-        if self.sudo().filtered(lambda folder: folder.sample_id.status in ("completed", "cancelled")):
+        if self.filtered(lambda folder: not folder._sample_open()):
             raise LaboratoryFileError(
                 FOLDER_SAMPLE_CLOSED, self.env._("A completed or cancelled sample's folders are read-only.")
             )

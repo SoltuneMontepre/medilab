@@ -16,6 +16,16 @@ import sys
 from preflight_inventory import inventory
 from preflight_storage import METADATA_COMMAND, workspace_consumers, workspace_metadata
 
+BASH = "/bin/bash"
+LOG_PATTERNS = {
+    "configuration_mode": "Server is in configuration mode!",
+    "management_database_opened": "Management database connection established",
+    "autoconfiguration_failed": "Error loading server auto configuration",
+    "subject_collision": "User or team '.*' already exists",
+    "runtime_save_attempted": "Saving runtime configuration",
+    "synchronous_management_url": "Initiate connection pool.*WRITE_DELAY=0",
+}
+
 
 def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
@@ -68,49 +78,12 @@ class Preflight:
             "context": self.args.context,
             "namespace": namespace,
             "production_changes": False,
-            "deployment": {
-                "uid": deployment["metadata"]["uid"],
-                "generation": deployment["metadata"]["generation"],
-                "replicas": deployment["spec"].get("replicas"),
-                "strategy": deployment["spec"].get("strategy"),
-                "template_sha256": digest(template),
-                "management_sync_configured": any(
-                    env["name"] == "CLOUDBEAVER_DB_URL" and env.get("value", "").endswith(";WRITE_DELAY=0")
-                    for container in template["spec"]["containers"]
-                    for env in container.get("env", [])
-                ),
-                "containers": [
-                    {
-                        "name": c["name"],
-                        "image": c["image"],
-                        "env_names": [e["name"] for e in c.get("env", [])],
-                        "mounts": c.get("volumeMounts", []),
-                        "env_references": [
-                            {"name": e["name"], "value_from": e.get("valueFrom")} for e in c.get("env", [])
-                        ],
-                        "readiness_present": "readinessProbe" in c,
-                        "security_context": c.get("securityContext", {}),
-                    }
-                    for c in template["spec"]["containers"]
-                ],
-            },
+            "deployment": deployment_summary(deployment),
         }
         pods = self.get("pods", namespace=namespace)["items"]
         result["workspace_consumers"] = workspace_consumers(pods, "cloudbeaver-workspace")
         pods = [pod for pod in pods if pod["metadata"].get("labels", {}).get("app.kubernetes.io/name") == "cloudbeaver"]
-        result["pods"] = [
-            {
-                "name": pod["metadata"]["name"],
-                "uid": pod["metadata"]["uid"],
-                "phase": pod.get("status", {}).get("phase"),
-                "conditions": pod.get("status", {}).get("conditions", []),
-                "containers": [
-                    {key: status.get(key) for key in ("name", "ready", "restartCount", "imageID")}
-                    for status in pod.get("status", {}).get("containerStatuses", [])
-                ],
-            }
-            for pod in pods
-        ]
+        result["pods"] = [pod_summary(pod) for pod in pods]
         result["pod_security_context"] = template["spec"].get("securityContext", {})
         events = self.get("events", namespace=namespace, optional=True)
         result["events"] = [
@@ -118,23 +91,7 @@ class Preflight:
             for event in (events or {}).get("items", [])
             if event.get("involvedObject", {}).get("uid") in {pod["metadata"]["uid"] for pod in pods}
         ]
-        for pod in result["pods"]:
-            pod["conditions"] = [
-                {key: value.get(key) for key in ("type", "status", "reason", "lastTransitionTime")}
-                for value in pod["conditions"]
-            ]
-        application = self.get("application.argoproj.io", "cloudbeaver", "argocd", optional=True)
-        result["argocd"] = {"available": bool(application)}
-        if application:
-            result["argocd"].update(
-                {
-                    "sync": {
-                        key: application.get("status", {}).get("sync", {}).get(key) for key in ("status", "revision")
-                    },
-                    "health": application.get("status", {}).get("health", {}).get("status"),
-                    "automated": application["spec"].get("syncPolicy", {}).get("automated"),
-                }
-            )
+        result["argocd"] = argocd_summary(self.get("application.argoproj.io", "cloudbeaver", "argocd", optional=True))
         external = self.get("externalsecret", "cloudbeaver-admin", namespace, optional=True)
         result["external_secret"] = [
             {key: condition.get(key) for key in ("type", "status", "reason", "lastTransitionTime")}
@@ -163,24 +120,7 @@ class Preflight:
         )
         secret_name = base64.b64decode(name).decode() if name and name != "<no value>" else ""
         result["secret_bootstrap_identifier"] = identifier(secret_name)
-        pvc = self.get("pvc", "cloudbeaver-workspace", namespace)
-        result["pvc"] = {
-            "uid": pvc["metadata"]["uid"],
-            "name": pvc["metadata"]["name"],
-            "phase": pvc.get("status", {}).get("phase"),
-            "volume": pvc["spec"].get("volumeName"),
-            "storage_class": pvc["spec"].get("storageClassName"),
-            "protection": pvc["metadata"].get("annotations", {}).get("argocd.argoproj.io/sync-options"),
-        }
-        if pvc["spec"].get("volumeName"):
-            pv = self.get("pv", pvc["spec"]["volumeName"], optional=True)
-            result["pv"] = {
-                "uid": (pv or {}).get("metadata", {}).get("uid"),
-                "reclaim_policy": (pv or {}).get("spec", {}).get("persistentVolumeReclaimPolicy"),
-                "claim_uid_matches": (pv or {}).get("spec", {}).get("claimRef", {}).get("uid")
-                == pvc["metadata"]["uid"],
-                "node_affinity_sha256": digest((pv or {}).get("spec", {}).get("nodeAffinity")),
-            }
+        result.update(self.storage(namespace))
         result["workspace"] = {"available": False}
         running = next(
             (
@@ -194,69 +134,7 @@ class Preflight:
             None,
         )
         if running:
-            pod_name = running["metadata"]["name"]
-            prefix = ["exec", "-n", namespace, pod_name, "-c", "cloudbeaver", "--"]
-            value = self.run(*prefix, "/bin/bash", "-c", 'printf %s "${CB_ADMIN_NAME-}"', optional=True)
-            result["pod_bootstrap_identifier"] = {
-                **identifier(value or ""),
-                "matches_current_secret": value == secret_name,
-            }
-            # Runtime JSON is captured only in memory; H2 files are stat'ed, never read or opened.
-            metadata = self.run(
-                *prefix,
-                "/bin/bash",
-                "-c",
-                METADATA_COMMAND,
-                optional=True,
-            )
-            runtime = self.run(*prefix, "cat", "workspace/.data/.cloudbeaver.runtime.conf", optional=True)
-            result["workspace"] = {
-                **workspace_metadata(metadata),
-                "runtime_present": runtime is not None,
-            }
-            mount = self.run(
-                *prefix,
-                "/bin/bash",
-                "-c",
-                "awk '$5 == \"/opt/cloudbeaver/workspace\" {print $5}' /proc/self/mountinfo",
-                optional=True,
-            )
-            result["workspace"]["workspace_is_mountpoint"] = bool(mount and mount.strip())
-            try:
-                settings = json.loads(runtime)
-                server_name = settings.get("server", {}).get("serverName")
-                result["workspace"].update(
-                    {
-                        "runtime_json_valid": True,
-                        "server_name_present": isinstance(server_name, str) and bool(server_name.strip()),
-                    }
-                )
-            except (TypeError, ValueError, AttributeError):
-                result["workspace"]["runtime_json_valid"] = False
-            patterns = {
-                "configuration_mode": "Server is in configuration mode!",
-                "management_database_opened": "Management database connection established",
-                "autoconfiguration_failed": "Error loading server auto configuration",
-                "subject_collision": "User or team '.*' already exists",
-                "runtime_save_attempted": "Saving runtime configuration",
-                "synchronous_management_url": "Initiate connection pool.*WRITE_DELAY=0",
-            }
-            result["startup_log_counts"] = {}
-            for previous in (False, True):
-                logs = self.run(
-                    "logs",
-                    "-n",
-                    namespace,
-                    pod_name,
-                    "-c",
-                    "cloudbeaver",
-                    "--tail=2000",
-                    *(["--previous"] if previous else []),
-                    optional=True,
-                )
-                result["startup_log_counts"]["previous" if previous else "current"] = (
-                    None if logs is None else {key: len(re.findall(pattern, logs)) for key, pattern in patterns.items()}
-                )
+            result.update(self.running_pod(namespace, running["metadata"]["name"], secret_name))
         result["accounts"] = {
             "verified": False,
             "reason": "No existing approved application session supplied; never inspect live H2 directly.",
@@ -264,6 +142,143 @@ class Preflight:
         if self.args.session_cookie_file:
             result["accounts"] = inventory(self.args.session_cookie_file, secret_name)
         return result
+
+    def storage(self, namespace):
+        pvc = self.get("pvc", "cloudbeaver-workspace", namespace)
+        result = {
+            "pvc": {
+                "uid": pvc["metadata"]["uid"],
+                "name": pvc["metadata"]["name"],
+                "phase": pvc.get("status", {}).get("phase"),
+                "volume": pvc["spec"].get("volumeName"),
+                "storage_class": pvc["spec"].get("storageClassName"),
+                "protection": pvc["metadata"].get("annotations", {}).get("argocd.argoproj.io/sync-options"),
+            }
+        }
+        if pvc["spec"].get("volumeName"):
+            pv = self.get("pv", pvc["spec"]["volumeName"], optional=True) or {}
+            result["pv"] = {
+                "uid": pv.get("metadata", {}).get("uid"),
+                "reclaim_policy": pv.get("spec", {}).get("persistentVolumeReclaimPolicy"),
+                "claim_uid_matches": pv.get("spec", {}).get("claimRef", {}).get("uid") == pvc["metadata"]["uid"],
+                "node_affinity_sha256": digest(pv.get("spec", {}).get("nodeAffinity")),
+            }
+        return result
+
+    def running_pod(self, namespace, pod_name, secret_name):
+        prefix = ["exec", "-n", namespace, pod_name, "-c", "cloudbeaver", "--"]
+        value = self.run(*prefix, BASH, "-c", 'printf %s "${CB_ADMIN_NAME-}"', optional=True)
+        result = {
+            "pod_bootstrap_identifier": {
+                **identifier(value or ""),
+                "matches_current_secret": value == secret_name,
+            }
+        }
+        # Runtime JSON is captured only in memory; H2 files are stat'ed, never read or opened.
+        metadata = self.run(*prefix, BASH, "-c", METADATA_COMMAND, optional=True)
+        runtime = self.run(*prefix, "cat", "workspace/.data/.cloudbeaver.runtime.conf", optional=True)
+        workspace = {
+            **workspace_metadata(metadata),
+            "runtime_present": runtime is not None,
+        }
+        mount = self.run(
+            *prefix,
+            BASH,
+            "-c",
+            "awk '$5 == \"/opt/cloudbeaver/workspace\" {print $5}' /proc/self/mountinfo",
+            optional=True,
+        )
+        workspace["workspace_is_mountpoint"] = bool(mount and mount.strip())
+        workspace.update(runtime_settings(runtime))
+        result["workspace"] = workspace
+        result["startup_log_counts"] = {
+            "previous" if previous else "current": self.log_counts(namespace, pod_name, previous)
+            for previous in (False, True)
+        }
+        return result
+
+    def log_counts(self, namespace, pod_name, previous):
+        logs = self.run(
+            "logs",
+            "-n",
+            namespace,
+            pod_name,
+            "-c",
+            "cloudbeaver",
+            "--tail=2000",
+            *(["--previous"] if previous else []),
+            optional=True,
+        )
+        return None if logs is None else {key: len(re.findall(pattern, logs)) for key, pattern in LOG_PATTERNS.items()}
+
+
+def deployment_summary(deployment):
+    template = deployment["spec"]["template"]
+    return {
+        "uid": deployment["metadata"]["uid"],
+        "generation": deployment["metadata"]["generation"],
+        "replicas": deployment["spec"].get("replicas"),
+        "strategy": deployment["spec"].get("strategy"),
+        "template_sha256": digest(template),
+        "management_sync_configured": any(
+            env["name"] == "CLOUDBEAVER_DB_URL" and env.get("value", "").endswith(";WRITE_DELAY=0")
+            for container in template["spec"]["containers"]
+            for env in container.get("env", [])
+        ),
+        "containers": [
+            {
+                "name": c["name"],
+                "image": c["image"],
+                "env_names": [e["name"] for e in c.get("env", [])],
+                "mounts": c.get("volumeMounts", []),
+                "env_references": [{"name": e["name"], "value_from": e.get("valueFrom")} for e in c.get("env", [])],
+                "readiness_present": "readinessProbe" in c,
+                "security_context": c.get("securityContext", {}),
+            }
+            for c in template["spec"]["containers"]
+        ],
+    }
+
+
+def pod_summary(pod):
+    status = pod.get("status", {})
+    return {
+        "name": pod["metadata"]["name"],
+        "uid": pod["metadata"]["uid"],
+        "phase": status.get("phase"),
+        "conditions": [
+            {key: value.get(key) for key in ("type", "status", "reason", "lastTransitionTime")}
+            for value in status.get("conditions", [])
+        ],
+        "containers": [
+            {key: container.get(key) for key in ("name", "ready", "restartCount", "imageID")}
+            for container in status.get("containerStatuses", [])
+        ],
+    }
+
+
+def argocd_summary(application):
+    if not application:
+        return {"available": False}
+    status = application.get("status", {})
+    return {
+        "available": True,
+        "sync": {key: status.get("sync", {}).get(key) for key in ("status", "revision")},
+        "health": status.get("health", {}).get("status"),
+        "automated": application["spec"].get("syncPolicy", {}).get("automated"),
+    }
+
+
+def runtime_settings(runtime):
+    try:
+        settings = json.loads(runtime)
+        server_name = settings.get("server", {}).get("serverName")
+    except (TypeError, ValueError, AttributeError):
+        return {"runtime_json_valid": False}
+    return {
+        "runtime_json_valid": True,
+        "server_name_present": isinstance(server_name, str) and bool(server_name.strip()),
+    }
 
 
 def main():

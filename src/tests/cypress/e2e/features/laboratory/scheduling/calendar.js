@@ -20,8 +20,8 @@ export function utcTime(date, hour, zone) {
   throw new Error(`The attendance time ${date} ${hour} does not exist in ${zone}.`);
 }
 
-// get_attendances expands Odoo's dated and recurring schedules; duration-based rows are centered on noon by Odoo.
-export function calendarSlots(attendances, leaves, zone) {
+// The attendance rows of each date, the dates in order and each date's rows in their sequence.
+function rowsByDate(attendances) {
   const dates = new Map();
   attendances.forEach((attendance) => {
     [attendance.date, ...attendance.other_dates].forEach((date) => {
@@ -29,22 +29,40 @@ export function calendarSlots(attendances, leaves, zone) {
       dates.get(date).push(attendance);
     });
   });
+  const sorted = [...dates].sort(([left], [right]) => left.localeCompare(right));
+  sorted.forEach(([, rows]) => rows.sort((left, right) => left.sequence - right.sequence || left.id - right.id));
+  return sorted;
+}
+
+// The local hours a row covers: from the cursor when all rows of its date are duration-based, around noon when only it
+// is, otherwise its own hours.
+function rowHours(row, cursor, durationBased) {
+  if (durationBased) return [cursor, cursor + row.duration_hours];
+  if (row.duration_based) return [12 - row.duration_hours / 2, 12 + row.duration_hours / 2];
+  return [row.hour_from, row.hour_to];
+}
+
+// The 30-minute runs between two UTC times, an hour apart from the first quarter-hour, that no leave overlaps.
+function freeSlots(begin, end, leaves) {
   const slots = [];
-  for (const [date, rows] of [...dates].sort(([left], [right]) => left.localeCompare(right))) {
-    rows.sort((left, right) => left.sequence - right.sequence || left.id - right.id);
+  for (let start = Math.ceil(begin / SLOT) * SLOT; start + RUN <= end; start += 60 * MINUTE) {
+    if (leaves.some((leave) => start < Date.parse(`${leave.date_to}Z`) && start + RUN > Date.parse(`${leave.date_from}Z`))) continue;
+    slots.push(new Date(start).toISOString().slice(0, 19).replace("T", " "));
+  }
+  return slots;
+}
+
+// get_attendances expands Odoo's dated and recurring schedules; duration-based rows are centered on noon by Odoo.
+export function calendarSlots(attendances, leaves, zone) {
+  const slots = [];
+  for (const [date, rows] of rowsByDate(attendances)) {
     const durationBased = rows.every((row) => row.duration_based);
     let cursor = 12 - rows.reduce((total, row) => total + row.duration_hours, 0) / 2;
     for (const row of rows) {
-      const from = durationBased ? cursor : row.duration_based ? 12 - row.duration_hours / 2 : row.hour_from;
-      const to = durationBased ? cursor + row.duration_hours : row.duration_based ? 12 + row.duration_hours / 2 : row.hour_to;
+      const [from, to] = rowHours(row, cursor, durationBased);
       cursor = to;
-      const begin = utcTime(date, from, zone);
-      const end = utcTime(date, to, zone);
-      for (let start = Math.ceil(begin / SLOT) * SLOT; start + RUN <= end; start += 60 * MINUTE) {
-        if (leaves.some((leave) => start < Date.parse(`${leave.date_to}Z`) && start + RUN > Date.parse(`${leave.date_from}Z`))) continue;
-        slots.push(new Date(start).toISOString().slice(0, 19).replace("T", " "));
-        if (slots.length === 3) return slots;
-      }
+      slots.push(...freeSlots(utcTime(date, from, zone), utcTime(date, to, zone), leaves));
+      if (slots.length >= 3) return slots.slice(0, 3);
     }
   }
   throw new Error(`The tester's ${zone} calendar has fewer than three free 30-minute attendance slots.`);

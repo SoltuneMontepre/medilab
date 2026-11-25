@@ -66,7 +66,7 @@ for _ in $(seq 240); do
   sleep 15
 done
 kubectl get application "$application" -n argocd -o jsonpath='{.status.operationState.message}{"\n"}'
-test "$phase" = "Succeeded"
+[[ "$phase" == "Succeeded" ]]
 
 section "Odoo"
 kubectl rollout restart deployment/odoo -n "$namespace"
@@ -77,5 +77,5 @@ currency=$(psql_primary "$database" -Atc \
   "select r.name from res_company c join res_currency r on r.id = c.currency_id order by c.id limit 1")
 demo=$(psql_primary "$database" -Atc "select state from ir_module_module where name = 'sol_demo'")
 printf 'Currency: %s\nsol_demo: %s\n' "$currency" "$demo"
-test "$currency" = "VND"
-test "$demo" = "installed"
+[[ "$currency" == "VND" ]]
+[[ "$demo" == "installed" ]]

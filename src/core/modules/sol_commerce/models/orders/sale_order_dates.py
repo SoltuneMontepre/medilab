@@ -1,5 +1,5 @@
-from datetime import datetime, time
-from typing import TYPE_CHECKING
+from datetime import date, datetime, time, timedelta
+from typing import TYPE_CHECKING, Literal
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -7,8 +7,13 @@ from odoo.exceptions import UserError
 from odoo.tools.misc import format_date
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
-from odoo.addons.sol_commerce.constants.orders import DATE_FIELDS
-from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REQUEST
+from odoo.addons.sol_commerce.constants.orders import ADVANCE_NONE, DATE_FIELDS
+from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE_DAYS, PAYMENT_DEADLINE_PARAMETER
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_PARAMETER_METHOD,
+    MODEL_SAMPLE_TEST,
+    MODEL_TEST_REQUEST,
+)
 from odoo.addons.sol_laboratory.models.sample_collection.committed_date_change import CHANGING_COMMITTED_DATE
 
 if TYPE_CHECKING:
@@ -17,13 +22,26 @@ else:
     SaleOrderDatesBase = object
 
 
-# Đơn Hàng: the customer's requested date, the standard turnaround, the committed return date and priority requests.
+# Đơn Hàng: the customer's requested date, the standard turnaround, the expected return date and priority requests.
 class SaleOrderDates(models.Model, SaleOrderDatesBase):
     _inherit = MODEL_SALE_ORDER
 
     if not TYPE_CHECKING:
         # Requested date: the date the customer wants the results.
         requested_date = fields.Date()
+        # The day Sales agreed with the customer for the samples to be picked up, which return dates count from.
+        expected_collection_date = fields.Date(string="Expected Sample Pickup", copy=False)
+        # The date the results are expected back: the earliest the laboratory can return them from the expected pickup,
+        # until Sales sets a later date or an accepted priority request sets it.
+        committed_date = fields.Date(
+            string="Expected Return Date",
+            compute="_compute_committed_date",
+            store=True,
+            readonly=False,
+            copy=False,
+        )
+        # Earliest date the date picker allows for Expected Return Date.
+        min_committed_date = fields.Date(compute="_compute_min_committed_date")
         # The customer's request for priority, and Sales's decision on it after the feasibility check.
         priority_request = fields.Selection(
             [("requested", "Requested"), ("accepted", "Accepted"), ("declined", "Declined")], copy=False
@@ -33,15 +51,18 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
         # Working days results take from sample receipt: the longest standard turnaround of the order's ways of
         # testing, kept as it was when the quotation was sent.
         turnaround_days = fields.Integer(
-            string="Turnaround (working days)", compute="_compute_turnaround_days", store=True, readonly=False
+            string="Turnaround (working days)",
+            compute="_compute_turnaround_days",
+            store=True,
+            readonly=False,
+            help="Working days from sample receipt to results: the longest standard turnaround of the order's ways of "
+            "testing, set on each way in the catalog.",
         )
         # The ways of testing of the order that have no standard turnaround yet, which keep the quotation from being sent.
         turnaround_missing = fields.Char(string="Missing Turnaround", compute="_compute_turnaround_missing")
-        # The date results would be returned if the samples were received today.
-        estimated_result_date = fields.Date(string="Estimated Return Date", compute="_compute_estimated_result_date")
 
     def write(self, vals):
-        # A change recorded with the customer's agreement moves the committed return date of a confirmed order.
+        # A change recorded with the customer's agreement moves the expected return date of a confirmed order.
         changing = self.env.context.get(CHANGING_COMMITTED_DATE) and set(vals) == {"committed_date"}
         if DATE_FIELDS & set(vals) and not changing and self._frozen_by_quotation():
             raise UserError(self.env._("The dates cannot change after the quotation is sent. Revise the quotation."))
@@ -52,7 +73,12 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
         for order in self:
             order.priority = order.priority_request == "accepted"
 
-    @api.depends("order_line.parameter_method_id")
+    @api.depends(
+        "order_line.parameter_method_id.turnaround_days",
+        "product_line_ids.product_id",
+        "product_line_ids.sample_type_id",
+        "product_line_ids.parameter_method_id.turnaround_days",
+    )
     def _compute_turnaround_days(self):
         requests = self.env[MODEL_TEST_REQUEST]
         for order in self:
@@ -61,22 +87,63 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             frozen = order in order._frozen_by_quotation()
             order.turnaround_days = order.turnaround_days if frozen else turnaround["days"]
 
-    @api.depends("order_line.parameter_method_id")
+    @api.depends(
+        "order_line.parameter_method_id.turnaround_days",
+        "product_line_ids.product_id",
+        "product_line_ids.sample_type_id",
+        "product_line_ids.parameter_method_id.turnaround_days",
+    )
     def _compute_turnaround_missing(self):
         requests = self.env[MODEL_TEST_REQUEST]
         for order in self:
             missing = requests._turnaround(order._ways())["missing"]
             order.turnaround_missing = ", ".join(missing.mapped("display_name")) or False
 
-    @api.depends("turnaround_days")
-    def _compute_estimated_result_date(self):
-        requests = self.env[MODEL_TEST_REQUEST]
-        zone = ZoneInfo(self.env.company.tz or "UTC")
-        today = fields.Datetime.now().replace(tzinfo=ZoneInfo("UTC")).astimezone(zone).date()
+    @api.depends(
+        "turnaround_days",
+        "order_line.parameter_method_id",
+        "product_line_ids.product_id",
+        "product_line_ids.sample_type_id",
+        "product_line_ids.parameter_method_id",
+        "expected_collection_date",
+        "requested_date",
+        "payment_deadline",
+        "advance_method",
+        "advance_mode",
+    )
+    def _compute_committed_date(self):
         for order in self:
-            order.estimated_result_date = (
-                requests._date_after_working_days(today, order.turnaround_days) if order.turnaround_days else False
+            # A sent quotation, a confirmed order and an accepted priority request keep the date they have.
+            keep = (
+                order.priority_request == "accepted" or order.state != "draft" or order in order._frozen_by_quotation()
             )
+            order.committed_date = order.committed_date if keep else order._earliest_return_date()
+
+    @api.depends(
+        "order_line.parameter_method_id",
+        "product_line_ids.product_id",
+        "product_line_ids.sample_type_id",
+        "product_line_ids.parameter_method_id",
+        "expected_collection_date",
+        "priority",
+    )
+    def _compute_min_committed_date(self):
+        today = fields.Date.context_today(self)
+        for order in self:
+            if order.priority:
+                order.min_committed_date = today
+            else:
+                order.min_committed_date = order._earliest_return_date() or order.expected_collection_date or today
+
+    def _collection_start(self, day):
+        """The moment samples picked up on the day can be scheduled at the earliest: the end of that day in the
+        company's time zone since no collection time is set yet, or now when none is given."""
+        now = fields.Datetime.now()
+        if not day:
+            return now
+        zone = ZoneInfo(self.env.company.tz or "UTC")
+        start = datetime.combine(day, time(23, 59, 59), tzinfo=zone).astimezone(ZoneInfo("UTC")).replace(tzinfo=None)
+        return max(start, now)
 
     def _set_portal_dates(self, requested_date, priority):
         """Keep the date the customer wants the results and whether they ask for priority, from the cart."""
@@ -89,19 +156,31 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             raise UserError(self.env._("Give the date you want the results to ask for priority."))
         self.sudo().write({"requested_date": requested, "priority_request": "requested" if priority else False})
 
+    def _estimation_lines(self):
+        """Lines whose ways of testing feed turnaround and schedule simulation, following unsaved form edits."""
+        self.ensure_one()
+        if self._origin:
+            return self.product_line_ids
+        return self.product_line_ids or self.order_line
+
     def _ways(self):
         # The ways of testing the order's parameters are tested by, a package's parameters included.
         self.ensure_one()
-        return self.order_line._way_lines().parameter_method_id
+        return self.env[MODEL_PARAMETER_METHOD].concat(self._estimation_lines()._resolved_ways())
+
+    def _test_ways(self):
+        """The way of each test the order brings the laboratory: one for each parameter line, a package's included."""
+        self.ensure_one()
+        return self._estimation_lines()._resolved_ways()
 
     def action_accept_priority(self):
         """Accept the customer's priority request when the feasibility check says the requested date can be met; the
-        requested date becomes the committed return date."""
+        requested date becomes the expected return date."""
         self.check_access("write")
         for order in self:
             if order.priority_request != "requested" or not order.requested_date:
                 raise UserError(self.env._("Only a priority request with a requested date can be accepted."))
-            check = self.env[MODEL_TEST_REQUEST]._check_priority(order._ways(), order.requested_date)
+            check = self.env[MODEL_TEST_REQUEST]._check_priority(order._test_ways(), order.requested_date)
             if not check["feasible"]:
                 if check["date"]:
                     raise UserError(
@@ -130,6 +209,8 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
                     self.turnaround_missing,
                 )
             )
+        if self.expected_collection_date and self.expected_collection_date < fields.Date.context_today(self):
+            raise UserError(self.env._("Give an expected pickup day that has not passed."))
         if self.priority_request == "requested":
             raise UserError(self.env._("Accept or decline the customer's priority request before sending."))
         deadline = self._priority_payment_deadline()
@@ -141,18 +222,46 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
                     format_date(self.env, self.committed_date),
                 )
             )
-        estimate = self.estimated_result_date
-        if not self.committed_date and self.requested_date and estimate and self.requested_date >= estimate:
-            # A requested date the standard turnaround meets is the date Sales promises.
-            self.committed_date = self.requested_date
+        estimate = self._earliest_return_date()
         if self.committed_date and estimate and self.committed_date < estimate and not self.priority:
             raise UserError(
                 self.env._(
-                    "The committed return date is earlier than the standard turnaround allows, %s. Choose a later date "
-                    "or accept a priority request.",
+                    "The expected return date is earlier than the laboratory can return results, %s. Choose a later "
+                    "date or accept a priority request.",
                     format_date(self.env, estimate),
                 )
             )
+
+    def _earliest_return_date(self) -> date | Literal[False]:
+        """The earliest date the laboratory can return the results; False without a turnaround."""
+        value = self._return_estimate()["date"]
+        return value if isinstance(value, date) else False
+
+    def _return_estimate(self):
+        """How the earliest return date is reached: the turnaround, or the laboratory's held work when it leaves the
+        order's tests to finish later, plus the safety margin, counted from the expected sample pickup. Without one it
+        counts from the day the samples can be received at the latest without delaying the order, the advance's payment
+        deadline when one is requested, otherwise today. The date is False without a turnaround."""
+        self.ensure_one()
+        if not self.turnaround_days:
+            return {"date": False}
+        now = fields.Datetime.now()
+        start = now
+        if self.expected_collection_date:
+            start = self._collection_start(self.expected_collection_date)
+        elif self.advance_method and self.advance_method != ADVANCE_NONE:
+            deadline = self.payment_deadline
+            if not deadline or deadline <= now:
+                days = (
+                    self.env["ir.config_parameter"]
+                    .sudo()
+                    .get_int(PAYMENT_DEADLINE_PARAMETER, DEFAULT_PAYMENT_DEADLINE_DAYS)
+                )
+                deadline = now + timedelta(days=days)
+            start = deadline
+        requests = self.env[MODEL_TEST_REQUEST]
+        estimate = requests._earliest_return(self._test_ways(), start, self.turnaround_days)
+        return {**estimate, "start": self.env[MODEL_SAMPLE_TEST]._local_day(start)}
 
     def _priority_payment_deadline(self):
         """The latest moment the advance of a priority order can be paid for the turnaround to meet its committed date:
@@ -169,7 +278,7 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
         return self._priority_payment_deadline() or super()._latest_payment_deadline()
 
     def action_change_committed_date(self):
-        """Open the change of the confirmed order's committed return date, recorded with the customer's agreement."""
+        """Open the change of the confirmed order's expected return date, recorded with the customer's agreement."""
         self.ensure_one()
         action = self.env["ir.actions.act_window"]._for_xml_id("sol_laboratory.action_medilab_committed_date_change")
         action["context"] = {"default_request_id": self.test_request_id.id}

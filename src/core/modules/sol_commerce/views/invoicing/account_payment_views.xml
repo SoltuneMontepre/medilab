@@ -5,14 +5,22 @@
         <field name="model">account.payment</field>
         <field name="inherit_id" ref="account.view_account_payment_form" />
         <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_title')]" position="attributes">
+                <attribute name="invisible">not name or name == '/'</attribute>
+            </xpath>
+            <xpath expr="//div[@name='amount_div']/field[@name='currency_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <xpath expr="//field[@name='partner_id'][1]" position="after">
                 <field name="method" readonly="state != 'draft'" />
                 <field name="payment_request_id" readonly="1" invisible="not payment_request_id" />
                 <field name="collection_review" invisible="not collection_review" />
                 <field name="received_at" readonly="state != 'draft' or method == 'online'" invisible="not method" />
-                <field name="reviewed_by_id" />
-                <field name="reviewed_at" />
-                <field name="rejection_reason" readonly="state != 'draft'" />
+            </xpath>
+            <xpath expr="//field[@name='payment_method_line_id']" position="after">
+                <field name="reviewed_by_id" invisible="not reviewed_by_id" />
+                <field name="reviewed_at" invisible="not reviewed_at" />
+                <field name="rejection_reason" readonly="state != 'draft'" invisible="state != 'draft' and not rejection_reason" />
                 <field name="exceeds_residual" invisible="not exceeds_residual" />
             </xpath>
             <button name="action_post" position="after">
@@ -20,6 +28,7 @@
                     name="action_reject_payment"
                     type="object"
                     string="Reject"
+                    class="btn-danger"
                     invisible="state != 'draft' or not method"
                     groups="account.group_account_invoice"
                 />

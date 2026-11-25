@@ -21,6 +21,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TASK,
     MODEL_TEST_PARAMETER,
     MODEL_TEST_RESULT,
+    MODEL_TESTING_METHOD_STEP,
 )
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER, TESTING_ACTION
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
@@ -43,7 +44,7 @@ FINISHED_STATUSES = ("approved", "cancelled")
 class SampleTest(models.Model, SampleTestBase):
     _name = MODEL_SAMPLE_TEST
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
-    _audit_children = ("booking_ids",)
+    _audit_children = ("booking_ids", "result_ids")
     _description = "Sample Test"
     _order = "sample_id, id"
     _rec_name = "parameter_id"
@@ -135,6 +136,10 @@ class SampleTest(models.Model, SampleTestBase):
         subcontractor_id = fields.Many2one(related="parameter_method_id.subcontractor_id")
         # The unit results of its way of testing are expressed in on the sample's type.
         unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, compute="_compute_unit")
+        # Steps of the testing method of its way of testing, which the tester follows.
+        method_step_ids = fields.Many2many(
+            MODEL_TESTING_METHOD_STEP, compute="_compute_method_step_ids", string="Method Steps"
+        )
         # Dispatches that send the test to a subcontractor.
         dispatch_ids = fields.Many2many(
             MODEL_SUBCONTRACT_DISPATCH,
@@ -267,6 +272,13 @@ class SampleTest(models.Model, SampleTestBase):
                 if test.parameter_method_id
                 else False
             )
+
+    @api.depends("parameter_method_id")
+    def _compute_method_step_ids(self):
+        # Steps are master data every internal user reads; only the hop to the method runs as superuser.
+        steps = self.env[MODEL_TESTING_METHOD_STEP]
+        for test in self:
+            test.method_step_ids = steps.browse(test.sudo().parameter_method_id.method_id.step_ids.ids)
 
     def _compute_subcontracted_method_ids(self):
         for test in self:
@@ -413,17 +425,26 @@ class SampleTest(models.Model, SampleTestBase):
             task.write({"status": "assigned" if task.assignee_id else "open", "done_at": False})
 
     def action_approve_booking(self):
-        """Approve the slot the department's plan proposes for each test, recalculated first. Approving needs the
-        permission to edit bookings, which the head of the department has."""
+        """Approve each current proposed slot, recalculating the plan only when its proposal is missing or stale."""
         for test in self:
             task = test._testing_task()
             if test.sudo().booking_ids.filtered(lambda booking: booking.status in ("scheduled", "in_progress")):
                 raise UserError(self.env._("%s is already holding a machine.", test.display_name))
             if not task.assignee_id:
                 raise UserError(self.env._("Assign %s to a person before approving its booking.", test.display_name))
-            self.env[MODEL_MACHINE_BOOKING]._plan(task.sudo().department_id)
             proposal = test._proposed_booking()
-            if not proposal:
+            if (
+                not test._awaits_plan()
+                or not proposal
+                or not proposal.ends_at
+                or proposal.task_id != task
+                or proposal.person_id != task.assignee_id
+                or proposal.department_id != task.department_id
+                or not proposal._proposed_slot_is_available()
+            ):
+                self.env[MODEL_MACHINE_BOOKING]._plan(task.sudo().department_id)
+                proposal = test._proposed_booking()
+            if not proposal or not proposal.ends_at:
                 raise UserError(self.env._("No machine can finish %s before its due date.", test.display_name))
             proposal.with_env(self.env).action_approve()
 

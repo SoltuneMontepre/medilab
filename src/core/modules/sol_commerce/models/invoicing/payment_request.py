@@ -40,7 +40,7 @@ class PaymentRequest(models.Model, PaymentRequestBase):
         partner_id = fields.Many2one(related="order_id.partner_id")
         # Whether the request collects the advance or the confirmed order's balance.
         kind = fields.Selection([("advance", "Advance"), ("balance", "Balance")], required=True, readonly=True)
-        # The collection method selected when Sales sent the quotation.
+        # How the customer pays the request: the order's payment method when it was made.
         advance_method = fields.Selection(
             [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash")], readonly=True
         )

@@ -36,15 +36,14 @@ export const testingTasks = (tests) =>
 // The head of department gives the tasks to the tester through the Reassign dialog.
 export const assignToTester = helper("assignToTester", function assignToTester(tasks) {
   const context = { active_ids: tasks };
-  return refAs(HEAD, "sol_demo.demo_person_tester").then((tester) =>
-    callAs(HEAD, "medilab.task.reassign", "create", [{ assignee_id: tester.id }], { context }).then((wizard) =>
-      callAs(HEAD, "medilab.task.reassign", "action_confirm", [[wizard]], { context }),
-    ),
-  );
+  return refAs(HEAD, "sol_demo.demo_person_tester")
+    .then((tester) => callAs(HEAD, "medilab.task.reassign", "create", [{ assignee_id: tester.id }], { context }))
+    .then((wizard) => callAs(HEAD, "medilab.task.reassign", "action_confirm", [[wizard]], { context }));
 });
 
 // Confirms a test request, receives its samples and has the head of department give their testing tasks to the tester.
 export const receiveRequest = helper("receiveRequest", function receiveRequest(requestId) {
+  let tests;
   callAs(STAFF, "medilab.test.request", "action_confirm", [[requestId]]);
   return callAs(STAFF, "medilab.test.request", "read", [[requestId], ["sample_ids"]])
     .then(([request]) => {
@@ -52,10 +51,20 @@ export const receiveRequest = helper("receiveRequest", function receiveRequest(r
       return callAs(STAFF, "medilab.sample", "read", [request.sample_ids, ["test_ids"]]);
     })
     .then((samples) => {
-      const tests = samples.flatMap((sample) => sample.test_ids);
-      return testingTasks(tests).then((tasks) => assignToTester(tasks).then(() => tests));
-    });
+      tests = samples.flatMap((sample) => sample.test_ids);
+      return testingTasks(tests);
+    })
+    .then((tasks) => assignToTester(tasks))
+    .then(() => tests);
 });
+
+// The tester enters and signs a passing result of the test; the head of department approves it.
+function approvePassing(testId, value) {
+  callAs(TESTER, "medilab.test.result", "create", [{ sample_test_id: testId, value, conclusion: "pass" }]).then((result) => {
+    callAs(TESTER, "medilab.test.result", "action_sign", [[result]]);
+    callAs(HEAD, "medilab.test.result", "action_sign", [[result]]);
+  });
+}
 
 // The tester enters and signs a passing result of each test; the head of department approves it.
 export const approveTests = helper("approveTests", function approveTests(testIds, cancelled = []) {
@@ -67,12 +76,7 @@ export const approveTests = helper("approveTests", function approveTests(testIds
           callAs(HEAD, "medilab.sample.test", "action_cancel", [[test.id], "Too little sample was left after the lead digestion."]);
           continue;
         }
-        callAs(TESTER, "medilab.test.result", "create", [{ sample_test_id: test.id, value: PASSING[parameter], conclusion: "pass" }]).then(
-          (result) => {
-            callAs(TESTER, "medilab.test.result", "action_sign", [[result]]);
-            callAs(HEAD, "medilab.test.result", "action_sign", [[result]]);
-          },
-        );
+        approvePassing(test.id, PASSING[parameter]);
       }
     }),
   );
@@ -83,14 +87,18 @@ export const approveTests = helper("approveTests", function approveTests(testIds
 // department cancels instead; `values` sets fields of the request, such as its report language. The browser tests
 // never sign a new report: signing needs its PDF prepared through ONLYOFFICE.
 export const draftReport = helper("draftReport", function draftReport({ samples = [[PARAMETERS.lead, PARAMETERS.ph]], cancel = [], ...values } = {}) {
+  let ids;
+  let requestId;
+  let tests;
   return refs([
     "sol_demo.demo_customer_nuoc_sach",
     "sol_demo.demo_sample_type_bottled_water",
     "sol_demo.demo_regulation_qcvn_6_1",
     ...Object.values(PARAMETERS),
   ])
-    .then((ids) =>
-      callAs(STAFF, "medilab.test.request", "create", [
+    .then((found) => {
+      ids = found;
+      return callAs(STAFF, "medilab.test.request", "create", [
         {
           customer_id: ids["sol_demo.demo_customer_nuoc_sach"],
           sample_ids: samples.map((parameters, index) => [
@@ -106,21 +114,25 @@ export const draftReport = helper("draftReport", function draftReport({ samples 
           ]),
           ...values,
         },
-      ]).then((requestId) =>
-        receiveRequest(requestId).then((tests) =>
-          callAs(HEAD, "medilab.sample.test", "read", [tests, ["parameter_id"]]).then((read) => {
-            const cancelled = read.filter((test) => cancel.some((xmlId) => ids[xmlId] === test.parameter_id[0])).map((test) => test.id);
-            return approveTests(tests, cancelled).then(() => requestId);
-          }),
-        ),
-      ),
-    )
-    .then((requestId) =>
-      callAs(LAB_HEAD, "medilab.test.report", "search", [[["request_id", "=", requestId]]]).then(([reportId]) => ({
-        request: { model: "medilab.test.request", id: requestId },
-        report: { model: "medilab.test.report", id: reportId },
-      })),
-    );
+      ]);
+    })
+    .then((created) => {
+      requestId = created;
+      return receiveRequest(requestId);
+    })
+    .then((received) => {
+      tests = received;
+      return callAs(HEAD, "medilab.sample.test", "read", [tests, ["parameter_id"]]);
+    })
+    .then((read) => {
+      const cancelled = read.filter((test) => cancel.some((xmlId) => ids[xmlId] === test.parameter_id[0])).map((test) => test.id);
+      return approveTests(tests, cancelled);
+    })
+    .then(() => callAs(LAB_HEAD, "medilab.test.report", "search", [[["request_id", "=", requestId]]]))
+    .then(([reportId]) => ({
+      request: { model: "medilab.test.request", id: requestId },
+      report: { model: "medilab.test.report", id: reportId },
+    }));
 });
 
 export const ADMIN = "demo.administrator";
@@ -152,8 +164,8 @@ export const personNames = (...xmlIds) =>
     {
       fields: ["name", "res_id"],
     },
-  ).then((rows) =>
-    callAs(ADMIN, "medilab.person", "read", [xmlIds.map((xmlId) => rows.find((row) => `sol_demo.${row.name}` === xmlId).res_id), ["name"]]).then(
-      (people) => people.map((person) => person.name),
-    ),
-  );
+  )
+    .then((rows) =>
+      callAs(ADMIN, "medilab.person", "read", [xmlIds.map((xmlId) => rows.find((row) => `sol_demo.${row.name}` === xmlId).res_id), ["name"]]),
+    )
+    .then((people) => people.map((person) => person.name));

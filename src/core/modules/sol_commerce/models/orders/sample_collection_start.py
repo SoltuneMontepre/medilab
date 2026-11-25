@@ -1,4 +1,6 @@
+from datetime import datetime, time
 from typing import TYPE_CHECKING
+from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
 
@@ -26,10 +28,18 @@ class SampleCollectionStart(models.TransientModel, SampleCollectionStartBase):
     @api.model
     def default_get(self, fields_list):
         values = super().default_get(fields_list)
-        order = self.env[MODEL_SALE_ORDER].browse(values.get("order_id"))
+        order = self.env[MODEL_SALE_ORDER].browse(values.get("order_id") or self.env.context.get("default_order_id"))
         if order and "address" in fields_list and not values.get("address"):
             values["address"] = order.customer_id._display_address()
+        if order.expected_collection_date and "appointment" in fields_list and not values.get("appointment"):
+            values["appointment"] = self._pickup_appointment(order.expected_collection_date)
         return values
+
+    def _pickup_appointment(self, day):
+        """08:00 in the company's time zone on the pickup day agreed when sending the quotation, when still to come."""
+        zone = ZoneInfo(self.env.company.tz or "UTC")
+        start = datetime.combine(day, time(8), tzinfo=zone).astimezone(ZoneInfo("UTC")).replace(tzinfo=None)
+        return start if start > fields.Datetime.now() else False
 
     def action_start(self):
         self.ensure_one()

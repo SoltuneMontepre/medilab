@@ -168,7 +168,7 @@ stateDiagram-v2
 | Expected samples | Show the expected sample count, containers and amounts calculated from method sampling requirements. The customer orders parameters and quantities, not physical samples; collection staff confirm the actual samples at handover. Extra samples or excess material add no test; the customer gets them back on request, when collecting the report in person or at a separate pickup. |
 | Requested date | The customer may give the date they want the results, kept as the order's requested date. |
 | Priority request | The customer may ask for priority with the date they want the results; a request without a date is refused. Sales accepts or declines priority on the quotation after the feasibility check; the request itself does not promise the date. |
-| Turnaround | The cart and the quotation show the working days results take from sample receipt, and the committed return date once it is agreed. |
+| Turnaround | The cart and the quotation show the working days results take from sample receipt, and the expected return date once it is agreed. |
 | Submit is not confirm | Submitting only puts the order in the sales queue. Sales then prepares the quotation.                                                  |
 | Cancel                | The customer can cancel until the order is confirmed; after that the customer can only [request cancellation](#request-cancel-us-c12). Cancel asks for confirmation first, saying the order is cancelled for good. |
 | Reorder               | See [Reorder](#reorder-us-c10).                                                                                                        |
@@ -213,7 +213,7 @@ stateDiagram-v2
 | When                          | Only on a confirmed order that is not yet completed. Before confirmation the customer cancels directly.                                                                                                                                  |
 | Reason required               | The request needs a reason. The salesperson receives a to-do and the reason is kept in the order's history.                                                                                                                              |
 | One open request              | An order can have only one open request. The customer can withdraw it while it is undecided.                                                                                                                                             |
-| Sales decides | Sales accepts or declines with a reply. A whole-order cancellation cancels the order and its laboratory work. When a new committed return date is refused, Sales handles a request for the unfulfillable part and retains the rest, including completed results. |
+| Sales decides | Sales accepts or declines with a reply. A whole-order cancellation cancels the order and its laboratory work. When a new expected return date is refused, Sales handles a request for the unfulfillable part and retains the rest, including completed results. |
 | Blocked cases | Whole-order cancellation is blocked if any testing is completed or results released. Cancelling an unfulfillable part preserves completed work and follows the affected sample-test cancellation rules. Once the order's samples are collected, accepting goes through a change request the Head of Sales approves. Sales tells the customer the decision. |
 | Order keeps running meanwhile | A pending request does not pause the laboratory; testing continues until sales accepts.                                                                                                                                                  |
 | Money                         | There is no refund flow. If an advance was paid, the money stays on the order and sales settles it with the customer outside the system. A cancellation is refused while a payment awaits the accountant. The customer is told this when sending the request.                                           |
@@ -228,7 +228,7 @@ Acceptance criteria:
 
 ### 3. Quotation, acceptance and payment (US-C13 to US-C17)
 
-- The quotation page shows the parameters, prices, the payment deadline, the advance payment request with the money verified and still needed, the customer's requested date and the committed return date. Internal due dates are never shown to the customer.
+- The quotation page shows the parameters, prices, the payment deadline, the advance payment request with the money verified and still needed, the customer's requested date and the expected return date. Internal due dates are never shown to the customer.
 - **Acceptance is payment.** Verified payments reaching the advance mean the customer accepted; a partial advance does not, and declining is refused while a payment awaits the accountant. A quotation sent without an advance is accepted on the portal with **Accept quotation**.
 - The customer can decline a sent quotation with a reason; the salesperson is notified and the order is not cancelled.
 - When sales creates a new revision of a quotation, the customer sees a banner and the list of revisions.
@@ -246,7 +246,7 @@ The portal maps the internal states to four customer-facing labels:
 | Completed | All samples completed                   |
 | Cancelled | Order cancelled                         |
 
-Each order shows its requested date and committed return date. Results are available for download only after the laboratory has released them (testing is completed and the results are approved). The customer gets the latest version of the result document.
+Each order shows its requested date and expected return date. Results are available for download only after the laboratory has released them (testing is completed and the results are approved). The customer gets the latest version of the result document.
 
 ### 5. Notifications (US-C07, US-C18)
 

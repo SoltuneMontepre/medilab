@@ -3,6 +3,7 @@ import { onPhone, signedInPhone } from "../../../../support/mobile";
 
 const TESTER = "demo.tester";
 const HEAD = "demo.head_of_department";
+const ADMINISTRATOR = "demo.administrator";
 
 // The direct conversation of demo.tester and the head of Chemistry, opened on the tester's phone as Discuss opens it.
 function directConversation(key) {
@@ -61,16 +62,16 @@ describe("Medilab Mobile conversations in Discuss", () => {
     );
   });
 
-  it("TC-F521-A3 shows a note posted from the phone in the sample's chatter on the web", () => {
+  it("TC-F521-A3 shows a note posted from the phone in the test request's chatter on the web", () => {
     const note = `Lá ngoài còn ướt, cần đồng nhất lại ${randomId()}`;
-    refAs(HEAD, "sol_demo.demo_sample_cabbage_received").then(({ id: sampleId }) =>
-      signedInPhone(HEAD).then((key) => {
-        onPhone(key, "POST", `/documents/medilab.sample/${sampleId}/notes`, { text: note }, { "Idempotency-Key": randomId() })
+    refAs(ADMINISTRATOR, "sol_demo.demo_test_request_testing").then(({ id: requestId }) =>
+      signedInPhone(ADMINISTRATOR).then((key) => {
+        onPhone(key, "POST", `/documents/medilab.test.request/${requestId}/notes`, { text: note }, { "Idempotency-Key": randomId() })
           .its("body.note")
           .should("eq", true);
 
-        signIn(HEAD);
-        cy.visit(`/odoo/medilab.sample/${sampleId}`);
+        signIn(ADMINISTRATOR);
+        cy.visit(`/odoo/medilab.test.request/${requestId}`);
         cy.contains(".o-mail-Message", note).should("be.visible");
       }),
     );

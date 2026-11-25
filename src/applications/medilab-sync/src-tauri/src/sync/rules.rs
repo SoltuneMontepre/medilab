@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
-use std::path::{Component, Path};
+use std::ffi::OsStr;
+use std::path::{Component, Path, PathBuf};
 
 /// Một rule đặt tên/lọc tệp áp cho một folder, cấu hình trong Odoo (khớp phần mở rộng, tiền
 /// tố, hoặc glob).
@@ -16,7 +17,7 @@ pub struct SyncRule {
 pub fn is_ignored(relative: &str) -> bool {
     let name = Path::new(relative)
         .file_name()
-        .and_then(|n| n.to_str())
+        .and_then(OsStr::to_str)
         .unwrap_or(relative);
     name.starts_with("~$")
         || name.ends_with(".tmp")
@@ -36,10 +37,7 @@ pub fn matches_rules(relative: &str, recursive: bool, rules: &[SyncRule]) -> boo
     if !recursive && path.components().count() > 1 {
         return false;
     }
-    let name = path
-        .file_name()
-        .and_then(|n| n.to_str())
-        .unwrap_or(relative);
+    let name = path.file_name().and_then(OsStr::to_str).unwrap_or(relative);
     let enabled: Vec<_> = rules.iter().filter(|rule| rule.enabled).collect();
     if enabled.is_empty() {
         return true;
@@ -47,7 +45,7 @@ pub fn matches_rules(relative: &str, recursive: bool, rules: &[SyncRule]) -> boo
     enabled.iter().any(|rule| match rule.kind.as_str() {
         "prefix" => name.starts_with(&rule.pattern),
         "extension" => {
-            let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+            let ext = path.extension().and_then(OsStr::to_str).unwrap_or("");
             let expected = rule.pattern.trim_start_matches('.');
             ext.eq_ignore_ascii_case(expected)
         }
@@ -66,6 +64,16 @@ pub fn relative_path(root: &Path, file: &Path) -> Option<String> {
         return None;
     }
     Some(rel.to_string_lossy().replace('\\', "/"))
+}
+
+/// Đường dẫn trên máy của tệp `relative` trong thư mục `root`; `None` nếu `relative` là đường dẫn
+/// tuyệt đối hoặc chứa `..`, tức thoát khỏi thư mục.
+pub fn local_path(root: &Path, relative: &str) -> Option<PathBuf> {
+    let relative = Path::new(relative);
+    relative
+        .components()
+        .all(|c| matches!(c, Component::Normal(_) | Component::CurDir))
+        .then(|| root.join(relative))
 }
 
 #[cfg(test)]
@@ -90,6 +98,20 @@ mod tests {
         assert!(matches_rules("ABC_RESULT.pdf", true, &rules));
         assert!(!matches_rules("XYZ_001.xlsx", true, &rules));
         assert!(!matches_rules("~$ABC.xlsx", true, &rules));
+    }
+
+    /// Đường dẫn trên máy của một tệp nằm trong thư mục đã gắn; đường dẫn tuyệt đối hoặc có `..`
+    /// thì bị từ chối.
+    #[test]
+    fn local_path_stays_inside_the_folder() {
+        let root = Path::new("/data/lab");
+        assert_eq!(
+            local_path(root, "HPLC/run-01.csv"),
+            Some(root.join("HPLC").join("run-01.csv"))
+        );
+        assert_eq!(local_path(root, "../secrets.txt"), None);
+        assert_eq!(local_path(root, "HPLC/../../secrets.txt"), None);
+        assert_eq!(local_path(root, "/etc/passwd"), None);
     }
 
     /// Nhiều rule bật cùng lúc phải khớp theo kiểu OR (khớp bất kỳ rule nào là đủ).

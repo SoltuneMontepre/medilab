@@ -27,6 +27,8 @@ export type IpcCommandName =
   | "accept_server_version"
   | "keep_local_conflict"
   | "open_office_editor"
+  | "open_sync_folder"
+  | "open_sync_file"
   | "get_client_migration"
   | "open_client_download"
   | "check_update"
@@ -98,7 +100,7 @@ function recordToDebugConsole(metric: SafeIpcPerformanceMetric): void {
 }
 
 /** Gọi Tauri invoke thật; helper này giúp factory nhận dependency generic có kiểu rõ ràng. */
-async function invokeTauri<T>(command: IpcCommandName, args?: InvokeArgs): Promise<T> {
+function invokeTauri<T>(command: IpcCommandName, args?: InvokeArgs): Promise<T> {
   return invoke<T>(command, args);
 }
 

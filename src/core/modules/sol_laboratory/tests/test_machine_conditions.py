@@ -92,6 +92,15 @@ class TestMachineConditions(ResultCase):
         self.service(self.fast, "maintenance", "2026-10-12")
         self.assertEqual(self.recommend(), (self.fast, MONDAY))
 
+    def test_recorded_maintenance_due_date_takes_precedence_over_interval(self):
+        self.fast.maintenance_interval_days = 30
+        self.service(self.fast, "maintenance", "2026-10-12", next_due_date="2026-10-11")
+
+        self.assertEqual(str(self.fast.next_maintenance_date), "2026-10-11")
+        self.assertFalse(self.recommend())
+        with self.assertRaisesRegex(ValidationError, "maintenance"), self.env.cr.savepoint():
+            self.place(self.fast, MONDAY, MONDAY + SLOT)
+
     def test_planned_maintenance_reserves_its_downtime(self):
         booking = self.schedule(self.test, self.tester)
         self.assertEqual(booking.starts_at, MONDAY)

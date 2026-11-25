@@ -19,6 +19,8 @@ export type FolderRow = {
   category?: string | null;
   workflow_status?: string | null;
   instrument_label?: string | null;
+  /** `upload_only` (chỉ gửi lên) hoặc `two_way` (gửi lên và tải về), do máy chủ quyết định. */
+  sync_mode?: string | null;
   access_state?: string;
 };
 
@@ -138,6 +140,8 @@ export type AppSettings = {
   download_concurrency?: number;
   /** Setting ẩn: số part của một tệp được PUT cùng lúc. */
   part_concurrency?: number;
+  /** Thư mục chính trên máy này; thư mục của các mẫu đang thử được tự thêm vào bên trong. */
+  home_folder?: string | null;
 };
 
 /** Danh tính tối thiểu của một user do server trả về: chỉ id, tên và login (để phân biệt trùng tên). */

@@ -138,12 +138,12 @@ jobs:
 
       - name: Bundle the code update
         run: |
-          bun x expo export --platform android --output-dir dist
-          bun x expo config --type public --json > "$RUNNER_TEMP/expo-config.json"
+          node_modules/.bin/expo export --platform android --output-dir dist
+          node_modules/.bin/expo config --type public --json > "$RUNNER_TEMP/expo-config.json"
 
       - name: Build the APK
         run: |
-          bun x expo prebuild --platform android
+          node_modules/.bin/expo prebuild --platform android
           cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
 
       # Gradle signs with the debug key; apksigner replaces that signature with the upload key's.

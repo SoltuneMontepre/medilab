@@ -116,7 +116,7 @@ class TestPlanRevision(PlanRevisionCase):
         held = self.open_revision()
         self.assertEqual(self.moves(held)[self.y][0], "held_back")
 
-        # Sales records the customer's agreement by changing the committed return date of Y's test request.
+        # Sales records the customer's agreement by changing the expected return date of Y's test request.
         self.y_test.sample_id.request_id.committed_date = "2026-10-20"
 
         revision = self.open_revision()

@@ -135,6 +135,16 @@ export async function bindSharedFolder(payload: {
   return profiledInvoke<StatusDto>("bind_shared_folder", { args: payload });
 }
 
+/** Mở một thư mục đã đồng bộ trong trình quản lý tệp. */
+export async function openSyncFolder(folderId: number) {
+  return profiledInvoke<void>("open_sync_folder", { folderId });
+}
+
+/** Mở một tệp đã đồng bộ bằng chương trình mặc định của nó. */
+export async function openSyncFile(fileId: number) {
+  return profiledInvoke<void>("open_sync_file", { fileId });
+}
+
 /** Đặt lại một job lỗi để thử lại. */
 export async function retrySyncJob(jobId: number) {
   return profiledInvoke<StatusDto>("retry_sync_job", { jobId });
@@ -151,37 +161,37 @@ export async function saveSettings(settings: AppSettings) {
 }
 
 /** Lắng nghe sự kiện đổi trạng thái đồng bộ từ backend. */
-export async function onStatusChanged(handler: (status: StatusDto) => void): Promise<UnlistenFn> {
+export function onStatusChanged(handler: (status: StatusDto) => void): Promise<UnlistenFn> {
   const profiledHandler = profileStatusEventHandler(handler);
   return listen<StatusDto>("sync-status-changed", (event) => profiledHandler(event.payload));
 }
 
 /** Lắng nghe sự kiện phát hiện xung đột mới từ backend. */
-export async function onConflictCreated(handler: (payload: unknown) => void): Promise<UnlistenFn> {
+export function onConflictCreated(handler: (payload: unknown) => void): Promise<UnlistenFn> {
   return listen("conflict-created", (event) => handler(event.payload));
 }
 
 /** Lắng nghe sự kiện lỗi đồng bộ từ backend. */
-export async function onSyncError(handler: (payload: unknown) => void): Promise<UnlistenFn> {
+export function onSyncError(handler: (payload: unknown) => void): Promise<UnlistenFn> {
   return listen("sync-error", (event) => handler(event.payload));
 }
 
 /** Lắng nghe tiến độ tải lên (delta) cho từng job. */
-export async function onUploadProgress(
+export function onUploadProgress(
   handler: (progress: ProgressDeltaDto) => void,
 ): Promise<UnlistenFn> {
   return listen<ProgressDeltaDto>("upload-progress", (event) => handler(event.payload));
 }
 
 /** Lắng nghe tiến độ tải xuống (delta) cho từng job. */
-export async function onDownloadProgress(
+export function onDownloadProgress(
   handler: (progress: ProgressDeltaDto) => void,
 ): Promise<UnlistenFn> {
   return listen<ProgressDeltaDto>("download-progress", (event) => handler(event.payload));
 }
 
 /** Lắng nghe sự kiện danh sách tệp thay đổi ngữ nghĩa từ backend. */
-export async function onFilesChanged(
+export function onFilesChanged(
   handler: (payload: FilesChangedDto) => void,
 ): Promise<UnlistenFn> {
   return listen<FilesChangedDto>("sync-files-changed", (event) => handler(event.payload));
@@ -246,7 +256,7 @@ export function dismissUpdateSession(): void {
 }
 
 /** Lắng nghe sự kiện có bản cập nhật mới từ backend. */
-export async function onUpdateAvailable(
+export function onUpdateAvailable(
   handler: (info: UpdateAvailable) => void,
 ): Promise<UnlistenFn> {
   return listen<UpdateAvailable>("update-available", (event) => handler(event.payload));

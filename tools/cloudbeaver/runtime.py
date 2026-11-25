@@ -4,6 +4,7 @@ import hashlib
 import http.cookiejar
 import json
 import os
+import secrets
 import subprocess
 import sys
 import time
@@ -13,9 +14,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 IMAGE = "docker.io/dbeaver/cloudbeaver:26.2.2"
-PASSWORD = "LocalRegression9"
+BASH = "/bin/bash"
+# Synthetic credentials, new for each test run.
+PASSWORD = f"Local{secrets.token_hex(8)}9"
+DATABASE_PASSWORD = f"Database{secrets.token_hex(8)}9"
 SPECIAL_USER = 'regression"\\user'
-SPECIAL_PASSWORD = "Regression9\"'\\\n\t$`unicode-ệ"
+SPECIAL_PASSWORD = f"Regression9{secrets.token_hex(4)}\"'\\\n\t$`unicode-ệ"
 
 
 def engine(*args, check=True, input=None, timeout=600):
@@ -90,7 +94,7 @@ class Runtime:
             *self.mounts(),
             *self.environment(),
             "--entrypoint",
-            "/bin/bash",
+            BASH,
             IMAGE,
             "-c",
             command,
@@ -101,7 +105,7 @@ class Runtime:
         return self.helper("/bin/bash /bootstrap/prepare.sh", check=check)
 
     def start(self):
-        command = ["--entrypoint", "/bin/bash"] if self.guarded else []
+        command = ["--entrypoint", BASH] if self.guarded else []
         engine(
             "run",
             "-d",
@@ -181,7 +185,7 @@ class Runtime:
         return self.query("{ activeUser { userId } }")["data"]["activeUser"]["userId"]
 
     def ready(self):
-        return engine("exec", self.name, "/bin/bash", "/bootstrap/ready.sh", check=False).returncode == 0
+        return engine("exec", self.name, BASH, "/bootstrap/ready.sh", check=False).returncode == 0
 
     def stop(self):
         engine("stop", "--time", "30", self.name, check=False)
@@ -197,7 +201,7 @@ class Runtime:
             "-i",
             *self.mounts(),
             "--entrypoint",
-            "/bin/bash",
+            BASH,
             IMAGE,
             "-c",
             'umask 077; mkdir -p "$(dirname "$1")"; cat > "$1"',

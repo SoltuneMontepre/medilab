@@ -30,6 +30,9 @@ SAME_METHOD_SAMPLE = ("Nước uống đóng chai Suối Mát lô 2611",)
 SAME_METHOD_REASON = "Máy ICP-MS đang hiệu chuẩn lại; Northern thử chì cùng phương pháp ICP-MS khách hàng đã chấp nhận."
 REPORT_NAME = "PKQ-NTL-2026-0412.pdf"
 SURFACE_WATER = ("surface_water", "liquid")
+HEAD_OF_DEPARTMENT = "sol_demo.demo_res_users_head_of_department"
+NORTHERN_WAY = "sol_demo.demo_parameter_method_lead_subcontracted"
+BOTTLES = "2 bottles"
 
 
 def seed_dispatches(env):
@@ -41,15 +44,15 @@ def seed_dispatches(env):
     env["ir.config_parameter"].sudo().set_int(SAMPLE_DELIVERY_ROLE_PARAMETER, delivery_role.id)
     if env.ref("sol_demo.demo_subcontract_dispatch_draft", raise_if_not_found=False):
         return
-    head = env.ref("sol_demo.demo_res_users_head_of_department")
+    head = env.ref(HEAD_OF_DEPARTMENT)
     tester = env.ref("sol_demo.demo_res_users_tester")
     subcontractor_user = env.ref("sol_demo.demo_res_users_subcontractor")
     courier = env.ref("sol_demo.demo_person_sample_delivery_staff")
-    northern = env.ref("sol_demo.demo_parameter_method_lead_subcontracted")
+    northern = env.ref(NORTHERN_WAY)
     southern = env.ref("sol_demo.demo_parameter_method_chlorpyrifos_ug")
     today = fields.Date.today()
 
-    water = _received_tests(env, "nuoc_sach", SURFACE_WATER, "lead", WATER_SAMPLES, "2 bottles")
+    water = _received_tests(env, "nuoc_sach", SURFACE_WATER, "lead", WATER_SAMPLES, BOTTLES)
     cabbage = _received_tests(env, "green_farm", ("cabbage", "solid"), "chlorpyrifos", CABBAGE_SAMPLES, "1 kg")
     carried = _send(head, water[0], northern, today, today + timedelta(days=6), courier_id=courier.id)
     posted = _send(head, cabbage[0], southern, today, today + timedelta(days=9), **POSTED)
@@ -64,7 +67,7 @@ def seed_dispatches(env):
 
     suggested = env.ref("sol_demo.demo_sample_test_lead_outsourcing")
     draft = suggested.with_user(head)._accept_outsourcing(northern)
-    river = _received_tests(env, "nuoc_sach", SURFACE_WATER, "lead", RIVER_SAMPLES, "2 bottles")
+    river = _received_tests(env, "nuoc_sach", SURFACE_WATER, "lead", RIVER_SAMPLES, BOTTLES)
     river.outsourcing_suggested = False
     river[0].with_user(head)._outsource_now(northern, EMERGENCY_REASON)
     _xml_id(env, "demo_sample_test_lead_emergency_outsourced", river[0])
@@ -86,13 +89,13 @@ def seed_agreed_outsourcing(env):
     dispatch received with the subcontractor's result keeps its report."""
     if env.ref("sol_demo.demo_sample_test_lead_agreed_subcontracted", raise_if_not_found=False):
         return
-    head = env.ref("sol_demo.demo_res_users_head_of_department")
-    northern = env.ref("sol_demo.demo_parameter_method_lead_subcontracted")
+    head = env.ref(HEAD_OF_DEPARTMENT)
+    northern = env.ref(NORTHERN_WAY)
     in_house = env.ref("sol_demo.demo_parameter_method_lead_aas")
 
-    agreed = _received_tests(env, "nuoc_sach", SURFACE_WATER, "lead", AGREED_SAMPLE, "2 bottles", way=northern)
+    agreed = _received_tests(env, "nuoc_sach", SURFACE_WATER, "lead", AGREED_SAMPLE, BOTTLES, way=northern)
     agreed.with_user(head)._accept_outsourcing(northern)
-    changed = _received_tests(env, "nuoc_sach", SURFACE_WATER, "lead", IN_HOUSE_SAMPLE, "2 bottles", way=in_house)
+    changed = _received_tests(env, "nuoc_sach", SURFACE_WATER, "lead", IN_HOUSE_SAMPLE, BOTTLES, way=in_house)
     changed.outsourcing_suggested = False
     # A blank page stands for the report Northern Testing Laboratory returned.
     report = PdfFileWriter()
@@ -111,12 +114,12 @@ def seed_same_method_outsourcing(env):
     Northern, a subcontractor with the same method, without asking the customer."""
     if env.ref("sol_demo.demo_sample_test_lead_same_method_outsourced", raise_if_not_found=False):
         return
-    head = env.ref("sol_demo.demo_res_users_head_of_department")
+    head = env.ref(HEAD_OF_DEPARTMENT)
     in_house = env.ref("sol_demo.demo_parameter_method_lead_icpms")
-    northern = env.ref("sol_demo.demo_parameter_method_lead_subcontracted")
+    northern = env.ref(NORTHERN_WAY)
 
     test = _received_tests(
-        env, "nuoc_sach", ("bottled_water", "liquid"), "lead", SAME_METHOD_SAMPLE, "2 bottles", way=in_house
+        env, "nuoc_sach", ("bottled_water", "liquid"), "lead", SAME_METHOD_SAMPLE, BOTTLES, way=in_house
     )
     test.outsourcing_suggested = False
     test.with_user(head)._outsource_now(northern, SAME_METHOD_REASON)

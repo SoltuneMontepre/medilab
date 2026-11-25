@@ -1,3 +1,5 @@
+import { openMenu, openRow } from "../../../support/form";
+import { MENU } from "../../../support/menus";
 import { callAs, refAs } from "../../../support/odoo";
 import { PARAMETERS, assign, book, receivedSample, testingTasks as sampleTestingTasks, testOf } from "../wf-03-testing-scheduling/setup";
 import { ADMINISTRATOR, TESTER, assignedTest } from "../wf-05-outsourced-testing/setup";
@@ -6,6 +8,17 @@ import { helper } from "../../../support/steps";
 export { TESTER, assignedTest };
 export const HEAD = "demo.head_of_department";
 export const LAB_HEAD = "demo.lab_head";
+
+// The head of department opens the sent result of the test from the results list and approves it, which approves the test.
+export function approveAsHead(test, result) {
+  cy.signInAs("head_of_department");
+  openMenu(MENU.laboratory, MENU.results, MENU.testResults);
+  openRow(test.code);
+  cy.signRecord();
+  cy.get(".o_form_view .o_statusbar_buttons button[name=action_sign]").should("not.exist");
+  cy.readRecord(result, ["status"]).its("status").should("eq", "approved");
+  return cy.readRecord(test, ["status"]).its("status").should("eq", "approved");
+}
 
 // The testing tasks of a sample test, oldest first.
 export function testingTasks(test) {
@@ -50,10 +63,12 @@ export const approvedResult = helper("approvedResult", function approvedResult(t
 
 // A lead test assigned to the tester and booked on its machine, which chooses its way of testing.
 export function bookedLead() {
-  return receivedSample([PARAMETERS.lead]).then((sample) => {
-    assign(sample);
-    return testOf(sample, PARAMETERS.lead).then((lead) => book(lead).then(() => lead));
-  });
+  return receivedSample([PARAMETERS.lead])
+    .then((sample) => {
+      assign(sample);
+      return testOf(sample, PARAMETERS.lead);
+    })
+    .then((lead) => book(lead).then(() => lead));
 }
 
 // A bottled water sample whose lead and pH tests are assigned to the tester. The lead test is booked on its machine

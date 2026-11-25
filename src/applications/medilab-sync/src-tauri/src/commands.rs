@@ -5,13 +5,13 @@ use crate::api::{
 use crate::auth;
 use crate::config::AppSettings;
 use crate::error::{AppError, AppResult};
-use crate::storage::{FolderRow, JobRow, RemoteFileRow};
+use crate::storage::{Db, FolderRow, JobRow, RemoteFileRow};
 use crate::sync::engine::{to_rule_dtos, EngineHandle, StatusDto};
 use crate::sync::rules::SyncRule;
 use serde::{Deserialize, Serialize};
 #[cfg(target_os = "linux")]
 use std::io::ErrorKind;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 #[cfg(target_os = "linux")]
 use std::process::Command;
 use tauri::{AppHandle, State};
@@ -122,7 +122,7 @@ fn client_uid(engine: &EngineHandle) -> AppResult<String> {
 #[tracing::instrument(level = "debug", skip_all, fields(command = "login"))]
 pub async fn login(state: State<'_, AppState>, args: LoginArgs) -> Result<StatusDto, String> {
     let engine = state.engine.clone();
-    let uid = client_uid(&engine).map_err(String::from)?;
+    let uid = client_uid(&engine)?;
     let response = ApiClient::login(
         &args.odoo_url,
         &args.login,
@@ -132,17 +132,15 @@ pub async fn login(state: State<'_, AppState>, args: LoginArgs) -> Result<Status
         env!("CARGO_PKG_VERSION"),
         &uid,
     )
-    .await
-    .map_err(String::from)?;
+    .await?;
     let pending = crate::sign_in_state::PendingSignIn::save(
         &engine.db,
         &args.odoo_url,
         &args.login,
         response.device_id,
         &response.api_key,
-    )
-    .map_err(String::from)?;
-    auth::save_api_key(&response.api_key).map_err(String::from)?;
+    )?;
+    auth::save_api_key(&response.api_key)?;
     let settings = pending.commit(&engine.db)?;
     *engine.settings.lock().await = settings;
     crate::client_migration::clear(&args.odoo_url);
@@ -296,8 +294,8 @@ pub async fn register_sync_folder(
     args: RegisterFolderArgs,
 ) -> Result<StatusDto, String> {
     let engine = state.engine.clone();
-    let path = ensure_dir(&args.local_path).map_err(String::from)?;
-    let client = engine.client().await.map_err(String::from)?;
+    let path = ensure_dir(&args.local_path)?;
+    let client = engine.client().await?;
     // Creating a folder sends only its server name; binding existing folders uses their ID.
     let remote = client
         .create_folder(
@@ -305,18 +303,14 @@ pub async fn register_sync_folder(
             &args.logical_root,
             &to_rule_dtos(&args.rules),
         )
-        .await
-        .map_err(String::from)?;
-    let folder_id = engine
-        .db
-        .upsert_folder(
-            path.to_string_lossy().as_ref(),
-            &args.logical_root,
-            Some(remote.id),
-            args.recursive,
-            &args.rules,
-        )
-        .map_err(String::from)?;
+        .await?;
+    let folder_id = engine.db.upsert_folder(
+        path.to_string_lossy().as_ref(),
+        &args.logical_root,
+        Some(remote.id),
+        args.recursive,
+        &args.rules,
+    )?;
     let _ = engine.db.apply_folder_lab_context(folder_id, &remote);
     let _ = engine.db.retry_failed_jobs_for_folder(folder_id);
     // Folder trên server có thể đã có tệp (đăng ký cùng tên từ máy khác): hydrate ngay như khi gắn.
@@ -346,7 +340,16 @@ pub async fn unregister_sync_folder(
     folder_id: i64,
 ) -> Result<StatusDto, String> {
     let engine = state.engine.clone();
-    engine.db.delete_folder(folder_id).map_err(String::from)?;
+    let folders = engine.db.list_folders()?;
+    if let Some(remote_id) = folders
+        .iter()
+        .find(|folder| folder.id == folder_id)
+        .and_then(|folder| folder.remote_id)
+    {
+        // Người dùng đã chủ động ngừng: không tự gắn lại folder mẫu này vào thư mục chính.
+        engine.db.set_auto_bind_skipped(remote_id, true)?;
+    }
+    engine.db.delete_folder(folder_id)?;
     let _ = engine.reconcile_all().await;
     engine.emit_files_changed();
     engine.emit_status();
@@ -385,10 +388,7 @@ pub async fn add_folder_member(
     user_id: i64,
 ) -> Result<FolderMembersDto, String> {
     let client = require_client(&state.engine).await?;
-    client
-        .add_member(remote_id, user_id)
-        .await
-        .map_err(String::from)?;
+    client.add_member(remote_id, user_id).await?;
     client.list_members(remote_id).await.map_err(String::from)
 }
 
@@ -405,10 +405,7 @@ pub async fn remove_folder_member(
     member_id: i64,
 ) -> Result<FolderMembersDto, String> {
     let client = require_client(&state.engine).await?;
-    client
-        .remove_member(remote_id, member_id)
-        .await
-        .map_err(String::from)?;
+    client.remove_member(remote_id, member_id).await?;
     client.list_members(remote_id).await.map_err(String::from)
 }
 
@@ -444,8 +441,7 @@ pub struct BindSharedFolderArgs {
 fn bound_remote_ids(engine: &EngineHandle) -> Result<Vec<i64>, String> {
     Ok(engine
         .db
-        .list_folders()
-        .map_err(String::from)?
+        .list_folders()?
         .into_iter()
         .filter_map(|folder| folder.remote_id)
         .collect())
@@ -458,7 +454,7 @@ fn bound_remote_ids(engine: &EngineHandle) -> Result<Vec<i64>, String> {
 pub async fn list_shared_folders(state: State<'_, AppState>) -> Result<UnboundFoldersDto, String> {
     let engine = state.engine.clone();
     let client = require_client(&engine).await?;
-    let remotes = client.list_folders().await.map_err(String::from)?;
+    let remotes = client.list_folders().await?;
     Ok(unbound_folders(remotes, &bound_remote_ids(&engine)?))
 }
 
@@ -474,10 +470,10 @@ pub async fn bind_shared_folder(
     args: BindSharedFolderArgs,
 ) -> Result<StatusDto, String> {
     let engine = state.engine.clone();
-    let path = ensure_dir(&args.local_path).map_err(String::from)?;
+    let path = ensure_dir(&args.local_path)?;
     let local_path = path.to_string_lossy().into_owned();
     // upsert theo local_path sẽ ghi đè binding cũ, nên chặn đường dẫn đã dùng.
-    let folders = engine.db.list_folders().map_err(String::from)?;
+    let folders = engine.db.list_folders()?;
     if folders
         .iter()
         .any(|folder| folder.local_path == local_path && folder.remote_id.is_some())
@@ -485,9 +481,8 @@ pub async fn bind_shared_folder(
         return Err("Thư mục trên máy này đã được dùng cho một thư mục đồng bộ khác".into());
     }
     let client = require_client(&engine).await?;
-    let remotes = client.list_folders().await.map_err(String::from)?;
-    let remote = folder_to_bind(remotes, args.remote_id, &bound_remote_ids(&engine)?)
-        .map_err(String::from)?;
+    let remotes = client.list_folders().await?;
+    let remote = folder_to_bind(remotes, args.remote_id, &bound_remote_ids(&engine)?)?;
     let rules: Vec<SyncRule> = remote
         .rules
         .iter()
@@ -498,17 +493,15 @@ pub async fn bind_shared_folder(
             enabled: rule.enabled,
         })
         .collect();
-    let folder_id = engine
-        .db
-        .upsert_folder(
-            &local_path,
-            &remote.logical_root,
-            Some(remote.id),
-            args.recursive,
-            &rules,
-        )
-        .map_err(String::from)?;
+    let folder_id = engine.db.upsert_folder(
+        &local_path,
+        &remote.logical_root,
+        Some(remote.id),
+        args.recursive,
+        &rules,
+    )?;
     let _ = engine.db.apply_folder_lab_context(folder_id, &remote);
+    let _ = engine.db.set_auto_bind_skipped(remote.id, false);
     // Binding đã lưu xong. Hydrate ngay từ trạng thái hiện tại của folder trên server để hàng đợi
     // tải xuống có việc tức thì; hydrate lỗi (mất mạng...) không gỡ binding — cờ bền để poll thử lại.
     let _ = engine.db.set_needs_hydration(folder_id, true);
@@ -550,7 +543,7 @@ pub fn get_sync_status(state: State<'_, AppState>) -> Result<StatusDto, String> 
     fields(command = "retry_sync_job", job_id = job_id)
 )]
 pub fn retry_sync_job(state: State<'_, AppState>, job_id: i64) -> Result<StatusDto, String> {
-    state.engine.db.retry_job(job_id).map_err(String::from)?;
+    state.engine.db.retry_job(job_id)?;
     state.engine.emit_status();
     state.engine.status_snapshot().map_err(String::from)
 }
@@ -559,14 +552,10 @@ pub fn retry_sync_job(state: State<'_, AppState>, job_id: i64) -> Result<StatusD
 #[tauri::command]
 #[tracing::instrument(level = "debug", skip_all, fields(command = "list_sync_folders"))]
 pub fn list_sync_folders(state: State<'_, AppState>) -> Result<Vec<FolderView>, String> {
-    let folders = state.engine.db.list_folders().map_err(String::from)?;
+    let folders = state.engine.db.list_folders()?;
     let mut out = Vec::new();
     for folder in folders {
-        let rules = state
-            .engine
-            .db
-            .folder_rules(folder.id)
-            .map_err(String::from)?;
+        let rules = state.engine.db.folder_rules(folder.id)?;
         out.push(FolderView { folder, rules });
     }
     Ok(out)
@@ -592,33 +581,29 @@ pub fn get_settings(state: State<'_, AppState>) -> Result<AppSettings, String> {
 pub async fn save_settings(
     app: AppHandle,
     state: State<'_, AppState>,
-    settings: AppSettings,
+    mut settings: AppSettings,
 ) -> Result<StatusDto, String> {
     crate::server_url::endpoint(&settings.odoo_url, "medilab/api/v1")?;
+    if let Some(home) = settings
+        .home_folder
+        .take()
+        .filter(|home| !home.trim().is_empty())
+    {
+        let home = ensure_dir(&home)?;
+        settings.home_folder = Some(home.to_string_lossy().into_owned());
+    }
+    let home_changed = state.engine.settings.lock().await.home_folder != settings.home_folder;
     let previous = state.engine.settings.lock().await.odoo_url.clone();
     if !crate::server_url::same_base(&previous, &settings.odoo_url) {
+        state.engine.db.meta_set("credential_origin", &previous)?;
         state
             .engine
             .db
-            .meta_set("credential_origin", &previous)
-            .map_err(String::from)?;
-        state
-            .engine
-            .db
-            .meta_set("laboratory_api_version", "rebind")
-            .map_err(String::from)?;
-        state
-            .engine
-            .db
-            .migrate_laboratory_api()
-            .map_err(String::from)?;
+            .meta_set("laboratory_api_version", "rebind")?;
+        state.engine.db.migrate_laboratory_api()?;
         state.engine.session.clear();
     }
-    state
-        .engine
-        .db
-        .save_settings(&settings)
-        .map_err(String::from)?;
+    state.engine.db.save_settings(&settings)?;
     {
         let mut current = state.engine.settings.lock().await;
         *current = settings.clone();
@@ -631,6 +616,14 @@ pub async fn save_settings(
         let _ = app.autolaunch().enable();
     } else {
         let _ = app.autolaunch().disable();
+    }
+    if home_changed && settings.home_folder.is_some() {
+        // Gắn ngay folder của các mẫu đang thử, không chờ chu kỳ hỏi server kế tiếp; chạy nền để
+        // lưu cài đặt không phải chờ mạng.
+        let engine = state.engine.clone();
+        tauri::async_runtime::spawn(async move {
+            let _ = engine.poll_remote_changes().await;
+        });
     }
     state.engine.emit_status();
     state.engine.status_snapshot().map_err(String::from)
@@ -648,22 +641,18 @@ pub async fn update_sync_rules(
     folder_id: i64,
     rules: Vec<SyncRule>,
 ) -> Result<StatusDto, String> {
-    let folders = state.engine.db.list_folders().map_err(String::from)?;
+    let folders = state.engine.db.list_folders()?;
     let folder = folders
         .into_iter()
         .find(|folder| folder.id == folder_id)
         .ok_or_else(|| AppError::FolderNotFound.to_string())?;
-    state
-        .engine
-        .db
-        .upsert_folder(
-            &folder.local_path,
-            &folder.logical_root,
-            folder.remote_id,
-            folder.recursive,
-            &rules,
-        )
-        .map_err(String::from)?;
+    state.engine.db.upsert_folder(
+        &folder.local_path,
+        &folder.logical_root,
+        folder.remote_id,
+        folder.recursive,
+        &rules,
+    )?;
     let _ = state.engine.reconcile_all().await;
     state.engine.emit_status();
     state.engine.status_snapshot().map_err(String::from)
@@ -845,8 +834,7 @@ pub async fn restore_file_version(
             file_id,
             version_id,
         )
-        .await
-        .map_err(String::from)?;
+        .await?;
     // Kích hoạt đối soát thay đổi máy chủ ngay lập tức để tải phiên bản chuẩn mới về thư mục
     // cục bộ qua quy trình tải xuống an toàn của sync engine mà không cần chờ chu kỳ thăm dò.
     let _ = state.engine.poll_remote_changes().await;
@@ -865,10 +853,7 @@ pub async fn accept_server_version(
     state: State<'_, AppState>,
     file_id: i64,
 ) -> Result<StatusDto, String> {
-    state
-        .engine
-        .accept_server_version(file_id)
-        .map_err(String::from)?;
+    state.engine.accept_server_version(file_id)?;
     let _ = state.engine.poll_remote_changes().await;
     state.engine.emit_status();
     state.engine.status_snapshot().map_err(String::from)
@@ -882,10 +867,7 @@ pub async fn accept_server_version(
     fields(command = "keep_local_conflict", file_id = file_id)
 )]
 pub fn keep_local_conflict(state: State<'_, AppState>, file_id: i64) -> Result<StatusDto, String> {
-    state
-        .engine
-        .keep_local_conflict(file_id)
-        .map_err(String::from)?;
+    state.engine.keep_local_conflict(file_id)?;
     state.engine.emit_status();
     state.engine.status_snapshot().map_err(String::from)
 }
@@ -904,6 +886,77 @@ pub async fn open_office_editor(
 ) -> Result<(), String> {
     let base = state.engine.settings.lock().await.odoo_url.clone();
     crate::browser::open_editor(&app, &base, file_id)
+}
+
+/// Đường dẫn trên máy của một tệp đã đồng bộ, theo id cục bộ của tệp.
+fn synced_file_path(db: &Db, file_id: i64) -> AppResult<PathBuf> {
+    let missing = || AppError::Message("Không tìm thấy tệp này trên máy".into());
+    let file = db.file_by_id(file_id)?.ok_or_else(missing)?;
+    let folder = db
+        .list_folders()?
+        .into_iter()
+        .find(|folder| folder.id == file.folder_id)
+        .ok_or(AppError::FolderNotFound)?;
+    crate::sync::rules::local_path(Path::new(&folder.local_path), &file.relative_path)
+        .ok_or_else(missing)
+}
+
+/// Bỏ tiền tố verbatim của Windows (`\\?\`, `\\?\UNC\`) mà `canonicalize` thêm vào: shell của
+/// Windows không mở được đường dẫn dạng đó.
+fn shell_path(path: &Path) -> String {
+    let text = path.to_string_lossy();
+    match text.strip_prefix(r"\\?\UNC\") {
+        Some(share) => format!(r"\\{share}"),
+        None => text.strip_prefix(r"\\?\").unwrap_or(&text).to_string(),
+    }
+}
+
+/// Mở một tệp bằng chương trình mặc định của nó, hoặc một thư mục trong trình quản lý tệp.
+fn open_local(app: &AppHandle, path: &Path) -> Result<(), String> {
+    if !path.exists() {
+        return Err("Không tìm thấy tệp hoặc thư mục này trên máy".into());
+    }
+    app.opener()
+        .open_path(shell_path(path), None::<&str>)
+        .map_err(|err| err.to_string())
+}
+
+/// Command: mở một thư mục đã gắn trong trình quản lý tệp.
+#[tauri::command]
+#[tracing::instrument(
+    level = "debug",
+    skip_all,
+    fields(command = "open_sync_folder", folder_id = folder_id)
+)]
+pub fn open_sync_folder(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    folder_id: i64,
+) -> Result<(), String> {
+    let folder = state
+        .engine
+        .db
+        .list_folders()?
+        .into_iter()
+        .find(|folder| folder.id == folder_id)
+        .ok_or_else(|| AppError::FolderNotFound.to_string())?;
+    open_local(&app, Path::new(&folder.local_path))
+}
+
+/// Command: mở một tệp đã đồng bộ bằng chương trình mặc định của nó.
+#[tauri::command]
+#[tracing::instrument(
+    level = "debug",
+    skip_all,
+    fields(command = "open_sync_file", file_id = file_id)
+)]
+pub fn open_sync_file(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    file_id: i64,
+) -> Result<(), String> {
+    let path = synced_file_path(&state.engine.db, file_id)?;
+    open_local(&app, &path)
 }
 
 /// Kiểm tra bản cập nhật mới trên endpoint Odoo đã cấu hình.
@@ -982,8 +1035,7 @@ pub async fn revoke_sync_device(state: State<'_, AppState>, device_id: i64) -> R
     require_client(&state.engine)
         .await?
         .revoke_device(device_id)
-        .await
-        .map_err(String::from)?;
+        .await?;
     if state.engine.db.meta_get("device_id")?.as_deref() == Some(&device_id.to_string()) {
         state.engine.session.mark_expired("device_revoked");
         state.engine.emit_status();
@@ -1024,8 +1076,45 @@ pub async fn open_client_download(
 
 #[cfg(test)]
 mod tests {
-    use super::{resolve_dropped_sync_folder_path, AppError};
+    use super::{resolve_dropped_sync_folder_path, shell_path, synced_file_path, AppError};
+    use crate::storage::Db;
     use std::fs;
+    use std::path::Path;
+
+    /// Tệp đã đồng bộ được mở theo đường dẫn của nó trong thư mục đã gắn; id lạ thì báo lỗi.
+    #[test]
+    fn synced_file_path_is_inside_its_bound_folder() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = Db::open(&dir.path().join("t.db")).unwrap();
+        let folder = db
+            .upsert_folder("/data/lab", "Lab", Some(42), true, &[])
+            .unwrap();
+        let file = db
+            .upsert_file(folder, "HPLC/run-01.csv", 1, 1, "00")
+            .unwrap();
+        assert_eq!(
+            synced_file_path(&db, file).unwrap(),
+            Path::new("/data/lab").join("HPLC").join("run-01.csv")
+        );
+        assert!(synced_file_path(&db, file + 1).is_err());
+    }
+
+    /// Shell của Windows không mở được đường dẫn verbatim mà `canonicalize` trả về.
+    #[test]
+    fn shell_path_drops_the_verbatim_prefix() {
+        assert_eq!(
+            shell_path(Path::new(r"\\?\C:\lab\run.csv")),
+            r"C:\lab\run.csv"
+        );
+        assert_eq!(
+            shell_path(Path::new(r"\\?\UNC\server\share\run.csv")),
+            r"\\server\share\run.csv"
+        );
+        assert_eq!(
+            shell_path(Path::new("/data/lab/run.csv")),
+            "/data/lab/run.csv"
+        );
+    }
 
     /// Tạo một thư mục tạm riêng cho test, đặt tên theo `label` + uuid để không đụng nhau.
     fn temp_dir(label: &str) -> std::path::PathBuf {

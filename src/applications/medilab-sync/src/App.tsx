@@ -10,6 +10,8 @@ import {
   type SubmitEvent,
 } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { getCurrent as getCurrentLinks, onOpenUrl } from "@tauri-apps/plugin-deep-link";
+import { connectServer } from "./features/login/connectLink";
 import type { AppSettings, ProgressDeltaDto, RemoteFileRow, StatusDto, SyncRule } from "./types";
 import { UpdateDialog } from "./features/update/UpdateDialog";
 import { AccessDialog } from "./features/access/AccessDialog";
@@ -21,13 +23,14 @@ import { SettingsTab } from "./features/settings/SettingsTab";
 import { FoldersTab } from "./features/sync/FoldersTab";
 import { StatusTab } from "./features/sync/StatusTab";
 import { AppHeader } from "./features/header/AppHeader";
-import { displayLocalPath } from "./components";
+import { displayLocalPath, useConfirm } from "./components";
 import { DevelopmentProfiler } from "./components/DevelopmentProfiler";
 import { LocaleProvider, useT } from "./locale";
 import { normalizeLocale, type Locale, type MessageKey } from "./i18n";
 import {
   applyProgressDelta,
   createRemoteFilesRefreshController,
+  describeSyncEvent,
   mergeRemoteFiles,
   mergeStatusSnapshot,
 } from "./lib/syncEvents";
@@ -46,6 +49,8 @@ import {
   onUpdateAvailable,
   onUploadProgress,
   openOfficeEditor,
+  openSyncFile,
+  openSyncFolder,
   pauseSync,
   registerSyncFolder,
   resolveDroppedSyncFolder,
@@ -133,18 +138,27 @@ function AppBanners({
   notice,
   sessionExpired,
   conflict,
+  onDismissError,
   onDismissConflict,
 }: Readonly<{
   error: string | null;
   notice: string | null;
   sessionExpired: boolean;
   conflict: string | null;
+  onDismissError: () => void;
   onDismissConflict: () => void;
 }>) {
   const t = useT();
   return (
     <>
-        {error ? <p className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+        {error ? (
+          <p className="mb-4 flex items-start justify-between gap-3 rounded bg-red-50 p-3 text-sm text-red-700">
+            <span className="break-words">{error}</span>
+            <button type="button" className="btn btn-secondary px-2 py-1" onClick={onDismissError}>
+              {t("conflict.dismiss")}
+            </button>
+          </p>
+        ) : null}
         {notice ? <p className="mb-4 rounded bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</p> : null}
         {sessionExpired ? (
           <p className="mb-4 rounded bg-amber-50 p-3 text-sm text-amber-800">{t("session.expiredBanner")}</p>
@@ -199,12 +213,22 @@ async function registerSyncListeners(
   };
 
   const handleConflict = (payload: unknown) => {
-    options.setConflict(options.tRef.current("conflict.bannerDetail", { detail: JSON.stringify(payload) }));
+    const detail = describeSyncEvent(payload);
+    options.setConflict(
+      detail
+        ? options.tRef.current("conflict.bannerDetail", { detail })
+        : options.tRef.current("conflict.banner"),
+    );
     options.setTab("status");
   };
 
   const handleSyncError = (payload: unknown) => {
-    options.setError(options.tRef.current("sync.errorDetail", { detail: JSON.stringify(payload) }));
+    const detail = describeSyncEvent(payload);
+    options.setError(
+      detail
+        ? options.tRef.current("sync.errorDetail", { detail })
+        : options.tRef.current("sync.error"),
+    );
   };
 
   const handleUpdate = (info: UpdateAvailable) => {
@@ -246,6 +270,8 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
   const [busy, setBusy] = useState(false);
   const [odooUrl, setOdooUrl] = useState("");
   const [odooUrlHistory, setOdooUrlHistory] = useState(loadOdooUrlHistory);
+  // Địa chỉ từ link "Mở trong Medilab Sync" của MediLab; chỉ điền vào ô máy chủ khi chưa đăng nhập.
+  const [linkedServer, setLinkedServer] = useState<string | null>(null);
   const [logicalRoot, setLogicalRoot] = useState("");
   // Tên trên máy chủ tự gợi ý theo tên thư mục đã chọn cho tới khi người dùng tự sửa.
   // Là ref (không phải state) vì handler kéo-thả được đăng ký một lần và phải đọc giá trị mới nhất.
@@ -267,6 +293,27 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
   // Lệnh Tạm dừng/Tiếp tục có cờ bận riêng: không bị khóa bởi lệnh chạy lâu khác (xem AppHeader).
   const [toggleSyncBusy, setToggleSyncBusy] = useState(false);
   const runToggleSync = useAsyncRunner(setToggleSyncBusy, setError);
+  const { confirm, dialog: confirmDialog } = useConfirm();
+
+  useEffect(() => {
+    const takeLinks = (links: string[] | null) => {
+      const server = links?.map(connectServer).find((value) => value !== null);
+      if (server) {
+        setLinkedServer(server);
+      }
+    };
+    void getCurrentLinks().then(takeLinks).catch(() => {});
+    const stopListening = onOpenUrl(takeLinks);
+    return () => {
+      void stopListening.then((stop) => stop()).catch(() => {});
+    };
+  }, []);
+
+  useEffect(() => {
+    if (linkedServer && !status.logged_in) {
+      setOdooUrl(linkedServer);
+    }
+  }, [linkedServer, status.logged_in]);
 
   useEffect(() => {
     void getCurrentWindow()
@@ -342,6 +389,9 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
         if (current.logged_in) {
           refreshController.resume();
           void refreshController.invalidate();
+          if (current.folders.length === 0) {
+            setTab("folders");
+          }
         }
       } catch (err) {
         if (!cancelled) {
@@ -412,6 +462,10 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
       if (next.logged_in) {
         refreshController.resume();
         void refreshRemoteFiles();
+        // Chưa có thư mục nào: mở thẳng tab Thư mục để người dùng thêm thư mục đầu tiên.
+        if (next.folders.length === 0) {
+          setTab("folders");
+        }
       }
     }
   }
@@ -482,9 +536,33 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
     }
   }
 
+  /** Cho người dùng chọn thư mục chính rồi lưu vào cài đặt; hủy hộp thoại thì giữ nguyên. Đọc cài
+   * đặt đã lưu để không lưu kèm những thay đổi đang gõ dở trên tab Cài đặt. */
+  async function onChooseHomeFolder() {
+    const next = await run(async () => {
+      const path = await chooseSyncFolder();
+      if (!path) {
+        return undefined;
+      }
+      const saved = await saveSettings(withSettingsPatch(await getSettings(), { home_folder: path }));
+      const { home_folder } = await getSettings();
+      setSettings((current) => (current ? { ...current, home_folder } : current));
+      return saved;
+    });
+    if (next) {
+      setStatus((prev) => mergeStatusSnapshot(prev, next));
+    }
+  }
+
   /** Xác nhận với người dùng rồi hủy đăng ký một thư mục. */
   async function onUnregisterFolder(folderId: number, folderLogicalRoot: string) {
-    if (!window.confirm(t("folders.unregisterConfirm", { name: folderLogicalRoot }))) {
+    const confirmed = await confirm({
+      title: t("folders.unregisterConfirm", { name: folderLogicalRoot }),
+      body: t("folders.unregisterConfirmBody"),
+      confirmLabel: t("folders.unregister"),
+      danger: true,
+    });
+    if (!confirmed) {
       return;
     }
     const next = await run(() => unregisterSyncFolder(folderId));
@@ -522,6 +600,13 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
     [run],
   );
 
+  const handleOpenFile = useCallback(
+    (fileId: number) => {
+      void run(() => openSyncFile(fileId));
+    },
+    [run],
+  );
+
   const handleOpenHistory = useCallback((fileId: number, label: string) => {
     setHistoryTarget({ fileId, label });
   }, []);
@@ -548,15 +633,21 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
 
   const handleAcceptServer = useCallback(
     (fileId: number) => {
-      void run(() => acceptServerVersion(fileId)).then((next) => {
+      void (async () => {
+        const confirmed = await confirm({
+          title: tRef.current("files.useServerConfirm"),
+          body: tRef.current("files.useServerConfirmBody"),
+          confirmLabel: tRef.current("files.useServer"),
+        });
+        const next = confirmed ? await run(() => acceptServerVersion(fileId)) : undefined;
         if (next) {
           setStatus((prev) => mergeStatusSnapshot(prev, next));
           setConflict(null);
           void refreshRemoteFiles();
         }
-      });
+      })();
     },
-    [refreshRemoteFiles, run],
+    [confirm, refreshRemoteFiles, run],
   );
 
   // Kho mật khẩu của OS đang khóa: key có thể vẫn hợp lệ, nên mời mở khóa rồi thử lại thay vì
@@ -594,6 +685,7 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
           error={error}
           odooUrl={odooUrl}
           odooUrlHistory={odooUrlHistory}
+          linkedHost={linkedServer && linkedServer === odooUrl ? new URL(linkedServer).host : null}
           sessionExpired={status.session_expired}
           locale={settings?.locale}
           onOdooUrlChange={setOdooUrl}
@@ -615,20 +707,26 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
         onLocaleChange={(locale) => void changeLocale(locale)}
         onToggleSync={() => void toggleSync()}
         onLogout={() => void onLogout()}
-      />
-
-      <nav className="flex gap-4 border-b bg-white px-6 py-2 text-sm">
-        {(["status", "folders", "settings"] as Tab[]).map((item) => (
-          <button
-            key={item}
-            type="button"
-            className={`tab-btn ${tab === item ? "tab-btn-active" : ""}`}
-            onClick={() => setTab(item)}
-          >
-            {t(tabMessageKey(item))}
-          </button>
-        ))}
-      </nav>
+      >
+        <nav className="flex">
+          {(["status", "folders", "settings"] as Tab[]).map((item) => (
+            <button
+              key={item}
+              type="button"
+              className={`tab-btn ${tab === item ? "tab-btn-active" : ""}`}
+              aria-current={tab === item ? "page" : undefined}
+              onClick={() => setTab(item)}
+            >
+              {t(tabMessageKey(item))}
+              {item === "status" && status.failed + status.conflict > 0 ? (
+                <span className="ml-2 rounded-full bg-red-600 px-1.5 py-0.5 text-xs font-semibold text-white">
+                  {status.failed + status.conflict}
+                </span>
+              ) : null}
+            </button>
+          ))}
+        </nav>
+      </AppHeader>
 
       <section className="p-6">
         <AppBanners
@@ -636,6 +734,7 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
           notice={notice}
           sessionExpired={status.session_expired}
           conflict={conflict}
+          onDismissError={() => setError(null)}
           onDismissConflict={() => setConflict(null)}
         />
 
@@ -646,10 +745,12 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
               busy={busy}
               remoteFiles={remoteFiles}
               onRetry={handleRetryJob}
+              onOpenFile={handleOpenFile}
               onOpenHistory={handleOpenHistory}
               onOpenOffice={handleOpenOffice}
               onKeepLocal={handleKeepLocal}
               onAcceptServer={handleAcceptServer}
+              onOpenFolders={() => setTab("folders")}
             />
           </DevelopmentProfiler>
         ) : null}
@@ -676,12 +777,15 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
               onRecursiveChange={setRecursive}
               onChooseFolder={() => void onChooseFolder()}
               onRegister={(event) => void onRegisterFolder(event)}
+              onOpenFolder={(folderId) => void run(() => openSyncFolder(folderId))}
               onUnregister={(folderId, folderLogicalRoot) =>
                 void onUnregisterFolder(folderId, folderLogicalRoot)
               }
               onManageAccess={(remoteId, label) => setAccessTarget({ remoteId, label })}
               onSharedBound={(next) => setStatus((prev) => mergeStatusSnapshot(prev, next))}
               dropActive={dropActive}
+              homeFolder={settings?.home_folder}
+              onChooseHomeFolder={() => void onChooseHomeFolder()}
             />
           </DevelopmentProfiler>
         ) : null}
@@ -721,6 +825,7 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
           onDismiss={() => setPendingUpdate(null)}
         />
       ) : null}
+      {confirmDialog}
     </main>
   );
 }

@@ -85,7 +85,7 @@ class TestQuotationAdvance(OrderCase):
 
     def test_balance_installments_each_bill_the_amount_received(self):
         order = self.make_quotable_order()
-        order.write({"advance_mode": "percentage", "advance_value": 50})
+        order.write({"advance_mode": "percentage", "advance_value": 50, "balance_due": "before_report"})
         order.with_user(self.sales).action_send_quotation()
         advance = order.payment_request_id
         payments = self.env["account.payment"]
@@ -216,6 +216,30 @@ class TestQuotationAdvance(OrderCase):
         self.assertEqual(order._latest_quotation().status, "sent")
         self.assertFalse(order.sudo().invoice_ids)
         self.assertEqual(len(self.customer_notices(order)), 1)
+
+    def test_no_advance_is_only_offered_to_authorized_users(self):
+        def choices_for(user):
+            field = (
+                self.env["sale.order"].with_user(user).fields_get(["advance_method"], ["selection"])["advance_method"]
+            )
+            return dict(field["selection"])
+
+        head_choices = choices_for(self.head)
+        admin = self.env.ref("base.user_admin")
+        admin_choices = choices_for(admin)
+        sales_choices = choices_for(self.sales)
+
+        self.assertIn("none", head_choices)
+        self.assertEqual(admin_choices, head_choices)
+        self.assertEqual(set(sales_choices), set(head_choices) - {"none"})
+
+    def test_sales_fields_get_without_selection_attribute_does_not_add_it(self):
+        field = (
+            self.env["sale.order"].with_user(self.sales).fields_get(["advance_method"], ["string"])["advance_method"]
+        )
+
+        self.assertIn("string", field)
+        self.assertNotIn("selection", field)
 
     def test_paying_the_advance_accepts_the_quotation(self):
         order = self.make_quotable_order()

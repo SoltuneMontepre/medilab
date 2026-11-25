@@ -15,6 +15,7 @@ from odoo.addons.sol_commerce.constants.models import (
 )
 from odoo.addons.sol_commerce.constants.notifications import EVENT_ORDER_UPDATED
 from odoo.addons.sol_commerce.constants.orders import (
+    ADVANCE_NONE,
     BALANCE_AT_COLLECTION,
     BALANCE_BEFORE_COLLECTION,
     BALANCE_BEFORE_REPORT,
@@ -50,6 +51,9 @@ else:
     SaleOrderBase = object
 
 _logger = logging.getLogger(__name__)
+
+# Context key the Send quotation button sets to open its dialog.
+QUOTATION_DIALOG = "medilab_quotation_dialog"
 
 
 # Đơn Hàng
@@ -96,9 +100,6 @@ class SaleOrder(models.Model, SaleOrderBase):
         submitted_at = fields.Datetime()
         # When a salesperson claimed the order.
         claimed_at = fields.Datetime()
-        # Committed return date Sales promises on the quotation: the requested date when the standard turnaround can meet
-        # it, or the date an accepted priority request asked for; empty when the date is fixed at sample receipt.
-        committed_date = fields.Date(string="Committed Return Date")
         # The order this one was reordered from.
         reordered_from_id = fields.Many2one(MODEL_SALE_ORDER, ondelete="set null", index=True)
         # Orders reordered from this one.
@@ -111,18 +112,27 @@ class SaleOrder(models.Model, SaleOrderBase):
         cancellation_request_ids = fields.One2many(MODEL_CANCELLATION_REQUEST, "order_id")
         # When the advance must be paid; 3 days after sending by default, set by sales.
         payment_deadline = fields.Datetime(copy=False)
-        # online, bank_transfer, cash, or none when the Head of Sales sends without an advance.
-        advance_method = fields.Selection(
-            [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash"), ("none", "No advance")]
+        # How the customer pays the advance and the balance: online, by bank transfer or in cash.
+        payment_method = fields.Selection(
+            [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash")], string="Payment Method"
         )
-        # full, percentage or fixed.
+        # The advance asked with the quotation: none, when the Head of Sales sends without one, the full amount, a
+        # percentage or a fixed amount.
         advance_mode = fields.Selection(
-            [("full", "Full amount"), ("percentage", "Percentage"), ("fixed", "Fixed amount")]
+            [("none", "No advance"), ("full", "Full amount"), ("percentage", "Percentage"), ("fixed", "Fixed amount")],
+            string="Advance",
+        )
+        # The payment method of the advance, or none without an advance, which the payment requests keep.
+        advance_method = fields.Selection(
+            [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash"), ("none", "No advance")],
+            compute="_compute_advance_method",
+            store=True,
         )
         # The percentage or fixed amount of the advance, depending on the advance mode.
         advance_value = fields.Float()
         # When the balance after the advance is due: before the samples are collected, when they are collected, or
-        # before the report is released. Sales sets it on the quotation; the customer may pay it in several payments.
+        # before the report is released: before collection for a portal order, before the report for one Sales creates.
+        # Sales sets it on the quotation; the customer may pay it in several payments.
         balance_due = fields.Selection(
             [
                 (BALANCE_BEFORE_COLLECTION, "Before sample collection"),
@@ -200,14 +210,18 @@ class SaleOrder(models.Model, SaleOrderBase):
         return orders
 
     def _fill_create_values(self, vals_list):
-        """Default the source, salesperson and status of a sales order, and stamp the submission and claim times."""
+        """Default the source, salesperson and status of a sales order and the balance timing of its source, and stamp
+        the submission and claim times."""
         now = fields.Datetime.now()
         sales = self.env.context.get("medilab_sales_order")
         for vals in vals_list:
+            self._split_advance_method(vals)
             if sales:
                 vals.setdefault("source", SOURCE_SALES)
                 vals.setdefault("user_id", self.env.uid)
                 vals.setdefault("order_status", STATUS_CLAIMED)
+            portal = vals.get("source", SOURCE_PORTAL) == SOURCE_PORTAL
+            vals.setdefault("balance_due", BALANCE_BEFORE_COLLECTION if portal else BALANCE_BEFORE_REPORT)
             if vals.get("order_status") == STATUS_SUBMITTED and not vals.get("submitted_at"):
                 vals["submitted_at"] = now
             if vals.get("order_status") == STATUS_CLAIMED and not vals.get("claimed_at"):
@@ -223,6 +237,7 @@ class SaleOrder(models.Model, SaleOrderBase):
 
     def write(self, vals):
         self._check_portal_write(vals)
+        self._split_advance_method(vals)
         if "payment_deadline" in vals:
             self._lock_payment_orders()
         if {"payment_request_id", "on_credit"} & vals.keys() and not self.env.su:
@@ -255,15 +270,20 @@ class SaleOrder(models.Model, SaleOrderBase):
             return
         # The notice goes to the contact, in their language, whoever changed the status.
         env = self.with_context(lang=self.partner_id.lang or self.env.lang).env
-        body = {
-            STATUS_SUBMITTED: env._("Order %s was submitted.", self.name),
-            STATUS_CLAIMED: env._("Order %s was claimed by the laboratory.", self.name),
-            STATUS_CANCELLED: env._("Order %s was cancelled.", self.name),
+        subject, body = {
+            STATUS_SUBMITTED: (env._("Order was submitted"), env._("Order %s was submitted.", self.name)),
+            STATUS_CLAIMED: (env._("Order was claimed"), env._("Order %s was claimed by the laboratory.", self.name)),
+            STATUS_CANCELLED: (env._("Order was cancelled"), env._("Order %s was cancelled.", self.name)),
         }[status]
         try:
             with self.env.cr.savepoint():
                 self.env[MODEL_MAIL_MESSAGE].raise_event(
-                    EVENT_ORDER_UPDATED, self.sudo(), f"order:{self.id}:{status}", body, partners=self.partner_id
+                    EVENT_ORDER_UPDATED,
+                    self.sudo(),
+                    f"order:{self.id}:{status}",
+                    body,
+                    subject=subject,
+                    partners=self.partner_id,
                 )
         except Exception:
             _logger.exception("Order notice was not queued")
@@ -409,9 +429,6 @@ class SaleOrder(models.Model, SaleOrderBase):
 
     def _cancel_laboratory_documents(self):
         """Cancel the test request and everything under it, once that model exists."""
-        if "medilab.test.request" not in self.env:
-            return
-        return
 
     def _laboratory_blocks_cancellation(self):
         """True once a test of the order's request is approved."""
@@ -486,14 +503,34 @@ class SaleOrder(models.Model, SaleOrderBase):
             .create({"order_id": self.id, "reason": text, "requested_by_id": self.env.uid})
         )
 
-    @api.depends("quotation_ids.status", "quotation_ids.revision", "quotation_ids.payment_request_ids")
+    @api.depends("quotation_ids.status", "quotation_ids.revision", "quotation_ids.payment_request_ids.kind")
     def _compute_quotation_follow_up(self):
         for order in self:
             quotation = order._latest_quotation()
-            if quotation.status == QUOTATION_ACCEPTED and not quotation.payment_request_ids:
+            # The balance requested after confirmation is no advance: the quotation was accepted without one.
+            advance = quotation.payment_request_ids.filtered(lambda ask: ask.kind == "advance")
+            if quotation.status == QUOTATION_ACCEPTED and not advance:
                 order.quotation_follow_up = QUOTATION_ACCEPTED
             else:
                 order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get((quotation.status or ""), False)
+
+    @api.depends("advance_mode", "payment_method")
+    def _compute_advance_method(self):
+        for order in self:
+            order.advance_method = ADVANCE_NONE if order.advance_mode == ADVANCE_NONE else order.payment_method
+
+    @api.model
+    def _split_advance_method(self, vals):
+        """Turn an advance method given in vals into the payment method and the advance it stands for, which the
+        advance method is computed from."""
+        if "advance_method" not in vals:
+            return
+        method = vals.pop("advance_method")
+        if method == ADVANCE_NONE:
+            # No advance wins over an advance mode given with it, as it did when one field held both.
+            vals["advance_mode"] = ADVANCE_NONE
+        else:
+            vals.setdefault("payment_method", method or False)
 
     def _latest_quotation(self):
         self.ensure_one()
@@ -502,6 +539,16 @@ class SaleOrder(models.Model, SaleOrderBase):
     def action_send_quotation(self):
         """Store the next revision of the quotation as a PDF and mark the revision before it replaced."""
         self.check_access("write")
+        if self.env.context.get(QUOTATION_DIALOG):
+            # The button asks Sales for the payment deadline and the expected sample pickup first.
+            self.ensure_one()
+            action = self.env["ir.actions.act_window"]._for_xml_id("sol_commerce.action_medilab_quotation_send")
+            action["context"] = {
+                "default_order_id": self.id,
+                "dialog_size": "extra-large",
+                "partner_display_name_hide_company": True,
+            }
+            return action
         self._lock_payment_orders()
         self._check_no_pending_collection()
         for order in self:
@@ -518,14 +565,9 @@ class SaleOrder(models.Model, SaleOrderBase):
         lines = self._catalog_lines()
         if not lines:
             raise UserError(self.env._("Add at least one parameter or service package before sending the quotation."))
-        untyped = lines.filtered(lambda line: not line.sample_type_id)
-        if untyped:
-            raise UserError(
-                self.env._(
-                    "Choose a sample type for these items before sending the quotation:\n%s",
-                    "\n".join(name or "" for name in untyped.mapped("product_id.display_name")),
-                )
-            )
+        missing = self._quotation_missing_field_errors(lines)
+        if missing:
+            raise UserError("\n".join(missing))
         # The catalog may have stopped offering a parameter on a sample type since the line got its sample type.
         lines._check_offered_on_sample()
         self.order_line._way_lines()._check_ways_can_be_sent()
@@ -534,6 +576,18 @@ class SaleOrder(models.Model, SaleOrderBase):
             raise UserError(self.env._("A replaced quotation cannot be sent. Send the current revision instead."))
         if latest.status in (QUOTATION_ACCEPTED, QUOTATION_SENT) and self.state != "draft":
             raise UserError(self.env._("This quotation was already sent. Revise it to send a new revision."))
+
+    def _quotation_missing_field_errors(self, lines):
+        missing = []
+        untyped = lines.filtered(lambda line: not line.sample_type_id)
+        if untyped:
+            missing.append(
+                self.env._(
+                    "Choose a sample type for these items before sending the quotation:\n%s",
+                    "\n".join(name or "" for name in untyped.mapped("product_id.display_name")),
+                )
+            )
+        return missing
 
     def _latest_payment_deadline(self):
         # The latest payment deadline the order allows; False when only the configured days limit it.
@@ -554,6 +608,7 @@ class SaleOrder(models.Model, SaleOrderBase):
             lines.filtered(lambda line, sample_type=sample_type: line.sample_type_id == sample_type).sudo().write(
                 {"sample_id": sample.id}
             )
+        self.sample_ids.filtered(lambda item: not item.line_ids).sudo().unlink()
 
     def _send_quotation(self):
         self.ensure_one()
@@ -609,6 +664,15 @@ class SaleOrder(models.Model, SaleOrderBase):
                 }
             )
         )
+
+    def action_print_quotation(self):
+        """Open the PDF of the current revision as it was sent, for the customer at the counter."""
+        self.ensure_one()
+        self.check_access("read")
+        attachment = self._latest_quotation().attachment_id
+        if not attachment:
+            raise UserError(self.env._("Send the quotation before printing it."))
+        return {"type": "ir.actions.act_url", "url": f"/web/content/{attachment.id}", "target": "new"}
 
     def action_revise_quotation(self):
         """Start a new revision; the next send stores it and replaces the current quotation."""

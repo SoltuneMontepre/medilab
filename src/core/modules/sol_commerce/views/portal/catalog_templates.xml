@@ -169,13 +169,13 @@
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <div t-if="public" class="row g-2 mb-3">
                         <div class="col-md-4">
-                            <input type="text" name="name" class="form-control" placeholder="Name" required="required" />
+                            <input type="text" name="name" class="form-control" placeholder="Name" required="required" t-att-value="submitted.get('name', '')" />
                         </div>
                         <div class="col-md-4">
-                            <input type="email" name="email" class="form-control" placeholder="E-mail address" required="required" />
+                            <input type="email" name="email" class="form-control" placeholder="E-mail address" required="required" t-att-value="submitted.get('email', '')" />
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="phone" class="form-control" placeholder="Phone" />
+                            <input type="text" name="phone" class="form-control" placeholder="Phone" t-att-value="submitted.get('phone', '')" />
                         </div>
                     </div>
                     <div t-if="contacts" class="mb-3">
@@ -187,14 +187,16 @@
                         </select>
                     </div>
                     <t t-set="dated" t-value="order.sudo()" />
+                    <t t-set="requested_date_value" t-value="submitted.get('requested_date') if 'requested_date' in submitted else request.params.get('requested_date') or (dated.requested_date and dated.requested_date.isoformat())" />
+                    <t t-set="priority_requested" t-value="submitted.get('priority') if 'priority' in submitted else request.params.get('priority') or dated.priority_request == 'requested'" />
                     <div class="row g-2 mb-3 align-items-end">
                         <div class="col-md-4">
                             <label for="requested_date" class="form-label">Date you want the results</label>
-                            <input type="date" name="requested_date" id="requested_date" class="form-control" t-att-value="request.params.get('requested_date') or (dated.requested_date and dated.requested_date.isoformat())" />
+                            <input type="date" name="requested_date" id="requested_date" class="form-control" t-att-value="requested_date_value" />
                         </div>
                         <div class="col-md-8">
                             <div class="form-check">
-                                <input type="checkbox" name="priority" id="priority" value="1" class="form-check-input" t-att-checked="request.params.get('priority') or dated.priority_request == 'requested'" />
+                                <input type="checkbox" name="priority" id="priority" value="1" class="form-check-input" t-att-checked="priority_requested" />
                                 <label for="priority" class="form-check-label">Ask for priority: Sales confirms whether the laboratory can meet this date</label>
                             </div>
                         </div>
@@ -289,7 +291,7 @@
                     </div>
                     <t t-set="committed" t-value="order.test_request_id.sudo().committed_date or order.committed_date" />
                     <div t-if="committed" class="d-flex gap-2">
-                        <dt class="fw-normal text-muted">Committed return date</dt>
+                        <dt class="fw-normal text-muted">Expected return date</dt>
                         <dd class="mb-0" t-out="committed" t-options="{'widget': 'date'}" />
                     </div>
                     <div t-elif="order.turnaround_days" class="d-flex gap-2">

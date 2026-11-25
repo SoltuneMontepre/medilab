@@ -1,0 +1,25 @@
+Instrument,AAS-01 PerkinElmer PinAAcle 900Z (graphite furnace)
+Method,TCVN 7602:2007 - Pb 283.3 nm
+Analyst,Dang Thi Lan
+Run date,23/11/2026 10:05
+Unit,mg/L
+
+Calibration,Concentration (mg/L),Absorbance
+Blank,0.000,0.0011
+STD 1,0.005,0.0415
+STD 2,0.010,0.0826
+STD 3,0.020,0.1648
+STD 4,0.040,0.3301
+Correlation coefficient,0.9997,
+
+Sample,Replicate,Absorbance,Concentration (mg/L)
+QC check 0.010,1,0.0829,0.0101
+S-01,1,0.0503,0.0061
+S-01,2,0.0491,0.0059
+S-01,3,0.0498,0.0060
+
+Result,Value
+S-01 mean (mg/L),0.006
+RSD (%),1.7
+QC recovery (%),101
+Dilution factor,1

@@ -15,11 +15,11 @@ if TYPE_CHECKING:
 else:
     CommittedDateChangeBase = object
 
-# Context key that lets a committed date change write the request's committed return date.
+# Context key that lets a committed date change write the request's expected return date.
 CHANGING_COMMITTED_DATE = "medilab_changing_committed_date"
 
 
-# Thay Đổi Ngày Hẹn Trả Kết Quả
+# Thay Đổi Ngày Trả Kết Quả Dự Kiến
 class CommittedDateChange(models.Model, CommittedDateChangeBase):
     _name = MODEL_COMMITTED_DATE_CHANGE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
@@ -28,14 +28,14 @@ class CommittedDateChange(models.Model, CommittedDateChangeBase):
     _permission_actions = ("read", "create")
 
     if not TYPE_CHECKING:
-        # The test request whose committed return date changed.
+        # The test request whose expected return date changed.
         request_id = fields.Many2one(MODEL_TEST_REQUEST, required=True, ondelete="restrict", index=True)
-        # The committed return date before the change.
+        # The expected return date before the change.
         old_date = fields.Date(readonly=True)
-        # The request's committed return date now, shown while the change is recorded.
-        current_date = fields.Date(related="request_id.committed_date", string="Current Committed Return Date")
-        # The committed return date after the change.
-        new_date = fields.Date(string="New Committed Return Date", required=True)
+        # The request's expected return date now, shown while the change is recorded.
+        current_date = fields.Date(related="request_id.committed_date", string="Current Expected Return Date")
+        # The expected return date after the change.
+        new_date = fields.Date(string="New Expected Return Date", required=True)
         # How the customer confirmed the new date, such as the email or call it was agreed in.
         confirmation = fields.Text(string="Customer's Confirmation", required=True)
 
@@ -52,10 +52,10 @@ class CommittedDateChange(models.Model, CommittedDateChangeBase):
         return changes
 
     def write(self, vals):
-        raise UserError(self.env._("A recorded change of a committed return date cannot be edited."))
+        raise UserError(self.env._("A recorded change of an expected return date cannot be edited."))
 
     def unlink(self):
-        raise UserError(self.env._("A recorded change of a committed return date cannot be deleted."))
+        raise UserError(self.env._("A recorded change of an expected return date cannot be deleted."))
 
     def action_record(self):
         # The form's button: saving the form records the change.

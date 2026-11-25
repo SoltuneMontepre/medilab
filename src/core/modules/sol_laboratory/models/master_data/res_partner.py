@@ -32,3 +32,12 @@ class ResPartner(models.Model, ResPartnerBase):
         for partner in self.filtered(lambda contact: bool(contact.sudo().customer_ids.citizen_id)):
             partner.is_company = False
         return result
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        partners = super().create(vals_list)
+        if self.env.context.get("medilab_create_customer"):
+            missing = partners.filtered(lambda partner: not partner.sudo().customer_ids)
+            if missing:
+                self.env[MODEL_CUSTOMER].create([{"partner_id": partner.id} for partner in missing])
+        return partners

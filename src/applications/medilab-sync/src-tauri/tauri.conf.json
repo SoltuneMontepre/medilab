@@ -23,6 +23,11 @@
     }
   },
   "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["medilab-sync"]
+      }
+    },
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEExMDM3Qjc5NTlFNUFBOTAKUldTUXF1VlplWHNEb2FWZ3ptM3AzdzI3d3hrb0VXNDllNTNVaGJid21hakViOWE5WjZsWVJOK0QK",
       "endpoints": [

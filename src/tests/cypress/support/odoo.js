@@ -67,24 +67,25 @@ export function becomeVisitor() {
 
 // A call carries the signed-in user's context, so its messages are in the user's language, as on screen.
 function callKw(model, method, args, kwargs) {
-  return cy.then(() => {
-    rpcLine(model, method);
-    return cy
-      .request({ method: "POST", url: "/web/session/get_session_info", body: { jsonrpc: "2.0", method: "call", params: {} }, log: false })
-      .its("body.result.user_context", { log: false })
-      .then((context) =>
-        cy.request({
-          method: "POST",
-          url: `/web/dataset/call_kw/${model}/${method}`,
-          body: {
-            jsonrpc: "2.0",
-            method: "call",
-            params: { model, method, args, kwargs: { ...kwargs, context: { ...context, ...kwargs.context } } },
-          },
-          log: false,
-        }),
-      );
-  });
+  return cy
+    .then(() => {
+      rpcLine(model, method);
+      return cy
+        .request({ method: "POST", url: "/web/session/get_session_info", body: { jsonrpc: "2.0", method: "call", params: {} }, log: false })
+        .its("body.result.user_context", { log: false });
+    })
+    .then((context) =>
+      cy.request({
+        method: "POST",
+        url: `/web/dataset/call_kw/${model}/${method}`,
+        body: {
+          jsonrpc: "2.0",
+          method: "call",
+          params: { model, method, args, kwargs: { ...kwargs, context: { ...context, ...kwargs.context } } },
+        },
+        log: false,
+      }),
+    );
 }
 
 export function call(model, method, args, kwargs = {}) {

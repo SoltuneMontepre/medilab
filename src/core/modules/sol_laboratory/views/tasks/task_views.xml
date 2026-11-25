@@ -149,6 +149,18 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Audit Log" name="audit_log" groups="sol_laboratory.group_permission_audit_entry_read_all">
+                            <field name="log_ids" readonly="1">
+                                <list>
+                                    <field name="create_date" string="Date" />
+                                    <field name="user_id" />
+                                    <field name="action" />
+                                    <field name="document_model" />
+                                    <field name="change_ids" widget="many2many_tags" />
+                                    <field name="note" />
+                                </list>
+                            </field>
+                        </page>
                     </notebook>
                 </sheet>
                 <chatter />
@@ -221,6 +233,7 @@
                     <filter name="group_status" string="Status" context="{'group_by': 'status'}" />
                     <filter name="group_type" string="Type" context="{'group_by': 'type_id'}" />
                     <filter name="group_department" string="Department" context="{'group_by': 'department_id'}" />
+                    <filter name="group_queue" string="Queue" context="{'group_by': 'queue_name'}" />
                     <filter name="group_assignee" string="Assignee" context="{'group_by': 'assignee_id'}" />
                 </group>
             </search>
@@ -261,14 +274,28 @@
         <field name="context">{'create': False}</field>
     </record>
 
+    <record id="view_medilab_task_queue_list" model="ir.ui.view">
+        <field name="name">medilab.task.queue.list</field>
+        <field name="model">medilab.task</field>
+        <field name="inherit_id" ref="view_medilab_task_list" />
+        <field name="mode">primary</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="expand">1</attribute>
+            </list>
+        </field>
+    </record>
+
     <record id="action_medilab_task_queue" model="ir.actions.act_window">
         <field name="name">Department Queue</field>
         <field name="res_model">medilab.task</field>
         <field name="path">department-queue</field>
         <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_medilab_task_queue_list" />
         <!-- A role's queue, such as sample collection for sample delivery staff, shows beside the departments'. -->
         <field name="domain">[('status', '=', 'open'), '|', ('department_id', '!=', False), ('type_id.route', '=', 'role')]</field>
-        <field name="context">{'create': False, 'search_default_group_department': 1}</field>
+        <field name="context">{'create': False, 'search_default_group_queue': 1}</field>
     </record>
 
     <record id="action_medilab_task" model="ir.actions.act_window">

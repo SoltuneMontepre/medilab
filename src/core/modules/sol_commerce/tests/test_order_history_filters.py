@@ -25,10 +25,13 @@ class TestOrderHistoryFilters(PortalCase):
         return order
 
     def test_each_status_finds_the_orders_the_customer_sees_under_it(self):
+        processing = self.sent_order()
+        processing.sudo().quotation_ids.status = "accepted"
         orders = (
             self.make_order([(self.lead_product, 1)])
             | self.make_order([(self.lead_product, 1)], status="submitted")
             | self.sent_order()
+            | processing
             | self.make_confirmed_order()
             | self.confirmed_with_request("testing")
             | self.confirmed_with_request("reported")

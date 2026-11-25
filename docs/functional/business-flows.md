@@ -34,13 +34,13 @@ Every flow uses the features of three shared requirements: [F-44](../reports/fea
 - **Features:** [F-04](../reports/feature-list/readme.md#f-04-portal-cart-drafts-and-reorder), [F-05](../reports/feature-list/readme.md#f-05-order-claiming-and-orders-on-behalf), [F-06](../reports/feature-list/readme.md#f-06-quotation-and-revisions), [F-07](../reports/feature-list/readme.md#f-07-order-templates), [F-09](../reports/feature-list/readme.md#f-09-advance-invoice-and-online-payment), [F-10](../reports/feature-list/readme.md#f-10-quotation-approval-and-order-confirmation).
 - **States:** quotation draft → sent → accepted, approved by the Head of Sales before it is sent when above the thresholds and a salesperson prepared it; order submitted → claimed → confirmed; payment request open → funded; test request draft → confirmed → paid, or → On credit, set by the system.
 - **Starts from:** a catalog with priced parameters and packages, and demo customers.
-- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance payment request, which is not an invoice; the customer pays the advance online and each verified payment posts its invoice; sales confirms the order, which creates its test request, and the system confirms the request as paid because the advance is verified; the customer may hand over the samples, and sample collection can start. The balance payment request is collected in SF-01 Invoicing and payment collection and holds back no step of the test request.
+- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with the sample pickup day agreed with the customer and an advance payment request, which is not an invoice; the customer pays the advance online and each verified payment posts its invoice; sales confirms the order, which creates its test request, and the system confirms the request as paid because the advance is verified; the customer may hand over the samples, and sample collection can start. The balance payment request is collected in SF-01 Invoicing and payment collection and holds back no step of the test request.
 - **Alternative paths:**
-  - WF-01-A1: Sales creates the order for a customer who called or who brings samples to the laboratory, instead of the customer ordering on the portal. The samples wait at reception until the test request is paid, or On credit.
+  - WF-01-A1: Sales creates the order for a customer who called or who brings samples to the laboratory, instead of the customer ordering on the portal. Sales shows or prints the quotation; the customer at the counter pays the advance Sales chose online by QR, or in cash that Sales records and the accountant confirms, and Sales confirms the order without the customer accepting it. Its balance is due before the report by default. The samples wait at reception until the advance is verified, or On credit.
   - WF-01-A2: A visitor who is not signed in submits a cart with their details and e-mail address.
   - WF-01-A3: A returning customer reorders a completed order, or sales creates the order from the customer's template.
   - WF-01-A4: The customer pays the advance by bank transfer or in cash; sales records it as a pending payment and the accountant confirms it, which posts its invoice. While the payment is pending, Sales can draft a revision. Sending the revision, declining the quotation and cancelling the order must wait.
-  - WF-01-A5: The Head of Sales sends a quotation without an advance to a customer allowed to order on credit; the customer accepts it on the portal and the order goes ahead without a payment request; its test request is On credit.
+  - WF-01-A5: The Head of Sales sends a quotation without an advance to a customer allowed to order on credit; the customer accepts it on the portal, or Sales confirms it at once when Sales created the order, and the order goes ahead without a payment request; its test request is On credit.
 - **Exceptions:**
   - WF-01-E1: The customer declines the quotation with a reason; sales revises it and sends the new version, which the customer accepts.
   - WF-01-E2: The quotation passes its payment deadline and is flagged expired; sales extends it. The customer pays within the extended deadline.
@@ -142,7 +142,7 @@ flowchart TD
   - WF-03-A3: The head records planned OverTime for a tester and an outside-hours interval with a reason, without a prerequisite HR overtime shift; the tester can then be booked in that interval.
 - **Exceptions:**
   - WF-03-E1: The assigned tester cannot do the work; the head moves the task to another person or department with a reason, approves the proposed booking, and the new tester is notified.
-  - WF-03-E2: No feasible slot for the agreed way meets the due date; the head reviews viable resources and date options. SF-07 handles the committed return date, and WF-05 handles outsourcing to a subcontractor with the same method.
+  - WF-03-E2: No feasible slot for the agreed way meets the due date; the head reviews viable resources and date options. SF-07 handles the expected return date, and WF-05 handles outsourcing to a subcontractor with the same method.
 - **Acceptance criteria:** See [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-10](shared.md#sh-10-tasks-and-to-do-list). A second tester claiming the same task is told it is already claimed. Claiming another department's task or a parameter the tester is not authorized for is refused. Moving a task without a reason is refused. A schedule never silently changes the accepted way. Bookings share a machine only for the same method and interval, within its capacity. A sample test whose sample its department has not received cannot be booked.
 - **Paths in other flows:** WF-05 for outsourcing; SF-05 for machine disruption; SF-07 for result dates and internal due-date changes; SF-10 for urgency, moving or cancelling bookings, reminders and plan revisions.
 
@@ -193,7 +193,7 @@ flowchart TD
   - WF-04-A9: A tester locks a working file, edits it and unlocks it.
   - WF-04-A10: A tester browses and downloads a sample's files in the back office.
 - **Exceptions:**
-  - WF-04-E1: The head rejects the result with a reason; a new testing task opens, the tester retests with a new booking, the rejected result stays on record and the new one is approved.
+  - WF-04-E1: The head rejects the result with a reason; a new testing task opens for the same tester, who retests with a new booking, the rejected result stays on record and the new one is approved.
   - WF-04-E2: An unusual result warns before sending; the tester sends it anyway and the head sees the warning.
   - WF-04-E3: The head cancels a test that cannot be done, with a reason; the sample completes with its other tests approved.
   - WF-04-E4: Two testers change the same file from one version; the second upload is kept as a conflict, and the tester takes the server's version with a backup of their own and saves their changes again.
@@ -535,7 +535,7 @@ flowchart TD
   - SF-05-A2: Separate windows warn 7 days before calibration, 7 days before maintenance and 7 days after repair by default; warnings do not override a block.
   - SF-05-A3: Planned maintenance reserves downtime; overdue maintenance blocks new bookings until recorded completion.
 - **Exceptions:**
-  - SF-05-E1: Without another machine linked to the same method, keep the work unplaced and notify its tester and head. Sales informs the customer if the committed return date is affected. The head may outsource the work to a subcontractor with the same method (WF-05); a different method needs an agreed revised quotation.
+  - SF-05-E1: Without another machine linked to the same method, keep the work unplaced and notify its tester and head. Sales informs the customer if the expected return date is affected. The head may outsource the work to a subcontractor with the same method (WF-05); a different method needs an agreed revised quotation.
   - SF-05-E2: A breakdown or lost calibration interrupts a booking: the booking ends, its recorded data is kept as an interrupted result, and the head assesses it as usable, needing a retest or needing more sample. A retest is a new result with a new booking.
 - **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md) and [Head of department](laboratory_module/features/head-of-department.md). A machine with proposed, scheduled or running bookings cannot be archived.
 - **Paths in other flows:** SF-10 owns queue order and rescheduling; WF-05 owns outsourcing to a subcontractor with the same method.
@@ -607,20 +607,20 @@ flowchart TD
 ## SF-07 Result dates and priority orders
 
 - **Trigger:** Sales prepares a quotation or changes its scope, a customer asks for earlier results, or a committed or internal result date needs review.
-- **Result:** The customer has a feasible committed return date beside their requested date, internal due dates are derived or explicitly overridden, and accepted priority marks the tests urgent.
+- **Result:** The customer has a feasible expected return date beside their requested date, internal due dates are derived or explicitly overridden, and accepted priority marks the tests urgent.
 - **Stories:** US-C22, US-S21, US-S22, US-HD04, US-HD13, US-HD14.
 - **Features:** [F-08](../reports/feature-list/readme.md#f-08-estimated-result-date-and-priority-check).
-- **States:** proposed return date → committed return date; automatic internal due dates recalculated, manual overrides retained; accepted priority → urgent tests.
+- **States:** proposed return date → expected return date; automatic internal due dates recalculated, manual overrides retained; accepted priority → urgent tests.
 - **Starts from:** quotations in preparation, authorized people and required resource schedules, and outsourced ways with transport and processing turnaround.
-- **Main path:** The quotation shows the standard turnaround of its ways of testing, in working days from sample receipt, and the date it gives if the samples were received today. Sales records the customer's requested date; when the turnaround meets it, it becomes the committed return date, otherwise receiving the first sample fixes the committed date at the receipt day plus the turnaround. Automatic internal due dates follow the committed date.
+- **Main path:** The quotation shows the standard turnaround of its ways of testing, in working days from sample receipt, and the date results would be returned for samples picked up on the day Sales agrees with the customer when sending, later when the laboratory's load, including confirmed orders whose samples have not arrived, leaves the order's tests to finish later. Sales records the customer's requested date; when that estimate meets it, it becomes the expected return date, otherwise receiving the first sample fixes the expected return date at the receipt day plus the turnaround, or later under the same load. Automatic internal due dates follow the expected return date.
 - **Alternative paths:**
   - SF-07-A1: The customer requests priority on the portal; Sales accepts or declines it on the quotation after checking feasibility. Accepted priority makes its tests urgent.
   - SF-07-A2: Adding a parameter updates the estimated return date.
-  - SF-07-A3: The head changes an internal due date with a reason. Preserve it when the committed return date changes; recalculate only automatic dates. The feasibility check only reads: it uses company working days, holidays and leave, proposes the earliest feasible date and reserves or moves no bookings. An infeasible date may be kept with a reason and risk flag.
+  - SF-07-A3: The head changes an internal due date with a reason. Preserve it when the expected return date changes; recalculate only automatic dates. The feasibility check only reads: it uses company working days, holidays and leave, proposes the earliest feasible date and reserves or moves no bookings. An infeasible date may be kept with a reason and risk flag.
 - **Exceptions:**
-  - SF-07-E1: A committed return date becomes infeasible: Sales offers the earliest feasible replacement and records old date, new date and customer confirmation before changing it. If refused, Sales handles a cancellation request for the unfulfillable part; no automatic cancellation or way change.
+  - SF-07-E1: An expected return date becomes infeasible: Sales offers the earliest feasible replacement and records old date, new date and customer confirmation before changing it. If refused, Sales handles a cancellation request for the unfulfillable part; no automatic cancellation or way change.
   - SF-07-E2: The requested priority date is infeasible; Sales offers the earliest feasible date the check gives instead. A way of testing without a standard turnaround keeps the quotation from being sent until the administrator sets it.
-- **Acceptance criteria:** See [Sales](ecommerce_module/features/sales.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-11](shared.md#sh-11-schedules-and-reminders). A date the laboratory cannot meet is not accepted as a committed return date; show the earliest feasible date. Missing outsourced turnaround means no complete estimate is available. An internal due-date override does not change the committed return date. A feasibility check reserves and moves no bookings. The customer sees the requested and committed dates, never an internal due date.
+- **Acceptance criteria:** See [Sales](ecommerce_module/features/sales.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-11](shared.md#sh-11-schedules-and-reminders). A date the laboratory cannot meet is not accepted as an expected return date; show the earliest feasible date. Missing outsourced turnaround means no complete estimate is available. An internal due-date override does not change the expected return date. A feasibility check reserves and moves no bookings. The customer sees the requested and committed dates, never an internal due date.
 - **Paths in other flows:** SF-10 owns priority order and plan revisions; WF-05 owns outsourcing; SF-02 owns cancellation of an unfulfillable part.
 
 ```mermaid
@@ -633,7 +633,7 @@ flowchart TD
         s1[Show the standard turnaround; check a priority date without reserving]
         s2{Requested date feasible?}
         s3[Offer earliest feasible date]
-        s4[Record the requested date, the committed date and any accepted priority]
+        s4[Record the requested date, the expected return date and any accepted priority]
     end
     subgraph lane33 ["Head of department"]
         h1[Review internal due dates and feasibility]
@@ -643,7 +643,7 @@ flowchart TD
     s2 -->|yes| s4
     s2 -->|no| s3 --> c2
     c2 -->|yes| s4
-    c2 -->|no, the committed date cannot be met| cancel([SF-02 cancellation request for unfulfillable part])
+    c2 -->|no, the expected return date cannot be met| cancel([SF-02 cancellation request for unfulfillable part])
     s4 --> dates[Recalculate automatic dates and preserve overrides] --> h1
     h1 -->|override needed| h2
     s4 -->|priority accepted| urgent([SF-10 schedules urgent tests])
@@ -733,12 +733,12 @@ flowchart TD
 ## SF-10 Scheduling plan and revisions
 
 - **Trigger:** testing work arrives, or urgency, a booking change, a result, a cancellation, resource availability or a customer date changes the plan.
-- **Result:** Bookings of the agreed way reserve available testers and required locations, plus fit machines when needed; work is planned by priority, deadline risks remain visible until resolved, and no committed return date is passed without the customer's agreement.
+- **Result:** Bookings of the agreed way reserve available testers and required locations, plus fit machines when needed; work is planned by priority, deadline risks remain visible until resolved, and no expected return date is passed without the customer's agreement.
 - **Stories:** US-T03, US-T19, US-T20, US-HD04, US-HD09, US-HD12, US-HD14, SH-11.
 - **Features:** [F-27](../reports/feature-list/readme.md#f-27-urgent-tests-and-bumping), [F-28](../reports/feature-list/readme.md#f-28-deadline-and-machine-warnings).
-- **States:** booking proposed → scheduled → in progress → done, or cancelled; plan revision proposed → approved by each affected department → applied, with moves that would miss a committed date held back.
+- **States:** booking proposed → scheduled → in progress → done, or cancelled; plan revision proposed → approved by each affected department → applied, with moves that would miss an expected return date held back.
 - **Starts from:** proposed and scheduled bookings, including bookings sharing a machine interval and ways without machines, with authorized testers and required resources.
-- **Main path:** The plan places received, not-started work one at a time by priority class, urgent, due soon, then normal, then by committed return date and arrival, each in the earliest interval where its tester, machine when needed and required locations are free. An approved booking keeps those reservations together, then progresses through testing and result entry.
+- **Main path:** The plan places received, not-started work one at a time by priority class, urgent, due soon, then normal, then by expected return date and arrival, each in the earliest interval where its tester, machine when needed and required locations are free. An approved booking keeps those reservations together, then progresses through testing and result entry.
 - **Alternative paths:**
   - SF-10-A1: A tester or head marks an eligible test urgent with a reason, or removes the mark; accepted priority also makes tests urgent.
   - SF-10-A2: The tester moves or cancels their not-started booking, or the head does so for the department, which pins it. Update all required reservations together; cancelling returns the sample test to the plan without cancelling it.
@@ -746,12 +746,12 @@ flowchart TD
   - SF-10-A4: Moving a booking cancels its unsent old reminder and schedules the new one; send immediately inside the warning window and deduplicate the update.
   - SF-10-A5: Submitting the result or marking the measurement finished frees the machine before the booking's end.
 - **Exceptions:**
-  - SF-10-E1: Urgent work needs a slot that scheduled bookings hold: the recalculation becomes a plan revision listing every moved booking with its new slot, internal due date and committed return date. The head of each affected department approves the moves in their department, and their people are notified once applied; running bookings are never moved. A head who rejects the moves leaves the department's bookings in their slots; the urgent work stays unplaced with its deadline risk shown, and the head may free capacity with planned OverTime or another machine linked to the same method, or outsource the test (WF-05 Outsourced testing).
-  - SF-10-E2: A move would pass its internal due date and so miss a committed return date: it is held back and its booking keeps its slot until Sales records the customer's agreement to a new date (SF-07); the other moves are recalculated without it. The head may instead free capacity with planned OverTime or another machine linked to the same method. Outsourcing to a subcontractor with the same method follows WF-05 and needs no customer agreement; a different method needs a revised quotation and customer agreement.
-  - SF-10-E3: A sample test whose planned finish is after its internal due date, that no free slot lets finish by then, or whose booking overran sends an initial risk notice and daily consolidated summaries to its tester and head until resolved. Sales notifies the customer only when the committed return date is affected or at risk. An overrunning booking keeps its machine and flags the next bookings on it; entering the result clears it.
+  - SF-10-E1: Urgent work needs a slot that scheduled bookings hold: the recalculation becomes a plan revision listing every moved booking with its new slot, internal due date and expected return date. The head of each affected department approves the moves in their department, and their people are notified once applied; running bookings are never moved. A head who rejects the moves leaves the department's bookings in their slots; the urgent work stays unplaced with its deadline risk shown, and the head may free capacity with planned OverTime or another machine linked to the same method, or outsource the test (WF-05 Outsourced testing).
+  - SF-10-E2: A move would pass its internal due date and so miss an expected return date: it is held back and its booking keeps its slot until Sales records the customer's agreement to a new date (SF-07); the other moves are recalculated without it. The head may instead free capacity with planned OverTime or another machine linked to the same method. Outsourcing to a subcontractor with the same method follows WF-05 and needs no customer agreement; a different method needs a revised quotation and customer agreement.
+  - SF-10-E3: A sample test whose planned finish is after its internal due date, that no free slot lets finish by then, or whose booking overran sends an initial risk notice and daily consolidated summaries to its tester and head until resolved. Sales notifies the customer only when the expected return date is affected or at risk. An overrunning booking keeps its machine and flags the next bookings on it; entering the result clears it.
   - SF-10-E4: Approved leave or a room-unavailable interval returns overlapping not-started bookings to the plan for head assignment or authorized claiming.
 - **Acceptance criteria:** See [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-11](shared.md#sh-11-schedules-and-reminders). Marking a test urgent without a reason is refused. A tester cannot mark another person's task urgent. Running bookings, and bookings the head moved by hand, are never moved by a plan revision. Replanning preserves the accepted way and the bookings sharing a machine interval.
-- **Paths in other flows:** WF-03 owns initial assignment and approving bookings; SF-05 owns machine faults and service availability; WF-05 owns outsourcing; SF-07 owns changes to the committed return date and internal due dates.
+- **Paths in other flows:** WF-03 owns initial assignment and approving bookings; SF-05 owns machine faults and service availability; WF-05 owns outsourcing; SF-07 owns changes to the expected return date and internal due dates.
 
 ```mermaid
 flowchart TD
@@ -766,7 +766,7 @@ flowchart TD
         h4[Assess risk, leave or unavailable room]
         h5[Free capacity with OverTime or another machine]
     end
-    q([Received, not-started work]) --> slot[Place by priority class, committed date and arrival]
+    q([Received, not-started work]) --> slot[Place by priority class, expected return date and arrival]
     slot -->|free slot| schedule[On the head's approval: reserve tester, required locations and machine if needed]
     schedule --> t1
     t2 --> done([Booking and result progress under their lifecycles])
@@ -777,7 +777,7 @@ flowchart TD
     revision --> h2
     h2 -->|approve| apply[Apply the moves; running bookings never move] --> schedule
     h2 -->|reject: bookings keep their slots| h5
-    revision -->|a move would miss a committed date| held[Hold it back; its booking keeps its slot]
+    revision -->|a move would miss an expected return date| held[Hold it back; its booking keeps its slot]
     held --> date([SF-07 Sales asks the customer for a new date])
     held --> h5 --> slot
     schedule -.->|deadline risk or resource disruption| h4

@@ -1,5 +1,5 @@
-"""Messages Medilab Mobile reads and posts: in a conversation and in the chatter of a task, a sample or a test request,
-with the person's rights."""
+"""Messages Medilab Mobile reads and posts: in a conversation and in the chatter of a task or a test request, with
+the person's rights."""
 
 import base64
 
@@ -18,7 +18,6 @@ from odoo.addons.sol_laboratory.constants.medilab_mobile import (
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MAIL_MESSAGE,
     MODEL_RES_USERS,
-    MODEL_SAMPLE,
     MODEL_TASK,
     MODEL_TEST_REQUEST,
 )
@@ -27,7 +26,7 @@ from odoo.addons.sol_laboratory.services.mobile_documents import not_found, read
 from odoo.addons.sol_laboratory.services.mobile_uploads import decoded_size
 
 # The documents whose chatter the app shows.
-CHATTER_MODELS = (MODEL_TASK, MODEL_SAMPLE, MODEL_TEST_REQUEST)
+CHATTER_MODELS = (MODEL_TASK, MODEL_TEST_REQUEST)
 # The people a message may mention and a conversation may have: active internal users.
 INTERNAL_USERS = Domain("share", "=", False)
 

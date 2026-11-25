@@ -12,21 +12,26 @@ def by_checksum(module_names, wanted, checksum_of):
     sizes = {size for size, _checksum in wanted}
     checksums = {checksum for _size, checksum in wanted}
     found = {}
+    for path in _file_paths(module_names):
+        try:
+            if os.path.getsize(path) not in sizes:
+                continue
+            with open(path, "rb") as file:
+                checksum = checksum_of(file.read())
+        except OSError:
+            # A broken link or an unreadable file holds nothing to restore from.
+            continue
+        if checksum in checksums:
+            found.setdefault(checksum, path)
+    return found
+
+
+def _file_paths(module_names):
+    """Path of every file in the folders of the modules, skipping a module without a folder."""
     for name in module_names:
         root = get_module_path(name, display_warning=False)
         if not root:
             continue
         for folder, _folders, files in os.walk(root):
             for file_name in files:
-                path = os.path.join(folder, file_name)
-                try:
-                    if os.path.getsize(path) not in sizes:
-                        continue
-                    with open(path, "rb") as file:
-                        checksum = checksum_of(file.read())
-                except OSError:
-                    # A broken link or an unreadable file holds nothing to restore from.
-                    continue
-                if checksum in checksums:
-                    found.setdefault(checksum, path)
-    return found
+                yield os.path.join(folder, file_name)

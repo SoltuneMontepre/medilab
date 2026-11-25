@@ -1,6 +1,7 @@
 import { newRecord, openMenu, openRow, pick, save } from "../../../support/form";
 import { MENU } from "../../../support/menus";
 import { step } from "../../../support/steps";
+import { approveAsHead } from "../wf-04-result-approval/setup";
 import { callAs, callRefused, refAs } from "../../../support/odoo";
 import {
   ACTIONS,
@@ -124,13 +125,7 @@ describe("WF-05 Outsourced testing", () => {
           cy.get(`${ACTIONS} button[name=action_withdraw]:visible`).should("exist");
           cy.readRecord(result, ["status"]).its("status").should("eq", "requested");
           step("The head of department approves the result");
-          cy.signInAs("head_of_department");
-          openMenu(MENU.laboratory, MENU.results, MENU.testResults);
-          openRow(test.code);
-          cy.signRecord();
-          cy.get(`${ACTIONS} button[name=action_sign]`).should("not.exist");
-          cy.readRecord(result, ["status"]).its("status").should("eq", "approved");
-          cy.readRecord(test, ["status"]).its("status").should("eq", "approved");
+          approveAsHead(test, result);
         });
       });
     });

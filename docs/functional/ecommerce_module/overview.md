@@ -29,12 +29,12 @@ Dependencies: [core laboratory module](../laboratory_module/overview.md). It bui
 - The customer accepts a quotation by paying its advance payment request, or declines it with a reason.
 - Once the customer accepts, Sales confirms the sale order and the laboratory can collect samples. From confirmation, the order changes only through a revised quotation the customer accepts.
 - Each quotation version keeps its package prices and package contents; later catalog changes do not alter it.
-- An order keeps the customer's requested date and the committed return date Sales promises; the customer never sees the laboratory's internal due dates.
+- An order keeps the customer's requested date and the expected return date Sales promises; the customer never sees the laboratory's internal due dates.
 
 ### III. Test Request Management
 
 - A confirmed sale order produces the test request that the laboratory core works on.
-- Sales owns the commercial side of the request (customer, prices, payment status, committed return date); the core owns the testing side (samples, parameters, results).
+- Sales owns the commercial side of the request (customer, prices, payment status, expected return date); the core owns the testing side (samples, parameters, results).
 - Sales follows progress and handles whole-order cancellations or cancellation of an unfulfillable part. Completed results and unaffected work are preserved. Before samples are collected Sales decides alone; afterwards cancelling goes through a change request the Head of Sales approves.
 
 ### IV. Invoices and Payments
@@ -67,7 +67,7 @@ The tables are drawn in [ecommerce.prisma](../../infrastructure/database/ecommer
 | Quotation lines  | When a quotation is priced, each line copies the catalog price and the tax rate in force on the quotation date, its discount and its tax, so a sent quotation never changes with the catalog. |
 | Samples | Sampling requirements determine the expected physical samples, containers and amounts shown when ordering. For each type, objects equal the largest line quantity, and expected samples equal objects times compatible sampling groups. Confirming creates these expected samples and their sample tests; collection staff record the actual handover for customer confirmation. Testing stays within the agreed scope: extra samples and excess material add no test. |
 | Revisions        | A revision is a new quotation that replaces the previous one; the previous one becomes read-only.                                              |
-| Dates | An order keeps the customer's requested date and the committed return date Sales promises on the quotation, by default the requested date when the laboratory can meet it and otherwise the estimate. Only Sales changes the committed date, with the customer's agreement. Each sample test has an internal due date the customer never sees. |
+| Dates | An order keeps the customer's requested date and the expected return date Sales promises on the quotation, by default the requested date when the laboratory can meet it and otherwise the estimate. Only Sales changes the expected return date, with the customer's agreement. Each sample test has an internal due date the customer never sees. |
 | Numbers          | Orders, quotations, invoices and receipts get numbers from sequences whose format the administrator configures, such as `0001 26/BG-VTT` for quotations. Quotation, invoice and receipt numbers start again each year. |
 | Payment requests | A payment request asks for the advance when a quotation is sent, or for the balance when the order is confirmed. It is not an invoice and posts no receivable or revenue. |
 | Invoices         | An invoice is an advance, final or adjustment invoice, and uses its quotation's prices and tax rates. Advance and final invoices are posted when their payment is verified; a customer on credit gets the final invoice after testing. The closing invoice deducts advances and earlier balance installments. A posted invoice is never edited; an adjustment invoice corrects it with only the difference. Invoices are Odoo invoices and are not issued through an e-invoice provider. |

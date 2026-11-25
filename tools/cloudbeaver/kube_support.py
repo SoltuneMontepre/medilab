@@ -12,7 +12,7 @@ import urllib.request
 import uuid
 
 from kube_cluster import CONTEXT, NETWORK_NAMESPACE, http_status, inspect, kube, wait_for
-from runtime import IMAGE, PASSWORD, ROOT, Runtime
+from runtime import DATABASE_PASSWORD, IMAGE, PASSWORD, ROOT, Runtime
 
 
 def manifest_document_for_kind(manifest, kind):
@@ -24,6 +24,13 @@ def manifest_document_for_kind(manifest, kind):
     if len(documents) != 1:
         raise ValueError(f"Expected exactly one {kind} document, found {len(documents)}.")
     return documents[0]
+
+
+def init_failed(status):
+    return any(
+        state.get("terminated", {}).get("exitCode", 0) != 0
+        for state in (status.get("state", {}), status.get("lastState", {}))
+    )
 
 
 def core_resources():
@@ -56,7 +63,7 @@ class Fixture:
         kube("create", "namespace", self.namespace)
         kube("label", "namespace", self.namespace, "medilab-regression=cloudbeaver")
         self.secret("cloudbeaver-admin", {"CB_ADMIN_NAME": "operator", "CB_ADMIN_PASSWORD": PASSWORD})
-        self.secret("medilab-db-app", {"username": "regression", "password": "LocalDatabase9"})
+        self.secret("medilab-db-app", {"username": "regression", "password": DATABASE_PASSWORD})
         kube("apply", "-f", "-", input=json.dumps({"apiVersion": "v1", "kind": "List", "items": self.resources}))
         route_manifest = (ROOT / "infra/cluster/cloudbeaver/ingress-route.yaml").read_text()
         for kind in ("Middleware", "IngressRoute"):
@@ -103,29 +110,21 @@ class Fixture:
     def wait_ready(self):
         wait_for(self.ready, "CloudBeaver Pod did not become Ready.")
 
+    def guard_logged(self, pod_name, container, reason):
+        for options in ((), ("--previous",)):
+            logs = kube("logs", "-n", self.namespace, pod_name, "-c", container, *options, check=False).stdout
+            if "CloudBeaver startup blocked." in logs and reason in logs:
+                return True
+        return False
+
     def wait_guard_rejected(self, reason):
         def rejected():
-            for pod in self.pods():
-                for status in pod.get("status", {}).get("initContainerStatuses", []):
-                    failed = any(
-                        state.get("terminated", {}).get("exitCode", 0) != 0
-                        for state in (status.get("state", {}), status.get("lastState", {}))
-                    )
-                    if failed:
-                        for options in ((), ("--previous",)):
-                            logs = kube(
-                                "logs",
-                                "-n",
-                                self.namespace,
-                                pod["metadata"]["name"],
-                                "-c",
-                                status["name"],
-                                *options,
-                                check=False,
-                            ).stdout
-                            if "CloudBeaver startup blocked." in logs and reason in logs:
-                                return True
-            return False
+            return any(
+                self.guard_logged(pod["metadata"]["name"], status["name"], reason)
+                for pod in self.pods()
+                for status in pod.get("status", {}).get("initContainerStatuses", [])
+                if init_failed(status)
+            )
 
         wait_for(rejected, "Workspace preparation did not report the expected guard rejection.")
 
@@ -199,7 +198,7 @@ class Fixture:
                         "image": "docker.io/library/postgres:18.4",
                         "env": [
                             {"name": "POSTGRES_USER", "value": "regression"},
-                            {"name": "POSTGRES_PASSWORD", "value": "LocalDatabase9"},
+                            {"name": "POSTGRES_PASSWORD", "value": DATABASE_PASSWORD},
                             {"name": "POSTGRES_DB", "value": "medilab"},
                         ],
                         "readinessProbe": {
@@ -326,7 +325,7 @@ class Fixture:
                 raise AssertionError("Unexpected port-forward state.")
             api = Runtime.__new__(Runtime)
             api.port = int(match[1])
-            api.env = {"CB_ADMIN_PASSWORD": PASSWORD, "DB_PASSWORD": "LocalDatabase9"}
+            api.env = {"CB_ADMIN_PASSWORD": PASSWORD, "DB_PASSWORD": DATABASE_PASSWORD}
             api.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
             yield api
         finally:

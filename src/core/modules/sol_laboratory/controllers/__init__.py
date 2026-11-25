@@ -30,6 +30,7 @@ from . import (
     laboratory_mobile_updates,
     laboratory_sync_compatibility,
     laboratory_sync_updates,
+    medilab_sync_setup,
     portal,
     report,
     test_report,

@@ -2,6 +2,8 @@ from datetime import UTC, datetime, time, timedelta
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
+from lxml import etree
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command, Domain
@@ -45,6 +47,28 @@ CANCELLABLE_STATUSES = ("expected", "received", "on_hold", "testing")
 FINISHED_STATUSES = ("rejected", "reported", "retained", "disposed", "returned", "cancelled")
 RECEIPT_STATUS = {"good": "received", "unusable": "rejected", "insufficient": "on_hold"}
 CONDITIONS = [("good", "Good"), ("unusable", "Unusable"), ("insufficient", "Insufficient")]
+HELD_INTAKE_FIELDS = frozenset({"received_quantity", "storage_location"})
+EXPECTED_INTAKE_FIELDS = HELD_INTAKE_FIELDS | {
+    "physical_state",
+    "condition",
+    "condition_note",
+    "sampling_location_id",
+    "sample_form",
+    "container_type",
+}
+INTAKE_FIELDS = {"expected": EXPECTED_INTAKE_FIELDS, "on_hold": HELD_INTAKE_FIELDS}
+
+
+def _intake_readonly(node):
+    """The readonly expression of a form field for a user who may only record the intake of a sample."""
+    field = node.get("name")
+    if field in HELD_INTAKE_FIELDS:
+        readonly = "status not in ('expected', 'on_hold')"
+    elif field in EXPECTED_INTAKE_FIELDS:
+        readonly = "status != 'expected'"
+    else:
+        return "1"
+    return f"({node.get('readonly')}) or ({readonly})" if node.get("readonly") else readonly
 
 
 def _progress(statuses, sent, done):
@@ -77,7 +101,7 @@ class Sample(models.Model, SampleBase):
     _audit_children = ("test_ids", "handover_ids", "expected_sampling_ids", "return_ids")
 
     if not TYPE_CHECKING:
-        # Unique laboratory code (mã PTN) from a sequence, such as PTN.2026.0001; the only name testers see.
+        # Unique laboratory code (mã PTN) from a sequence, such as PTN.26.11.0001; the only name testers see.
         code = fields.Char(string="Lab Code", required=True, copy=False, readonly=True)
         # The test request the sample belongs to.
         request_id = fields.Many2one(
@@ -212,6 +236,12 @@ class Sample(models.Model, SampleBase):
         return samples
 
     def write(self, vals):
+        if (
+            vals
+            and self._has_intake_only_access()
+            and all(vals.keys() <= INTAKE_FIELDS.get(sample.status or "", frozenset()) for sample in self)
+        ):
+            return self._write_receipt(vals)
         if vals.get("status") and vals["status"] != "disposed" and any(sample.status == "disposed" for sample in self):
             raise UserError(
                 self.env._(
@@ -241,6 +271,38 @@ class Sample(models.Model, SampleBase):
             self._link_photos()
         if "sample_type_id" in vals:
             self.test_ids._refresh_accreditation()
+        return result
+
+    @api.model
+    def _has_intake_only_access(self):
+        handovers = self.env[MODEL_SAMPLE_HANDOVER]
+        return not self._has_permission("edit") and "all" in handovers._user_scopes("create")
+
+    @api.model
+    def get_view(self, view_id=None, view_type="form", **options):
+        view = super().get_view(view_id, view_type, **options)
+        if view_type == "form" and self._has_intake_only_access():
+            arch = etree.fromstring(view["arch"])
+            arch.set("edit", "True")
+            for node in arch.iter("field"):
+                if next(node.iterancestors("field"), None) is None:
+                    node.set("readonly", _intake_readonly(node))
+            view["arch"] = etree.tostring(arch, encoding="unicode")
+        return view
+
+    def lock_take(self):
+        if self._has_intake_only_access() and self.status in INTAKE_FIELDS:
+            self.check_access("read")
+            return super(Sample, self.sudo()).lock_take()
+        return super().lock_take()
+
+    def _write_receipt(self, vals):
+        if not self._has_intake_only_access():
+            return self.write(vals)
+        self.check_access("read")
+        locks = self._check_lock()
+        result = self.sudo().write(vals)
+        locks._own_edits()._release("saved")
         return result
 
     def _check_regulation(self):
@@ -304,7 +366,7 @@ class Sample(models.Model, SampleBase):
                     ", ".join(code or "" for code in unknown.mapped("code")),
                 )
             )
-        self.write(
+        self._write_receipt(
             {
                 "received_quantity": quantity,
                 "condition": condition,
@@ -323,7 +385,9 @@ class Sample(models.Model, SampleBase):
         testing work follow."""
         unreceived = self.filtered(lambda sample: not sample.received_at)
         if unreceived:
-            unreceived.write({"received_at": fields.Datetime.now(), "received_by_id": self._current_person().id})
+            unreceived._write_receipt(
+                {"received_at": fields.Datetime.now(), "received_by_id": self._current_person().id}
+            )
         # Receiving the sample is the permission that matters; its request follows with full rights.
         for request in self.request_id.sudo():
             if "sample_received" in request._next_statuses():
@@ -348,12 +412,13 @@ class Sample(models.Model, SampleBase):
         vals = {"status": "received", "received_quantity": quantity}
         if storage_location is not None:
             vals["storage_location"] = storage_location
-        self.write(vals)
+        self._write_receipt(vals)
         self._record_receipt()
         # The sample is back, so its collection is done.
         self._open_collection_tasks().write({"status": "done", "done_at": fields.Datetime.now()})
         # A sample collected again after a failed subcontract delivery goes back to testing when its tests had started.
-        self._follow_tests()
+        samples = self.sudo() if self._has_intake_only_access() else self
+        samples._follow_tests()
 
     def action_receive_more_entered(self):
         for sample in self:
@@ -475,8 +540,33 @@ class Sample(models.Model, SampleBase):
 
     def action_attach_photo(self, photo, name="photo.jpg"):
         """The mobile app attaches a photo taken when the sample is collected or received."""
-        self.ensure_one()
-        return self._link_photo(self.env[MODEL_IR_ATTACHMENT].create(self._photo_values(photo, name)))
+        return self._attach_photo(self._photo_values(photo, name))
+
+    def _can_attach_collection_photo(self):
+        return (
+            not self._has_permission("edit")
+            and "all" in self._user_scopes("create")
+            and self.env.user.has_group(TEST_REQUEST_READER_GROUP)
+            and self.status in ("expected", "on_hold", "received")
+        )
+
+    def _attach_photo(self, values, device=None, key=None):
+        sample = self
+        locks = None
+        if self._can_attach_collection_photo():
+            self.check_access("read")
+            locks = self._check_lock()
+            sample = self.sudo()
+        else:
+            self._check_permission("edit")
+
+        attachments = sample.env[MODEL_IR_ATTACHMENT]
+        with self.env.cr.savepoint():
+            photo = attachments._create_once(device, key, values) if device else attachments.create(values)
+            sample.write({"photo_ids": [Command.link(persisted_id(photo))]})
+            if locks:
+                locks._own_edits()._release("saved")
+        return photo.with_env(self.env)
 
     def _photo_values(self, photo, name, mimetype=None):
         """The attachment of a photo of the sample."""
@@ -485,10 +575,6 @@ class Sample(models.Model, SampleBase):
         if mimetype:
             values["mimetype"] = mimetype
         return values
-
-    def _link_photo(self, attachment):
-        self.write({"photo_ids": [Command.link(persisted_id(attachment))]})
-        return attachment
 
     def _disposal_allowed(self):
         self.ensure_one()

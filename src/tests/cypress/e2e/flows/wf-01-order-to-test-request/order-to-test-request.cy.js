@@ -1,9 +1,10 @@
-import { choose, newRecord, openMenu, openRow, openTab, pick, save, search } from "../../../support/form";
+import { choose, newRecord, openMenu, openRow, pick, save, search } from "../../../support/form";
 import { MENU, PORTAL_MENU } from "../../../support/menus";
 import { becomeVisitor, call, callAs, callRefused, refAs, resolveRecord, signIn } from "../../../support/odoo";
 import { step } from "../../../support/steps";
 import {
   CUSTOMERS,
+  REASON,
   SAMPLING_LINES,
   clearCarts,
   currentRequest,
@@ -15,25 +16,6 @@ import {
   reviseQuotation,
 } from "./setup";
 
-const REASON = "Giá xét nghiệm chì cao hơn báo giá năm trước.";
-
-const ORDER_FIELDS = ["order_status", "quotation_follow_up", "write_date"];
-
-const readOrder =
-  (order, fields = ORDER_FIELDS) =>
-  () =>
-    cy.readRecord(order, fields);
-
-// The expected samples a page shows inside `container`: one sample with its objects, expected samples and groups.
-function expectSampling(container, { objects, expected, groups }) {
-  cy.get(container)
-    .find(".o_medilab_expected_sampling")
-    .within(() => {
-      cy.get(".o_medilab_objects").should("have.text", String(objects));
-      cy.get(".o_medilab_expected").should("have.text", String(expected));
-      cy.get("tbody tr").should("have.length", groups);
-    });
-}
 // The advance request keeps the exact quotation deadline.
 function expectAdvanceDueOnDeadline(order) {
   cy.readRecord(order, ["payment_deadline"]).then(({ payment_deadline }) => currentRequest(order).its("deadline").should("eq", payment_deadline));
@@ -41,7 +23,6 @@ function expectAdvanceDueOnDeadline(order) {
 
 describe("WF-01 Order to confirmed test request", () => {
   it("TC-WF01-M takes a portal order through the quotation, payment and confirmation", () => {
-    const sampleName = `Mẫu nước ${Date.now()}`;
     clearCarts(CUSTOMERS.nuocSach);
     step("Customer fills a cart from the catalog");
     cy.signInAs("customer");
@@ -76,24 +57,17 @@ describe("WF-01 Order to confirmed test request", () => {
         cy.contains(".o_data_row", submitted.name).find("button[name=action_claim]").click();
         cy.contains(".o_data_row", submitted.name).should("not.exist");
 
-        step("Sales opens the order and puts its parameter on a sample");
+        step("Sales opens the order and checks its line and sample type");
+        const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+        callAs("demo.sales", "sale.order", "write", [[order.id], { expected_collection_date: tomorrow }]);
         openMenu(MENU.sales, MENU.orders);
         openRow(submitted.name);
-        openTab("samples");
-        cy.get(".o_field_widget[name=sample_ids] .o_field_x2many_list_row_add button").click();
-        cy.get(".o_selected_row .o_field_widget[name=customer_sample_name] input").type(sampleName);
-        pick("sample_type_id", "Nước đóng chai");
-        choose("physical_state", "Lỏng");
-        save();
-        openTab("order_lines");
-        cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=sample_id]").first().click();
-        pick("sample_id", sampleName);
         step("Sales asks for an online advance and sends the quotation");
-        openTab("payment");
-        choose("advance_method", "Trực tuyến");
-        choose("advance_mode", "Phần trăm");
-        cy.get(".o_field_widget[name=advance_value] input").clear().type("30");
-        cy.sendRecord("action_send_quotation");
+        cy.sendQuotation(() => {
+          choose("payment_method", "Trực tuyến");
+          choose("advance_mode", "Phần trăm");
+          cy.get(".modal:visible .o_field_widget[name=advance_value] input").clear().type("30");
+        });
         cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
         cy.readRecord(order, ["invoice_ids"]).its("invoice_ids").should("be.empty");
         call(
@@ -129,8 +103,8 @@ describe("WF-01 Order to confirmed test request", () => {
       cy.intercept("POST", "**/web/dataset/call_button/sale.order/action_confirm_order*").as("confirmOrder");
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
       cy.wait("@confirmOrder").its("response.body").should("not.have.property", "error");
-      // Its advance is verified, so its samples can be collected; the balance request waits for the report.
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
+      // A portal order owes its balance before its samples are collected.
+      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
       currentRequest(paid).its("kind").should("eq", "balance");
       payAdvance(paid);
       cy.openRecord(paid);
@@ -236,8 +210,8 @@ describe("WF-01 Order to confirmed test request", () => {
       step("Sales revises the quotation and sends the new version");
       cy.signInAs("sales");
       cy.openRecord(order);
-      cy.intercept("POST", "**/web/dataset/call_button/sale.order/action_send_quotation*").as("sendRevision");
-      cy.sendRecord("action_send_quotation");
+      cy.intercept("POST", "**/web/dataset/call_button/medilab.quotation.send/action_send*").as("sendRevision");
+      cy.sendQuotation();
       cy.wait("@sendRevision").its("response.body").should("not.have.property", "error");
       latestQuotation(order.id).its("revision").should("eq", 2);
       step("The customer accepts the new version by paying its advance");
@@ -284,9 +258,10 @@ describe("WF-01 Order to confirmed test request", () => {
       step("The Head of Sales sends the quotation without an advance");
       cy.signInAs("head_of_sales");
       cy.openRecord(order);
-      openTab("payment");
-      choose("advance_method", "No advance");
-      cy.sendRecord("action_send_quotation");
+      cy.sendQuotation(() => {
+        choose("payment_method", "Cash");
+        choose("advance_mode", "No advance");
+      });
       cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
 
       step("The customer allowed to order on credit accepts the quotation on the portal");

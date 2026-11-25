@@ -380,7 +380,7 @@ class TestReport(models.Model, TestReportBase):
         passed = dict(self.env[MODEL_TEST_RESULT]._fields["conclusion"]._description_selection(example))["pass"]
         sample = {
             "name": example._("Bottled drinking water 500 mL, lot 1001"),
-            "code": "PTN.2026.0001",
+            "code": "PTN.26.01.0001",
             "sample_type": example._("Bottled drinking water"),
             "amount": "2 × 500 mL",
             "condition": example._("Good"),
@@ -408,7 +408,7 @@ class TestReport(models.Model, TestReportBase):
         return {
             "report_number": "PKQ.2026.0001",
             "report_date": format_date(example, today),
-            "request_code": "YC.2026.0001",
+            "request_code": "YC.26.01.0001",
             "customer_name": example._("Example Customer Co., Ltd."),
             "customer_address": example._("12 Nguyen Hue, District 1, Ho Chi Minh City"),
             "received_dates": format_date(example, today),

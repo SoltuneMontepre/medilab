@@ -5,14 +5,31 @@
         <field name="model">medilab.payment.collection</field>
         <field name="arch" type="xml">
             <form>
-                <group>
-                    <field name="order_id" options="{'no_open': True}" />
-                    <field name="currency_id" invisible="1" />
-                    <field name="amount" />
-                    <field name="method" />
-                    <field name="received_at" />
-                    <field name="reference" />
-                </group>
+                <field name="order_id" invisible="1" />
+                <field name="currency_id" invisible="1" />
+                <field name="payos_available" invisible="1" />
+                <field name="payos_checkout_url" invisible="1" />
+                <div class="row g-4 align-items-start">
+                    <div class="col-md-5">
+                        <field name="summary_html" widget="medilab_html_links" nolabel="1" readonly="1" />
+                    </div>
+                    <div class="col-md-7">
+                        <group>
+                            <field name="amount" />
+                            <field name="method" />
+                            <field name="received_at" />
+                            <field name="reference" />
+                        </group>
+                        <button
+                            name="action_generate_payos_qr"
+                            type="object"
+                            string="Generate PayOS QR"
+                            class="btn-secondary mb-2"
+                            invisible="method != 'bank_transfer' or not payos_available or payos_checkout_url"
+                        />
+                        <field name="qr_html" nolabel="1" readonly="1" invisible="method != 'bank_transfer' or not qr_html" />
+                    </div>
+                </div>
                 <footer>
                     <button name="action_record" type="object" string="Record payment" class="btn-success" />
                     <button special="cancel" string="Cancel" class="btn-secondary" />

@@ -15,6 +15,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE_BOOKING,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
+    MODEL_SAMPLE,
     MODEL_SAMPLE_TEST,
     MODEL_TASK,
     MODEL_TASK_TYPE,
@@ -74,6 +75,8 @@ class Task(models.Model, TaskBase):
         linked_by_system = fields.Boolean(readonly=True, copy=False)
         # Department whose queue holds the task until someone is assigned.
         department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", domain=DEPARTMENT_DOMAIN)
+        # Queue label shown when grouping open tasks across departments and role queues.
+        queue_name = fields.Char(string="Queue", compute="_compute_queue_name", store=True)
         # Person who does the task; empty while it waits in a queue.
         assignee_id = fields.Many2one(MODEL_PERSON, string="Assignee", ondelete="restrict")
         # Person who assigned the task; the assignee themselves when they claimed it.
@@ -190,6 +193,20 @@ class Task(models.Model, TaskBase):
         person = self.env[MODEL_PERSON]._current()
         return Domain("assignee_id", "=", person.id) if person else Domain.FALSE
 
+    @api.depends("department_id", "department_id.name", "type_id.route", "type_id.role_id", "type_id.role_id.name")
+    def _compute_queue_name(self):
+        # Compute in one canonical language so open tasks never split across language-specific groups.
+        lang = self.env.company.partner_id.lang or "en_US"
+        for task in self.sudo().with_context(lang=lang):
+            if task.department_id:
+                task.queue_name = task.department_id.name
+            elif task.type_id.route == "role" and task.type_id.role_id:
+                task.queue_name = task.type_id.role_id.name
+            elif task.type_id.route == "administrator":
+                task.queue_name = task.env._("Administrator")
+            else:
+                task.queue_name = False
+
     @api.depends("department_id", "assignee_id", "status", MOVED_OUT_BY)
     @api.depends_context("uid")
     def _compute_can_edit(self):
@@ -297,6 +314,7 @@ class Task(models.Model, TaskBase):
         if "assignee_id" in vals:
             self.env[MODEL_SAMPLE_TEST]._follow_assignment(self)
             self.env[MODEL_MACHINE_BOOKING]._follow_assignment(self)
+            self.env[MODEL_SAMPLE]._follow_assignment(self)
         if moved_out:
             # The departments the tasks moved between plan without and with them.
             self.env[MODEL_MACHINE_BOOKING]._plan(left | moved_out.sudo().department_id)

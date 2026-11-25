@@ -9,7 +9,7 @@ OLD_DEPARTMENT_MODEL = "medilab.department"
 OLD_OWN_DEPARTMENT_DOMAIN = "[('department_id.person_ids', 'any', [('user_id', '=', user.id), ('active', '=', True)])]"
 
 
-def migrate(cr, version):
+def migrate(cr, _version):
     # Departments move to Odoo's hr.department and people delegate to an Odoo employee, keeping their links.
     if not table_exists(cr, "medilab_department"):
         return

@@ -11,6 +11,7 @@ STATUS_COMPLETED = "completed"
 STATUS_CANCELLED = "cancelled"
 # The statuses the customer sees that are not order statuses.
 STATUS_QUOTED = "quoted"
+STATUS_PROCESSING = "processing"
 STATUS_WAITING = "waiting"
 STATUS_TESTING = "testing"
 
@@ -46,7 +47,7 @@ BALANCE_BEFORE_COLLECTION = "before_collection"
 BALANCE_AT_COLLECTION = "at_collection"
 BALANCE_BEFORE_REPORT = "before_report"
 # The advance fields stop changing once the current revision is sent.
-ADVANCE_FIELDS = frozenset({"advance_method", "advance_mode", "advance_value", "balance_due"})
+ADVANCE_FIELDS = frozenset({"advance_method", "payment_method", "advance_mode", "advance_value", "balance_due"})
 # The quotation statuses under which the order's advance, lines and samples stay as quoted.
 QUOTATION_FROZEN_STATUSES = (QUOTATION_SENT, QUOTATION_ACCEPTED)
 
@@ -82,7 +83,7 @@ FROZEN_LINE_FIELDS = frozenset(
 )
 
 # The dates and priority of the order that stop changing once the quotation is sent.
-DATE_FIELDS = frozenset({"requested_date", "committed_date", "priority_request"})
+DATE_FIELDS = frozenset({"requested_date", "committed_date", "priority_request", "expected_collection_date"})
 
 # The sample fields that stop changing with the lines.
 FROZEN_SAMPLE_FIELDS = frozenset(

@@ -1,9 +1,11 @@
 from typing import TYPE_CHECKING
 
+from markupsafe import Markup, escape
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command
-from odoo.tools import SQL
+from odoo.tools import SQL, format_datetime
 
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_ACCOUNT_MOVE,
@@ -48,9 +50,27 @@ class SaleOrder(models.Model, SaleOrderBase):
             compute="_compute_payment_status",
             compute_sudo=True,
         )
+        # Detailed payment badge for the order header distinguishing credit, pending, partial, and unpaid states.
+        payment_badge_status = fields.Selection(
+            [
+                ("on_credit", "On Credit"),
+                ("paid", "Paid"),
+                ("partial_pending", "Partial (pending confirmation)"),
+                ("pending", "Pending confirmation"),
+                ("partial", "Partially paid"),
+                ("not_paid", "Not paid"),
+            ],
+            string="Payment",
+            compute="_compute_payment_badge_status",
+            compute_sudo=True,
+        )
         # Draft cash and bank transfers on this order's invoices. A confirmed or rejected payment is not included.
         pending_amount = fields.Monetary(
             string="Pending amount", compute="_compute_pending_amount", currency_field="currency_id", compute_sudo=True
+        )
+        # Read-only table of recorded payments so Sales can see what was submitted and its status.
+        recorded_payments_html = fields.Html(
+            compute="_compute_recorded_payments_html", compute_sudo=True, sanitize=False
         )
 
     @api.depends(
@@ -72,6 +92,20 @@ class SaleOrder(models.Model, SaleOrderBase):
                 order.payment_status = "paid"
             else:
                 order.payment_status = "partial"
+
+    @api.depends("on_credit", "payment_status", "pending_amount")
+    def _compute_payment_badge_status(self):
+        for order in self:
+            if order.on_credit:
+                order.payment_badge_status = "on_credit"
+            elif order.payment_status == "paid":
+                order.payment_badge_status = "paid"
+            elif order.pending_amount > 0:
+                order.payment_badge_status = "partial_pending" if order.payment_status == "partial" else "pending"
+            elif order.payment_status == "partial":
+                order.payment_badge_status = "partial"
+            else:
+                order.payment_badge_status = "not_paid"
 
     def _verified_order_amount(self):
         self.ensure_one()
@@ -96,6 +130,74 @@ class SaleOrder(models.Model, SaleOrderBase):
     def _compute_pending_amount(self):
         for order in self:
             order.pending_amount = sum(order._pending_collections(include_online=False).mapped("amount"))
+
+    @api.depends(
+        "payment_request_ids.payment_ids.state",
+        "payment_request_ids.payment_ids.amount",
+        "payment_request_ids.payment_ids.method",
+        "payment_request_ids.payment_ids.received_at",
+        "payment_request_ids.payment_ids.memo",
+        "payment_request_ids.payment_ids.rejection_reason",
+        "payment_request_ids.payment_ids.reviewed_at",
+    )
+    def _compute_recorded_payments_html(self):
+        _ = self.env._
+        payment_model = self.env[MODEL_ACCOUNT_PAYMENT].sudo()
+        field_labels = payment_model.fields_get(["received_at", "method", "memo", "amount"])
+        state_label = self.env[MODEL_PAYMENT_REQUEST].sudo().fields_get(["state"])["state"]["string"]
+        method_labels = dict(payment_model._fields["method"]._description_selection(self.env))
+        for order in self:
+            payments = order.sudo().payment_request_ids.payment_ids.sorted("id", reverse=True)
+            if not payments:
+                order.recorded_payments_html = False
+                continue
+            rows = [order._recorded_payment_row(payment, method_labels) for payment in payments]
+            order.recorded_payments_html = Markup(
+                '<div class="border rounded-3 bg-white overflow-hidden">'
+                '<div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0">'
+                '<thead class="table-light"><tr class="text-muted">'
+                '<th class="px-3 py-2">%s</th><th class="px-3 py-2">%s</th><th class="px-3 py-2">%s</th>'
+                '<th class="px-3 py-2 text-end">%s</th><th class="px-3 py-2">%s</th>'
+                "</tr></thead><tbody>%s</tbody></table></div></div>"
+            ) % (
+                escape(field_labels["received_at"]["string"]),
+                escape(field_labels["method"]["string"]),
+                escape(field_labels["memo"]["string"]),
+                escape(field_labels["amount"]["string"]),
+                escape(state_label),
+                Markup("").join(rows),
+            )
+
+    def _recorded_payment_row(self, payment, method_labels):
+        """Table row of a payment recorded on the order, with its accounting status."""
+        _ = self.env._
+        if payment._verified_for_request():
+            badge = Markup('<span class="badge rounded-pill text-bg-success">%s</span>') % _("Confirmed by accounting")
+        elif payment.state in ("canceled", "rejected"):
+            badge = Markup('<span class="badge rounded-pill text-bg-danger">%s</span>') % _("Rejected")
+        else:
+            badge = Markup('<span class="badge rounded-pill text-bg-warning">%s</span>') % _(
+                "Pending accounting confirmation"
+            )
+        note = (
+            Markup('<div class="small text-danger mt-1">%s</div>') % escape(payment.rejection_reason)
+            if payment.state in ("canceled", "rejected") and payment.rejection_reason
+            else Markup("")
+        )
+        received = format_datetime(self.env, payment.received_at) if payment.received_at else ""
+        method = method_labels.get(payment.method or "", payment.method or "")
+        return Markup(
+            '<tr><td class="px-3 py-2">%s</td><td class="px-3 py-2">%s</td>'
+            '<td class="px-3 py-2">%s</td><td class="px-3 py-2 text-end">%s</td>'
+            '<td class="px-3 py-2">%s%s</td></tr>'
+        ) % (
+            escape(received),
+            escape(method),
+            escape(payment.memo or ""),
+            escape(self.currency_id.format(payment.amount)),
+            badge,
+            note,
+        )
 
     def _pending_collections(self, *, include_online=True):
         self.ensure_one()
@@ -138,6 +240,8 @@ class SaleOrder(models.Model, SaleOrderBase):
         "payment_request_id.state",
         "payment_request_id.amount",
         "payment_request_id.carried_amount",
+        "payment_request_id.pending_amount",
+        "payment_request_id.remaining_amount",
         "quotation_ids.status",
         "state",
         "on_credit",
@@ -148,7 +252,12 @@ class SaleOrder(models.Model, SaleOrderBase):
         for order in self:
             request = order.payment_request_id
             quotation = order._latest_quotation()
-            order.can_record_collection = bool(order._collection_target() and order.state != "cancel")
+            target = order._collection_target()
+            has_uncollected = bool(target)
+            if target and target._name == MODEL_PAYMENT_REQUEST:
+                outstanding = target["remaining_amount"] - target["pending_amount"]
+                has_uncollected = target.currency_id.compare_amounts(outstanding, 0) > 0
+            order.can_record_collection = bool(has_uncollected and order.state != "cancel")
             order.can_record_agreement = bool(
                 quotation.status == "sent"
                 and quotation.replaces_id
@@ -174,6 +283,9 @@ class SaleOrder(models.Model, SaleOrderBase):
                 )
             )[:1]
         return self.env[MODEL_PAYMENT_REQUEST]
+
+    def action_awaiting_payment_confirmation(self):
+        return False
 
     def action_record_collection(self, amount, method, received_at=None, reference=None):
         """Record Sales' receipt of cash or a bank transfer for this order."""

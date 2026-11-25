@@ -1,7 +1,7 @@
 use crate::error::{AppError, AppResult};
 use crate::sync::rules::SyncRule;
 use parking_lot::Mutex;
-use rusqlite::{params, Connection, OptionalExtension};
+use rusqlite::{params, Connection, OptionalExtension, Row};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -37,6 +37,9 @@ pub struct FolderRow {
     pub workflow_status: Option<String>,
     #[serde(default)]
     pub instrument_label: Option<String>,
+    /// `upload_only` hoặc `two_way` theo lần trả lời gần nhất của server; `None` khi chưa biết.
+    #[serde(default)]
+    pub sync_mode: Option<String>,
     #[serde(default = "default_access_ok")]
     pub access_state: String,
 }
@@ -138,6 +141,46 @@ pub struct RemoteFileRow {
     pub last_synced_hash: Option<String>,
     pub suppress_hash: Option<String>,
     pub status: String,
+}
+
+/// Đọc một `RemoteFileRow` từ 8 cột đầu của truy vấn: `id, folder_id, relative_path,
+/// remote_file_id, remote_version_id, last_synced_hash, suppress_hash, status`.
+fn remote_file_from_row(row: &Row) -> rusqlite::Result<RemoteFileRow> {
+    Ok(RemoteFileRow {
+        id: row.get(0)?,
+        folder_id: row.get(1)?,
+        relative_path: row.get(2)?,
+        remote_file_id: row.get(3)?,
+        remote_version_id: row.get(4)?,
+        last_synced_hash: row.get(5)?,
+        suppress_hash: row.get(6)?,
+        status: row.get(7)?,
+    })
+}
+
+/// Đọc một `JobRow` từ 12 cột đầu của truy vấn: `id, folder_id, file_id, relative_path,
+/// operation, status, attempt_count, last_error, bytes_total, bytes_done, remote_file_id,
+/// remote_version_id`; state phiên tải lên và version đích để trống cho nơi gọi điền.
+fn job_summary_from_row(row: &Row) -> rusqlite::Result<JobRow> {
+    Ok(JobRow {
+        id: row.get(0)?,
+        folder_id: row.get(1)?,
+        file_id: row.get(2)?,
+        relative_path: row.get(3)?,
+        operation: row.get(4)?,
+        status: row.get(5)?,
+        attempt_count: row.get(6)?,
+        last_error: row.get(7)?,
+        bytes_total: row.get(8)?,
+        bytes_done: row.get(9)?,
+        remote_file_id: row.get(10)?,
+        remote_version_id: row.get(11)?,
+        session_id: None,
+        uploaded_parts: None,
+        content_hash: None,
+        target_version_number: None,
+        part_size: None,
+    })
 }
 
 impl Db {
@@ -272,7 +315,10 @@ impl Db {
         )?;
         tx.execute("UPDATE sync_file SET remote_file_id = NULL, remote_version_id = NULL, last_synced_hash = NULL, suppress_hash = NULL", [])?;
         tx.execute("UPDATE sync_job SET session_id = NULL, uploaded_parts = NULL, part_size = NULL, prepare_key = NULL, prepare_fingerprint = NULL, remote_file_id = NULL, remote_version_id = NULL, bytes_done = 0, status = CASE WHEN status IN ('running','retry_wait') THEN 'pending' ELSE status END", [])?;
-        tx.execute("DELETE FROM app_meta WHERE key LIKE 'change_cursor:%'", [])?;
+        tx.execute(
+            "DELETE FROM app_meta WHERE key LIKE 'change_cursor:%' OR key LIKE 'auto_bind_skip:%'",
+            [],
+        )?;
         tx.execute(
             "INSERT OR REPLACE INTO app_meta(key,value) VALUES('laboratory_api_version','1')",
             [],
@@ -448,7 +494,8 @@ impl Db {
         let mut stmt = conn.prepare(
             "SELECT id, local_path, remote_id, logical_root, enabled, recursive,
                     sample_name, sample_code, category, workflow_status, instrument_label,
-                    COALESCE(access_state, 'ok')
+                    COALESCE(access_state, 'ok'),
+                    (SELECT value FROM app_meta WHERE key = 'folder_mode:' || sync_folder.id)
              FROM sync_folder ORDER BY id",
         )?;
         let rows = stmt
@@ -466,6 +513,7 @@ impl Db {
                     workflow_status: row.get(9)?,
                     instrument_label: row.get(10)?,
                     access_state: row.get(11)?,
+                    sync_mode: row.get(12)?,
                 })
             })?
             .collect::<Result<Vec<_>, _>>()?;
@@ -496,6 +544,25 @@ impl Db {
         let conn = self.conn.lock();
         conn.execute("DELETE FROM app_meta WHERE key = ?1", params![key])?;
         Ok(())
+    }
+
+    /// Nhớ (hoặc quên) rằng người dùng đã ngừng đồng bộ folder này trên máy này, để nó không tự được
+    /// gắn lại vào thư mục chính.
+    pub fn set_auto_bind_skipped(&self, remote_id: i64, skipped: bool) -> AppResult<()> {
+        let key = format!("auto_bind_skip:{remote_id}");
+        if skipped {
+            return self.meta_set(&key, "1");
+        }
+        let conn = self.conn.lock();
+        conn.execute("DELETE FROM app_meta WHERE key = ?1", params![key])?;
+        Ok(())
+    }
+
+    /// True nếu người dùng đã ngừng đồng bộ folder này trên máy này.
+    pub fn auto_bind_skipped(&self, remote_id: i64) -> AppResult<bool> {
+        Ok(self
+            .meta_get(&format!("auto_bind_skip:{remote_id}"))?
+            .is_some())
     }
 
     /// True nếu folder còn cờ chờ hydrate.
@@ -676,16 +743,7 @@ impl Db {
                 params![file_id],
                 |row| {
                     Ok((
-                        RemoteFileRow {
-                            id: row.get(0)?,
-                            folder_id: row.get(1)?,
-                            relative_path: row.get(2)?,
-                            remote_file_id: row.get(3)?,
-                            remote_version_id: row.get(4)?,
-                            last_synced_hash: row.get(5)?,
-                            suppress_hash: row.get(6)?,
-                            status: row.get(7)?,
-                        },
+                        remote_file_from_row(row)?,
                         FolderBinding {
                             id: row.get(1)?,
                             local_path: row.get(8)?,
@@ -850,18 +908,7 @@ impl Db {
                 "SELECT id, folder_id, relative_path, remote_file_id, remote_version_id, last_synced_hash, suppress_hash, status
                  FROM sync_file WHERE folder_id = ?1 AND relative_path = ?2",
                 params![folder_id, relative_path],
-                |row| {
-                    Ok(RemoteFileRow {
-                        id: row.get(0)?,
-                        folder_id: row.get(1)?,
-                        relative_path: row.get(2)?,
-                        remote_file_id: row.get(3)?,
-                        remote_version_id: row.get(4)?,
-                        last_synced_hash: row.get(5)?,
-                        suppress_hash: row.get(6)?,
-                        status: row.get(7)?,
-                    })
-                },
+                remote_file_from_row,
             )
             .optional()?;
         Ok(row)
@@ -875,18 +922,7 @@ impl Db {
                 "SELECT id, folder_id, relative_path, remote_file_id, remote_version_id, last_synced_hash, suppress_hash, status
                  FROM sync_file WHERE id = ?1",
                 params![file_id],
-                |row| {
-                    Ok(RemoteFileRow {
-                        id: row.get(0)?,
-                        folder_id: row.get(1)?,
-                        relative_path: row.get(2)?,
-                        remote_file_id: row.get(3)?,
-                        remote_version_id: row.get(4)?,
-                        last_synced_hash: row.get(5)?,
-                        suppress_hash: row.get(6)?,
-                        status: row.get(7)?,
-                    })
-                },
+                remote_file_from_row,
             )
             .optional()?;
         Ok(row)
@@ -1042,18 +1078,7 @@ impl Db {
              ORDER BY relative_path",
         )?;
         let rows = stmt
-            .query_map([], |row| {
-                Ok(RemoteFileRow {
-                    id: row.get(0)?,
-                    folder_id: row.get(1)?,
-                    relative_path: row.get(2)?,
-                    remote_file_id: row.get(3)?,
-                    remote_version_id: row.get(4)?,
-                    last_synced_hash: row.get(5)?,
-                    suppress_hash: row.get(6)?,
-                    status: row.get(7)?,
-                })
-            })?
+            .query_map([], remote_file_from_row)?
             .collect::<Result<Vec<_>, _>>()?;
         Ok(rows)
     }
@@ -1134,23 +1159,12 @@ impl Db {
                 params![now, operation, max_bytes],
                 |row| {
                     Ok(JobRow {
-                        id: row.get(0)?,
-                        folder_id: row.get(1)?,
-                        file_id: row.get(2)?,
-                        relative_path: row.get(3)?,
-                        operation: row.get(4)?,
-                        status: row.get(5)?,
-                        attempt_count: row.get(6)?,
-                        last_error: row.get(7)?,
-                        bytes_total: row.get(8)?,
-                        bytes_done: row.get(9)?,
-                        remote_file_id: row.get(10)?,
-                        remote_version_id: row.get(11)?,
                         session_id: row.get(12)?,
                         uploaded_parts: row.get(13)?,
                         content_hash: row.get(14)?,
                         target_version_number: row.get(15)?,
                         part_size: row.get(16)?,
+                        ..job_summary_from_row(row)?
                     })
                 },
             )
@@ -1296,23 +1310,8 @@ impl Db {
         let rows = stmt
             .query_map([], |row| {
                 Ok(JobRow {
-                    id: row.get(0)?,
-                    folder_id: row.get(1)?,
-                    file_id: row.get(2)?,
-                    relative_path: row.get(3)?,
-                    operation: row.get(4)?,
-                    status: row.get(5)?,
-                    attempt_count: row.get(6)?,
-                    last_error: row.get(7)?,
-                    bytes_total: row.get(8)?,
-                    bytes_done: row.get(9)?,
-                    remote_file_id: row.get(10)?,
-                    remote_version_id: row.get(11)?,
-                    session_id: None,
-                    uploaded_parts: None,
-                    content_hash: None,
                     target_version_number: row.get(12)?,
-                    part_size: None,
+                    ..job_summary_from_row(row)?
                 })
             })?
             .collect::<Result<Vec<_>, _>>()?;
@@ -2498,6 +2497,23 @@ mod tests {
         assert_eq!(db.meta_get("client_uid").unwrap().as_deref(), Some("pc-1"));
     }
 
+    /// Folder người dùng đã ngừng đồng bộ được nhớ để không tự gắn lại; đổi server thì quên hết, vì
+    /// id trên server khác chỉ folder khác.
+    #[test]
+    fn stopped_folders_are_remembered_until_the_server_changes() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = Db::open(&dir.path().join("t.db")).unwrap();
+        assert!(!db.auto_bind_skipped(42).unwrap());
+        db.set_auto_bind_skipped(42, true).unwrap();
+        assert!(db.auto_bind_skipped(42).unwrap());
+        db.set_auto_bind_skipped(42, false).unwrap();
+        assert!(!db.auto_bind_skipped(42).unwrap());
+        db.set_auto_bind_skipped(42, true).unwrap();
+        db.meta_set("laboratory_api_version", "rebind").unwrap();
+        db.migrate_laboratory_api().unwrap();
+        assert!(!db.auto_bind_skipped(42).unwrap());
+    }
+
     /// Ngữ cảnh mẫu LIMS và trạng thái truy cập bị từ chối phải được lưu và đọc lại đúng, rồi bị
     /// quarantined when account or server changes.
     #[test]
@@ -2526,6 +2542,7 @@ mod tests {
                 owner_name: None,
                 my_role: None,
                 can_manage_members: false,
+                sample_open: true,
             },
         )
         .unwrap();
@@ -2533,6 +2550,7 @@ mod tests {
         assert_eq!(row.sample_name.as_deref(), Some("Mẫu A"));
         assert_eq!(row.category.as_deref(), Some("result"));
         assert_eq!(row.instrument_label.as_deref(), Some("Analyzer-X"));
+        assert_eq!(row.sync_mode.as_deref(), Some("upload_only"));
         assert_eq!(row.access_state, "ok");
         db.set_folder_access_state(folder, "denied").unwrap();
         assert_eq!(db.list_folders().unwrap()[0].access_state, "denied");

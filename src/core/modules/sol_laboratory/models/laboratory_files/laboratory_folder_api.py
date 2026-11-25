@@ -96,7 +96,11 @@ class LaboratoryFolderApi(models.Model, LaboratoryFolderApiBase):
             "status": folder.status,
             "role": member.role or None,
             "category": folder.category or None,
-            "sample": {"id": folder.sample_id.id, "lab_code": folder.sample_id.code} if folder.sample_id else None,
+            "sample": (
+                {"id": folder.sample_id.id, "lab_code": folder.sample_id.code, "open": folder._sample_open()}
+                if folder.sample_id
+                else None
+            ),
             "retention_until": folder.retention_until.isoformat() if folder.retention_until else None,
             "can_share": self._can_share(),
         }

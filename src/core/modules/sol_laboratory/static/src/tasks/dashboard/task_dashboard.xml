@@ -23,7 +23,24 @@
                     <p class="o_task_dashboard_summary" t-out="this.summary"/>
                 </header>
 
-                <div class="o_task_bento">
+                <div class="o_task_bento" t-att-class="{ o_task_bento_approve: this.approvals.length }">
+                    <section t-if="this.approvals.length" class="o_task_tile o_task_tile_approve"
+                             aria-labelledby="o_task_tile_approve_title">
+                        <div class="o_task_tile_head">
+                            <h2 id="o_task_tile_approve_title">To approve</h2>
+                        </div>
+                        <ul class="o_task_list list-unstyled mb-0">
+                            <t t-foreach="this.approvals" t-as="approval" t-key="approval.key">
+                                <li class="o_task_row">
+                                    <button type="button" class="o_task_row_main" t-on-click="() => this.openApprovals(approval)">
+                                        <span class="o_task_row_name" t-out="approval.label"/>
+                                    </button>
+                                    <strong t-out="approval.count"/>
+                                </li>
+                            </t>
+                        </ul>
+                    </section>
+
                     <section class="o_task_tile o_task_tile_mine" aria-labelledby="o_task_tile_mine_title">
                         <div class="o_task_tile_head">
                             <h2 id="o_task_tile_mine_title">

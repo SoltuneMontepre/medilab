@@ -8,6 +8,7 @@ import {
   removeFolderMember,
   searchMemberCandidates,
 } from "../../lib/tauri";
+import { useConfirm } from "../../components";
 
 const SEARCH_MIN_CHARS = 2;
 const SEARCH_DEBOUNCE_MS = 300;
@@ -141,6 +142,7 @@ export function AccessDialog({ remoteId, label, onClose }: AccessDialogProps) {
   const [busy, setBusy] = useState(false);
   const [query, setQuery] = useState("");
   const [candidates, setCandidates] = useState<MemberUser[] | null>(null);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   useEffect(() => {
     let cancelled = false;
@@ -205,11 +207,16 @@ export function AccessDialog({ remoteId, label, onClose }: AccessDialogProps) {
   }
 
   /** Gỡ một thành viên sau khi người dùng xác nhận. */
-  function handleRemove(memberId: number, name: string) {
-    if (!window.confirm(t("access.removeConfirm", { name }))) {
-      return;
+  async function handleRemove(memberId: number, name: string) {
+    const confirmed = await confirm({
+      title: t("access.removeConfirm", { name }),
+      body: t("access.removeConfirmBody"),
+      confirmLabel: t("access.remove"),
+      danger: true,
+    });
+    if (confirmed) {
+      void mutate(() => removeFolderMember(remoteId, memberId), "access.removed");
     }
-    void mutate(() => removeFolderMember(remoteId, memberId), "access.removed");
   }
 
   const canManage = info?.can_manage_members ?? false;
@@ -253,7 +260,7 @@ export function AccessDialog({ remoteId, label, onClose }: AccessDialogProps) {
                   member={member}
                   removable={canManage && member.role !== "owner"}
                   busy={busy}
-                  onRemove={handleRemove}
+                  onRemove={(memberId, name) => void handleRemove(memberId, name)}
                 />
               ))}
             </ul>
@@ -271,6 +278,7 @@ export function AccessDialog({ remoteId, label, onClose }: AccessDialogProps) {
           </>
         ) : null}
       </div>
+      {confirmDialog}
     </div>
   );
 }
