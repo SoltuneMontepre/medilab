@@ -42,11 +42,19 @@ def _chapters(tree):
         if header is None or clean_text(header.text_content()) != CHAPTER_HEADER:
             continue
         for row in table.iter("tr"):
-            number, cell = row.find("th"), row.find("td")
-            if number is None or cell is None or row.getparent().tag != "tbody":
-                continue
-            number = clean_text(number.text_content())
-            link = next(cell.iter("a"), None)
-            title = clean_text((cell if link is None else link).text_content())
-            if CHAPTER.fullmatch(number) and title:
-                yield number, title
+            chapter = _chapter(row)
+            if chapter:
+                yield chapter
+
+
+# The (chapter, title) of a row of the chapter table's body; None for any other row.
+def _chapter(row):
+    number, cell = row.find("th"), row.find("td")
+    if number is None or cell is None or row.getparent().tag != "tbody":
+        return None
+    number = clean_text(number.text_content())
+    link = next(cell.iter("a"), None)
+    title = clean_text((cell if link is None else link).text_content())
+    if CHAPTER.fullmatch(number) and title:
+        return number, title
+    return None

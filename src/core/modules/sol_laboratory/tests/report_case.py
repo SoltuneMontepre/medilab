@@ -12,6 +12,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_ACTIONS_ACT_WINDOW,
     MODEL_REPORT_TEMPLATE,
     MODEL_SCHEDULED_JOB,
+    MODEL_SIGNATURE,
     MODEL_TASK,
     MODEL_TEST_REPORT,
 )
@@ -24,6 +25,7 @@ from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 PDF = b"%PDF-1.7\n% prepared report\n"
 # Where the conversion is asked for.
 CONVERSION = "odoo.addons.sol_laboratory.models.testing.test_report_candidate.convert_to_pdf"
+ISSUED_EVENT = "sol_laboratory.event_test_report_issued"
 TEMPLATE_PERMISSIONS = (
     "report_template.read.all",
     "report_template.create.all",
@@ -143,6 +145,21 @@ class ReportCase(ResultCase):
     def signing_tasks(self, report, status="open"):
         return self.env[MODEL_TASK].search(
             [("document_model", "=", report._name), ("document_id", "=", report.id), ("status", "=", status)]
+        )
+
+    def standing_signatures(self, report):
+        """The signatures of the report that are not withdrawn."""
+        return self.env[MODEL_SIGNATURE].search(
+            [("document_model", "=", report._name), ("document_id", "=", report.id), ("withdrawn_at", "=", False)]
+        )
+
+    def issued_messages(self, report):
+        return self.env["mail.message"].search(
+            [
+                ("model", "=", report._name),
+                ("res_id", "=", report.id),
+                ("subtype_id", "=", self.env.ref(ISSUED_EVENT).id),
+            ]
         )
 
     def run_preparation(self):

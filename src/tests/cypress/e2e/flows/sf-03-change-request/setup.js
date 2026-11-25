@@ -68,10 +68,9 @@ export function assignedTest(parameterId, { name, regulation } = {}) {
         ["person_id", "=", ids.tester],
         ["parameter_id", "=", parameterId],
       ];
-      return callAs(LAB_HEAD, "medilab.parameter.authorization", "search_count", [authorization]).then(
-        (count) => count || callAs(LAB_HEAD, "medilab.parameter.authorization", "create", [{ person_id: ids.tester, parameter_id: parameterId }]),
-      );
+      return callAs(LAB_HEAD, "medilab.parameter.authorization", "search_count", [authorization]);
     })
+    .then((count) => count || callAs(LAB_HEAD, "medilab.parameter.authorization", "create", [{ person_id: ids.tester, parameter_id: parameterId }]))
     .then(() => {
       const context = { active_ids: ids.tasks };
       return callAs(HEAD, "medilab.task.reassign", "create", [{ assignee_id: ids.tester }], { context }).then((wizard) =>

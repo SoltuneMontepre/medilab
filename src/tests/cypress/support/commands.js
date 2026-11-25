@@ -4,7 +4,7 @@ import { quietly } from "./steps";
 
 const ACTIONS = ".o_form_view .o_statusbar_buttons";
 const REFUSAL_MESSAGES = ".o_error_dialog, .o_notification, .modal .alert";
-const REFUSALS = ["odoo.exceptions.UserError", "odoo.exceptions.ValidationError", "odoo.exceptions.AccessError"];
+const REFUSALS = new Set(["odoo.exceptions.UserError", "odoo.exceptions.ValidationError", "odoo.exceptions.AccessError"]);
 
 function clickAction(name) {
   return cy.get(`${ACTIONS} button[name="${name}"]:visible`)
@@ -71,7 +71,7 @@ Cypress.Commands.add("expectRefusal", ({
     const exceptionName = error.exceptionName ?? error.data?.name;
     // Odoo's web client sometimes raises only the generic RPC_ERROR; the exact refusal text and unchanged record
     // are checked below before this is treated as an expected business refusal.
-    return !REFUSALS.includes(exceptionName) && error.message !== "RPC_ERROR";
+    return !REFUSALS.has(exceptionName) && error.message !== "RPC_ERROR";
   };
   cy.on("uncaught:exception", expectedRejection);
   let snapshot;

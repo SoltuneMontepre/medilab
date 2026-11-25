@@ -49,6 +49,18 @@ function summary(args) {
   return message.length > 80 ? `${message.slice(0, 77)}...` : message;
 }
 
+// Runs a helper's commands inside its open line of the Command Log, then ends the line with the page after them.
+function inLine(log, run) {
+  beginQuiet();
+  open.push(log);
+  return cy.then(run).then((result) => {
+    endQuiet();
+    open.splice(open.indexOf(log), 1);
+    log.snapshot("after").end();
+    return result;
+  });
+}
+
 // Runs a helper's commands as one line of the Command Log, with the page before and after it; the requests and checks
 // inside it stay out of the log. Inside another quiet helper it adds no line of its own.
 export function quietly(name, message, commands) {
@@ -61,14 +73,7 @@ export function quietly(name, message, commands) {
     if (!logged()) return run();
     const log = Cypress.log({ name, message, autoEnd: false });
     log.snapshot("before");
-    beginQuiet();
-    open.push(log);
-    return cy.then(run).then((result) => {
-      endQuiet();
-      open.splice(open.indexOf(log), 1);
-      log.snapshot("after").end();
-      return result;
-    });
+    return inLine(log, run);
   });
 }
 

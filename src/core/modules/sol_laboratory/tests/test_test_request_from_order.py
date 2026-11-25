@@ -64,7 +64,7 @@ class TestTestRequestFromOrder(RequestCase):
         )
 
         with (
-            patch.object(type(request), "_credit_blocks_confirmation", lambda self: True),
+            patch.object(type(request), "_credit_blocks_confirmation", return_value=True),
             self.assertRaises(UserError),
         ):
             request.action_confirm()

@@ -68,11 +68,14 @@ export function reportedSample(sampleType, { retainedFor } = {}) {
 
 // A sample of a test request sample delivery staff cancelled before it arrived.
 export function cancelledSample() {
-  return newSample(SAMPLE_TYPES.bottledWater).then((sample) =>
-    callAs(STAFF, "medilab.sample", "read", [[sample.id], ["request_id"]])
-      .then(([read]) => callAs(STAFF, "medilab.test.request", "action_cancel", [[read.request_id[0]]]))
-      .then(() => sample),
-  );
+  let sample;
+  return newSample(SAMPLE_TYPES.bottledWater)
+    .then((created) => {
+      sample = created;
+      return callAs(STAFF, "medilab.sample", "read", [[sample.id], ["request_id"]]);
+    })
+    .then(([read]) => callAs(STAFF, "medilab.test.request", "action_cancel", [[read.request_id[0]]]))
+    .then(() => sample);
 }
 
 // A not-kept sample the tester has already disposed of by its sample type's method.

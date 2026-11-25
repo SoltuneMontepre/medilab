@@ -55,11 +55,29 @@ export function search(text, { grouped = false, field, facet = true } = {}) {
   if (facet) cy.contains(".o_searchview_facet", text);
 }
 
+// Waits until the menu entry with this link has opened: once the address is its link, or once its form shows in a
+// dialog, as the address stays.
+function waitForEntry(href, menuId) {
+  const path = href.split("?")[0];
+  cy.window()
+    .then((win) => win.odoo.loadMenusPromise)
+    .then((menus) => {
+      const menu = menus?.[menuId];
+      const opened = [path];
+      if (menu?.actionID) opened.push(`/odoo/action-${menu.actionID}`);
+      if (menu?.actionPath) opened.push(`/odoo/${menu.actionPath}`);
+      cy.window({ log: false }).should((win) => {
+        if (!opened.includes(win.location.pathname)) {
+          expect(Cypress.$(".modal:visible"), "the menu action dialog").to.have.length.greaterThan(0);
+        }
+      });
+    });
+}
+
 // Opens a back-office menu as a user does: the app from the apps menu, then each section and entry of the menu bar,
 // given by their external IDs, so it works in every language.
 export function openMenu(app, ...entries) {
-  // An entry with a link has opened once the address is its link, or once its form shows in a dialog, as the address
-  // stays; a section only opens its list of entries.
+  // A section only opens its list of entries.
   const click = (selector) =>
     cy
       .get(selector)
@@ -68,22 +86,7 @@ export function openMenu(app, ...entries) {
         const href = $menu.attr("href");
         const menuId = $menu.attr("data-section");
         cy.wrap($menu, { log: false }).click();
-        if (href && href !== "#") {
-          const path = href.split("?")[0];
-          cy.window()
-            .then((win) => win.odoo.loadMenusPromise)
-            .then((menus) => {
-              const menu = menus?.[menuId];
-              const opened = [path];
-              if (menu?.actionID) opened.push(`/odoo/action-${menu.actionID}`);
-              if (menu?.actionPath) opened.push(`/odoo/${menu.actionPath}`);
-              cy.window({ log: false }).should((win) => {
-                if (!opened.includes(win.location.pathname)) {
-                  expect(Cypress.$(".modal:visible"), "the menu action dialog").to.have.length.greaterThan(0);
-                }
-              });
-            });
-        }
+        if (href && href !== "#") waitForEntry(href, menuId);
       });
   cy.get(".o_navbar_apps_menu button").click();
   // The MediLab theme shows the apps as tiles of a panel; Odoo's own menu is a dropdown. An app opens its first

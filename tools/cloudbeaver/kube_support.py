@@ -26,6 +26,13 @@ def manifest_document_for_kind(manifest, kind):
     return documents[0]
 
 
+def init_failed(status):
+    return any(
+        state.get("terminated", {}).get("exitCode", 0) != 0
+        for state in (status.get("state", {}), status.get("lastState", {}))
+    )
+
+
 def core_resources():
     rendered = subprocess.check_output(["kubectl", "kustomize", str(ROOT / "infra/cluster/cloudbeaver")], text=True)
     documents = []
@@ -103,29 +110,21 @@ class Fixture:
     def wait_ready(self):
         wait_for(self.ready, "CloudBeaver Pod did not become Ready.")
 
+    def guard_logged(self, pod_name, container, reason):
+        for options in ((), ("--previous",)):
+            logs = kube("logs", "-n", self.namespace, pod_name, "-c", container, *options, check=False).stdout
+            if "CloudBeaver startup blocked." in logs and reason in logs:
+                return True
+        return False
+
     def wait_guard_rejected(self, reason):
         def rejected():
-            for pod in self.pods():
-                for status in pod.get("status", {}).get("initContainerStatuses", []):
-                    failed = any(
-                        state.get("terminated", {}).get("exitCode", 0) != 0
-                        for state in (status.get("state", {}), status.get("lastState", {}))
-                    )
-                    if failed:
-                        for options in ((), ("--previous",)):
-                            logs = kube(
-                                "logs",
-                                "-n",
-                                self.namespace,
-                                pod["metadata"]["name"],
-                                "-c",
-                                status["name"],
-                                *options,
-                                check=False,
-                            ).stdout
-                            if "CloudBeaver startup blocked." in logs and reason in logs:
-                                return True
-            return False
+            return any(
+                self.guard_logged(pod["metadata"]["name"], status["name"], reason)
+                for pod in self.pods()
+                for status in pod.get("status", {}).get("initContainerStatuses", [])
+                if init_failed(status)
+            )
 
         wait_for(rejected, "Workspace preparation did not report the expected guard rejection.")
 

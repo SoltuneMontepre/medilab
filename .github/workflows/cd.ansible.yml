@@ -87,6 +87,10 @@ jobs:
             inspect) command=(ansible-playbook inspect.yml) ;;
             check) command=(ansible-playbook site.yml --check --diff) ;;
             apply) command=(ansible-playbook site.yml --diff) ;;
+            *)
+              echo "::error::Unknown action '$ACTION'. Choose ping, inspect, check or apply."
+              exit 1
+              ;;
           esac
           if [[ -n "$LIMIT" ]]; then
             command+=(--limit "$LIMIT")

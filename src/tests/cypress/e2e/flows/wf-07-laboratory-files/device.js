@@ -88,7 +88,7 @@ export function refused(response, status, code, what) {
 
 // The SHA-256 of bytes read with cy.request({ encoding: "binary" }), as the hex text Odoo stores for a version.
 export function sha256Of(binary) {
-  const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  const bytes = Uint8Array.from(binary, (character) => character.codePointAt(0));
   return crypto.subtle
     .digest("SHA-256", bytes)
     .then((digest) => Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join(""));

@@ -2,8 +2,9 @@ import { router } from "expo-router";
 import { useCallback, useEffect } from "react";
 import { AppState, Pressable, StyleSheet, Text, View } from "react-native";
 
-import type { Conversation } from "../../api";
+import type { Conversation, Message } from "../../api";
 import { useBadges } from "../../badges";
+import type { Translate } from "../../i18n";
 import { useT } from "../../locale";
 import { watchMessagePushes } from "../../push";
 import { useRecord } from "../../record";
@@ -89,9 +90,7 @@ function Row({ conversation }: Readonly<{ conversation: Conversation }>) {
         </View>
         <View style={styles.head}>
           <Text style={[shared.detail, styles.preview]} numberOfLines={1}>
-            {last
-              ? `${last.mine ? t("messages.you") : last.author}: ${last.text || last.attachments.map((file) => file.name).join(", ")}`
-              : ""}
+            {last ? preview(last, t) : ""}
           </Text>
           {!!conversation.unread && (
             <View style={styles.count}>
@@ -102,6 +101,12 @@ function Row({ conversation }: Readonly<{ conversation: Conversation }>) {
       </View>
     </Pressable>
   );
+}
+
+// The last message as its row shows it: who wrote it, then its text or the names of its files.
+function preview(message: Message, t: Translate): string {
+  const author = message.mine ? t("messages.you") : message.author;
+  return `${author}: ${message.text || message.attachments.map((file) => file.name).join(", ")}`;
 }
 
 // The time of a message of today, or its day otherwise.

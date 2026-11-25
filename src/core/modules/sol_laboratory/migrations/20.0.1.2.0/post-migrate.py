@@ -1,4 +1,4 @@
-def migrate(cr, version):
+def migrate(cr, _version):
     # Older rows stored 0 for "no limit". A non-zero value is a limit; 0 stays unset.
     cr.execute(
         """
