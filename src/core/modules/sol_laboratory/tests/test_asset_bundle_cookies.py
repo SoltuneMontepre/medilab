@@ -1,6 +1,9 @@
 import re
 
 from odoo.tests import HttpCase, new_test_user, tagged
+from odoo.tests.common import Response
+
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 LOGIN = "asset.bundle.reader"
 PASSWORD = "asset.bundle.reader.password"
@@ -49,7 +52,7 @@ class TestAssetBundleCookies(HttpCase):
         )
 
         self.assertEqual(signed_in.status_code, 303)
-        self.assertEqual(signed_in.session.uid, user.id)
+        self.assertEqual(assert_instance(signed_in, Response).session.uid, user.id)
         for url in bundles:
             with self.subTest(url=url):
                 response = self.url_open(url)
