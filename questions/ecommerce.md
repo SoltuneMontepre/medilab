@@ -29,6 +29,7 @@
   - An account flagged as a possible duplicate, waiting for sales to clear or merge it (US-S04).
   - A day of PayOS transactions, waiting for the accountant to reconcile and lock it (US-A13).
 - **Whole quantities on orders.** An order template line is a whole number of parameters or packages, but the order form and the cart only refuse a quantity below 1, so an order can still carry 1.5 tests and cannot then be saved as a template. Must an order line also be a whole number? (US-S09)
+- **Portal tab title.** Every portal page's browser tab says "Odoo", Odoo's title for a page that sets none, while the back office's tab shows the screen's name, such as "Quotations". What should a portal page's tab show: the page's name, the laboratory's name, "MediLab", or a combination?
 
 - **Measuring approval thresholds.** Is the discount threshold measured per line or on the whole quotation, and before or after VAT? Proposed answer, not decided: the discount share is (catalog total − total after every discount) / catalog total before VAT, worked out for the whole quotation and for each line, taking the larger; the amount threshold is compared with the total after discounts, VAT included.
 - **Packages with untestable parameters.** Is a package offered when one of its parameters has no way of testing available? Proposed answer, not decided: a package is shown only when each of its parameters has an available way of testing; archiving a parameter warns the administrator about the packages that contain it.
