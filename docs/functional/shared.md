@@ -173,6 +173,7 @@ All user-facing text can be translated, and users choose their language.
 - A new language is added by installing it and translating the texts; no code change is needed.
 - Fall back to the default language when a text is not translated yet.
 - Dates, numbers and currency follow the language's format.
+- An amount in words, such as an invoice's total, is written in the document's language. In Vietnamese it is written as Vietnamese invoices write it, with the hundreds and tens of every group after the first: 1,005,000 VND is "Một triệu không trăm lẻ năm nghìn đồng". Another currency keeps the name Odoo gives it in Vietnamese.
 - Languages and translations are Odoo's own: a language is installed from the settings, and every text is translated through Odoo's translation files. English and Vietnamese are installed with the Laboratory module.
 - E-mails, document templates and reports render in the recipient's language: the customer's contact language for customers, the user's language for staff.
 - A check in CI fails, listing them, when a user-facing string of a MediLab module has no Vietnamese translation.
@@ -181,6 +182,7 @@ Acceptance criteria:
 
 - A user who switches to another language sees no untranslated labels in the screens that have been translated.
 - Adding a language does not affect users of other languages.
+- An invoice of 1,005,000 VND shows "Một triệu không trăm lẻ năm nghìn đồng" to a Vietnamese customer and "One Million Five Thousand Dong" to an English one, on the portal, printed and in its email.
 
 #### SH-09 Scheduled tasks
 

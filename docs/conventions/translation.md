@@ -10,6 +10,7 @@
 - A view string of an Odoo module that Odoo does not translate to Vietnamese is translated in `i18n_extra/vi.po` of the `sol_` module that depends on that Odoo module: `sol_laboratory` for `portal` and `auth_signup`, `sol_commerce` for `account` and `payment`. Odoo loads it with the module; each entry names the Odoo view it translates. Strings in Odoo's Python or JavaScript take translations only from their own module, so they cannot be translated this way.
 - Check a translation by upgrading the module and switching your language to Vietnamese in your preferences.
 - E-mails and reports are rendered in the recipient's language, as Odoo does: a template without a language uses its main recipient's contact language. A report sets `t-lang` to the customer's contact language.
+- Amounts in words are the one Vietnamese source. The `num2words` of Odoo's image reads no currency in Vietnamese, so `res.currency.amount_to_text` in `sol_laboratory` writes a Vietnamese amount itself: `num2words` reads each group of three digits, and the code adds the scales, the zero hundreds and tens of later groups, "đồng" for VND and "và" before the subunits. It runs only for Vietnamese, so those words are not translated; every other language keeps Odoo's wording.
 
 ## Menus
 

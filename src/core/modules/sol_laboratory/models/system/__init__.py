@@ -27,6 +27,7 @@ from . import (
     permission,
     person,
     res_config_settings,
+    res_currency,
     res_groups,
     res_partner,
     res_users,
