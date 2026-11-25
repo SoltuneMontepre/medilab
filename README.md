@@ -142,7 +142,7 @@ For AI authoring and live debugging, use `task test:e2e:tap:open` and the [Cypre
 | `task upgrade`             | Upgrade all installed modules                                                                                                                     |
 | `task upgrade MODULES=a,b` | Install and upgrade the listed modules                                                                                                            |
 | `task reset`               | Recreate a verified fresh demo after confirming its owner; ordinary environments are refused                                                     |
-| `task clean`               | Delete a verified fresh demo, its image and its selection after confirming its owner, without recreating it                                      |
+| `task clean`               | Delete the fresh demo in any bootstrap state, its image and its selection after confirming its owner, without recreating it                       |
 | `task dev:setup`           | Sync `src/core/.venv` from `uv.lock`, fetch the Odoo source and link the modules into it for type checks, and set this checkout's compose project |
 | `task ai:setup`            | Install Serena, OdooLS and its Odoo source in this worktree for the coding clients                                                                |
 | `task ai:odoo-ls`          | Install the pinned OdooLS release, typeshed and Odoo source that the `odoo` MCP server uses                                                       |

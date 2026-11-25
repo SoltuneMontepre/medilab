@@ -66,7 +66,7 @@ class TaskReassign(models.TransientModel, TaskReassignBase):
         authorizations = self.env[MODEL_PARAMETER_AUTHORIZATION].sudo()
         # As superuser: the people offered are read by the dialog's domain, not shown.
         for wizard in self.sudo():
-            parameters = self.env[MODEL_TEST_PARAMETER].union(*(task._parameter() for task in wizard.task_ids))
+            parameters = self.env[MODEL_TEST_PARAMETER].union(task._parameter() for task in wizard.task_ids)
             wizard.authorization_required = bool(parameters)
             candidates = authorizations.search([("parameter_id", "in", parameters.ids)]).person_id
             wizard.authorized_person_ids = candidates.filtered(

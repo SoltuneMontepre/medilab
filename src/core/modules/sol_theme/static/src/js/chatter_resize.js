@@ -3,6 +3,7 @@ import { _t } from "@web/core/l10n/translation";
 import { ResizablePanel } from "@web/core/resizable_panel/resizable_panel";
 import { patch } from "@web/core/utils/patch";
 import { createElement } from "@web/core/utils/xml";
+import { useSubEnv } from "@web/owl2/utils";
 import { FormCompiler } from "@web/views/form/form_compiler";
 import { FormRenderer } from "@web/views/form/form_renderer";
 
@@ -51,30 +52,31 @@ patch(FormRenderer.prototype, {
       this.state.chatterCollapsed = !this.state.chatterCollapsed;
       storeChatter(this.chatterWidth, this.state.chatterCollapsed);
     };
+    // The chatter's top bar holds the button that collapses it.
+    useSubEnv({ collapseChatter: { run: this.toggleChatter, label: _t("Collapse the chatter") } });
   },
-  get chatterToggleLabel() {
-    return this.state.chatterCollapsed ? _t("Expand the chatter") : _t("Collapse the chatter");
+  get expandChatterLabel() {
+    return _t("Expand the chatter");
   },
 });
 
-// Wraps the chatter beside a form in Odoo's resizable panel, with a button on the bar that collapses it.
+// Wraps the chatter beside a form in Odoo's resizable panel. Collapsed, the panel is a narrow strip that expands it again.
 function wrapChatter(res, container) {
   const chatter = container.querySelector("t[t-component='__comp__.mailComponents.Chatter']");
-  const toggle = createElement(
+  const dock = createElement(
     "button",
     {
       type: "button",
-      class: "o-mail-ChatterToggle",
+      class: "o-mail-ChatterDock d-print-none",
+      "t-if": "__comp__.state.chatterCollapsed",
       "t-on-click": "__comp__.toggleChatter",
-      "t-att-aria-label": "__comp__.chatterToggleLabel",
-      "t-att-title": "__comp__.chatterToggleLabel",
-      "t-att-aria-expanded": "__comp__.state.chatterCollapsed ? 'false' : 'true'",
+      "t-att-aria-label": "__comp__.expandChatterLabel",
+      "t-att-title": "__comp__.expandChatterLabel",
+      "aria-expanded": "false",
     },
     [
-      createElement("i", {
-        class: "oi",
-        "t-att-data-icon": "__comp__.state.chatterCollapsed ? 'chevron_backward' : 'chevron_forward'",
-      }),
+      createElement("i", { class: "oi oi-fw", "data-icon": "keyboard_double_arrow_left" }),
+      createElement("i", { class: "oi oi-fw", "data-icon": "forum" }),
     ],
   );
   const panel = createElement(
@@ -90,7 +92,7 @@ function wrapChatter(res, container) {
     [
       createElement("t", { "t-set-slot": "default" }, [
         createElement("div", { class: "o-mail-ChatterPanelContent" }, [
-          createElement("div", { class: "o-mail-ChatterBar flex-shrink-0 d-print-none" }, [toggle]),
+          dock,
           createElement("div", { class: "o-mail-ChatterBody flex-grow-1", "t-att-class": "{ 'd-none': __comp__.state.chatterCollapsed }" }, [
             chatter.cloneNode(true),
           ]),

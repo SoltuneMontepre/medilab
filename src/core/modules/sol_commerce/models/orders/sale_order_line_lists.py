@@ -16,6 +16,8 @@ class SaleOrder(models.Model, SaleOrderBase):
     _inherit = MODEL_SALE_ORDER
 
     if not TYPE_CHECKING:
+        # Every line of the order, down payments included.
+        order_line = fields.One2many(string="All Order Lines")
         # The ordered parameters and packages: every line but Odoo's down payment section and lines.
         product_line_ids = fields.One2many(
             MODEL_SALE_ORDER_LINE,

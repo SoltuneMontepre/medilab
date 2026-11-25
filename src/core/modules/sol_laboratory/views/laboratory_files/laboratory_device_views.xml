@@ -16,7 +16,7 @@
                     name="action_revoke"
                     type="object"
                     string="Revoke"
-                    icon="fa-ban"
+                    icon="block"
                     class="btn-danger"
                     invisible="status == 'revoked'"
                     groups="sol_laboratory.group_permission_laboratory_device_edit_all"

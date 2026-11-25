@@ -78,6 +78,12 @@
             height: 100%;
         }
 
+        // The More button sits in its own block, which fills the bar so the button's hover covers it as a section's does.
+        .o_menu_sections_more {
+            display: flex;
+            height: 100%;
+        }
+
         .o_nav_entry:not(.d-none),
         .dropdown-toggle:not(.o-dropdown-toggle-custo, .d-none) {
             background: transparent !important;

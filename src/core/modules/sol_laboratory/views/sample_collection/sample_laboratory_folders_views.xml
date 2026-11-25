@@ -23,7 +23,7 @@
                         name="action_open_laboratory_folders"
                         type="object"
                         class="oe_stat_button"
-                        icon="fa-folder-open"
+                        icon="folder_open"
                         invisible="not laboratory_folder_count"
                         groups="sol_laboratory.group_permission_laboratory_folder_create_all"
                     >

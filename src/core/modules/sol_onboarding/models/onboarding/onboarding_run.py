@@ -102,7 +102,7 @@ class OnboardingRun(models.Model, OnboardingRunBase):
         # Records the run staged.
         staged_record_ids = fields.One2many(MODEL_ONBOARDING_STAGED_RECORD, "run_id", string="Staged Records")
         # One line per page: fetched, skipped with its reason, or failed with its error.
-        log = fields.Text(string="Log", copy=False)
+        log = fields.Text(string="Collection Log", copy=False)
 
     @api.model_create_multi
     def create(self, vals_list):
