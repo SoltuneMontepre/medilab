@@ -820,6 +820,8 @@ msgid "Administer laboratory folders"
 msgstr "Quản trị thư mục phòng thí nghiệm"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
 #: model:medilab.role,name:sol_laboratory.role_administrator
 msgid "Administrator"
 msgstr "Quản Trị Viên"
@@ -2699,6 +2701,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_mail_server__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_sequence__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_menu__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__display_name
@@ -3869,6 +3872,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_mail_server__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_sequence__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_menu__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__id
@@ -7201,7 +7205,9 @@ msgid "Quantity"
 msgstr "Số lần thử"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__queue_name
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "Queue"
 msgstr "Hàng Đợi"
 
@@ -7705,6 +7711,7 @@ msgstr "Việc xóa nội dung theo thời hạn lưu giữ của thư mục nà
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
 msgid "This version's content was removed after administrator approval."
@@ -7723,6 +7730,7 @@ msgid "Only approved retention removal removes verified content."
 msgstr "Chỉ thao tác xóa theo thời hạn lưu trữ đã được duyệt mới xóa nội dung đã xác minh."
 
 #. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_folder_retention_review_ir_actions_server
 #: model:ir.cron,name:sol_laboratory.ir_cron_laboratory_folder_retention_review
 #: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_folder_retention_review
 msgid "Flag expired laboratory folders for review"
@@ -8078,6 +8086,7 @@ msgid "Semi-solid"
 msgstr "Bán rắn"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_sequence
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__sequence
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__sequence
 msgid "Sequence"
@@ -12995,6 +13004,7 @@ msgstr "Mục Nhật Ký Hoạt Động"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Audit Log"
@@ -13076,6 +13086,8 @@ msgstr "Thay đổi dữ liệu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 #: code:addons/sol_laboratory/models/system/audit_report.py:0 model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_form model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_list model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Date"
 msgstr "Ngày"
 
@@ -19907,12 +19919,16 @@ msgid "Email Confirmation"
 msgstr "Xác nhận email"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__email_confirmation_token
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__email_confirmation_token
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__email_confirmation_token
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users__email_confirmation_token
 msgid "Email Confirmation Token"
 msgstr "Mã xác nhận email"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_audit
 msgid "Email Delivery"
 msgstr "Gửi email"
 
@@ -19944,6 +19960,7 @@ msgid "How many times to retry a mandatory customer email after a temporary fail
 msgstr "Số lần thử gửi lại email khách hàng bắt buộc sau khi gửi tạm thời thất bại."
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mandatory_email_retry_count
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 msgid "Mandatory Email Retries"
 msgstr "Số lần thử gửi lại email bắt buộc"
