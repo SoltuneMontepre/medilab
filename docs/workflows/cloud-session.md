@@ -97,10 +97,11 @@ Installing every module with the demo data takes about ten minutes, longer than 
 When a session starts or resumes, the `hook-cloud-start` SessionStart hook runs `task cloud:start` in the background, so Odoo comes up while you work; outside a cloud session the hook does nothing. Its log is `.local/cloud-start.log`, which ends with `Odoo is ready` or the step that failed. `task cloud:start`:
 
 1. Prints the problems the setup script reported, if any.
-2. Starts Docker.
-3. Restores the seed database into the stack's volumes when the database volume is missing, pulling the seed image if the snapshot does not have it.
-4. Installs and upgrades this checkout's modules with `task upgrade`, unless it already did so for the same commit, then starts the stack.
-5. Waits until Odoo answers at `http://localhost:8069`.
+2. Waits until any other `task cloud:start` finishes, so two runs never restore or upgrade the database at the same time.
+3. Starts Docker.
+4. Restores the seed database into the stack's volumes when the database volume is missing, pulling the seed image if the snapshot does not have it. A restore that did not finish is removed and done again.
+5. Installs and upgrades this checkout's modules with `task upgrade`, unless it already did so for the same commit, then starts the stack.
+6. Waits until Odoo answers at `http://localhost:8069`.
 
 While Odoo starts:
 
