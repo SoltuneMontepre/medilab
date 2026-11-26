@@ -128,14 +128,7 @@ class OnboardingRun(models.Model, OnboardingRunBase):
         self._check_permission("edit")
         sources = self.env[MODEL_ONBOARDING_SOURCE].sudo().search([("enabled", "=", True)])
         for run in self:
-            if run.state != RUN_DRAFT:
-                raise ValidationError(self.env._("Only a draft collection run can be started."))
-            if not (run.organisation_id or run.sector_ids or run.scope_file):
-                raise ValidationError(self.env._("Choose an organisation, a sector or a scope file to collect for."))
-            if self.sudo().search_count([("state", "=", RUN_RUNNING)]):
-                raise ValidationError(self.env._("Another collection run is running; start this one when it ends."))
-            if run.scope_file:
-                run._check_scope_file()
+            run._check_startable()
             run.write({"state": RUN_RUNNING, "started_at": fields.Datetime.now(), "requested_by_id": self.env.user.id})
             # The index refuses a second running run that slipped past the check above.
             run.flush_recordset()
@@ -146,6 +139,17 @@ class OnboardingRun(models.Model, OnboardingRunBase):
             if not run._crawl_items():
                 run._finish(RUN_DONE)
         self.env.ref("sol_onboarding.ir_cron_onboarding_crawl").sudo()._trigger()
+
+    def _check_startable(self):
+        self.ensure_one()
+        if self.state != RUN_DRAFT:
+            raise ValidationError(self.env._("Only a draft collection run can be started."))
+        if not (self.organisation_id or self.sector_ids or self.scope_file):
+            raise ValidationError(self.env._("Choose an organisation, a sector or a scope file to collect for."))
+        if self.sudo().search_count([("state", "=", RUN_RUNNING)]):
+            raise ValidationError(self.env._("Another collection run is running; start this one when it ends."))
+        if self.scope_file:
+            self._check_scope_file()
 
     def _queue_first_pages(self, source):
         adapter = adapter_for(source)
