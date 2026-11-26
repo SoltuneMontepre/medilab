@@ -6362,11 +6362,6 @@ msgid "Condition"
 msgstr ""
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
-msgid "Calculated once tests and sample type are selected"
-msgstr ""
-
-#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_account_move__log_ids
 #: model:ir.model.fields,field_description:sol_commerce.field_account_payment__log_ids
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__log_ids

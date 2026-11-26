@@ -257,3 +257,17 @@ class TestOrderForm(OrderCase):
             with self.subTest(text=text):
                 self.assertIn(text, arch)
         self.assertNotIn("Advance payments", arch)
+
+    def test_customer_is_required_and_locked_after_confirmation(self):
+        customer = self._nodes("//sheet//field[@name='customer_id']")[0]
+        self.assertEqual(customer.get("required"), "1")
+        readonly = customer.get("readonly") or ""
+        self.assertIn("state in ['cancel', 'sale']", readonly)
+        self.assertIn("not order_can_edit", readonly)
+
+    def test_committed_date_is_readonly_until_expected_pickup_is_set(self):
+        committed = self._nodes("//sheet//field[@name='committed_date']")[0]
+        self.assertIsNone(committed.get("placeholder"))
+        readonly = committed.get("readonly") or ""
+        self.assertIn("not expected_collection_date", readonly)
+        self.assertIn("state != 'draft'", readonly)

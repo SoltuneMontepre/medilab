@@ -395,7 +395,9 @@
   }
 
   .o_wrap_label:has(+ .o_wrap_input .o_required_modifier:not(.o_readonly_modifier)) .o_form_label::after,
-  .o_wrap_label:has(+ .o_cell .o_required_modifier:not(.o_readonly_modifier)) .o_form_label::after {
+  .o_wrap_label:has(+ .o_cell .o_required_modifier:not(.o_readonly_modifier)) .o_form_label::after,
+  .o_wrap_label:has(+ .o_wrap_input .o_required_modifier.o_readonly_modifier > .o_many2one:empty) .o_form_label::after,
+  .o_wrap_label:has(+ .o_cell .o_required_modifier.o_readonly_modifier > .o_many2one:empty) .o_form_label::after {
     content: " *";
     color: $ml-danger;
     font-weight: 700;
