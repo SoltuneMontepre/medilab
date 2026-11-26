@@ -32,7 +32,7 @@ class TestPricingAccess(PricingCase):
         super().setUpClass()
         cls.sales = new_test_user(cls.env, login="sales", groups="base.group_user")
         cls.administrator = cls.env.ref("base.user_admin")
-        cls.package = cls.create_package(120000, (cls.parameter, 1))
+        cls.package = cls.create_package((cls.parameter, 1))
 
     def test_non_administrator_reads_but_cannot_change(self):
         tax = self.vat.with_user(self.sales)

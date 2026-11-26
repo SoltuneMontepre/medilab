@@ -27,17 +27,11 @@ describe("WF-01 Order to confirmed test request", () => {
     step("Customer fills a cart from the catalog");
     cy.signInAs("customer");
     cy.get(`${PORTAL_MENU} a[href='/catalog']`).click();
-    cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
+    cy.contains(".card h3", "Lead (Pb)").closest(".card").find("button[type=submit]").click();
     cy.location("pathname").should("eq", "/cart");
-    step("Customer chooses the sample type and submits the order");
-    // The customer chooses the sample type, and the parameter's default way of testing on it is filled in.
-    cy.get("select[name=sample_type_id]")
-      .first()
-      .find("option")
-      .contains(/Nước đóng chai|Bottled water/)
-      .invoke("val")
-      .then((value) => cy.get("select[name=sample_type_id]").first().select(String(value)));
-    cy.get("select[name=parameter_method_id]").first().invoke("val").should("not.be.empty");
+    step("Customer submits the order; sales and the laboratory choose the sample type and way of testing");
+    cy.get("select[name=sample_type_id]").should("not.exist");
+    cy.get("select[name=parameter_method_id]").should("not.exist");
     cy.get("form[action='/cart/submit'] button[type=submit]").first().click();
     cy.contains("h1", "Order submitted");
     cy.contains("p", "is in the sales queue.")
@@ -57,9 +51,18 @@ describe("WF-01 Order to confirmed test request", () => {
         cy.contains(".o_data_row", submitted.name).find("button[name=action_claim]").click();
         cy.contains(".o_data_row", submitted.name).should("not.exist");
 
-        step("Sales opens the order and checks its line and sample type");
+        step("Sales opens the order and sets its sample type");
         const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
         callAs("demo.sales", "sale.order", "write", [[order.id], { expected_collection_date: tomorrow }]);
+        refAs("demo.sales", "sol_demo.demo_sample_type_bottled_water").then((bottled) =>
+          callAs("demo.sales", "sale.order.line", "search", [
+            [
+              ["order_id", "=", order.id],
+              ["linked_line_id", "=", false],
+              ["display_type", "=", false],
+            ],
+          ]).then((ids) => callAs("demo.sales", "sale.order.line", "write", [ids, { sample_type_id: bottled.id }])),
+        );
         openMenu(MENU.sales, MENU.orders);
         openRow(submitted.name);
         step("Sales asks for an online advance and sends the quotation");
@@ -144,7 +147,7 @@ describe("WF-01 Order to confirmed test request", () => {
     const email = `visitor.${Date.now()}@example.com`;
     step("A visitor who is not signed in adds Lead (Pb) to a cart");
     becomeVisitor();
-    cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
+    cy.contains(".card h3", "Lead (Pb)").closest(".card").find("button[type=submit]").click();
     step("The visitor gives a name and an e-mail address and submits the cart");
     cy.get("form[action='/cart/submit'] input[name=name]").type("Lê Văn Khách");
     cy.get("form[action='/cart/submit'] input[name=email]").type(email);

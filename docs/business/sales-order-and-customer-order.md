@@ -2,9 +2,9 @@
 
 - Customers order by **parameter** or by **service package**. Sample types and parameter groups are catalog filters, not a first step.
 - Every parameter has its own specific price in the catalog. The group does not set a price.
-- A package has its own price; a package line in an order uses the package price, not the sum of its parameters.
-- A package line retains the selected or resolved default way of testing for every included parameter. Each quotation version keeps the package price and these selections; later catalog changes do not alter sent quotations or accepted orders, and creating sample tests uses the accepted selections, without rereading current package membership or defaults.
-- A package is ordered whole. To drop one of its parameters, the package is removed and the wanted parameters are added one by one.
+- A package has no price of its own: a package line costs the sum of the prices of the parameters it holds, times their quantities, in force on its pricing day. A package groups related parameters so they are ordered together.
+- A package line retains the selected or resolved default way of testing for every included parameter. Each quotation version keeps the package line's price, its parameters and these selections; later catalog changes do not alter sent quotations or accepted orders, and creating sample tests uses the accepted selections, without rereading current package membership or defaults.
+- A customer may untick parameters of a package or add other catalog parameters to it before adding it to the cart; the line's price follows the parameters it holds. A package keeps at least one parameter. A parameter added to a package is tested once per package.
 - An order can mix package lines and single parameter lines.
 - A package is not a quotation template. A template is a saved order a returning customer reuses to create the next order faster; it has no price of its own.
 - Sales maintains customers. An order keeps the customer's requested date and the expected return date Sales promises on the quotation, the requested date when the standard turnaround meets it, or else fixed at sample receipt as the receipt day plus the turnaround. Only Sales changes the expected return date, with the customer's agreement. Each sample test has an internal due date; the customer sees the requested and committed dates, never an internal due date.

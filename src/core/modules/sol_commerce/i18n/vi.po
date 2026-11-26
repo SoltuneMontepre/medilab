@@ -227,6 +227,7 @@ msgstr "<i class=\"oi me-1\" data-icon=\"send\" aria-hidden=\"true\"/>Gửi"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
 msgid ""
 "<i class=\"oi me-1\" data-icon=\"shopping_cart\" aria-hidden=\"true\"/>Cart ("
 msgstr ""
@@ -341,7 +342,7 @@ msgstr "Kế toán của %(company)s không có thuế bán hàng cho %(rate)s. 
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_template_form
 msgid "Add a parameter or package"
-msgstr "Thêm chỉ tiêu hoặc nhóm dịch vụ"
+msgstr "Thêm chỉ tiêu hoặc gói dịch vụ"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__downpayment_line_ids
@@ -487,7 +488,7 @@ msgstr "%(tax)s không có thuế suất vào ngày %(date)s."
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_line.py:0
 msgid "%s has no price, so the package cannot be ordered."
-msgstr "%s chưa có giá nên không thể đặt nhóm dịch vụ."
+msgstr "%s chưa có giá nên không thể đặt gói dịch vụ."
 
 #. module: sol_commerce
 #. odoo-python
@@ -550,24 +551,25 @@ msgstr "Một dòng chỉ có thể được thử nghiệm trên mẫu của ch
 #: model:ir.model.constraint,message:sol_commerce.constraint_medilab_service_package_line_package_parameter_unique
 msgid "A package holds each parameter once; raise its quantity instead."
 msgstr ""
-"Mỗi chỉ tiêu chỉ có một dòng trong nhóm dịch vụ; hãy tăng số lượng của dòng "
+"Mỗi chỉ tiêu chỉ có một dòng trong gói dịch vụ; hãy tăng số lượng của dòng "
 "đó."
 
 #. module: sol_commerce
 #: model:ir.model.constraint,message:sol_commerce.constraint_medilab_service_package_line_quantity_positive
 msgid "A package includes a parameter at least once."
-msgstr "Số lượng của chỉ tiêu trong nhóm dịch vụ ít nhất là 1."
+msgstr "Số lượng của chỉ tiêu trong gói dịch vụ ít nhất là 1."
 
 #. module: sol_commerce
 #: model:ir.model.constraint,message:sol_commerce.constraint_medilab_parameter_price_price_positive
 #: model:ir.model.constraint,message:sol_commerce.constraint_medilab_service_package_price_positive
+#: model:ir.model.constraint,message:sol_commerce.constraint_medilab_price_period_price_positive
 msgid "A price cannot be negative."
 msgstr "Giá không được âm."
 
 #. module: sol_commerce
 #: model:ir.model.constraint,message:sol_commerce.constraint_product_template_catalog_kind
 msgid "A product sells a parameter or a package, not both."
-msgstr "Một sản phẩm bán một chỉ tiêu hoặc một nhóm dịch vụ, không bán cả hai."
+msgstr "Một sản phẩm bán một chỉ tiêu hoặc một gói dịch vụ, không bán cả hai."
 
 #. module: sol_commerce
 #: model:ir.model.constraint,message:sol_commerce.constraint_medilab_tax_rate_period_order
@@ -594,7 +596,7 @@ msgstr "Một bản sửa đổi chỉ có thể được thay thế một lần
 #. module: sol_commerce
 #: model:ir.model.constraint,message:sol_commerce.constraint_product_template_package_unique
 msgid "A service package has only one product, archived products included."
-msgstr "Một nhóm dịch vụ chỉ có một sản phẩm, kể cả sản phẩm đã lưu trữ."
+msgstr "Một gói dịch vụ chỉ có một sản phẩm, kể cả sản phẩm đã lưu trữ."
 
 #. module: sol_commerce
 #: model:ir.model.constraint,message:sol_commerce.constraint_medilab_subcontract_cost_parameter_method_unique
@@ -661,13 +663,13 @@ msgstr "Đang hoạt động"
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid ""
 "Add at least one parameter or service package before sending the quotation."
-msgstr "Thêm ít nhất một chỉ tiêu hoặc nhóm dịch vụ trước khi gửi báo giá."
+msgstr "Thêm ít nhất một chỉ tiêu hoặc gói dịch vụ trước khi gửi báo giá."
 
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "Add at least one parameter or service package."
-msgstr "Thêm ít nhất một chỉ tiêu hoặc một nhóm dịch vụ."
+msgstr "Thêm ít nhất một chỉ tiêu hoặc một gói dịch vụ."
 
 #. module: sol_commerce
 #: model:ir.module.module,summary:base.module_sol_commerce
@@ -750,7 +752,7 @@ msgstr "Lưu trữ giá chỉ tiêu"
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_service_package_archive_all
 msgid "Archive service packages"
-msgstr "Lưu trữ nhóm dịch vụ"
+msgstr "Lưu trữ gói dịch vụ"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_subcontract_cost_archive_all
@@ -987,12 +989,12 @@ msgstr "Tạo báo giá"
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_service_package_line_create_all
 msgid "Create service package lines"
-msgstr "Tạo dòng nhóm dịch vụ"
+msgstr "Tạo dòng gói dịch vụ"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_service_package_create_all
 msgid "Create service packages"
-msgstr "Tạo nhóm dịch vụ"
+msgstr "Tạo gói dịch vụ"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_subcontract_cost_create_all
@@ -1027,6 +1029,7 @@ msgstr "Tạo thuế"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__create_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -1048,6 +1051,7 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__create_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -1062,6 +1066,7 @@ msgstr "Ngày tạo"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__currency_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__currency_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__currency_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__currency_id
 msgid "Currency"
 msgstr "Tiền tệ"
 
@@ -1176,12 +1181,12 @@ msgstr "Xóa báo giá"
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_service_package_line_delete_all
 msgid "Delete service package lines"
-msgstr "Xóa dòng nhóm dịch vụ"
+msgstr "Xóa dòng gói dịch vụ"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_service_package_delete_all
 msgid "Delete service packages"
-msgstr "Xóa nhóm dịch vụ"
+msgstr "Xóa gói dịch vụ"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_subcontract_cost_delete_all
@@ -1245,6 +1250,7 @@ msgstr "Bỏ qua"
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_committed_date_change__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -1300,12 +1306,12 @@ msgstr "Sửa báo giá"
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_service_package_line_edit_all
 msgid "Edit service package lines"
-msgstr "Sửa dòng nhóm dịch vụ"
+msgstr "Sửa dòng gói dịch vụ"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_service_package_edit_all
 msgid "Edit service packages"
-msgstr "Sửa nhóm dịch vụ"
+msgstr "Sửa gói dịch vụ"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_subcontract_cost_edit_all
@@ -1429,6 +1435,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_committed_date_change__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__id
 msgid "ID"
 msgstr "ID"
 
@@ -1441,11 +1448,6 @@ msgid ""
 msgstr ""
 "Nếu đã thanh toán tạm ứng, khoản tiền vẫn nằm trên hóa đơn và được xử lý bên "
 "ngoài hệ thống."
-
-#. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__is_overpriced
-msgid "Is Overpriced"
-msgstr "Giá cao hơn tổng giá chỉ tiêu"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__customer_is_company
@@ -1487,6 +1489,7 @@ msgstr "Trạng Thái Phòng Thí Nghiệm"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__write_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -1508,6 +1511,7 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__write_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -1782,13 +1786,7 @@ msgstr "PDF"
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__package_id
 msgid "Package"
-msgstr "Nhóm Dịch Vụ"
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/pricing/parameter_price.py:0
-msgid "Package prices"
-msgstr "Giá nhóm dịch vụ"
+msgstr "Gói Dịch Vụ"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__paid
@@ -1805,11 +1803,13 @@ msgstr "Đã thanh toán"
 #: model:ir.model.fields,field_description:sol_commerce.field_product_template__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_service_package_search
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
 msgid "Parameter"
 msgstr "Chỉ Tiêu"
 
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_parameter_price
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__parameter_price_id
 msgid "Parameter Price"
 msgstr "Giá Chỉ Tiêu"
 
@@ -1828,7 +1828,7 @@ msgstr "Nhóm chỉ tiêu"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_template_form
 msgid "Parameter or package"
-msgstr "Chỉ tiêu hoặc nhóm dịch vụ"
+msgstr "Chỉ tiêu hoặc gói dịch vụ"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__line_ids
@@ -2135,13 +2135,10 @@ msgstr "Cổng thông tin"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_test_parameter_form
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__list_price
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
 msgid "Price"
 msgstr "Giá"
-
-#. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__parts_price
-msgid "Price of the Parts"
-msgstr "Tổng giá chỉ tiêu"
 
 #. module: sol_commerce
 #: model:ir.ui.menu,name:sol_commerce.menu_prices
@@ -2170,6 +2167,8 @@ msgstr "Tiến độ"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_products
 msgid "Quantity"
 msgstr "Số lượng"
 
@@ -2295,12 +2294,12 @@ msgstr "Xem báo giá"
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_service_package_line_read_all
 msgid "Read service package lines"
-msgstr "Xem dòng nhóm dịch vụ"
+msgstr "Xem dòng gói dịch vụ"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_service_package_read_all
 msgid "Read service packages"
-msgstr "Xem nhóm dịch vụ"
+msgstr "Xem gói dịch vụ"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_subcontract_cost_read_all
@@ -2519,23 +2518,23 @@ msgstr "Thứ Tự"
 #: model:ir.model.fields,field_description:sol_commerce.field_product_product__service_package_id
 #: model:ir.model.fields,field_description:sol_commerce.field_product_template__service_package_id
 msgid "Service Package"
-msgstr "Nhóm Dịch Vụ"
+msgstr "Gói Dịch Vụ"
 
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_service_package_line
 msgid "Service Package Line"
-msgstr "Dòng Nhóm Dịch Vụ"
+msgstr "Dòng Gói Dịch Vụ"
 
 #. module: sol_commerce
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_service_package
 #: model:ir.ui.menu,name:sol_commerce.menu_service_package
 msgid "Service Packages"
-msgstr "Nhóm Dịch Vụ"
+msgstr "Gói Dịch Vụ"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
 msgid "Service packages"
-msgstr "Nhóm dịch vụ"
+msgstr "Gói dịch vụ"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__show_unpaid_warning
@@ -2677,7 +2676,7 @@ msgstr "Giỏ hàng trống."
 #. module: sol_commerce
 #: model:ir.model.constraint,message:sol_commerce.constraint_medilab_service_package_code_unique
 msgid "The code of a service package must be unique."
-msgstr "Mã của nhóm dịch vụ phải là duy nhất."
+msgstr "Mã của gói dịch vụ phải là duy nhất."
 
 #. module: sol_commerce
 #: model:ir.model.constraint,message:sol_commerce.constraint_medilab_tax_code_unique
@@ -2712,11 +2711,6 @@ msgstr "Số báo giá không được trùng."
 #: code:addons/sol_commerce/models/orders/sale_order_task.py:0
 msgid "The order's salesperson changed."
 msgstr "Nhân viên kinh doanh của đơn hàng đã thay đổi."
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_service_package_form
-msgid "The package costs more than its parameters bought one by one."
-msgstr "Giá nhóm dịch vụ cao hơn tổng giá các chỉ tiêu khi mua lẻ."
 
 #. module: sol_commerce
 #. odoo-python
@@ -2852,7 +2846,7 @@ msgstr "Theo dõi"
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Type to find a parameter or package..."
-msgstr "Nhập để tìm chỉ tiêu hoặc nhóm dịch vụ..."
+msgstr "Nhập để tìm chỉ tiêu hoặc gói dịch vụ..."
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__unclaimed
@@ -2878,11 +2872,13 @@ msgstr "Số tiền chưa thuế"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__valid_from
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__valid_from
 msgid "Valid From"
 msgstr "Áp dụng từ"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__valid_until
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__valid_until
 msgid "Valid Until"
 msgstr "Áp dụng đến"
 
@@ -2896,16 +2892,6 @@ msgstr "Xem báo giá"
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__parameter_method_id
 msgid "Way of Testing"
 msgstr "Cách Thử"
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/pricing/parameter_price.py:0
-msgid ""
-"With this price, these packages cost more than their parameters bought one "
-"by one: %s"
-msgstr ""
-"Với giá này, các nhóm dịch vụ sau có giá cao hơn tổng giá các chỉ tiêu khi "
-"mua lẻ: %s"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cancellation_request__status__withdrawn
@@ -3739,6 +3725,7 @@ msgstr "<span>Thành tiền trước thuế</span>"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_invoice_document_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
 msgid "<span>Total</span>"
 msgstr "<span>Tổng cộng</span>"
 
@@ -4870,7 +4857,7 @@ msgstr "Đơn hàng mẫu"
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/order_template_line.py:0
 msgid "Package component %(item)s is unavailable: %(reason)s"
-msgstr "Chỉ tiêu %(item)s trong nhóm dịch vụ không còn khả dụng: %(reason)s"
+msgstr "Chỉ tiêu %(item)s trong gói dịch vụ không còn khả dụng: %(reason)s"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_order_template_read_all
@@ -4928,7 +4915,7 @@ msgstr "Không thể thay đổi khách hàng và đơn hàng gốc của đơn 
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/order_template_line.py:0
 msgid "The package is archived or has no parameters."
-msgstr "Nhóm dịch vụ đã lưu trữ hoặc không có chỉ tiêu."
+msgstr "Gói dịch vụ đã lưu trữ hoặc không có chỉ tiêu."
 
 #. module: sol_commerce
 #. odoo-python
@@ -4952,7 +4939,7 @@ msgstr "Sản phẩm đã lưu trữ hoặc không còn được bán."
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/order_template_line.py:0
 msgid "The product no longer represents a parameter or package."
-msgstr "Sản phẩm không còn đại diện cho chỉ tiêu hoặc nhóm dịch vụ."
+msgstr "Sản phẩm không còn đại diện cho chỉ tiêu hoặc gói dịch vụ."
 
 #. module: sol_commerce
 #. odoo-python
@@ -4990,7 +4977,7 @@ msgstr "Đơn hàng mẫu cần ít nhất một lựa chọn."
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/order_template_line.py:0
 msgid "Choose a parameter or package from the catalog."
-msgstr "Chọn chỉ tiêu hoặc nhóm dịch vụ trong danh mục."
+msgstr "Chọn chỉ tiêu hoặc gói dịch vụ trong danh mục."
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_template_search
@@ -5174,21 +5161,6 @@ msgid "%(way)s does not test %(item)s on %(sample_type)s."
 msgstr "%(way)s không thử %(item)s trên %(sample_type)s."
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Apply"
-msgstr "<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Áp dụng"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "Choose a sample type"
-msgstr "Chọn loại mẫu"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "Choose a way of testing"
-msgstr "Chọn cách thử"
-
-#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_line.py:0
 msgid ""
@@ -5199,36 +5171,14 @@ msgstr ""
 "%s"
 
 #. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
-msgid "Choose one of the sample types offered for %s."
-msgstr "Hãy chọn một trong các loại mẫu được cung cấp cho %s."
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
-msgid "Choose one of the ways of testing offered for %s."
-msgstr "Hãy chọn một trong các cách thử được cung cấp cho %s."
-
-#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__offered_method_ids
 msgid "Offered Ways of Testing"
 msgstr "Các Cách Thử Được Cung Cấp"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "Way of testing"
-msgstr "Cách thử"
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Way of testing:"
 msgstr "Cách thử:"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "for"
-msgstr "cho"
 
 #. module: sol_commerce
 #. odoo-python
@@ -6573,6 +6523,7 @@ msgstr "Tình trạng nhận"
 #: model:ir.model.fields,field_description:sol_commerce.field_res_company__log_ids
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__log_ids
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__log_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__log_ids
 msgid "Log"
 msgstr "Nhật Ký"
 
@@ -6590,3 +6541,155 @@ msgstr "Liên Hệ Là Doanh Nghiệp"
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__preferred_payment_method_line_id
 msgid "Preferred Payment Method"
 msgstr "Phương Thức Thanh Toán Ưu Tiên"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/pricing/parameter_price.py:0
+msgid "%(parameter)s has no price on %(date)s."
+msgstr "%(parameter)s chưa có giá vào ngày %(date)s."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
+msgid "<i class=\"oi me-1\" data-icon=\"add\" aria-hidden=\"true\"/>Add"
+msgstr "<i class=\"oi me-1\" data-icon=\"add\" aria-hidden=\"true\"/>Thêm"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
+msgid "<i class=\"oi me-1\" data-icon=\"add_shopping_cart\" aria-hidden=\"true\"/>Add to cart"
+msgstr "<i class=\"oi me-1\" data-icon=\"add_shopping_cart\" aria-hidden=\"true\"/>Thêm vào giỏ hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
+msgid "<i class=\"oi me-1\" data-icon=\"arrow_back\" aria-hidden=\"true\"/>Catalog"
+msgstr "<i class=\"oi me-1\" data-icon=\"arrow_back\" aria-hidden=\"true\"/>Danh mục"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
+msgid "<i class=\"oi me-1\" data-icon=\"shopping_cart_checkout\" aria-hidden=\"true\"/>Buy now"
+msgstr "<i class=\"oi me-1\" data-icon=\"shopping_cart_checkout\" aria-hidden=\"true\"/>Mua ngay"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_products
+msgid "<i class=\"oi me-1\" data-icon=\"tune\" aria-hidden=\"true\"/>Choose parameters"
+msgstr "<i class=\"oi me-1\" data-icon=\"tune\" aria-hidden=\"true\"/>Chọn chỉ tiêu"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_line_package.py:0
+msgid "A package keeps at least one parameter."
+msgstr "Gói dịch vụ phải giữ ít nhất một chỉ tiêu."
+
+#. module: sol_commerce
+#: model:ir.model.constraint,message:sol_commerce.constraint_medilab_price_period_period_order
+msgid "A price period cannot end before it starts."
+msgstr "Kỳ giá không thể kết thúc trước khi bắt đầu."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
+msgid "Add a parameter"
+msgstr "Thêm chỉ tiêu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
+msgid "Choose a parameter"
+msgstr "Chọn chỉ tiêu"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_price_period_create_all
+msgid "Create price periods"
+msgstr "Tạo giá theo kỳ"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_price_period_delete_all
+msgid "Delete price periods"
+msgstr "Xóa giá theo kỳ"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_price_period_edit_all
+msgid "Edit price periods"
+msgstr "Sửa giá theo kỳ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_products
+msgid "From"
+msgstr "Từ"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_price_period__is_current
+msgid "In Force"
+msgstr "Đang áp dụng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+msgid "No parameter or package matches the filters."
+msgstr "Không có chỉ tiêu hoặc gói dịch vụ nào khớp bộ lọc."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_line_package.py:0
+msgid "Only a package line holds parameters."
+msgstr "Chỉ dòng gói dịch vụ mới chứa chỉ tiêu."
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_price_period
+msgid "Price Period"
+msgstr "Giá Theo Kỳ"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__period_ids
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_parameter_price_form
+msgid "Price Periods"
+msgstr "Giá theo kỳ"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__list_price
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__list_price
+msgid "Price Today"
+msgstr "Giá hôm nay"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_price_period_read_all
+msgid "Read price periods"
+msgstr "Xem giá theo kỳ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_products
+msgid "Show all parameters"
+msgstr "Xem tất cả chỉ tiêu"
+
+#. module: sol_commerce
+#: model:ir.actions.server,name:sol_commerce.cron_refresh_current_prices_ir_actions_server
+msgid "Start and end price periods"
+msgstr "Bắt đầu và kết thúc các kỳ giá"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
+msgid "The package is in the cart."
+msgstr "Gói dịch vụ đã được thêm vào giỏ hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/pricing/price_period.py:0
+msgid "The price periods of %(parameter)s overlap: %(period)s and %(other)s."
+msgstr "Các kỳ giá của %(parameter)s bị trùng nhau: %(period)s và %(other)s."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_parameter_price_form
+msgid "Until further notice"
+msgstr "Đến khi có thông báo mới"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
+msgid "for the whole package"
+msgstr "cho cả gói"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_products
+msgid "parameters"
+msgstr "chỉ tiêu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
+msgid "parameters chosen. Untick a parameter you do not need, or add another one; the price is the sum of the parameters."
+msgstr "chỉ tiêu đã chọn. Bỏ chọn chỉ tiêu bạn không cần hoặc thêm chỉ tiêu khác; giá là tổng giá các chỉ tiêu."

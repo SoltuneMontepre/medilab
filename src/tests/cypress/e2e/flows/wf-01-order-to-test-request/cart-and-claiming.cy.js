@@ -4,11 +4,11 @@ import { MENU } from "../../../support/menus";
 import { CUSTOMERS, clearCarts, orderAt } from "./setup";
 
 describe("WF-01 portal cart and order claiming (F-04, F-05)", () => {
-  it("TC-F04-02 orders a package whole with its parameters", () => {
+  it("TC-F04-02 orders a package with its parameters", () => {
     clearCarts(CUSTOMERS.nuocSach);
     cy.signInAs("customer");
     cy.visit("/catalog");
-    cy.contains("tr", "Bottled water basic").find("button[type=submit]").click();
+    cy.contains(".card h3", "Bottled water basic").closest(".card").find("button[type=submit]").click();
     cy.location("pathname").should("eq", "/cart");
     cy.get("form[action='/cart/line']").should("have.length", 1);
     cy.contains("tr", "Bottled water basic").find("form[action='/cart/line']").should("exist");
@@ -42,7 +42,7 @@ describe("WF-01 portal cart and order claiming (F-04, F-05)", () => {
 
   it("TC-F04-03 refuses a cart submitted without an e-mail address", () => {
     becomeVisitor();
-    cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
+    cy.contains(".card h3", "Lead (Pb)").closest(".card").find("button[type=submit]").click();
     cy.get("form[action='/cart/submit'] input[name=email]").should("have.attr", "required");
     // The browser asks for the address first; the server refuses a form sent without it all the same.
     cy.get("form[action='/cart/submit'] input[name=email]").invoke("removeAttr", "required");
@@ -55,7 +55,7 @@ describe("WF-01 portal cart and order claiming (F-04, F-05)", () => {
 
   it("TC-F04-04 keeps a priority request and submitted details after missing-date validation", () => {
     becomeVisitor().then(() => {
-      cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
+      cy.contains(".card h3", "Lead (Pb)").closest(".card").find("button[type=submit]").click();
       cy.location("pathname").should("eq", "/cart");
       cy.get("form[action='/cart/submit'] input[name=name]").type("Lê Văn Khách");
       cy.get("form[action='/cart/submit'] input[name=email]").type("priority@example.test");

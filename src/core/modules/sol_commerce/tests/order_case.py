@@ -3,7 +3,6 @@ from odoo.fields import Command
 from .common import PricingCase
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_ORDER_SAMPLE,
-    MODEL_PARAMETER_PRICE,
     MODEL_PRODUCT_TEMPLATE,
 )
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
@@ -39,16 +38,14 @@ ORDER_PERMISSIONS = (
 
 
 class OrderCase(PricingCase):
-    """A priced parameter, a cheaper package, a portal customer and two salespeople."""
+    """A priced parameter, a package of it and another parameter, a portal customer and two salespeople."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.other = cls.create_parameter("Cadmium (Cd)", cls.group)
-        cls.other_price = cls.env[MODEL_PARAMETER_PRICE].create(
-            {"parameter_id": cls.other.id, "list_price": 80000, "tax_id": cls.vat.id}
-        )
-        cls.package = cls.create_package(100000, (cls.parameter, 1), (cls.other, 1))
+        cls.other_price = cls.create_price(cls.other, 80000)
+        cls.package = cls.create_package((cls.parameter, 1), (cls.other, 1))
         products = cls.env[MODEL_PRODUCT_TEMPLATE]
         cls.lead_product = products.search([("parameter_id", "=", cls.parameter.id)], limit=1)
         cls.package_product = products.search([("service_package_id", "=", cls.package.id)], limit=1)
