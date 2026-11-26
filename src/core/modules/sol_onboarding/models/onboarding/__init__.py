@@ -5,6 +5,7 @@ from . import (
     onboarding_reject,
     onboarding_run,
     onboarding_run_crawl,
+    onboarding_run_guidance,
     onboarding_run_scope_file,
     onboarding_sector,
     onboarding_snapshot,

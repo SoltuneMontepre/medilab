@@ -17,8 +17,9 @@ The administrator fills the Laboratory master data from trusted public sources: 
 
 | Rule            | Description                                                                                                                                                                                       |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Organisations   | A [scheduled job](../../shared.md#sh-09-scheduled-tasks) refreshes the organisations the sources list, weekly by default, and the administrator can refresh them by hand. Picking an organisation searches this list, never a source's site. |
+| Organisations   | A [scheduled job](../../shared.md#sh-09-scheduled-tasks) refreshes the organisations the sources list, weekly by default, and the administrator can refresh them by hand. Picking an organisation searches this list by name or accreditation number, never a source's site, and each organisation is shown with its accreditation number. |
 | Suggestion      | Picking an organisation suggests first the one whose tax ID is the company's, then those whose names are closest to the company's name. The administrator can pick any listed organisation or none. |
+| First steps     | The list of runs, while empty, says how to collect: create a run, pick the laboratory and start it. A draft run says how many organisations are listed so far while the list is still being refreshed, since the first refresh after the module is installed takes several minutes. A running run says that it works in the background and that the page is reloaded to see how far it is. |
 | Sectors         | The administrator picks one or more of the sectors the system serves: food, cosmetics, pharmaceuticals and environment.                                                                          |
 | What a run reads | A run has an organisation, sectors, a scope file or any of them together. For the organisation, it stages its accreditation certificates with their scope. For the sectors, it stages what the sources list for them. |
 | Scope file      | The administrator can upload the laboratory's list of accredited tests as issued by BoA: a PDF with text, of at most 10 MB. The run stages its certificate, testing fields and testing methods as it does for a source, and each staged record shows the file as the page it came from. Any other file is refused when the run is started, with a message. |
@@ -45,6 +46,8 @@ stateDiagram-v2
 Acceptance criteria:
 
 - With the company's tax ID equal to a listed organisation's, that organisation is the first suggestion.
+- Typing `VILAS 001` when picking an organisation finds the organisation with that accreditation number.
+- A draft run opened while the organisations are being refreshed says how many are listed so far; once the refresh has ended it says nothing.
 - A run for the food sector stages only what the sources list for food.
 - A run with the list of accredited tests of VILAS 001 and no organisation takes the listed organisation VILAS 001, and stages one certificate and each method once, whether the file or the source gave it.
 - Starting a run with the scope file of VILAS 001 and the organisation VILAS 002 is refused with a message naming both.

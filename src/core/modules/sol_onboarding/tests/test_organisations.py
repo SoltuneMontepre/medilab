@@ -6,7 +6,7 @@ from odoo.exceptions import AccessError
 from odoo.tests import tagged
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM
-from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_ORGANISATION
+from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_ORGANISATION, MODEL_ONBOARDING_RUN
 from odoo.addons.sol_onboarding.constants.onboarding import ORGANISATIONS_JOB, SUGGEST_CONTEXT
 from odoo.addons.sol_onboarding.services.adapters.base import OrganisationValues
 from odoo.addons.sol_onboarding.services.fetcher import Fetcher, SourceBusy
@@ -191,6 +191,26 @@ class TestOrganisations(OnboardingCase):
         result = self.suggest.name_search("", [("id", "=", low.id)], limit=1)
 
         self.assertEqual([id_ for id_, _ in result], [low.id])
+
+    def test_a_run_tells_how_many_organisations_are_listed_while_they_refresh(self):
+        self.serve({START: page(("a", "Alpha", "1"), next_page=SECOND), SECOND: page(("b", "Beta", "2"))})
+        run = self.env[MODEL_ONBOARDING_RUN].with_user(self.admin).create({})
+
+        run.action_refresh_organisations()
+        self.assertEqual(
+            run.organisations_notice,
+            "The organisations are still being listed: 0 so far. Yours can be picked as soon as it is listed.",
+        )
+
+        self.run_until_settled(ORGANISATIONS_JOB)
+        run.invalidate_recordset()
+        self.assertFalse(run.organisations_notice)
+
+    def test_an_accreditation_number_finds_its_organisation(self):
+        numbered = self.organisation(name="Petroleum Laboratory", accreditation_code="VILAS 9901")
+        self.organisation(name="Other Laboratory", accreditation_code="VILAS 9902")
+
+        self.assertEqual(self.suggest.name_search("vilas 9901"), [(numbered.id, "VILAS 9901 - Petroleum Laboratory")])
 
     def test_a_typed_name_searches_as_usual(self):
         self.organisation(name="Alpha")
