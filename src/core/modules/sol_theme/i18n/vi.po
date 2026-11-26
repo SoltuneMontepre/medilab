@@ -175,3 +175,15 @@ msgstr "Tên bộ lọc"
 #: code:addons/sol_theme/static/src/js/odoo_translations.js:0
 msgid "Select one or several criteria"
 msgstr "Chọn một hoặc nhiều tiêu chí"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Enter your password"
+msgstr "Nhập mật khẩu của bạn"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "No messages yet."
+msgstr "Chưa có tin nhắn nào."

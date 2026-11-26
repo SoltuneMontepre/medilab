@@ -3095,6 +3095,7 @@ msgid "Not due"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__not_paid
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__not_paid
 msgid "Not paid"
 msgstr ""
@@ -3169,6 +3170,7 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__on_credit
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__on_credit
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__on_credit
 msgid "On Credit"
 msgstr ""
 
@@ -3568,6 +3570,7 @@ msgid "Package prices"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__paid
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__paid
 msgid "Paid"
 msgstr ""
@@ -3633,6 +3636,7 @@ msgid "Partial"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__partial
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__partial
 msgid "Partially paid"
 msgstr ""
@@ -3750,6 +3754,7 @@ msgstr ""
 #: model:ir.model,name:sol_commerce.model_account_payment
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_request__payment_ids
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__timing
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_badge_status
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
