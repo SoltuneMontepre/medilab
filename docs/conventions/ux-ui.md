@@ -29,7 +29,7 @@ Rules every screen follows, so the interface reads as one product. Colors by mea
 - **Show the outcome first.** Totals, counts and the effect of an action update as the user edits, and a confirmation dialog states what will change before it is confirmed.
 - **Sticky controls.** The status bar, the main action buttons and a list's column headers stay visible while the page scrolls.
 - **Chatter ready to write.** A saved record's chatter opens with the Send message composer when the person may post on it.
-- **Resizable chatter.** On a wide window, dragging the edge between a form and its chatter resizes the chatter. A button at the end of the chatter's top bar collapses it to a narrow strip at the right, which expands it again when clicked. The width and whether it is collapsed are kept in the browser's local storage only.
+- **Resizable chatter.** On a wide window, dragging the edge between a form and its chatter or its audit log panel resizes that panel. A button at the end of the chatter's top bar or of the audit log's heading collapses the panel to a narrow strip at the right, which expands it again when clicked. The width and whether it is collapsed are kept in the browser's local storage only, once for both panels.
 - **Predefined options.** Offer the common choices as one-click filters, groupings, default values or quick picks, and keep a custom option for anything else.
 
 ## Medilab Mobile
