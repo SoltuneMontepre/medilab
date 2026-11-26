@@ -54,7 +54,7 @@ Acceptance criteria:
 | Rule              | Description                                                                                                                                                                                                            |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Proposed action   | A staged record proposes to create a record when it matches none, to link an existing record that it matches with the same values, or to update a record it matches with other values.                                  |
-| Matching          | A certificate matches by its number and a testing method by its standard code, both ignoring case and spaces. A testing field, a sample type and a test parameter match by name in the source's language; a name match is a suggestion the administrator confirms. |
+| Matching          | A certificate matches by its number and a testing method by its standard code, both ignoring case and spaces. A testing field, a sample type and a test parameter match by name in the source's language; a name match is a suggestion the administrator confirms. A certificate or method entered in Laboratory after it was staged is matched when the staged record is accepted: with the same values it is linked, and with other values the staged record proposes an update and stays to review. |
 | Editing           | Before accepting, the administrator can edit the values and the match. The values the source gave are kept unchanged next to the edited ones.                                                                           |
 | Accepting         | Accepting creates, links or updates the Laboratory record by the rules of the [Catalog](../../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). When Laboratory refuses it, such as for a duplicate code, the record stays to review with the message. |
 | Needed first      | Accepting a record also accepts the staged records it needs: a way of testing its parameter and method, a certificate the methods of its scope, which go into the catalog without scope lines that the administrator adds by hand, a method its testing field. What Laboratory requires and the source does not give, such as the department of an in-house way of testing, is asked when accepting. |
@@ -79,6 +79,8 @@ stateDiagram-v2
 Acceptance criteria:
 
 - A staged method whose standard code exists, written with other case or spaces, proposes to link that method.
+- A method entered in Laboratory after a run, written with other case or spaces, is linked when its staged record is accepted and is not created a second time.
+- A certificate entered in Laboratory after a run with another issuing body is not changed by the first accept: its staged record proposes an update with the differences and stays to review.
 - A staged certificate accepted with 30 methods, 5 of them already existing, creates 25 methods, leaves the 5 unchanged and adds no scope line to the certificate.
 - Accepting a way of testing whose parameter and method are staged accepts them first.
 - Accepting an in-house way of testing without a department asks for one, and nothing is saved until it is given.

@@ -66,12 +66,12 @@ The fetcher is the only code that makes outbound requests. It uses `requests`, w
 
 - It fetches only `https` addresses on the source's host, verifies the certificate, follows no redirect by itself, and checks a redirect's target against the host before fetching it.
 - It reads `robots.txt` of the host once per run and skips a disallowed path. A `robots.txt` that redirects off the host or more than five times disallows every path for the run; one that answers `4xx` or cannot be used, such as one that is not plain text, allows every path.
-- It waits at least the source's delay between two requests of a source, across workers, by keeping the time of the last request on the source row, locked while it is read and written.
+- It waits at least the source's delay between two requests of a source, across workers, by keeping the time of the last request on the source row, locked while it is read and written. The lock leaves the records that name the source writable, so staging, reviewing and accepting go on while a source is read.
 - It sends only `GET` requests with a `User-Agent` naming MediLab, no cookies kept between requests and no credentials.
 - It stops reading a response after 10 MB and after a 30 second timeout, and accepts only HTML, PDF and JSON content types.
 - It counts the pages of each source in a run against the source's page limit, and queues no more of that source's pages once the limit is reached.
 
-The fetcher's tests show that a page on another host, a redirect off the host and a path `robots.txt` disallows are not fetched and are named in the run log; that two requests to a source are never closer than its delay; and that a run stops at the page limit, the size limit, the timeout and a refused content type.
+The fetcher's tests show that a page on another host, a redirect off the host and a path `robots.txt` disallows are not fetched and are named in the run log; that two requests to a source are never closer than its delay; that another worker writes a record of a source while a request holds its row; and that a run stops at the page limit, the size limit, the timeout and a refused content type.
 
 ### Parsing
 
@@ -92,7 +92,7 @@ The key of a staged record is its adapter's key for it at the source, such as a 
 - the same key and checksum as a staged record that is to review, accepted or rejected stages nothing;
 - the same key with another checksum stages a new record, and an older one to review becomes `superseded` and passes its children, such as the methods of a certificate's scope, to the new one.
 
-Matching an existing Laboratory record runs when a record is staged and again when its values are edited. Codes are compared after removing spaces and folding case and compatibility forms, such as full-width digits; names by trigram similarity, as a suggestion; installing the module creates the `pg_trgm` extension when the database lacks it.
+Matching an existing Laboratory record runs when a record is staged and again when its values are edited. Accepting matches again each record, and each method of its scope, that proposes to create a certificate or method whose code Laboratory has since been given: one with the same values is linked, and one with other values proposes an update and stays to review with a message. Codes are compared after removing spaces and folding case and compatibility forms, such as full-width digits; names by trigram similarity, as a suggestion; installing the module creates the `pg_trgm` extension when the database lacks it.
 
 ### Accepting
 

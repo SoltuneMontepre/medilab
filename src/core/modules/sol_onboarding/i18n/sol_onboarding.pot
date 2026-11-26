@@ -408,6 +408,12 @@ msgid "Kind"
 msgstr ""
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
+msgid "Laboratory now has this code with other values. Review the changes, then accept."
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__lang
 msgid "Language"
 msgstr ""
