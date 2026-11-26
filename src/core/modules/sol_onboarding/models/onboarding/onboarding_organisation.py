@@ -48,7 +48,8 @@ class OnboardingOrganisation(models.Model, OnboardingOrganisationBase):
     @api.depends("name", "accreditation_code")
     def _compute_display_name(self):
         for organisation in self:
-            organisation.display_name = " - ".join(filter(None, [organisation.accreditation_code, organisation.name]))
+            parts = (organisation.accreditation_code or "", organisation.name or "")
+            organisation.display_name = " - ".join(part for part in parts if part)
 
     def _upsert(self, source, values: Iterable[OrganisationValues]):
         """Create or update the source's organisations by key, mark them seen now and bring archived ones back."""
