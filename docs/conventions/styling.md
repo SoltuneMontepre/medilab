@@ -33,6 +33,12 @@ Buttons, status badges and list rows take their color from what they mean. The c
 - **Light only.** The app has the web's light theme and no dark theme.
 - **Brand.** The app icon, the splash screen and the sign-in screen show the MediLab mark of `sol_theme/static/src/img/medilab.svg`. The splash screen and the navbar take `$ml-primary`.
 
+## Medilab Sync
+
+[Medilab Sync](../functional/laboratory_module/applications/medilab-sync.md) shows the web's logo, so a person recognises it as MediLab on the desktop.
+
+- **Brand.** The installer, the taskbar and tray, the window and the Windows Store tiles show the MediLab mark of `sol_theme/static/src/img/medilab.svg`. `public/app-icon.svg` and `src-tauri/icons/logo.svg` are copies of it, and every icon in `src-tauri/icons/` is generated from it with `bunx tauri icon`; a test fails when the copies differ from the web's mark. A change to the mark regenerates them in the same change.
+
 ## Related documents
 
 - [UX and UI](ux-ui.md)
