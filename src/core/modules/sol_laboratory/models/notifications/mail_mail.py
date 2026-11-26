@@ -55,9 +55,8 @@ class MailMail(models.Model, MailMailBase):
         emails = super()._prepare_outgoing_list(mail_server=mail_server, doc_to_followers=doc_to_followers)
         event = self.sudo().mail_message_id.subtype_id
         if not self.subject and event:
-            partners = self.env[MODEL_RES_PARTNER].sudo()
             for email in emails:
-                lang = partners.browse(email["partner_id"]).lang if email["partner_id"] else False
+                lang = email["partner_id"].lang if email["partner_id"] else False
                 email["subject"] = event.with_context(lang=lang or self.env.lang).name
         return emails
 
