@@ -116,6 +116,8 @@ class SaleOrder(models.Model, SaleOrderBase):
         payment_method = fields.Selection(
             [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash")], string="Payment Method"
         )
+        # Odoo's payment method line taken from the customer's preferences.
+        preferred_payment_method_line_id = fields.Many2one(string="Preferred Payment Method")
         # The advance asked with the quotation: none, when the Head of Sales sends without one, the full amount, a
         # percentage or a fixed amount.
         advance_mode = fields.Selection(

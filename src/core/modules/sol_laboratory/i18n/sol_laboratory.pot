@@ -883,6 +883,14 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid ""
+"<span class=\"o_audit_system_avatar\" invisible=\"user_id\"><i class=\"oi\" "
+"data-icon=\"settings\" title=\"System\"/></span>"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
 msgid ""
 "<span invisible=\"interruption_assessment\">\n"

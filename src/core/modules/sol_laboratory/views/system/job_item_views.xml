@@ -12,8 +12,8 @@
                 <field name="next_attempt_at" />
                 <field name="claimed_at" />
                 <field name="done_at" />
-                <button name="action_retry" type="object" string="Retry" icon="fa-repeat" invisible="status != 'failed'" groups="sol_laboratory.group_permission_job_item_edit_all" />
-                <button name="action_cancel" type="object" string="Cancel" icon="fa-times" invisible="status not in ('pending', 'failed')" groups="sol_laboratory.group_permission_job_item_edit_all" />
+                <button name="action_retry" type="object" string="Retry" icon="refresh" invisible="status != 'failed'" groups="sol_laboratory.group_permission_job_item_edit_all" />
+                <button name="action_cancel" type="object" string="Cancel" icon="close" invisible="status not in ('pending', 'failed')" groups="sol_laboratory.group_permission_job_item_edit_all" />
             </list>
         </field>
     </record>

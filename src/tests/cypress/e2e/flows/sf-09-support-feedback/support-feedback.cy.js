@@ -44,9 +44,9 @@ function newVat() {
   return `03${String(Date.now()).slice(-8)}`;
 }
 
-// Posts a chatter message on the open back-office form.
+// Posts a chatter message on the open back-office form, whose chatter opens with the Send message composer.
 function reply(text) {
-  cy.get(".o-mail-Chatter-sendMessage").click();
+  cy.get(".o-mail-Chatter-sendMessage").should("have.class", "active");
   cy.get(".o-mail-Composer-input").type(text);
   cy.get(".o-mail-Composer-send").should("be.enabled").click();
   cy.contains(".o-mail-Message-body", text).should("be.visible");

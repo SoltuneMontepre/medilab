@@ -10,7 +10,7 @@ from odoo.tests.form import O2MProxy
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
-from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD, MODEL_SAMPLE_TEST, MODEL_TEST_REQUEST
+from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD, MODEL_TEST_REQUEST
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 from odoo.addons.sol_laboratory.models.sample_collection.test_request_estimate import TestRequestEstimate
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
@@ -73,8 +73,8 @@ class TestOrderDates(OrderCase):
     def test_without_an_advance_the_turnaround_counts_from_today(self):
         order = self.make_quotable_order()
         requests = self.env[MODEL_TEST_REQUEST]
-        # Today is the laboratory's day, which is ahead of the server's from midnight in the company's time zone.
-        today = self.env[MODEL_SAMPLE_TEST]._local_day(fields.Datetime.now())
+        # Today in the company's time zone, from which the order counts its turnaround, not the server's UTC date.
+        today = fields.Date.context_today(order.with_context(tz=order.company_id.tz))
         requested = requests._date_after_working_days(today, order.turnaround_days)
         order.write({"advance_method": "none", "user_id": self.head.id, "requested_date": requested})
 

@@ -145,3 +145,21 @@ msgstr "%s bản ghi"
 #: code:addons/sol_theme/static/src/js/list_group_text.js:0
 msgid "%s records"
 msgstr "%s bản ghi"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Save search"
+msgstr "Lưu tìm kiếm"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Filter name"
+msgstr "Tên bộ lọc"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Select one or several criteria"
+msgstr "Chọn một hoặc nhiều tiêu chí"
