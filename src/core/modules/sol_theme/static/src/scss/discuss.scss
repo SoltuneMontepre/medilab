@@ -84,6 +84,7 @@ $ml-chatter-dock-width: 2.5rem;
 }
 
 .o-mail-ChatterPanel {
+    flex-shrink: 0;
     max-width: 60vw;
 
     // The chatter's own left border is the divider. The handle lies over it, above the chatter's sticky top bar, and

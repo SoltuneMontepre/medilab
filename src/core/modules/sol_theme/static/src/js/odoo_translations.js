@@ -5,3 +5,5 @@ import { _t } from "@web/core/l10n/translation";
 _t("Save search");
 _t("Filter name");
 _t("Select one or several criteria");
+_t("Enter your password");
+_t("No messages yet.");

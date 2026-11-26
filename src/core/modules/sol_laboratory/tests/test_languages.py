@@ -4,6 +4,7 @@ from odoo.tests import TransactionCase, new_test_user, tagged
 from odoo.tools.misc import format_amount, format_date, formatLang
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TYPE
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 ENGLISH = "en_US"
 VIETNAMESE = "vi_VN"
@@ -27,6 +28,18 @@ class TestLanguages(TransactionCase):
             partner_name.with_context(lang=VIETNAMESE).field_description,
             partner_name.with_context(lang=ENGLISH).field_description,
         )
+
+    def test_odoo_strings_odoo_leaves_untranslated_are_vietnamese(self):
+        login = self.env.ref("web.login")
+        security_card = self.env.ref("portal.portal_entry_base")
+        vietnamese_login = assert_instance(login.with_context(lang=VIETNAMESE).arch_db, str)
+        english_login = assert_instance(login.with_context(lang=ENGLISH).arch_db, str)
+
+        self.assertIn('placeholder="Nhập email của bạn"', vietnamese_login)
+        self.assertIn('placeholder="Nhập mật khẩu của bạn"', vietnamese_login)
+        self.assertIn('placeholder="Enter your email"', english_login)
+        self.assertEqual(security_card.with_context(lang=VIETNAMESE).name, "Kết nối & Bảo mật")
+        self.assertEqual(security_card.with_context(lang=ENGLISH).name, "Connection & Security")
 
     def test_user_language_choice_is_remembered(self):
         user = self.english_user.with_user(self.english_user)

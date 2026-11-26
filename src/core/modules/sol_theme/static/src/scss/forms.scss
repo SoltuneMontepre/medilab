@@ -61,6 +61,8 @@
     box-shadow: $ml-shadow-form;
 
     > h3 {
+      display: flex;
+      align-items: center;
       margin: 0;
       padding: 0.875rem 1.25rem;
       border-bottom: 1px solid $ml-border;
@@ -161,15 +163,14 @@
         }
       }
     }
+  }
 
-    @media (min-width: 1534px) {
-      flex: 0 0 32rem;
-      align-self: flex-start;
-      max-height: calc(100% - 2.75rem);
-      margin: 0.75rem 1.25rem 2rem 0;
-      overflow-y: auto;
-      scrollbar-width: thin;
-    }
+  // Beside the sheet it fills the resizable panel of chatter_resize.js and scrolls on its own.
+  .o-mail-ChatterBody > .o_audit_aside {
+    max-height: calc(100% - 2.75rem);
+    margin: 0.75rem 1.25rem 2rem 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
   }
 
   .o_form_sheet_bg {

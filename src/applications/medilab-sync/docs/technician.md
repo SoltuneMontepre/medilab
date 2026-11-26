@@ -6,7 +6,7 @@ Hướng dẫn ngắn cho pilot có kiểm soát tại PTN (phòng thử nghiệ
 
 Package pilot cho Linux: **DEB** hoặc **RPM** (cùng phiên bản với PTN của bạn). Không hỗ trợ AppImage. Windows chưa được kiểm chứng cho pilot này.
 
-Cài package quản trị viên cung cấp, rồi mở **MediLab File Sync**. Icon tray (bình thí nghiệm màu xanh mòng két trên ô vuông tối) sẽ xuất hiện. Trên Windows, nếu bị ẩn thì tìm trong mũi tên overflow. Nếu chỉ thấy glyph hamburger/menu, tray không có icon app — cài lại hoặc khởi động lại app.
+Cài package quản trị viên cung cấp, rồi mở **MediLab File Sync**. Icon tray (logo MediLab: chữ M trắng kết hợp bình thí nghiệm trên ô vuông xanh) sẽ xuất hiện. Trên Windows, nếu bị ẩn thì tìm trong mũi tên overflow. Nếu chỉ thấy glyph hamburger/menu, tray không có icon app — cài lại hoặc khởi động lại app.
 
 ## Login
 
