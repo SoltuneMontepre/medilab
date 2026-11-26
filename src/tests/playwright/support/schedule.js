@@ -80,6 +80,7 @@ export async function bookingMachine(page) {
   await settled(page);
   // The code is a text for who may only read the machine, and an input for who may edit it.
   const code = field(page, "code");
+  await code.waitFor();
   const editable = code.locator("input");
   return { name, code: (await editable.count()) ? await editable.inputValue() : (await code.innerText()).trim() };
 }
