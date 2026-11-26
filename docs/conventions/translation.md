@@ -11,6 +11,7 @@
 - A string of Odoo's JavaScript or web templates that Odoo does not translate to Vietnamese is named in `sol_theme/static/src/js/odoo_translations.js` and translated in `sol_theme`'s `i18n/vi.po`. The web client uses it when Odoo's own module has no translation for the string.
 - Check a translation by upgrading the module and switching your language to Vietnamese in your preferences.
 - E-mails and reports are rendered in the recipient's language, as Odoo does: a template without a language uses its main recipient's contact language. A report sets `t-lang` to the customer's contact language.
+- Amounts in words are the one Vietnamese source. The `num2words` of Odoo's image reads no currency in Vietnamese, so `res.currency.amount_to_text` in `sol_laboratory` writes a Vietnamese amount itself: `num2words` reads each group of three digits, and the code adds the scales, the zero hundreds and tens of later groups, "đồng" for VND and "và" before the subunits. It runs only for Vietnamese, so those words are not translated; every other language keeps Odoo's wording.
 
 ## Menus
 

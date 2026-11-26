@@ -29,6 +29,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MAIL_NOTIFICATION,
     MODEL_PUSH_DELIVERY,
     MODEL_REGULATION,
+    MODEL_RES_CURRENCY,
     MODEL_RES_GROUPS,
     MODEL_RES_USERS,
     MODEL_SIGNATURE,
@@ -90,7 +91,8 @@ class TestAuditAccess(AuditCase):
         # not audited, as Odoo's log records them.
         # Users keep their personal data on their contact and get their access from their person's roles. Views,
         # menus and reports change when modules are installed, sequences only number documents, accesses follow from
-        # permissions, groups from roles and permissions, and the mail server comes from the environment. Conversations
+        # permissions, groups from roles and permissions, and the mail server comes from the environment. Currencies
+        # only write their amounts in words. Conversations
         # and their members are Odoo's Discuss records, whose messages are not audited either.
         unaudited = {
             MODEL_AUDIT_ENTRY,
@@ -112,6 +114,7 @@ class TestAuditAccess(AuditCase):
             MODEL_MAIL_MAIL,
             MODEL_RES_USERS,
             MODEL_RES_GROUPS,
+            MODEL_RES_CURRENCY,
             MODEL_IR_UI_VIEW,
             MODEL_IR_UI_MENU,
             MODEL_IR_ACCESS,
