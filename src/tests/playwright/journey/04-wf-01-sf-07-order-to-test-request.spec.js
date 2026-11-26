@@ -1,5 +1,5 @@
 import { expect, handOver, received, step, test } from "../support/journey";
-import { choose, dated, field, labDay, listed, money, openListed, openMenu, openRow, openTab, press, pressLabel, save, search, status, type, typeDate, written } from "../support/odoo";
+import { choose, dated, field, labDay, listed, money, openListed, openMenu, openRow, openTab, press, pressLabel, save, search, shownDay, status, type, typeDate, written } from "../support/odoo";
 import { addToCart, cartChoices, cartLine, detail, loads, openHeader, openOrder, send } from "../support/portal";
 
 const SALES = "sale.sale_menu_root";
@@ -38,11 +38,6 @@ function workingDay(days) {
   let day = labDay({ days });
   while ([0, 6].includes(day.getUTCDay())) day = new Date(day.getTime() + 24 * 60 * 60 * 1000);
   return day;
-}
-
-// The full day a date field of a form shows, which the field itself abbreviates.
-function shownDay(page, name) {
-  return field(page, name).locator("[data-tooltip]").first();
 }
 
 test("WF-01 Order to confirmed test request, with SF-07 Result dates and priority orders", async ({ as }) => {

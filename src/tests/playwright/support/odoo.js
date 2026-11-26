@@ -128,6 +128,11 @@ export function field(page, name, within) {
   return scope(page, within).locator(`.o_field_widget[name="${name}"]`).first();
 }
 
+// The full day or time a date field of a form shows, which the field itself abbreviates.
+export function shownDay(page, name, within) {
+  return field(page, name, within).locator("[data-tooltip]").first();
+}
+
 // Types into a text or number field. Leaving the field takes the value; Tab would add a line after the last cell
 // of an editable list.
 export async function type(page, name, value, within) {
@@ -263,6 +268,15 @@ export async function discard(page) {
   await page.locator(".o_form_button_cancel:visible").last().click();
   await settled(page);
   await expect(page.locator(".o_form_button_save:visible")).toHaveCount(0);
+}
+
+// Closes the dialog on top with its cross.
+export async function closeDialog(page) {
+  const dialogs = page.locator(".modal:visible");
+  const open = await dialogs.count();
+  await dialogs.last().locator(".btn-close").click();
+  await expect(dialogs).toHaveCount(open - 1);
+  await settled(page);
 }
 
 // Presses a button of the form, its status bar or the dialog on top, by its `name` attribute.
