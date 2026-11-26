@@ -73,7 +73,7 @@ tasks:
       - task: setup:fresh
 
   clean:
-    desc: "Delete a verified fresh local demo environment, its image and its selection after owner confirmation, without recreating it"
+    desc: "Delete the fresh local demo environment in any bootstrap state, its image and its selection after owner confirmation, without recreating it"
     silent: true
     interactive: true
     cmds:

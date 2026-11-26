@@ -141,3 +141,33 @@ msgstr ""
 #: code:addons/sol_theme/static/src/js/list_group_text.js:0
 msgid "%s records"
 msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Save search"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Filter name"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Select one or several criteria"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Enter your password"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "No messages yet."
+msgstr ""

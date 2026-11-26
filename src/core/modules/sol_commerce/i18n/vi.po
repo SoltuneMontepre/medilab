@@ -6580,3 +6580,18 @@ msgstr "Tự động tính khi chọn chỉ tiêu và loại mẫu"
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__log_ids
 msgid "Log"
 msgstr "Nhật Ký"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__order_line
+msgid "All Order Lines"
+msgstr "Tất Cả Dòng Đơn Hàng"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__partner_is_company
+msgid "Contact Is a Company"
+msgstr "Liên Hệ Là Doanh Nghiệp"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__preferred_payment_method_line_id
+msgid "Preferred Payment Method"
+msgstr "Phương Thức Thanh Toán Ưu Tiên"

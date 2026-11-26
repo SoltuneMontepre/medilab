@@ -108,7 +108,7 @@
                             name="action_open_document"
                             type="object"
                             class="oe_stat_button"
-                            icon="fa-file-text-o"
+                            icon="description"
                             string="Document"
                             invisible="not document_id"
                         />

@@ -70,7 +70,9 @@ class TestOrderDates(OrderCase):
     def test_without_an_advance_the_turnaround_counts_from_today(self):
         order = self.make_quotable_order()
         requests = self.env[MODEL_TEST_REQUEST]
-        requested = requests._date_after_working_days(date.today(), order.turnaround_days)
+        # Today in the company's time zone, from which the order counts its turnaround, not the server's UTC date.
+        today = fields.Date.context_today(order.with_context(tz=order.company_id.tz))
+        requested = requests._date_after_working_days(today, order.turnaround_days)
         order.write({"advance_method": "none", "user_id": self.head.id, "requested_date": requested})
 
         order.with_user(self.head).action_send_quotation()

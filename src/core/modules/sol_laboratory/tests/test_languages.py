@@ -2,7 +2,6 @@ from datetime import date, datetime
 
 from odoo.tests import TransactionCase, new_test_user, tagged
 from odoo.tools.misc import format_amount, format_date, formatLang
-from odoo.tools.translate import code_translations
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TYPE
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
@@ -33,7 +32,6 @@ class TestLanguages(TransactionCase):
     def test_odoo_strings_odoo_leaves_untranslated_are_vietnamese(self):
         login = self.env.ref("web.login")
         security_card = self.env.ref("portal.portal_entry_base")
-        chatter = code_translations.get_web_translations("sol_laboratory", VIETNAMESE)["messages"]
         vietnamese_login = assert_instance(login.with_context(lang=VIETNAMESE).arch_db, str)
         english_login = assert_instance(login.with_context(lang=ENGLISH).arch_db, str)
 
@@ -42,7 +40,6 @@ class TestLanguages(TransactionCase):
         self.assertIn('placeholder="Enter your email"', english_login)
         self.assertEqual(security_card.with_context(lang=VIETNAMESE).name, "Kết nối & Bảo mật")
         self.assertEqual(security_card.with_context(lang=ENGLISH).name, "Connection & Security")
-        self.assertIn({"id": "No messages yet.", "string": "Chưa có tin nhắn nào."}, chatter)
 
     def test_user_language_choice_is_remembered(self):
         user = self.english_user.with_user(self.english_user)
