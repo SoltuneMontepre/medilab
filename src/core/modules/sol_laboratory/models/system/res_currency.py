@@ -41,7 +41,7 @@ class ResCurrency(models.Model, ResCurrencyBase):
 
     def amount_to_text(self, amount):
         num2words = res_currency.num2words
-        if num2words is None or tools.get_lang(self.env).iso_code[:2] != "vi":
+        if num2words is None or not tools.get_lang(self.env).iso_code.startswith("vi"):
             return super().amount_to_text(amount)
         self.ensure_one()
         read_group = partial(num2words, lang="vi")
