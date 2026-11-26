@@ -83,6 +83,18 @@ export function userMenu(page) {
   return page.locator("#top_menu li.dropdown:has(.js_usermenu) > a.dropdown-toggle");
 }
 
+// Opens My account from the user menu: the page of cards that lead to the customer's invoices and test reports.
+export async function openMyAccount(page) {
+  const entry = page.locator(".js_usermenu a[href='/my/home']");
+  // The header's menus answer once the page's scripts have started, which is after the page shows.
+  await expect(async () => {
+    if (!(await entry.isVisible())) await userMenu(page).click();
+    await expect(entry).toBeVisible({ timeout: 1000 });
+  }).toPass();
+  await loads(page, () => entry.click());
+  await expect(page).toHaveURL(/\/my\/home$/);
+}
+
 export async function signOut(page) {
   const logout = page.locator("#o_logout");
   // The header's menus answer once the page's scripts have started, which is after the page shows.
