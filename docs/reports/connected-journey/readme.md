@@ -32,11 +32,14 @@ Every name the journey types carries a run tag, written `{TAG}`, so the journey 
 Each plan lists what the flow receives, what it hands over, its steps as clicks, the data it types and what does not connect.
 
 - [WF-02 Sample reception and handover](wf-02.md)
+- [WF-04 Result entry and approval](wf-04.md)
 - [SF-02 Order cancellation](sf-02.md)
 - [SF-03 Change request on a signed document](sf-03.md)
 - [SF-04 Sample retention, return and disposal](sf-04.md)
+- [SF-06 Accreditation and registration renewal](sf-06.md)
 - [SF-07 Result dates and priority orders](sf-07.md)
 - [SF-10 Scheduling plan and revisions](sf-10.md)
+- [SF-11 Laboratory file administration](sf-11.md)
 
 ## Related documents
 
