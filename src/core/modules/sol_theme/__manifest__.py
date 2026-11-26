@@ -6,10 +6,11 @@
     "author": "Soltune Montepre",
     "license": "LGPL-3",
     "icon": "/sol_theme/static/description/icon.svg",
-    "depends": ["web", "mail"],
+    "depends": ["web", "mail", "portal"],
     "data": [
         "views/favicon_templates.xml",
         "views/login_templates.xml",
+        "views/portal_templates.xml",
         "views/res_users_views.xml",
     ],
     "assets": {
@@ -29,6 +30,11 @@
             (
                 "prepend",
                 "sol_theme/static/src/scss/frontend_variables.scss",
+            ),
+            (
+                "after",
+                "sol_theme/static/src/scss/frontend_variables.scss",
+                "web/static/src/scss/bootstrap_overridden.scss",
             ),
         ],
         "web.assets_backend": [
@@ -69,6 +75,8 @@
             "sol_theme/static/src/js/iconify_icons.js",
             "sol_theme/static/src/js/iconify_setup.js",
             "sol_theme/static/src/scss/icons.scss",
+            "sol_theme/static/src/scss/buttons.scss",
+            "sol_theme/static/src/scss/modals.scss",
             "sol_theme/static/src/scss/login.scss",
             "sol_theme/static/src/scss/portal.scss",
             "sol_theme/static/src/xml/user_switch.xml",
