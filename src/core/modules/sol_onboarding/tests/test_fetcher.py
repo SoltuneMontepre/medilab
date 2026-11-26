@@ -4,13 +4,13 @@ from unittest.mock import patch
 
 import requests
 
-from odoo import fields
+from odoo import SUPERUSER_ID, api, fields
 from odoo.exceptions import LockError
 from odoo.tests import tagged
 
 from .onboarding_case import OnboardingCase
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
-from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_SOURCE
+from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_ORGANISATION, MODEL_ONBOARDING_SOURCE
 from odoo.addons.sol_onboarding.constants.onboarding import CONNECT_TIMEOUT_SECONDS, MAX_BYTES, TIMEOUT_SECONDS
 from odoo.addons.sol_onboarding.services import fetcher as fetcher_module
 from odoo.addons.sol_onboarding.services.fetcher import (
@@ -190,6 +190,27 @@ class TestFetcher(OnboardingCase):
 
         self.assertEqual(busy.exception.until, fields.Datetime.now() + timedelta(seconds=2))
         self.assertEqual(calls, [])
+
+    def test_a_fetch_leaves_the_records_of_its_source_writable(self):
+        shipped = self.env.ref("sol_onboarding.onboarding_source_boa").sudo()
+        Fetcher(shipped, "run:1")._wait_turn()
+        shipped.flush_recordset()
+
+        with self.registry.cursor() as other:
+            # A wait for this fetch's lock on the source is refused instead of hanging.
+            other.execute("SET LOCAL lock_timeout = '1s'")
+            organisation = api.Environment(other, SUPERUSER_ID, {})[MODEL_ONBOARDING_ORGANISATION].create(
+                {
+                    "source_id": shipped.id,
+                    "external_key": "listed-during-a-fetch",
+                    "name": "Listed during a fetch",
+                    "url": "https://www.boa.gov.vn/vi/listed-during-a-fetch",
+                    "seen_at": fields.Datetime.now(),
+                }
+            )
+            organisation.flush_recordset()
+            self.assertTrue(organisation.id)
+            other.rollback()
 
     def test_sends_get_without_cookies_or_credentials(self):
         calls = self.serve({"https://lab.example/a": HTML})

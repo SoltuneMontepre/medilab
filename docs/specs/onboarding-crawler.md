@@ -66,12 +66,12 @@ The fetcher is the only code that makes outbound requests. It uses `requests`, w
 
 - It fetches only `https` addresses on the source's host, verifies the certificate, follows no redirect by itself, and checks a redirect's target against the host before fetching it.
 - It reads `robots.txt` of the host once per run and skips a disallowed path. A `robots.txt` that redirects off the host or more than five times disallows every path for the run; one that answers `4xx` or cannot be used, such as one that is not plain text, allows every path.
-- It waits at least the source's delay between two requests of a source, across workers, by keeping the time of the last request on the source row, locked while it is read and written.
+- It waits at least the source's delay between two requests of a source, across workers, by keeping the time of the last request on the source row, locked while it is read and written. The lock leaves the records that name the source writable, so staging, reviewing and accepting go on while a source is read.
 - It sends only `GET` requests with a `User-Agent` naming MediLab, no cookies kept between requests and no credentials.
 - It stops reading a response after 10 MB and after a 30 second timeout, and accepts only HTML, PDF and JSON content types.
 - It counts the pages of each source in a run against the source's page limit, and queues no more of that source's pages once the limit is reached.
 
-The fetcher's tests show that a page on another host, a redirect off the host and a path `robots.txt` disallows are not fetched and are named in the run log; that two requests to a source are never closer than its delay; and that a run stops at the page limit, the size limit, the timeout and a refused content type.
+The fetcher's tests show that a page on another host, a redirect off the host and a path `robots.txt` disallows are not fetched and are named in the run log; that two requests to a source are never closer than its delay; that another worker writes a record of a source while a request holds its row; and that a run stops at the page limit, the size limit, the timeout and a refused content type.
 
 ### Parsing
 
