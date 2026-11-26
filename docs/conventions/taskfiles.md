@@ -29,6 +29,7 @@ tools/
     ├── odoo_source.sh          dev:odoo-source download and sparse checkout
     ├── compose_env.py          dev:compose-env: this checkout's compose project in tools/infrastructure/.env
     ├── test_apps.sh            test:apps
+    ├── test_journey.sh         test:journey
     ├── test_shards.py          splits the Odoo test classes into shards for test:core
     ├── test_openapi.py         test:openapi comparison with the document on main
     ├── test_openapi_keys.py    test:openapi refusal of duplicate keys

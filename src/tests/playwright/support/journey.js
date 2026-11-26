@@ -7,7 +7,8 @@ import { signIn, watch } from "./odoo";
 
 // MEDILAB_JOURNEY_VIDEO=0 runs the journey without recording each actor's screen.
 const RECORD_VIDEO = process.env.MEDILAB_JOURNEY_VIDEO !== "0";
-const STATE_FILE = path.join(__dirname, "..", ".output", "journey.json");
+// MEDILAB_JOURNEY_STATE names another hand-over file, for a journey run beside the main one.
+const STATE_FILE = process.env.MEDILAB_JOURNEY_STATE || path.join(__dirname, "..", ".output", "journey.json");
 
 function readState() {
   return fs.existsSync(STATE_FILE) ? JSON.parse(fs.readFileSync(STATE_FILE, "utf8")) : {};
@@ -23,9 +24,14 @@ function writeState(state) {
 export function startJourney() {
   const now = new Date();
   const pad = (number) => String(number).padStart(2, "0");
-  const tag = `J${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+  const tag = `J${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
   writeState({ tag });
   return tag;
+}
+
+// The tag of the journey under way; a flow run on its own starts one.
+export function journeyTag() {
+  return readState().tag ?? startJourney();
 }
 
 // Records what a flow leaves for the flows after it.

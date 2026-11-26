@@ -30,6 +30,7 @@ vars:
   E2E_DIR: src/tests
   E2E_URL: '{{.MEDILAB_URL | default "http://localhost:8069"}}'
   E2E_SCRIPT: tools/scripts/test_e2e.sh
+  JOURNEY_SCRIPT: tools/scripts/test_journey.sh
   E2E_TAP: tools/scripts/cypress_tap.py
   E2E_TAP_ARGS: '{{.TAP_ARGS | default .CLI_ARGS}}'
   E2E_TAP_BROWSER: '{{.TAP_BROWSER | default "chrome"}}'
@@ -315,6 +316,16 @@ tasks:
         fi
         log_ok "Odoo is ready at $MEDILAB_E2E_URL."
         log_info "Next: task test:e2e:open to choose a test, or task test:e2e to run all specs."
+
+  test:journey:
+    desc: "Run the connected journey through every business flow by clicks; FLOW=wf-01 runs one flow; start Odoo and ONLYOFFICE first"
+    silent: true
+    dir: "{{.E2E_DIR}}"
+    env:
+      TZ: Asia/Ho_Chi_Minh
+      MEDILAB_URL: "{{.E2E_URL}}"
+    cmds:
+      - '. "{{.ROOT_DIR}}/{{.JOURNEY_SCRIPT}}" "{{.ROOT_DIR}}/{{.LOG}}" "{{.FLOW}}"'
 
   test:apps:
     desc: "Run the application tests"
