@@ -164,6 +164,7 @@ kubeconfig.yml
 src/tests/cypress/downloads/
 src/tests/cypress/screenshots/
 src/tests/cypress/videos/
+src/tests/playwright/.output/
 src/core/modules/coverage.xml
 
 # Local integration and review evidence
