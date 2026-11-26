@@ -1,0 +1,11 @@
+# The database each release rehearses its module upgrade on, as a copy of medilab; see odoo/upgrade-rehearsal.yaml.
+# It is empty outside a release, or holds the copy a failed rehearsal left.
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: medilab-rehearsal
+spec:
+  name: medilab_rehearsal
+  owner: medilab
+  cluster:
+    name: medilab-db
