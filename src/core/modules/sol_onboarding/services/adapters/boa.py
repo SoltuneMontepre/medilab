@@ -20,6 +20,7 @@ CODE_LABEL = "Mã số công nhận"
 VALID_UNTIL_LABEL = "Ngày hiệu lực"
 SCOPE_ID = "tochuc-congnhan"
 ANNEX_TITLE = "LIST OF ACCREDITED TESTS"
+PAGE_HEADER = "DANH MỤC PHÉP THỬ"
 METHOD_CODE = re.compile(
     # Standard body, not right after "/" as in ISO/IEC; "Official Method" or "Method" after it is left out of the code.
     r"(?<!/)\b((?:BS|DIN|NF)\s+EN|EN\s+ISO|TCVN|ISO|ASTM|GOST|AOAC|SMEWW|EN|IEC|EPA|USP|BS|DIN|JIS|NF)\s+"
@@ -144,11 +145,18 @@ def _code(match: re.Match) -> str:
     return code
 
 
-# The English test name of a row, from its first English word to the first word that is not English text.
+# The English test name of a row, from its first English word to the first word that is not English text. The header
+# of the next page and the label of a limit of quantitation are not part of it.
 def _title(segment: str) -> str:
-    text = clean_text(METHOD_CODE.sub(" ", segment))
+    text = clean_text(METHOD_CODE.sub(" ", segment.partition(PAGE_HEADER)[0]))
     start = ENGLISH_START.search(text)
     if not start:
         return ""
     words = text[start.start() :].split()
-    return " ".join(takewhile(lambda word: word.isascii() and not TITLE_END.match(word), words))
+    title = list(takewhile(lambda word: word.isascii() and not TITLE_END.match(word), words))
+    # A word ending in a colon right before a limit is its label, after the Vietnamese half that ends in a slash.
+    if title and title[-1].endswith(":"):
+        title.pop()
+        while title and title[-1].endswith("/"):
+            title.pop()
+    return " ".join(title)
