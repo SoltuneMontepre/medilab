@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import requests
 
-from odoo import SUPERUSER_ID, api, fields
+from odoo import fields
 from odoo.exceptions import LockError
 from odoo.tests import tagged
 
@@ -199,7 +199,7 @@ class TestFetcher(OnboardingCase):
         with self.registry.cursor() as other:
             # A wait for this fetch's lock on the source is refused instead of hanging.
             other.execute("SET LOCAL lock_timeout = '1s'")
-            organisation = api.Environment(other, SUPERUSER_ID, {})[MODEL_ONBOARDING_ORGANISATION].create(
+            organisation = self.env(cr=other)[MODEL_ONBOARDING_ORGANISATION].create(
                 {
                     "source_id": shipped.id,
                     "external_key": "listed-during-a-fetch",

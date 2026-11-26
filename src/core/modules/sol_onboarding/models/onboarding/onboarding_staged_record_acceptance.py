@@ -90,7 +90,7 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
                 record.state == STAGED_TO_REVIEW
                 and record.action == ACTION_CREATE
                 and record.kind in CODE_KINDS
-                and record._find_match()[1]
+                and bool(record._find_match()[1])
             )
         )
         stale._match()
