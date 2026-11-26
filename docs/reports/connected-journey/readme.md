@@ -33,6 +33,7 @@ Each plan lists what the flow receives, what it hands over, its steps as clicks,
 
 - [WF-02 Sample reception and handover](wf-02.md)
 - [WF-04 Result entry and approval](wf-04.md)
+- [WF-06 Report signing, release and delivery](wf-06.md)
 - [SF-02 Order cancellation](sf-02.md)
 - [SF-03 Change request on a signed document](sf-03.md)
 - [SF-04 Sample retention, return and disposal](sf-04.md)
