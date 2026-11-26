@@ -18,7 +18,7 @@ tools/
 │   ├── sync.taskfile.yml       Native Sync development and verification
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint, typecheck
-│   ├── test.taskfile.yml       tests: core, uninstall, typecheck, e2e, apps
+│   ├── test.taskfile.yml       tests: core, uninstall, typecheck, e2e, journey, apps
 │   └── tf.taskfile.yml         Terraform: setup, init, plan, apply, output
 ├── typecheck/                  pyright runner, the links of the addons into the Odoo source, and their tests
 └── scripts/                    scripts the tasks run, see Scripts

@@ -8,6 +8,7 @@ How tests are written, where they live and how they run.
 | ------------- | ------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------ |
 | Odoo modules  | Odoo test runner (`TransactionCase`, `HttpCase`) | `src/core/modules/<module>/tests/`       | `task test:core`                                       |
 | Browser       | Cypress                                          | `src/tests/cypress/e2e/`                 | `task test:e2e`                                        |
+| Journey       | Playwright                                       | `src/tests/playwright/journey/`          | `task test:journey`                                    |
 | Applications  | `bun test`, Jest and `cargo test`                | next to the code, in each application    | `task test:apps`                                       |
 | Type checking | `unittest` and pyright                           | `tools/typecheck/`                       | `task test:typecheck`                                  |
 | Tool scripts  | `unittest`                                       | next to the script in `tools/scripts/`   | the task of the script                                 |
@@ -15,7 +16,7 @@ How tests are written, where they live and how they run.
 | Taskfiles     | `unittest` and Task                              | `tools/scripts/test_taskfile_modules.py` | `task test:taskfiles`                                  |
 | CloudBeaver   | unittest and pinned containers                   | `tools/cloudbeaver/`                     | `python3 -m unittest discover -s tools/cloudbeaver -v` |
 
-`task test` runs the module and application tests. Browser tests run against the running app, so start it first with `task up`.
+`task test` runs the module and application tests. Browser tests and the journey run against the running app, so start it first with `task up`.
 
 ## Odoo module tests
 
@@ -224,6 +225,20 @@ The WF-07 tests read the seeded bottled-water sample and its result file and cha
 Uploads put real bytes through the presigned address: `cypress/fixtures/laboratory/` holds three small genuine `.xlsx` workbooks and three text files, read with `cy.readFile(path, null)` and sent as a `Blob`, the one `cy.request` body Cypress sends byte for byte; a string or an `ArrayBuffer` body is changed on the way and the upload is refused at its finalizing. A test compares the size and SHA-256 of what Odoo stored and of what it gives back for download with those of the fixture. The lock tests save text files, since Odoo does not lock an Office file. A lock's expiry is moved into the past with a server action that the test names "Cypress WF-07 lock expiry …", removes by id and name as soon as it has run, and again after the test; the next run of the spec removes any a stopped run left. This simulates expiry: neither thirty real minutes nor the job that expires locks run.
 
 The editing service is declared for the stack: `CYPRESS_editingService` is `down` unless it is set to `up`, and any other value fails the test. The editor page of an eligible result-folder file must answer as the declaration says: 503 "Online editing is unavailable" when down; when up, 200 with the editor configuration and the service's script reachable. A stack in the other state fails the test, naming the way to bring them together (`task onlyoffice:down`, or the declaration); a test is never skipped for it. Only the down state is exercised by the CI stack, so the up state stays unverified until it runs against a stack with the editor.
+
+## Connected journey
+
+The journey checks that the flows of [Business flows](../functional/business-flows.md) connect through the screens. It is one story: a parameter is set up, a customer registers and orders it, and that order is carried through reception, testing, outsourcing, payment, report, change request and feedback. The [connected journey plans](../reports/connected-journey/readme.md) give the story, each flow's steps and where the flows do not connect.
+
+- One spec per flow, `<NN>-<flow>.spec.js`, in the order of the story. The specs run one at a time on one database, and each continues from the records the specs before it left.
+- Every step is a click or a keystroke of its actor: the apps menu and menu bar, a list search, a row, form fields, buttons and portal links. A spec calls no model method, opens no record by its address and builds no record for itself. A step that no screen offers is not replaced; the spec stops there and the gap goes into the flow's plan.
+- Each actor has a browser of their own, signed in through the login page: `await as("demo.sales")`. The journey's customer signs in with the account it registered.
+- A flow reads what it starts from with `received("orderNumber", ...)` and leaves what the next flows need with `handOver("WF-01", { orderNumber })`, both from `playwright/support/journey.js`. A flow whose starting records are missing is skipped with their names, so a run shows where the chain broke.
+- `step(page, name, run)` marks a business step, named with the words of its path. The report keeps the screen at the end of each step and a video of each actor.
+- Every name the journey types carries the run's tag, and a record made once, such as the second machine, is searched before it is created, so the journey runs again on the same database.
+- `playwright/support/odoo.js` holds the back-office actions and `playwright/support/portal.js` the portal's.
+
+`task test:journey` runs the whole story against the app at `MEDILAB_URL`, which needs the demo data and a running editing service for the report's PDF: `task up`, then `task onlyoffice:up`. `task test:journey FLOW=wf-04` runs one flow on what the last run handed over. The report is in `src/tests/playwright/.output/report`; open it with `bunx playwright show-report playwright/.output/report` from `src/tests`. `MEDILAB_JOURNEY_VIDEO=0` runs without the videos.
 
 ## Applications
 
