@@ -8548,6 +8548,7 @@ msgstr "Nhiệm vụ của %s do hệ thống tạo."
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__vat
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__vat
+#: model:res.country,vat_label:base.vn
 msgid "Tax ID"
 msgstr "Mã số thuế"
 

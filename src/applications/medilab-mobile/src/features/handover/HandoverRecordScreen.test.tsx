@@ -53,6 +53,19 @@ describe("HandoverRecordScreen", () => {
     expect(memoryFiles.size).toBe(0);
   });
 
+  it("shows the signature box and its buttons in place of the record, however long, while the customer signs", async () => {
+    fakeMediLab({ status: 200, body: draftRecord() });
+    await renderSignedIn(<HandoverRecordScreen />);
+
+    await fireEvent.press(await screen.findByRole("button", { name: "Cho khách hàng ký" }));
+
+    expect(screen.queryByText("PTN.2026.0051 – Bắp cải lô A")).toBeNull();
+    expect(screen.getByLabelText("Khung chữ ký")).toBeOnTheScreen();
+    expect(screen.getByRole("button", { name: "Ký lại" })).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole("button", { name: "Huỷ" }));
+    expect(screen.getByText("PTN.2026.0051 – Bắp cải lô A")).toBeOnTheScreen();
+  });
+
   it("keeps a signature MediLab did not get on the phone and sends it again", async () => {
     const mediLab = fakeMediLab({ status: 200, body: draftRecord() }, "unreachable");
     await renderSignedIn(<HandoverRecordScreen />);
