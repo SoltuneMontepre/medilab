@@ -66,7 +66,7 @@
                     name="%(action_medilab_user_link)d"
                     type="action"
                     string="Link to Person"
-                    icon="fa-link"
+                    icon="link"
                     context="{'default_user_id': id}"
                     groups="sol_laboratory.group_role_administrator"
                 />

@@ -1,4 +1,4 @@
-# Vietnamese translations of Odoo's own view strings that Odoo does not translate yet.
+# Vietnamese translations of Odoo's own view strings and field values that Odoo does not translate yet.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0\n"
@@ -138,3 +138,8 @@ msgstr "Gửi liên kết đặt lại mật khẩu"
 #: model_terms:ir.ui.view,arch_db:portal.address_form_fields
 msgid "State / Province..."
 msgstr "Tỉnh / Thành phố..."
+
+#. module: auth_signup
+#: model:ir.model.fields.selection,name:auth_signup.selection__res_users__state__inactive
+msgid "Inactive"
+msgstr "Không hoạt động"
