@@ -31,6 +31,7 @@ Every name the journey types carries a run tag, written `{TAG}`, so the journey 
 
 Each plan lists what the flow receives, what it hands over, its steps as clicks, the data it types and what does not connect.
 
+- [WF-01 Order to confirmed test request](wf-01.md)
 - [WF-02 Sample reception and handover](wf-02.md)
 - [WF-04 Result entry and approval](wf-04.md)
 - [WF-06 Report signing, release and delivery](wf-06.md)
