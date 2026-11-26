@@ -180,8 +180,8 @@ msgstr "Bản ghi con"
 #. module: sol_onboarding
 #. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_run.py:0
-msgid "Choose an organisation or a sector to collect for."
-msgstr "Hãy chọn tổ chức hoặc ngành cần thu thập."
+msgid "Choose an organisation, a sector or a scope file to collect for."
+msgstr "Hãy chọn tổ chức, ngành hoặc tệp phạm vi công nhận cần thu thập."
 
 #. module: sol_onboarding
 #. odoo-python
@@ -196,6 +196,11 @@ msgstr "Mã"
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_accept__code_needed
 msgid "Code Needed"
 msgstr "Cần mã"
+
+#. module: sol_onboarding
+#: model_terms:ir.actions.act_window,help:sol_onboarding.action_medilab_onboarding_run
+msgid "Collect your laboratory's master data"
+msgstr "Thu thập dữ liệu danh mục của phòng thí nghiệm"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log
@@ -249,6 +254,13 @@ msgstr "Mỹ phẩm"
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__action__create
 msgid "Create"
 msgstr "Tạo"
+
+#. module: sol_onboarding
+#: model_terms:ir.actions.act_window,help:sol_onboarding.action_medilab_onboarding_run
+msgid ""
+"Create a run, pick your laboratory by its name or accreditation number, and "
+"start it."
+msgstr "Tạo một lượt thu thập, chọn phòng thí nghiệm của bạn theo tên hoặc số công nhận rồi bắt đầu."
 
 #. module: sol_onboarding
 #: model:medilab.permission,name:sol_onboarding.permission_onboarding_run_create_all
@@ -428,7 +440,9 @@ msgstr "Loại"
 #. module: sol_onboarding
 #. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
-msgid "Laboratory now has this code with other values. Review the changes, then accept."
+msgid ""
+"Laboratory now has this code with other values. Review the changes, then "
+"accept."
 msgstr "Phòng thí nghiệm hiện đã có mã này với giá trị khác. Hãy xem các thay đổi rồi chấp nhận."
 
 #. module: sol_onboarding
@@ -523,6 +537,14 @@ msgstr "Tên"
 
 #. module: sol_onboarding
 #. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
+msgid ""
+"No listed organisation has the accreditation number of the uploaded file to "
+"check it against."
+msgstr "Không có tổ chức nào trong danh sách mang số công nhận của tệp tải lên để đối chiếu."
+
+#. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/subcontractor.py:0
 msgid "No listed organisation has this accreditation number."
 msgstr "Không có tổ chức nào trong danh sách mang số công nhận này."
@@ -610,6 +632,11 @@ msgstr "Chỉ có thể từ chối hoặc xác nhận khớp các bản ghi đa
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__organisation_id
 msgid "Organisation"
 msgstr "Tổ chức"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__organisations_notice
+msgid "Organisations Notice"
+msgstr "Thông báo về danh sách tổ chức"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__organisations_refreshed_at
@@ -806,6 +833,16 @@ msgid "Scheduled Job"
 msgstr "Tác vụ định kỳ"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__scope_file
+msgid "Scope File"
+msgstr "Tệp phạm vi công nhận"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__scope_filename
+msgid "Scope File Name"
+msgstr "Tên tệp phạm vi công nhận"
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__sector_id
 msgid "Sector"
 msgstr "Ngành"
@@ -983,6 +1020,42 @@ msgstr "Bản ghi khớp của %s không còn tồn tại. Hãy chọn lại b�
 
 #. module: sol_onboarding
 #. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_guidance.py:0
+msgid ""
+"The organisations are still being listed: %s so far. Yours can be picked as "
+"soon as it is listed."
+msgstr "Danh sách tổ chức vẫn đang được tải: đã có %s tổ chức. Bạn có thể chọn tổ chức của mình ngay khi nó xuất hiện."
+
+#. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
+msgid ""
+"The run works in the background. You are notified when it ends; reload to "
+"see how far it is."
+msgstr "Lượt thu thập chạy ngầm. Bạn sẽ được thông báo khi nó kết thúc; hãy tải lại trang để xem tiến độ."
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_scope_file.py:0
+msgid ""
+"The scope file is of %(file)s, and the organisation chosen is "
+"%(organisation)s."
+msgstr "Tệp phạm vi công nhận là của %(file)s, còn tổ chức đã chọn là %(organisation)s."
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_scope_file.py:0
+msgid "The scope file is over 10 MB."
+msgstr "Tệp phạm vi công nhận vượt quá 10 MB."
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_scope_file.py:0
+msgid ""
+"The scope file must be a PDF with the text of a list of accredited tests."
+msgstr "Tệp phạm vi công nhận phải là tệp PDF có văn bản của danh mục phép thử được công nhận."
+
+#. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
 msgid ""
 "The staged %(need)s that %(record)s needs is neither to review nor accepted."
@@ -1037,6 +1110,11 @@ msgid "Way of Testing"
 msgstr "Cách Thử"
 
 #. module: sol_onboarding
+#: model_terms:ir.actions.act_window,help:sol_onboarding.action_medilab_onboarding_run
+msgid "What the run finds waits under Staged Records until you accept it."
+msgstr "Những gì lượt thu thập tìm được sẽ chờ ở mục Bản ghi chờ duyệt cho đến khi bạn chấp nhận."
+
+#. module: sol_onboarding
 #. odoo-python
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "another host"
@@ -1083,6 +1161,12 @@ msgstr "không phải HTTPS"
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "over 10 MB"
 msgstr "quá 10 MB"
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
+msgid "read the uploaded file %s"
+msgstr "đã đọc tệp tải lên %s"
 
 #. module: sol_onboarding
 #. odoo-python

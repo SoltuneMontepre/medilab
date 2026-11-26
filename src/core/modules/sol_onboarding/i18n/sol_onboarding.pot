@@ -179,7 +179,7 @@ msgstr ""
 #. module: sol_onboarding
 #. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_run.py:0
-msgid "Choose an organisation or a sector to collect for."
+msgid "Choose an organisation, a sector or a scope file to collect for."
 msgstr ""
 
 #. module: sol_onboarding
@@ -194,6 +194,11 @@ msgstr ""
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_accept__code_needed
 msgid "Code Needed"
+msgstr ""
+
+#. module: sol_onboarding
+#: model_terms:ir.actions.act_window,help:sol_onboarding.action_medilab_onboarding_run
+msgid "Collect your laboratory's master data"
 msgstr ""
 
 #. module: sol_onboarding
@@ -247,6 +252,13 @@ msgstr ""
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__action__create
 msgid "Create"
+msgstr ""
+
+#. module: sol_onboarding
+#: model_terms:ir.actions.act_window,help:sol_onboarding.action_medilab_onboarding_run
+msgid ""
+"Create a run, pick your laboratory by its name or accreditation number, and "
+"start it."
 msgstr ""
 
 #. module: sol_onboarding
@@ -427,7 +439,9 @@ msgstr ""
 #. module: sol_onboarding
 #. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
-msgid "Laboratory now has this code with other values. Review the changes, then accept."
+msgid ""
+"Laboratory now has this code with other values. Review the changes, then "
+"accept."
 msgstr ""
 
 #. module: sol_onboarding
@@ -522,6 +536,14 @@ msgstr ""
 
 #. module: sol_onboarding
 #. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
+msgid ""
+"No listed organisation has the accreditation number of the uploaded file to "
+"check it against."
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/subcontractor.py:0
 msgid "No listed organisation has this accreditation number."
 msgstr ""
@@ -608,6 +630,11 @@ msgstr ""
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__organisation_id
 msgid "Organisation"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__organisations_notice
+msgid "Organisations Notice"
 msgstr ""
 
 #. module: sol_onboarding
@@ -805,6 +832,16 @@ msgid "Scheduled Job"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__scope_file
+msgid "Scope File"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__scope_filename
+msgid "Scope File Name"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__sector_id
 msgid "Sector"
 msgstr ""
@@ -982,6 +1019,42 @@ msgstr ""
 
 #. module: sol_onboarding
 #. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_guidance.py:0
+msgid ""
+"The organisations are still being listed: %s so far. Yours can be picked as "
+"soon as it is listed."
+msgstr ""
+
+#. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
+msgid ""
+"The run works in the background. You are notified when it ends; reload to "
+"see how far it is."
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_scope_file.py:0
+msgid ""
+"The scope file is of %(file)s, and the organisation chosen is "
+"%(organisation)s."
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_scope_file.py:0
+msgid "The scope file is over 10 MB."
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_scope_file.py:0
+msgid ""
+"The scope file must be a PDF with the text of a list of accredited tests."
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
 msgid ""
 "The staged %(need)s that %(record)s needs is neither to review nor accepted."
@@ -1036,6 +1109,11 @@ msgid "Way of Testing"
 msgstr ""
 
 #. module: sol_onboarding
+#: model_terms:ir.actions.act_window,help:sol_onboarding.action_medilab_onboarding_run
+msgid "What the run finds waits under Staged Records until you accept it."
+msgstr ""
+
+#. module: sol_onboarding
 #. odoo-python
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "another host"
@@ -1081,6 +1159,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "over 10 MB"
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
+msgid "read the uploaded file %s"
 msgstr ""
 
 #. module: sol_onboarding
