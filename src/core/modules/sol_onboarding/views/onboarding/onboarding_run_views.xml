@@ -82,6 +82,13 @@
                                 options="{'no_create': True}"
                                 readonly="state != 'draft'"
                             />
+                            <field name="scope_filename" invisible="1" />
+                            <field
+                                name="scope_file"
+                                filename="scope_filename"
+                                options="{'accepted_file_extensions': '.pdf'}"
+                                readonly="state != 'draft'"
+                            />
                         </group>
                         <group>
                             <field name="requested_by_id" readonly="state != 'draft'" />
