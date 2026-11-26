@@ -206,6 +206,25 @@ export function approveThroughScreen() {
   return cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("not.exist");
 }
 
+// A chromium test assigned to the tester and booked, whose booking the role cancels on its form. Yields the test, the
+// booking and the ids of its events.
+export function cancelledThroughScreen(role) {
+  return assignedChromium().then(({ test }) => {
+    // The freed slot must still lie ahead when the test is recommended again.
+    awayFromQuarterHour();
+    return book(test).then((booking) => {
+      const eventIds = [booking.calendar_event_id[0], ...booking.room_event_ids];
+      cy.signInAs(role);
+      cy.visit(`/odoo/machine-schedule/${booking.id}`);
+      cy.intercept("POST", "**/medilab.machine.booking/action_cancel").as("cancelledThroughScreen");
+      cy.get(".o_statusbar_buttons button[name=action_cancel]").click();
+      cy.wait("@cancelledThroughScreen").its("response.body.error").should("not.exist");
+      cy.get(".o_statusbar_buttons button[name=action_cancel]").should("not.exist");
+      return cy.then(() => ({ test, booking, eventIds }));
+    });
+  });
+}
+
 // The notices of an event about a record, and the partners they went to, as the administrator reads them.
 export function notices(event, record) {
   return refAs(ADMINISTRATOR, event)

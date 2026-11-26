@@ -10,6 +10,13 @@ import { colors, fontSize } from "../../theme";
 // The most unread messages the tab counts; more show as this number and a plus.
 const MOST_COUNTED = 99;
 
+function unreadBadge(count: number): number | string | undefined {
+  if (!count) {
+    return undefined;
+  }
+  return count > MOST_COUNTED ? `${MOST_COUNTED}+` : count;
+}
+
 function tabIcon(outline: IconName, filled: IconName) {
   return function TabIcon({ color, focused }: Readonly<{ color: ColorValue; focused: boolean }>) {
     return <Icon name={focused ? filled : outline} size={24} color={typeof color === "string" ? color : undefined} />;
@@ -57,7 +64,7 @@ export default function TabsLayout() {
           title: t("tabs.conversations"),
           tabBarButtonTestID: "tab-conversations",
           tabBarIcon: tabIcon("message-text-outline", "message-text"),
-          tabBarBadge: conversations ? (conversations > MOST_COUNTED ? `${MOST_COUNTED}+` : conversations) : undefined,
+          tabBarBadge: unreadBadge(conversations),
         }}
       />
       <Tabs.Screen

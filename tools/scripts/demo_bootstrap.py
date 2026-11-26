@@ -26,7 +26,12 @@ from local_private_paths import (
     protect_created_path,
 )
 from onlyoffice_state import CONFIG_KEYS as ONLYOFFICE_CONFIG_KEYS
-from onlyoffice_state import missing_core_volumes, optional_volume_names
+from onlyoffice_state import (
+    OnlyofficeError,
+    missing_core_volumes,
+    optional_volume_names,
+    validated_port,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 COMPOSE = ROOT / "tools/infrastructure/docker-compose.yml"
@@ -52,6 +57,14 @@ ODOO_DATABASE_ARGUMENTS = (
 )
 INTERRUPTED_SWITCH_ERROR = (
     "An interrupted project switch exists; run `task setup:fresh:switch:recover`."
+)
+UNFINISHED_STATUSES = ("creating", "installing", "running", "failed")
+UNCOMPLETED_STATUSES = (
+    "selected",
+    *UNFINISHED_STATUSES,
+    "seeded",
+    "handoff",
+    "discarded",
 )
 VOLUME_KEYS = (
     "MEDILAB_DB_VOLUME",
@@ -189,7 +202,7 @@ def _assert_matching_engine(marker, engine, resources, missing):
     saved_engine = marker.get("engine")
     if saved_engine and (not isinstance(engine, str) or engine != saved_engine):
         raise BootstrapError(
-            "Refused: the selected container engine does not match the completed bootstrap marker."
+            "Refused: the selected container engine does not match the bootstrap marker."
         )
     if missing and not saved_engine and not any(resources.values()):
         raise BootstrapError(
@@ -1124,7 +1137,12 @@ def _normal_app_ready(project, owner, config):
             owned=True,
             config=config,
         )
-    port = config["MEDILAB_ODOO_PORT"]
+    try:
+        port = validated_port(config["MEDILAB_ODOO_PORT"])
+    except OnlyofficeError:
+        raise BootstrapError(
+            "The saved Odoo port is invalid; Odoo was not checked."
+        ) from None
     url = f"http://127.0.0.1:{port}/web/login?db={DATABASE}"
     last_error = None
     for _attempt in range(120):
@@ -1510,28 +1528,38 @@ def check_normal_setup():
         )
 
 
-def recover():
-    _assert_local_engine()
+def _remove_resources(resources):
+    for container in resources["containers"]:
+        _run(["docker", "stop", container["Id"]], check=False)
+        _run(["docker", "rm", container["Id"]], check=False)
+    for network in resources["networks"]:
+        _run(
+            ["docker", "network", "rm", network.get("Id") or network["id"]],
+            check=False,
+        )
+    for volume in resources["volumes"]:
+        _run(["docker", "volume", "rm", volume["Name"]])
+
+
+def _discard_uncompleted(action, statuses, prompt):
+    """Delete the owner-labeled containers, networks and volumes of this worktree's unfinished bootstrap after owner confirmation."""
+    engine = _assert_local_engine()
     marker = _read_marker()
-    if not marker or marker.get("status") not in (
-        "creating",
-        "installing",
-        "running",
-        "failed",
-    ):
+    if not marker or marker.get("status") not in statuses:
         raise BootstrapError(
-            "There is no failed or interrupted fresh bootstrap to recover."
+            f"{action} refused: there is no unfinished fresh bootstrap owned by this worktree. Existing or ambiguous environments are never deleted."
         )
     if marker.get("lifecycle_version") != 2:
         raise BootstrapError(
-            "This failed attempt uses an older ownership model; automatic cleanup is refused and its resources are preserved."
+            f"{action} refused: this bootstrap uses an older ownership model; its resources are preserved."
         )
     project = marker.get("project")
     if project != project_name():
         raise BootstrapError(
-            "The failed bootstrap belongs to a different worktree project."
+            f"{action} refused: the bootstrap belongs to a different worktree project."
         )
     resources = _assert_owned_resources(project, marker["owner"])
+    _assert_matching_engine(marker, engine, resources, [])
     summary = {
         kind: [
             item.get("Name") or item.get("name") or item.get("Id") or item.get("id")
@@ -1541,25 +1569,28 @@ def recover():
     }
     print(
         json.dumps(
-            {"project": project, "owner": marker["owner"], "resources": summary},
+            {
+                "project": project,
+                "owner": marker["owner"],
+                "status": marker["status"],
+                "resources": summary,
+            },
             indent=2,
         )
     )
-    confirmation = input(
-        f"Type {marker['owner']} to stop and remove only these isolated bootstrap resources: "
-    )
+    confirmation = input(f"Type {marker['owner']} to {prompt}: ")
     if confirmation != marker["owner"]:
-        raise BootstrapError("Recovery was not confirmed; no resources were removed.")
-    for container in resources["containers"]:
-        _run(["docker", "stop", container["Id"]], check=False)
-        _run(["docker", "rm", container["Id"]], check=False)
-    for volume in resources["volumes"]:
-        _run(["docker", "volume", "rm", volume["Name"]])
-    for network in resources["networks"]:
-        _run(
-            ["docker", "network", "rm", network.get("Id") or network["id"]],
-            check=False,
-        )
+        raise BootstrapError(f"{action} was not confirmed; no resources were removed.")
+    _remove_resources(resources)
+    return marker
+
+
+def recover():
+    marker = _discard_uncompleted(
+        "Recovery",
+        UNFINISHED_STATUSES,
+        "stop and remove only these isolated bootstrap resources",
+    )
     marker["status"] = "discarded"
     marker.pop("disposable", None)
     _write_marker(marker)
@@ -1612,16 +1643,7 @@ def _remove_verified(action, prompt):
     confirmation = input(f"Type {marker['owner']} to {prompt}: ")
     if confirmation != marker["owner"]:
         raise BootstrapError(f"{action} was not confirmed; no resources were removed.")
-    for container in resources["containers"]:
-        _run(["docker", "stop", container["Id"]], check=False)
-        _run(["docker", "rm", container["Id"]], check=False)
-    for network in resources["networks"]:
-        _run(
-            ["docker", "network", "rm", network.get("Id") or network["id"]],
-            check=False,
-        )
-    for volume in resources["volumes"]:
-        _run(["docker", "volume", "rm", volume["Name"]])
+    _remove_resources(resources)
     return marker
 
 
@@ -1634,11 +1656,21 @@ def reset():
 
 
 def clean():
-    """Remove the verified demo environment, its image and its selection, leaving the worktree unselected."""
-    marker = _remove_verified(
-        "Clean", "delete this verified local demo environment without recreating it"
-    )
-    _run(["docker", "image", "rm", marker["config"]["MEDILAB_ODOO_IMAGE"]], check=False)
+    """Remove this worktree's demo environment in any bootstrap state, its image and its selection, leaving the worktree unselected."""
+    marker = _read_marker()
+    if marker and marker.get("status") == "completed":
+        marker = _remove_verified(
+            "Clean", "delete this verified local demo environment without recreating it"
+        )
+    else:
+        marker = _discard_uncompleted(
+            "Clean",
+            UNCOMPLETED_STATUSES,
+            "delete this unfinished local demo environment without recreating it",
+        )
+    image = marker["config"].get("MEDILAB_ODOO_IMAGE")
+    if image:
+        _run(["docker", "image", "rm", image], check=False)
     _remove_compose_env(marker["config"])
     _private_path(MARKER)
     MARKER.unlink()

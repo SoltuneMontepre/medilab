@@ -19,6 +19,7 @@ import {
   book,
   bookedLead,
   bookedOnOneMachine,
+  cancelledThroughScreen,
   checkpointSettings,
   enableReminders,
   notices,
@@ -246,45 +247,31 @@ describe("WF-03 baseline assignment and scheduling", () => {
   });
 
   it("TC-SF10-A2 partial lets the tester cancel a booking, and its slot goes back to the queue", () => {
-    assignedChromium().then(({ test }) => {
-      // The freed slot must still lie ahead when the test is recommended again.
-      awayFromQuarterHour();
-      book(test).then((booking) => {
-        const eventIds = [booking.calendar_event_id[0], ...booking.room_event_ids];
-        cy.signInAs("tester");
-        cy.visit(`/odoo/machine-schedule/${booking.id}`);
-        cy.intercept("POST", "**/medilab.machine.booking/action_cancel").as("cancelledThroughScreen");
-        cy.get(".o_statusbar_buttons button[name=action_cancel]").click();
-        cy.wait("@cancelledThroughScreen").its("response.body.error").should("not.exist");
-        cy.get(".o_statusbar_buttons button[name=action_cancel]").should("not.exist");
-        cy.readRecord(booking, ["status", "calendar_event_id"]).should((read) => {
-          expect(read.status).to.equal("cancelled");
-          expect(read.calendar_event_id).to.equal(false);
-        });
-        cy.readRecord({ model: "medilab.task", id: booking.task_id[0] }, ["planned_start", "planned_end"]).should((task) => {
-          expect(task.planned_start).to.equal(false);
-          expect(task.planned_end).to.equal(false);
-        });
-        eventsGone(eventIds);
-        cy.readRecord(test, ["status"]).its("status").should("eq", "assigned");
-        scheduleState(test).then((before) => {
-          callRefused("medilab.machine.booking", "action_cancel", [[booking.id]]).should(
-            "eq",
-            "Only a scheduled booking can be cancelled.",
-          );
-          scheduleState(test).should("deep.equal", before);
-        });
-        // The freed slot is offered again, so the test is recommended a slot that ends no later, which the head approves.
-        cy.signInAs("head_of_department");
-        cy.openRecord(test);
-        cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("be.visible");
-        recommendation(test).its("recommended_end").should("be.a", "string").then(time).should("be.at.most", time(booking.ends_at));
-        approveThroughScreen();
-        openBooking(test).should((replacement) => {
-          expect(replacement.id).not.to.equal(booking.id);
-          expect(replacement.status).to.equal("scheduled");
-          expect(replacement.room_event_ids).to.have.length(1);
-        });
+    cancelledThroughScreen("tester").then(({ test, booking, eventIds }) => {
+      cy.readRecord(booking, ["status", "calendar_event_id"]).should((read) => {
+        expect(read.status).to.equal("cancelled");
+        expect(read.calendar_event_id).to.equal(false);
+      });
+      cy.readRecord({ model: "medilab.task", id: booking.task_id[0] }, ["planned_start", "planned_end"]).should((task) => {
+        expect(task.planned_start).to.equal(false);
+        expect(task.planned_end).to.equal(false);
+      });
+      eventsGone(eventIds);
+      cy.readRecord(test, ["status"]).its("status").should("eq", "assigned");
+      scheduleState(test).then((before) => {
+        callRefused("medilab.machine.booking", "action_cancel", [[booking.id]]).should("eq", "Only a scheduled booking can be cancelled.");
+        scheduleState(test).should("deep.equal", before);
+      });
+      // The freed slot is offered again, so the test is recommended a slot that ends no later, which the head approves.
+      cy.signInAs("head_of_department");
+      cy.openRecord(test);
+      cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("be.visible");
+      recommendation(test).its("recommended_end").should("be.a", "string").then(time).should("be.at.most", time(booking.ends_at));
+      approveThroughScreen();
+      openBooking(test).should((replacement) => {
+        expect(replacement.id).not.to.equal(booking.id);
+        expect(replacement.status).to.equal("scheduled");
+        expect(replacement.room_event_ids).to.have.length(1);
       });
     });
   });

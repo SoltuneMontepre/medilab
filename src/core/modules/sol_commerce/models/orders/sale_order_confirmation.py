@@ -50,6 +50,20 @@ CONFIRMING_ORDER_IDS = ContextVar("medilab_confirming_order_ids", default=frozen
 COLLECTION_DIALOG = "medilab_collection_dialog"
 # Statuses of a test request whose samples have not arrived yet, while payment can still hold their collection.
 AWAITING_SAMPLE_STATUSES = ("draft", "confirmed", "paid", "on_credit")
+# Badge color of each sample status in the collected samples table; any other status is grey.
+SAMPLE_STATUS_BADGES = {
+    "received": "text-bg-info",
+    "testing": "text-bg-info",
+    "awaiting_approval": "text-bg-warning",
+    "on_hold": "text-bg-warning",
+    "completed": "text-bg-success",
+    "reported": "text-bg-success",
+    "retained": "text-bg-secondary",
+    "disposed": "text-bg-secondary",
+    "returned": "text-bg-secondary",
+    "rejected": "text-bg-danger",
+    "cancelled": "text-bg-danger",
+}
 
 
 # Đơn Hàng: confirming the order creates its test request, whose sample collection sales then start.
@@ -104,19 +118,6 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
     )
     def _compute_collected_samples_html(self):
         _ = self.env._
-        status_badges = {
-            "received": "text-bg-info",
-            "testing": "text-bg-info",
-            "awaiting_approval": "text-bg-warning",
-            "on_hold": "text-bg-warning",
-            "completed": "text-bg-success",
-            "reported": "text-bg-success",
-            "retained": "text-bg-secondary",
-            "disposed": "text-bg-secondary",
-            "returned": "text-bg-secondary",
-            "rejected": "text-bg-danger",
-            "cancelled": "text-bg-danger",
-        }
         for order in self:
             samples = order.sudo().test_request_id.sample_ids.filtered(
                 lambda s: bool(s.status != "expected" or s.received_at or s.condition)
@@ -126,35 +127,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 order.collected_samples_html = False
                 continue
             order.has_collected_samples = True
-            states = dict(samples._fields["physical_state"]._description_selection(self.env))
-            conditions = dict(samples._fields["condition"]._description_selection(self.env))
-            statuses = dict(samples._fields["status"]._description_selection(self.env))
-            rows = Markup("").join(
-                Markup(
-                    "<tr>"
-                    '<td class="fw-semibold">%s</td>'
-                    "<td>%s</td>"
-                    "<td>%s</td>"
-                    "<td>%s</td>"
-                    "<td>%s</td>"
-                    "<td>%s</td>"
-                    "<td>%s</td>"
-                    '<td><span class="badge rounded-pill %s">%s</span></td>'
-                    "</tr>"
-                )
-                % (
-                    escape(sample.code or ""),
-                    escape(sample.customer_sample_name or ""),
-                    escape(sample.sample_type_id.display_name or ""),
-                    escape(states.get(sample.physical_state, "") if sample.physical_state else ""),
-                    escape(sample.received_quantity or ""),
-                    escape(conditions.get(sample.condition or "", "")),
-                    escape(format_datetime(self.env, sample.received_at) if sample.received_at else ""),
-                    status_badges.get(sample.status or "", "text-bg-secondary"),
-                    escape(statuses.get(sample.status or "", sample.status or "")),
-                )
-                for sample in samples.sorted("id")
-            )
+            rows = self._collected_sample_rows(samples)
             order.collected_samples_html = Markup(
                 '<div class="bg-white border rounded-3 overflow-hidden">'
                 '<table class="table table-sm align-middle mb-0">'
@@ -174,6 +147,38 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 escape(_("Status")),
                 rows,
             )
+
+    def _collected_sample_rows(self, samples):
+        """Table rows of the collected samples, in the order they were logged."""
+        states = dict(samples._fields["physical_state"]._description_selection(self.env))
+        conditions = dict(samples._fields["condition"]._description_selection(self.env))
+        statuses = dict(samples._fields["status"]._description_selection(self.env))
+        return Markup("").join(
+            Markup(
+                "<tr>"
+                '<td class="fw-semibold">%s</td>'
+                "<td>%s</td>"
+                "<td>%s</td>"
+                "<td>%s</td>"
+                "<td>%s</td>"
+                "<td>%s</td>"
+                "<td>%s</td>"
+                '<td><span class="badge rounded-pill %s">%s</span></td>'
+                "</tr>"
+            )
+            % (
+                escape(sample.code or ""),
+                escape(sample.customer_sample_name or ""),
+                escape(sample.sample_type_id.display_name or ""),
+                escape(states.get(sample.physical_state, "") if sample.physical_state else ""),
+                escape(sample.received_quantity or ""),
+                escape(conditions.get(sample.condition or "", "")),
+                escape(format_datetime(self.env, sample.received_at) if sample.received_at else ""),
+                SAMPLE_STATUS_BADGES.get(sample.status or "", "text-bg-secondary"),
+                escape(statuses.get(sample.status or "", sample.status or "")),
+            )
+            for sample in samples.sorted("id")
+        )
 
     @api.depends(
         "payment_status",
@@ -199,17 +204,19 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             if order.order_status not in (STATUS_CONFIRMED, STATUS_COMPLETED):
                 order.result_status = False
                 continue
-            test_status = order.sudo().test_request_id.status
-            if test_status == "reported":
-                order.result_status = "reported"
-            elif test_status == "completed":
-                order.result_status = "payment_hold" if order._withholds_report() else "ready"
-            elif test_status in ("testing", "awaiting_approval"):
-                order.result_status = "in_progress"
-            elif hold:
-                order.result_status = "collection_hold"
-            else:
-                order.result_status = "awaiting_samples"
+            order.result_status = order._result_status(hold)
+
+    def _result_status(self, hold):
+        """Where the confirmed order's test result stands, from its test request; `hold` is its collection hold."""
+        self.ensure_one()
+        test_status = self.sudo().test_request_id.status
+        if test_status == "reported":
+            return "reported"
+        if test_status == "completed":
+            return "payment_hold" if self._withholds_report() else "ready"
+        if test_status in ("testing", "awaiting_approval"):
+            return "in_progress"
+        return "collection_hold" if hold else "awaiting_samples"
 
     def _can_collect_samples(self):
         self.ensure_one()

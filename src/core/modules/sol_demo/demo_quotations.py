@@ -13,16 +13,18 @@ from odoo.addons.sol_commerce.constants.models import (
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 DISCOUNT_WIZARD = "sale.order.discount"
+SALES = "sol_demo.demo_res_users_sales"
+LEAD_PRICE = "sol_demo.demo_parameter_price_lead"
 
 
 def seed_quotations(env):
     if env.ref("sol_demo.demo_sale_order_quotation_draft", raise_if_not_found=False):
         return
-    sales = env.ref("sol_demo.demo_res_users_sales")
+    sales = env.ref(SALES)
     head = env.ref("sol_demo.demo_res_users_head_of_sales")
     vat8 = _sales_tax(env, 8)
     vat10 = _sales_tax(env, 10)
-    lead = _product(env, "parameter_id", env.ref("sol_demo.demo_parameter_price_lead").parameter_id.id)
+    lead = _product(env, "parameter_id", env.ref(LEAD_PRICE).parameter_id.id)
     package = _product(env, "service_package_id", env.ref("sol_demo.demo_service_package_bottled_water_basic").id)
 
     draft = _quotable_order(env, lead, vat10)
@@ -63,8 +65,8 @@ def seed_selected_ways(env):
     tested by another way than their default, sent, then revised and sent again with those ways."""
     if env.ref("sol_demo.demo_sale_order_quotation_ways", raise_if_not_found=False):
         return
-    sales = env.ref("sol_demo.demo_res_users_sales")
-    lead = _product(env, "parameter_id", env.ref("sol_demo.demo_parameter_price_lead").parameter_id.id)
+    sales = env.ref(SALES)
+    lead = _product(env, "parameter_id", env.ref(LEAD_PRICE).parameter_id.id)
     package = _product(env, "service_package_id", env.ref("sol_demo.demo_service_package_bottled_water_basic").id)
     order = _quotable_order(env, lead, _sales_tax(env, 10), advance_method="bank_transfer", advance_mode="full")
     sample = order.sample_ids
@@ -88,9 +90,9 @@ def seed_sampling(env):
     test request expects the samples."""
     if env.ref("sol_demo.demo_sale_order_quotation_sampling", raise_if_not_found=False):
         return
-    sales = env.ref("sol_demo.demo_res_users_sales")
+    sales = env.ref(SALES)
     head = env.ref("sol_demo.demo_res_users_head_of_sales")
-    lead = _product(env, "parameter_id", env.ref("sol_demo.demo_parameter_price_lead").parameter_id.id)
+    lead = _product(env, "parameter_id", env.ref(LEAD_PRICE).parameter_id.id)
     package = _product(
         env, "service_package_id", env.ref("sol_demo.demo_service_package_bottled_water_microbiology").id
     )
@@ -114,8 +116,8 @@ def seed_dates(env):
     one, and whose priority request Sales accepted or declined."""
     if env.ref("sol_demo.demo_sale_order_dates_feasible", raise_if_not_found=False):
         return
-    sales = env.ref("sol_demo.demo_res_users_sales")
-    lead = _product(env, "parameter_id", env.ref("sol_demo.demo_parameter_price_lead").parameter_id.id)
+    sales = env.ref(SALES)
+    lead = _product(env, "parameter_id", env.ref(LEAD_PRICE).parameter_id.id)
     tax = _sales_tax(env, 10)
     today = fields.Date.today()
     orders = {}
@@ -218,7 +220,7 @@ def _quotable_order(
             "customer_id": (company or env.ref("sol_demo.demo_res_partner_nuoc_sach")).id,
             "source": "portal",
             "order_status": "claimed",
-            "user_id": (salesperson or env.ref("sol_demo.demo_res_users_sales")).id,
+            "user_id": (salesperson or env.ref(SALES)).id,
             "advance_method": advance_method,
             "advance_mode": advance_mode,
             "advance_value": advance_value,

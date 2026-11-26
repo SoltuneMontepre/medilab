@@ -11,6 +11,23 @@
         <xpath expr="//div[@t-else and hasclass('o_breadcrumb')]/t[@t-call='web.Breadcrumb.Actions']" position="after">
             <t t-call-slot="breadcrumb-status-indicator"/>
         </xpath>
+
+        <!-- Every earlier level shows as its own link instead of Odoo's collapsed menu, after a back arrow to the previous level. -->
+        <xpath expr="//li[@t-if='collapsedBreadcrumbs.length']" position="replace">
+            <li t-if="previousBreadcrumb" class="o_breadcrumb_back" t-on-click.prevent="previousBreadcrumb.onSelected">
+                <a t-att-href="previousBreadcrumb.url" t-att-aria-label="this.getBreadcrumbTooltip(previousBreadcrumb)" t-att-data-tooltip="this.getBreadcrumbTooltip(previousBreadcrumb)"/>
+            </li>
+            <li t-foreach="this.props.breadcrumbs.slice(0, -2)" t-as="crumb" t-key="crumb.jsId" class="breadcrumb-item d-inline-flex min-w-0" t-on-click.prevent="crumb.onSelected">
+                <a t-att-href="crumb.url" class="text-truncate" t-att-data-tooltip="this.getBreadcrumbTooltip(crumb)">
+                    <t t-call="web.Breadcrumb.Name" breadcrumb="crumb"/>
+                </a>
+            </li>
+        </xpath>
+
+        <!-- Odoo's own tooltip on the previous level is not translated. -->
+        <xpath expr="//li[hasclass('o_back_button')]/a" position="attributes">
+            <attribute name="t-att-data-tooltip">this.getBreadcrumbTooltip(previousBreadcrumb)</attribute>
+        </xpath>
     </t>
 
 </templates>

@@ -7,7 +7,7 @@ import unittest
 
 from kube_cluster import cleanup_network, inspect, kube, setup_network, validate_cluster, wait_for
 from kube_support import Fixture
-from runtime import PASSWORD, ROOT
+from runtime import DATABASE_PASSWORD, PASSWORD, ROOT
 
 
 @unittest.skipUnless(os.environ.get("MEDILAB_KUBE_TEST_CONFIG"), "Disposable kind cluster not selected")
@@ -79,7 +79,7 @@ class TestKubernetes(unittest.TestCase):
             text=True,
         )
         self.assertNotIn(PASSWORD, summary)
-        self.assertNotIn("LocalDatabase9", summary)
+        self.assertNotIn(DATABASE_PASSWORD, summary)
         self.assertTrue(json.loads(summary)["workspace"]["workspace_is_mountpoint"])
         self.assertTrue(json.loads(summary)["workspace"]["available"])
         consumers = {item["name"]: item for item in json.loads(summary)["workspace_consumers"]}
@@ -212,7 +212,7 @@ class TestKubernetes(unittest.TestCase):
 
     def test_configuration_mode_and_accountless_runtime_never_reach_ingress(self):
         fixture = self.fixture(replicas=0)
-        fixture.secret("cloudbeaver-admin", {"CB_ADMIN_NAME": "admin", "CB_ADMIN_PASSWORD": "LocalRegression9"})
+        fixture.secret("cloudbeaver-admin", {"CB_ADMIN_NAME": "admin", "CB_ADMIN_PASSWORD": PASSWORD})
         spec = fixture.deployment["spec"]["template"]["spec"]
         spec["initContainers"][0]["command"] = [
             "/bin/bash",
@@ -237,7 +237,7 @@ class TestKubernetes(unittest.TestCase):
             "test -s workspace/.data/cb.h2v2.dat.mv.db; "
             'printf \'%s\' \'{"server":{"serverName":"Regression"}}\' > workspace/.data/.cloudbeaver.runtime.conf'
         )
-        fixture.secret("cloudbeaver-admin", {"CB_ADMIN_NAME": "operator", "CB_ADMIN_PASSWORD": "LocalRegression9"})
+        fixture.secret("cloudbeaver-admin", {"CB_ADMIN_NAME": "operator", "CB_ADMIN_PASSWORD": PASSWORD})
         fixture.deployment = fixture.normal
         fixture.scale(1)
         wait_for(

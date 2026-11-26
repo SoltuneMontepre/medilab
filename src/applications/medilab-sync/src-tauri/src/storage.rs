@@ -1,7 +1,7 @@
 use crate::error::{AppError, AppResult};
 use crate::sync::rules::SyncRule;
 use parking_lot::Mutex;
-use rusqlite::{params, Connection, OptionalExtension};
+use rusqlite::{params, Connection, OptionalExtension, Row};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -141,6 +141,46 @@ pub struct RemoteFileRow {
     pub last_synced_hash: Option<String>,
     pub suppress_hash: Option<String>,
     pub status: String,
+}
+
+/// Đọc một `RemoteFileRow` từ 8 cột đầu của truy vấn: `id, folder_id, relative_path,
+/// remote_file_id, remote_version_id, last_synced_hash, suppress_hash, status`.
+fn remote_file_from_row(row: &Row) -> rusqlite::Result<RemoteFileRow> {
+    Ok(RemoteFileRow {
+        id: row.get(0)?,
+        folder_id: row.get(1)?,
+        relative_path: row.get(2)?,
+        remote_file_id: row.get(3)?,
+        remote_version_id: row.get(4)?,
+        last_synced_hash: row.get(5)?,
+        suppress_hash: row.get(6)?,
+        status: row.get(7)?,
+    })
+}
+
+/// Đọc một `JobRow` từ 12 cột đầu của truy vấn: `id, folder_id, file_id, relative_path,
+/// operation, status, attempt_count, last_error, bytes_total, bytes_done, remote_file_id,
+/// remote_version_id`; state phiên tải lên và version đích để trống cho nơi gọi điền.
+fn job_summary_from_row(row: &Row) -> rusqlite::Result<JobRow> {
+    Ok(JobRow {
+        id: row.get(0)?,
+        folder_id: row.get(1)?,
+        file_id: row.get(2)?,
+        relative_path: row.get(3)?,
+        operation: row.get(4)?,
+        status: row.get(5)?,
+        attempt_count: row.get(6)?,
+        last_error: row.get(7)?,
+        bytes_total: row.get(8)?,
+        bytes_done: row.get(9)?,
+        remote_file_id: row.get(10)?,
+        remote_version_id: row.get(11)?,
+        session_id: None,
+        uploaded_parts: None,
+        content_hash: None,
+        target_version_number: None,
+        part_size: None,
+    })
 }
 
 impl Db {
@@ -703,16 +743,7 @@ impl Db {
                 params![file_id],
                 |row| {
                     Ok((
-                        RemoteFileRow {
-                            id: row.get(0)?,
-                            folder_id: row.get(1)?,
-                            relative_path: row.get(2)?,
-                            remote_file_id: row.get(3)?,
-                            remote_version_id: row.get(4)?,
-                            last_synced_hash: row.get(5)?,
-                            suppress_hash: row.get(6)?,
-                            status: row.get(7)?,
-                        },
+                        remote_file_from_row(row)?,
                         FolderBinding {
                             id: row.get(1)?,
                             local_path: row.get(8)?,
@@ -877,18 +908,7 @@ impl Db {
                 "SELECT id, folder_id, relative_path, remote_file_id, remote_version_id, last_synced_hash, suppress_hash, status
                  FROM sync_file WHERE folder_id = ?1 AND relative_path = ?2",
                 params![folder_id, relative_path],
-                |row| {
-                    Ok(RemoteFileRow {
-                        id: row.get(0)?,
-                        folder_id: row.get(1)?,
-                        relative_path: row.get(2)?,
-                        remote_file_id: row.get(3)?,
-                        remote_version_id: row.get(4)?,
-                        last_synced_hash: row.get(5)?,
-                        suppress_hash: row.get(6)?,
-                        status: row.get(7)?,
-                    })
-                },
+                remote_file_from_row,
             )
             .optional()?;
         Ok(row)
@@ -902,18 +922,7 @@ impl Db {
                 "SELECT id, folder_id, relative_path, remote_file_id, remote_version_id, last_synced_hash, suppress_hash, status
                  FROM sync_file WHERE id = ?1",
                 params![file_id],
-                |row| {
-                    Ok(RemoteFileRow {
-                        id: row.get(0)?,
-                        folder_id: row.get(1)?,
-                        relative_path: row.get(2)?,
-                        remote_file_id: row.get(3)?,
-                        remote_version_id: row.get(4)?,
-                        last_synced_hash: row.get(5)?,
-                        suppress_hash: row.get(6)?,
-                        status: row.get(7)?,
-                    })
-                },
+                remote_file_from_row,
             )
             .optional()?;
         Ok(row)
@@ -1069,18 +1078,7 @@ impl Db {
              ORDER BY relative_path",
         )?;
         let rows = stmt
-            .query_map([], |row| {
-                Ok(RemoteFileRow {
-                    id: row.get(0)?,
-                    folder_id: row.get(1)?,
-                    relative_path: row.get(2)?,
-                    remote_file_id: row.get(3)?,
-                    remote_version_id: row.get(4)?,
-                    last_synced_hash: row.get(5)?,
-                    suppress_hash: row.get(6)?,
-                    status: row.get(7)?,
-                })
-            })?
+            .query_map([], remote_file_from_row)?
             .collect::<Result<Vec<_>, _>>()?;
         Ok(rows)
     }
@@ -1161,23 +1159,12 @@ impl Db {
                 params![now, operation, max_bytes],
                 |row| {
                     Ok(JobRow {
-                        id: row.get(0)?,
-                        folder_id: row.get(1)?,
-                        file_id: row.get(2)?,
-                        relative_path: row.get(3)?,
-                        operation: row.get(4)?,
-                        status: row.get(5)?,
-                        attempt_count: row.get(6)?,
-                        last_error: row.get(7)?,
-                        bytes_total: row.get(8)?,
-                        bytes_done: row.get(9)?,
-                        remote_file_id: row.get(10)?,
-                        remote_version_id: row.get(11)?,
                         session_id: row.get(12)?,
                         uploaded_parts: row.get(13)?,
                         content_hash: row.get(14)?,
                         target_version_number: row.get(15)?,
                         part_size: row.get(16)?,
+                        ..job_summary_from_row(row)?
                     })
                 },
             )
@@ -1323,23 +1310,8 @@ impl Db {
         let rows = stmt
             .query_map([], |row| {
                 Ok(JobRow {
-                    id: row.get(0)?,
-                    folder_id: row.get(1)?,
-                    file_id: row.get(2)?,
-                    relative_path: row.get(3)?,
-                    operation: row.get(4)?,
-                    status: row.get(5)?,
-                    attempt_count: row.get(6)?,
-                    last_error: row.get(7)?,
-                    bytes_total: row.get(8)?,
-                    bytes_done: row.get(9)?,
-                    remote_file_id: row.get(10)?,
-                    remote_version_id: row.get(11)?,
-                    session_id: None,
-                    uploaded_parts: None,
-                    content_hash: None,
                     target_version_number: row.get(12)?,
-                    part_size: None,
+                    ..job_summary_from_row(row)?
                 })
             })?
             .collect::<Result<Vec<_>, _>>()?;

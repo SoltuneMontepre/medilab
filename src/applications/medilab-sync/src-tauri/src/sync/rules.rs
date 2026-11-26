@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::ffi::OsStr;
 use std::path::{Component, Path, PathBuf};
 
 /// Một rule đặt tên/lọc tệp áp cho một folder, cấu hình trong Odoo (khớp phần mở rộng, tiền
@@ -16,7 +17,7 @@ pub struct SyncRule {
 pub fn is_ignored(relative: &str) -> bool {
     let name = Path::new(relative)
         .file_name()
-        .and_then(|n| n.to_str())
+        .and_then(OsStr::to_str)
         .unwrap_or(relative);
     name.starts_with("~$")
         || name.ends_with(".tmp")
@@ -36,10 +37,7 @@ pub fn matches_rules(relative: &str, recursive: bool, rules: &[SyncRule]) -> boo
     if !recursive && path.components().count() > 1 {
         return false;
     }
-    let name = path
-        .file_name()
-        .and_then(|n| n.to_str())
-        .unwrap_or(relative);
+    let name = path.file_name().and_then(OsStr::to_str).unwrap_or(relative);
     let enabled: Vec<_> = rules.iter().filter(|rule| rule.enabled).collect();
     if enabled.is_empty() {
         return true;
@@ -47,7 +45,7 @@ pub fn matches_rules(relative: &str, recursive: bool, rules: &[SyncRule]) -> boo
     enabled.iter().any(|rule| match rule.kind.as_str() {
         "prefix" => name.starts_with(&rule.pattern),
         "extension" => {
-            let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+            let ext = path.extension().and_then(OsStr::to_str).unwrap_or("");
             let expected = rule.pattern.trim_start_matches('.');
             ext.eq_ignore_ascii_case(expected)
         }

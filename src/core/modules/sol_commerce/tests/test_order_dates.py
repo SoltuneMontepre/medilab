@@ -1,6 +1,8 @@
 from datetime import date, datetime, time, timedelta
 from unittest.mock import patch
 
+from freezegun import freeze_time
+
 from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import Form, tagged
@@ -9,6 +11,7 @@ from odoo.tests.form import O2MProxy
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD, MODEL_SAMPLE_TEST, MODEL_TEST_REQUEST
+from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 from odoo.addons.sol_laboratory.models.sample_collection.test_request_estimate import TestRequestEstimate
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
@@ -83,6 +86,18 @@ class TestOrderDates(OrderCase):
         assert isinstance(committed, date)
         assert isinstance(requested, date)
         self.assertLessEqual(committed, requested)
+
+    @freeze_time("2026-11-25 17:30:00")
+    def test_after_midnight_in_the_laboratory_the_turnaround_counts_from_the_new_day(self):
+        # 17:30 UTC on 25 November is 00:30 on the 26th in Vietnam.
+        self.env.company.tz = VIETNAM_ZONE
+        order = self.make_quotable_order()
+        order.write({"advance_method": "none", "user_id": self.head.id})
+
+        order.with_user(self.head).action_send_quotation()
+
+        from_the_new_day = self.env[MODEL_TEST_REQUEST]._date_after_working_days(date(2026, 11, 26), 5)
+        self.assertEqual(order.committed_date, from_the_new_day)
 
     def test_a_committed_date_earlier_than_the_turnaround_allows_is_refused(self):
         order = self.make_quotable_order()

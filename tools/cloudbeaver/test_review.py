@@ -104,7 +104,7 @@ class TestReview(unittest.TestCase):
         runtime.helper(
             'gson=(server/plugins/com.google.gson_*.jar); javac -cp "${gson[0]}" -d /bootstrap-bin '
             "/bootstrap/*.java /regression/AuthenticationTest.java; "
-            'java -cp "/bootstrap-bin:${gson[0]}" AuthenticationTest'
+            'java -cp "/bootstrap-bin:${gson[0]}" medilab.cloudbeaver.AuthenticationTest'
         )
 
     def test_existing_default_database_reopens_without_management_credential_change(self):

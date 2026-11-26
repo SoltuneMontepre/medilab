@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 14:39+0000\n"
-"PO-Revision-Date: 2026-11-26 14:39+0000\n"
+"POT-Creation-Date: 2026-11-26 20:03+0000\n"
+"PO-Revision-Date: 2026-11-26 20:03+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -936,6 +936,11 @@ msgid "Agreement Reference"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__order_line
+msgid "All Order Lines"
+msgstr ""
+
+#. module: sol_commerce
 #: model:res.groups,name:sol_commerce.group_all_orders
 msgid "All orders"
 msgstr ""
@@ -1668,6 +1673,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_queue
 msgid "Contact"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__partner_is_company
+msgid "Contact Is a Company"
 msgstr ""
 
 #. module: sol_commerce
@@ -2882,7 +2892,6 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__customer_is_company
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__partner_is_company
 msgid "Is a Company"
 msgstr ""
 
@@ -4248,6 +4257,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/reconciliation_day.py:0
 msgid "Post the missing payments before locking this day."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__preferred_payment_method_line_id
+msgid "Preferred Payment Method"
 msgstr ""
 
 #. module: sol_commerce

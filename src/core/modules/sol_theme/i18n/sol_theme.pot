@@ -24,6 +24,12 @@ msgstr ""
 #. module: sol_theme
 #. odoo-javascript
 #: code:addons/sol_theme/static/src/js/chatter_resize.js:0
+msgid "Collapse the audit log"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/chatter_resize.js:0
 msgid "Collapse the chatter"
 msgstr ""
 
@@ -43,6 +49,12 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/sol_theme/static/src/xml/app_drawer.xml:0
 msgid "Esc"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/chatter_resize.js:0
+msgid "Expand the audit log"
 msgstr ""
 
 #. module: sol_theme
@@ -140,4 +152,34 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/sol_theme/static/src/js/list_group_text.js:0
 msgid "%s records"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Save search"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Filter name"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Select one or several criteria"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Enter your password"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "No messages yet."
 msgstr ""

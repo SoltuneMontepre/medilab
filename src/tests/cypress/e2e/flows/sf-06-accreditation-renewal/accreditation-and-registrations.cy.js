@@ -1,5 +1,6 @@
 import { pick, save } from "../../../support/form";
 import { call, callAs, callRefused, refAs } from "../../../support/odoo";
+import { step } from "../../../support/steps";
 import {
   ADMINISTRATOR,
   EXPIRED_SUBCONTRACTOR,
@@ -87,6 +88,23 @@ describe("SF-06 subcontractors, accreditation and registrations (F-37, F-41, F-4
         call("medilab.parameter.method", "search_count", [[["parameter_id", "=", parameter.id]]]).should("eq", 0);
       }),
     );
+  });
+
+  it("TC-F37-01 lets a person with the subcontractor permission add its contact people", () => {
+    const name = `Người liên hệ ${Date.now()}`;
+    refAs(ADMINISTRATOR, "sol_demo.demo_subcontractor_southern_micro").then((subcontractor) => {
+      step("The administrator adds a contact person to the subcontractor");
+      cy.signInAs("administrator");
+      cy.openRecord(subcontractor);
+      cy.contains(".o_form_view .o_form_statusbar button:visible", "Add a Contact Person").click();
+      cy.get(".modal:visible").within(() => {
+        cy.get(".o_field_widget[name=name] input").type(name);
+        cy.get("button[name=action_add]").click();
+      });
+      cy.get(".modal").should("not.exist");
+      cy.contains(".o_notebook .nav-link", "Contact People").click();
+      cy.contains(".o_field_widget[name=contact_ids] .o_data_row", name).should("be.visible");
+    });
   });
 
   it("TC-F41-01 imports 30 scope lines, creating only the missing methods and keeping the titles of existing ones", () => {

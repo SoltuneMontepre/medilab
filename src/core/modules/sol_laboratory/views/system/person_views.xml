@@ -33,7 +33,7 @@
                             name="action_open_user"
                             type="object"
                             class="oe_stat_button"
-                            icon="fa-user"
+                            icon="person"
                             string="User"
                             invisible="not user_id"
                             groups="sol_laboratory.group_role_administrator"

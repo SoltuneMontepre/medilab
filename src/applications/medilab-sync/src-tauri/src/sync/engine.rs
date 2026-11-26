@@ -32,6 +32,7 @@ use rusqlite::OptionalExtension;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, HashMap, HashSet};
+use std::ffi::OsStr;
 use std::fs;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
@@ -56,6 +57,38 @@ const STABLE_WAIT: Duration = Duration::from_millis(400);
 pub(crate) const LEGACY_PART_SIZE: i64 = 16 * 1024 * 1024;
 /// Thông báo lỗi (đáng thử lại) khi nội dung đọc để upload không khớp expected hash.
 const CHANGED_DURING_UPLOAD: &str = "Tệp đã thay đổi trong lúc tải lên, sẽ thử lại";
+/// Thông báo gắn vào job dừng vì phiên đăng nhập hết hạn (job vẫn `pending`).
+const SESSION_EXPIRED_MESSAGE: &str = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+
+/// Phần khác nhau giữa tải lên và tải xuống khi chốt lỗi của một job (`settle_transfer_error`).
+struct TransferErrors {
+    /// Chiều transfer trong log: `upload` hoặc `download`.
+    operation: &'static str,
+    /// Log khi phiên đăng nhập hết hạn.
+    auth_expired_log: &'static str,
+    /// Báo `sync-error` cho frontend khi phiên đăng nhập hết hạn.
+    notify_auth_expired: bool,
+    /// Phân loại lỗi 409 là đáng thử lại trong log.
+    conflict_retryable: bool,
+    /// Log khi job thất bại.
+    failed_log: &'static str,
+}
+
+const UPLOAD_ERRORS: TransferErrors = TransferErrors {
+    operation: "upload",
+    auth_expired_log: "auth expired; pausing worker and preserving queue",
+    notify_auth_expired: true,
+    conflict_retryable: true,
+    failed_log: "sync job failed",
+};
+
+const DOWNLOAD_ERRORS: TransferErrors = TransferErrors {
+    operation: "download",
+    auth_expired_log: "auth expired; pausing download worker and preserving queue",
+    notify_auth_expired: false,
+    conflict_retryable: false,
+    failed_log: "download job failed",
+};
 
 /// Chạy một công việc đồng bộ nặng trên blocking pool và giữ ngữ cảnh tracing hiện tại.
 async fn run_blocking<T, F>(work: F) -> AppResult<T>
@@ -660,81 +693,104 @@ impl EngineHandle {
             "sync job started"
         );
         if let Err(err) = self.upload_job(&job, &owned).await {
-            if matches!(err, AppError::Superseded) {
-                log_superseded(&job, "upload");
-                return;
-            }
-            if matches!(err, AppError::Paused | AppError::ClientUpdateRequired(_)) {
-                self.requeue_paused_job(&job, &owned);
-                return;
-            }
-            if is_odoo_auth_failure(&err) {
-                self.session.mark_expired("sync_job");
-                let _ = self.db.transition_owned_job(
-                    &owned,
-                    "pending",
-                    Some("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."),
-                    job.attempt_count,
-                    None,
-                    None,
-                    None,
-                );
-                tracing::warn!(
-                    job_id = job.id,
-                    logical_path = %job.relative_path,
-                    error_category = "unauthenticated",
-                    "auth expired; pausing worker and preserving queue"
-                );
+            self.settle_transfer_error(&job, &owned, &err, &UPLOAD_ERRORS)
+                .await;
+        }
+    }
+
+    /// Chốt lỗi của một job transfer: job bị thay thế thì bỏ kết quả; tạm dừng thì trả về hàng
+    /// đợi; hết phiên thì dừng worker và giữ nguyên hàng đợi; folder mất quyền thì tạm dừng job;
+    /// lỗi khác được ghi theo phân loại đáng-thử-lại hay thất bại hẳn rồi báo frontend.
+    async fn settle_transfer_error(
+        &self,
+        job: &JobRow,
+        owned: &RunningJob,
+        err: &AppError,
+        transfer: &TransferErrors,
+    ) {
+        if matches!(err, AppError::Superseded) {
+            log_superseded(job, transfer.operation);
+            return;
+        }
+        if matches!(err, AppError::Paused | AppError::ClientUpdateRequired(_)) {
+            self.requeue_paused_job(job, owned);
+            return;
+        }
+        if is_odoo_auth_failure(err) {
+            self.session.mark_expired("sync_job");
+            let _ = self.db.transition_owned_job(
+                owned,
+                "pending",
+                Some(SESSION_EXPIRED_MESSAGE),
+                job.attempt_count,
+                None,
+                None,
+                None,
+            );
+            tracing::warn!(
+                job_id = job.id,
+                logical_path = %job.relative_path,
+                error_category = "unauthenticated",
+                "{}",
+                transfer.auth_expired_log
+            );
+            if transfer.notify_auth_expired {
                 let _ = self.app.emit(
                     "sync-error",
                     serde_json::json!({
                         "jobId": job.id,
                         "path": job.relative_path,
-                        "message": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+                        "message": SESSION_EXPIRED_MESSAGE,
                         "category": "unauthenticated",
                     }),
                 );
-                self.emit_status();
-                return;
             }
-            if self.pause_job_if_access_lost(&job, &owned, &err).await {
-                return;
-            }
-            let attempt = job.attempt_count + 1;
-            let retryable = is_retryable(&err) || err.to_string().contains("409");
-            let decision = match record_job_failure(&self.db, &job, &owned, &err) {
-                Ok(Some(decision)) => decision,
-                Ok(None) => return log_superseded(&job, "upload failure"),
-                Err(db_err) => {
-                    tracing::warn!(job_id = job.id, "could not record upload failure: {db_err}");
-                    return;
-                }
-            };
-            tracing::warn!(
-                job_id = job.id,
-                logical_path = %job.relative_path,
-                attempt,
-                error_category = if !retryable {
-                    "fatal"
-                } else if is_connectivity_error(&err) {
-                    "connectivity"
-                } else {
-                    "server"
-                },
-                next_status = decision.status,
-                error = %decision.message,
-                "sync job failed"
-            );
-            let redacted = decision.message;
-            let _ = self.app.emit(
-                "sync-error",
-                serde_json::json!({
-                    "jobId": job.id,
-                    "path": job.relative_path,
-                    "message": redacted,
-                }),
-            );
+            self.emit_status();
+            return;
         }
+        if self.pause_job_if_access_lost(job, owned, err).await {
+            return;
+        }
+        let attempt = job.attempt_count + 1;
+        let retryable =
+            is_retryable(err) || (transfer.conflict_retryable && err.to_string().contains("409"));
+        let decision = match record_job_failure(&self.db, job, owned, err) {
+            Ok(Some(decision)) => decision,
+            Ok(None) => return log_superseded(job, &format!("{} failure", transfer.operation)),
+            Err(db_err) => {
+                tracing::warn!(
+                    job_id = job.id,
+                    "could not record {} failure: {db_err}",
+                    transfer.operation
+                );
+                return;
+            }
+        };
+        tracing::warn!(
+            job_id = job.id,
+            logical_path = %job.relative_path,
+            attempt,
+            error_category = if !retryable {
+                "fatal"
+            } else if is_connectivity_error(err) {
+                "connectivity"
+            } else {
+                "server"
+            },
+            next_status = decision.status,
+            error = %decision.message,
+            "{}",
+            transfer.failed_log
+        );
+        let redacted = decision.message;
+        let _ = self.app.emit(
+            "sync-error",
+            serde_json::json!({
+                "jobId": job.id,
+                "path": job.relative_path,
+                "message": redacted,
+            }),
+        );
     }
 
     /// Đưa job dừng ở điểm an toàn (tạm dừng hoặc folder vừa mất quyền) về `pending` mà không
@@ -905,74 +961,8 @@ impl EngineHandle {
             "sync job started"
         );
         if let Err(err) = self.download_job(&job, &owned).await {
-            if matches!(err, AppError::Superseded) {
-                log_superseded(&job, "download");
-                return;
-            }
-            if matches!(err, AppError::Paused | AppError::ClientUpdateRequired(_)) {
-                self.requeue_paused_job(&job, &owned);
-                return;
-            }
-            if is_odoo_auth_failure(&err) {
-                self.session.mark_expired("sync_job");
-                let _ = self.db.transition_owned_job(
-                    &owned,
-                    "pending",
-                    Some("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."),
-                    job.attempt_count,
-                    None,
-                    None,
-                    None,
-                );
-                tracing::warn!(
-                    job_id = job.id,
-                    logical_path = %job.relative_path,
-                    error_category = "unauthenticated",
-                    "auth expired; pausing download worker and preserving queue"
-                );
-                self.emit_status();
-                return;
-            }
-            if self.pause_job_if_access_lost(&job, &owned, &err).await {
-                return;
-            }
-            let attempt = job.attempt_count + 1;
-            let retryable = is_retryable(&err);
-            let decision = match record_job_failure(&self.db, &job, &owned, &err) {
-                Ok(Some(decision)) => decision,
-                Ok(None) => return log_superseded(&job, "download failure"),
-                Err(db_err) => {
-                    tracing::warn!(
-                        job_id = job.id,
-                        "could not record download failure: {db_err}"
-                    );
-                    return;
-                }
-            };
-            tracing::warn!(
-                job_id = job.id,
-                logical_path = %job.relative_path,
-                attempt,
-                error_category = if !retryable {
-                    "fatal"
-                } else if is_connectivity_error(&err) {
-                    "connectivity"
-                } else {
-                    "server"
-                },
-                next_status = decision.status,
-                error = %decision.message,
-                "download job failed"
-            );
-            let redacted = decision.message;
-            let _ = self.app.emit(
-                "sync-error",
-                serde_json::json!({
-                    "jobId": job.id,
-                    "path": job.relative_path,
-                    "message": redacted,
-                }),
-            );
+            self.settle_transfer_error(&job, &owned, &err, &DOWNLOAD_ERRORS)
+                .await;
         }
     }
 
@@ -1232,10 +1222,7 @@ impl EngineHandle {
                 .map(|(job_id, rel)| download_temp_path(&root.join(rel), job_id))
                 .collect();
             for path in walk(&root, folder.recursive) {
-                let name = path
-                    .file_name()
-                    .and_then(|value| value.to_str())
-                    .unwrap_or_default();
+                let name = path.file_name().and_then(OsStr::to_str).unwrap_or_default();
                 if name.contains(".medilab-download-")
                     && name.ends_with(".tmp")
                     && !active.contains(&path)
@@ -2086,40 +2073,20 @@ pub(crate) async fn run_upload_job_with(
         .as_ref()
         .and_then(|raw| serde_json::from_str(raw).ok())
         .unwrap_or_default();
-    if let Some(existing) = job
-        .session_id
-        .filter(|_| should_resume_session(job.content_hash.as_deref(), &expected))
+    if let Some(report) = finalize_resumed_session(
+        client,
+        db,
+        job,
+        owned,
+        remote_folder_id,
+        &path,
+        &initial,
+        &expected,
+        &is_paused,
+    )
+    .await?
     {
-        let upload = client.upload(remote_folder_id, existing).await?;
-        if matches!(upload.status.as_str(), "prepared" | "refused")
-            && crate::wire::ttl(&upload.expires_at) == 0
-        {
-            return Err(AppError::UploadExpired);
-        }
-
-        if upload.status == "expired" {
-            return Err(AppError::UploadExpired);
-        }
-        if upload.status == "failed" {
-            return Err(AppError::UploadFailed(
-                upload.failure_code.unwrap_or_default(),
-            ));
-        }
-        if upload.status != "prepared" || upload.part_count == 0 {
-            verify_content_without_stream(db, owned, &path, &expected).await?;
-            let finalized =
-                unless_paused(client.finalize(remote_folder_id, existing, &[]), &is_paused).await?;
-            record_finalize_result(db, job, owned, &finalized)?;
-            return Ok(UploadReport {
-                outcome: UploadOutcome::Finalized(finalized),
-                content_hash: expected.clone(),
-                parts_uploaded: 0,
-                total_parts: 0,
-                local_changed_after_read: local_changed_after_read(
-                    db, owned, &path, &initial, &expected,
-                ),
-            });
-        }
+        return Ok(report);
     }
     let (session_id, part_size) = match job.session_id {
         Some(existing) if should_resume_session(job.content_hash.as_deref(), &expected) => {
@@ -2185,28 +2152,20 @@ pub(crate) async fn run_upload_job_with(
     // Mỗi PUT là một task riêng: chạy độc lập trong lúc task này chờ ngân sách/đọc part kế
     // tiếp, và drop `in_flight` (JoinSet) abort mọi PUT còn dở.
     let mut in_flight: JoinSet<AppResult<(i64, String, i64)>> = JoinSet::new();
-    let mut urls: HashMap<i64, String> = HashMap::new();
-    let mut urls_valid_until = Instant::now();
+    let mut part_urls = PartUrls::new(client, remote_folder_id, session_id, window, total_parts);
     let mut failure: Option<AppError> = None;
     let mut next_part = 1_i64;
     loop {
-        // Ghi ngay các PUT đã xong (không chờ), rồi: cửa sổ đầy hoặc đã lên lịch hết thì chờ
-        // một PUT xong (Pause thì dừng ngay).
-        let finished = match in_flight.try_join_next() {
-            Some(result) => Some(result),
-            None if in_flight.len() >= window
-                || (next_part > total_parts && !in_flight.is_empty()) =>
+        let finished =
+            match next_finished_put(&mut in_flight, window, next_part > total_parts, &is_paused)
+                .await
             {
-                match unless_paused(async { Ok(in_flight.join_next().await) }, &is_paused).await {
-                    Ok(result) => result,
-                    Err(err) => {
-                        failure = Some(err);
-                        break;
-                    }
+                Ok(finished) => finished,
+                Err(err) => {
+                    failure = Some(err);
+                    break;
                 }
-            }
-            None => None,
-        };
+            };
         if let Some(result) = finished {
             match flatten_part_result(result) {
                 Ok((part_number, etag, len)) => {
@@ -2259,35 +2218,12 @@ pub(crate) async fn run_upload_job_with(
             failure = Some(AppError::Paused);
             break;
         }
-        // Presign sát lúc dùng, cho các part còn thiếu của cửa sổ sắp tới, và xin lại khi URL sắp
-        // hết hạn theo tuổi thật của nó.
-        if !urls.contains_key(&part_number) || Instant::now() >= urls_valid_until {
-            match presign_window(
-                client,
-                remote_folder_id,
-                session_id,
-                part_number,
-                window,
-                total_parts,
-                &done_parts,
-            )
-            .await
-            {
-                Ok((fresh, valid_until)) => {
-                    urls = fresh;
-                    urls_valid_until = valid_until;
-                }
-                Err(err) => {
-                    failure = Some(err);
-                    break;
-                }
+        let part_url = match part_urls.take(part_number, &done_parts).await {
+            Ok(part_url) => part_url,
+            Err(err) => {
+                failure = Some(err);
+                break;
             }
-        }
-        let Some(part_url) = urls.remove(&part_number) else {
-            failure = Some(AppError::Message(format!(
-                "Thiếu URL presigned cho phần {part_number}"
-            )));
-            break;
         };
         let part_span = tracing::debug_span!(
             "sync.upload_part",
@@ -2355,6 +2291,127 @@ pub(crate) async fn run_upload_job_with(
         total_parts,
         local_changed_after_read,
     })
+}
+
+/// Session đã lưu của job còn dùng cho nội dung `expected` mà server không cần PUT part nữa:
+/// finalize ngay và trả báo cáo. Session hết hạn hoặc thất bại thì lỗi; không có session để
+/// resume hoặc còn part phải PUT thì `None`.
+#[allow(clippy::too_many_arguments)]
+async fn finalize_resumed_session(
+    client: &ApiClient,
+    db: &Db,
+    job: &JobRow,
+    owned: &RunningJob,
+    remote_folder_id: i64,
+    path: &Path,
+    initial: &LocalMetadata,
+    expected: &str,
+    is_paused: &impl Fn() -> bool,
+) -> AppResult<Option<UploadReport>> {
+    let Some(existing) = job
+        .session_id
+        .filter(|_| should_resume_session(job.content_hash.as_deref(), expected))
+    else {
+        return Ok(None);
+    };
+    let upload = client.upload(remote_folder_id, existing).await?;
+    if matches!(upload.status.as_str(), "prepared" | "refused")
+        && crate::wire::ttl(&upload.expires_at) == 0
+    {
+        return Err(AppError::UploadExpired);
+    }
+    if upload.status == "expired" {
+        return Err(AppError::UploadExpired);
+    }
+    if upload.status == "failed" {
+        return Err(AppError::UploadFailed(
+            upload.failure_code.unwrap_or_default(),
+        ));
+    }
+    if upload.status == "prepared" && upload.part_count != 0 {
+        return Ok(None);
+    }
+    verify_content_without_stream(db, owned, path, expected).await?;
+    let finalized =
+        unless_paused(client.finalize(remote_folder_id, existing, &[]), is_paused).await?;
+    record_finalize_result(db, job, owned, &finalized)?;
+    Ok(Some(UploadReport {
+        outcome: UploadOutcome::Finalized(finalized),
+        content_hash: expected.to_string(),
+        parts_uploaded: 0,
+        total_parts: 0,
+        local_changed_after_read: local_changed_after_read(db, owned, path, initial, expected),
+    }))
+}
+
+/// Lấy ngay một PUT đã xong (không chờ); nếu chưa có mà cửa sổ đầy hoặc đã lên lịch hết part
+/// thì chờ một PUT xong (Pause thì dừng ngay). Không có PUT nào để lấy thì `None`.
+async fn next_finished_put(
+    in_flight: &mut JoinSet<AppResult<(i64, String, i64)>>,
+    window: usize,
+    all_scheduled: bool,
+    is_paused: &impl Fn() -> bool,
+) -> AppResult<Option<Result<AppResult<(i64, String, i64)>, tokio::task::JoinError>>> {
+    if let Some(result) = in_flight.try_join_next() {
+        return Ok(Some(result));
+    }
+    if in_flight.len() >= window || (all_scheduled && !in_flight.is_empty()) {
+        return unless_paused(async { Ok(in_flight.join_next().await) }, is_paused).await;
+    }
+    Ok(None)
+}
+
+/// URL presigned của các part sắp PUT trong một session multipart, kèm thời điểm lô URL hết hạn.
+struct PartUrls<'a> {
+    client: &'a ApiClient,
+    remote_folder_id: i64,
+    session_id: i64,
+    window: usize,
+    total_parts: i64,
+    urls: HashMap<i64, String>,
+    valid_until: Instant,
+}
+
+impl<'a> PartUrls<'a> {
+    fn new(
+        client: &'a ApiClient,
+        remote_folder_id: i64,
+        session_id: i64,
+        window: usize,
+        total_parts: i64,
+    ) -> Self {
+        Self {
+            client,
+            remote_folder_id,
+            session_id,
+            window,
+            total_parts,
+            urls: HashMap::new(),
+            valid_until: Instant::now(),
+        }
+    }
+
+    /// Lấy URL của `part_number`. Presign sát lúc dùng, cho các part còn thiếu của cửa sổ sắp
+    /// tới, và xin lại khi URL sắp hết hạn theo tuổi thật của nó.
+    async fn take(&mut self, part_number: i64, done_parts: &HashSet<i64>) -> AppResult<String> {
+        if !self.urls.contains_key(&part_number) || Instant::now() >= self.valid_until {
+            let (urls, valid_until) = presign_window(
+                self.client,
+                self.remote_folder_id,
+                self.session_id,
+                part_number,
+                self.window,
+                self.total_parts,
+                done_parts,
+            )
+            .await?;
+            self.urls = urls;
+            self.valid_until = valid_until;
+        }
+        self.urls
+            .remove(&part_number)
+            .ok_or_else(|| AppError::Message(format!("Thiếu URL presigned cho phần {part_number}")))
+    }
 }
 
 /// Kết quả mở session của một lượt upload.

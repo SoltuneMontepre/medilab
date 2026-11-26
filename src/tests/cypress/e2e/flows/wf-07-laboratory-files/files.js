@@ -2,7 +2,7 @@ import { randomId } from "../../../support/odoo";
 import { api, ok, sha256Of } from "./device";
 
 const FIXTURES = "cypress/fixtures/laboratory";
-const TERMINAL = ["completed", "conflict", "unchanged", "failed", "refused"];
+const TERMINAL = new Set(["completed", "conflict", "unchanged", "failed", "refused"]);
 const POLLS = 40;
 
 function hexDigest(bytes) {
@@ -30,27 +30,30 @@ export function upload(device, folder, path, fixtureName, { baseVersionId } = {}
     }).then((prepared) => {
       if (prepared.status !== 200) return { refused: prepared };
       if (prepared.body.upload.status === "unchanged") return { upload: prepared.body.upload };
-      const { id } = prepared.body.upload;
-      return api(device, "POST", `/folders/${folder.id}/uploads/${id}/parts`, { body: { part_numbers: [1] } }).then((parts) =>
-        // A Blob is the one request body Cypress sends byte for byte.
-        cy
-          .request({ method: "PUT", url: ok(parts, "part addresses").parts[0].url, body: new Blob([content.bytes]), failOnStatusCode: false })
-          .then((put) => {
-            expect(put.status, "part put").to.eq(200);
-            return api(device, "POST", `/folders/${folder.id}/uploads/${id}/finalize`).then((finalized) =>
-              finalized.status === 202 ? settled(device, folder, id).then((done) => ({ upload: done })) : { refused: finalized },
-            );
-          }),
-      );
+      return putAndFinalize(device, folder, prepared.body.upload.id, content);
     }),
   );
 }
 
-// Reads an upload until it is in a final state; the verification takes the server a moment.
+// Puts the bytes of a prepared upload through its presigned address and finalizes it.
+function putAndFinalize(device, folder, id, content) {
+  return api(device, "POST", `/folders/${folder.id}/uploads/${id}/parts`, { body: { part_numbers: [1] } })
+    .then((parts) =>
+      // A Blob is the one request body Cypress sends byte for byte.
+      cy.request({ method: "PUT", url: ok(parts, "part addresses").parts[0].url, body: new Blob([content.bytes]), failOnStatusCode: false }),
+    )
+    .then((put) => {
+      expect(put.status, "part put").to.eq(200);
+      return api(device, "POST", `/folders/${folder.id}/uploads/${id}/finalize`);
+    })
+    .then((finalized) => (finalized.status === 202 ? settled(device, folder, id) : { refused: finalized }));
+}
+
+// Reads an upload until it is in a final state and yields { upload }; the verification takes the server a moment.
 function settled(device, folder, uploadId, left = POLLS) {
   return api(device, "GET", `/folders/${folder.id}/uploads/${uploadId}`).then((response) => {
     const found = ok(response, "read upload").upload;
-    if (TERMINAL.includes(found.status)) return found;
+    if (TERMINAL.has(found.status)) return { upload: found };
     expect(left, `upload ${uploadId} still ${found.status}`).to.be.greaterThan(0);
     cy.wait(250);
     return settled(device, folder, uploadId, left - 1);
@@ -59,12 +62,12 @@ function settled(device, folder, uploadId, left = POLLS) {
 
 // The bytes of a version as the bucket gives them to a device: their size and SHA-256.
 export function downloaded(device, folder, file, versionId) {
-  return api(device, "POST", `/folders/${folder.id}/files/${file.id}/versions/${versionId}/download`).then((response) =>
-    cy.request({ url: ok(response, "download address").url, encoding: "binary" }).then(({ status, body }) => {
+  return api(device, "POST", `/folders/${folder.id}/files/${file.id}/versions/${versionId}/download`)
+    .then((response) => cy.request({ url: ok(response, "download address").url, encoding: "binary" }))
+    .then(({ status, body }) => {
       expect(status, "download").to.eq(200);
       return sha256Of(body).then((sha256) => ({ size: body.length, sha256 }));
-    }),
-  );
+    });
 }
 
 // The files of a folder as a device lists them.

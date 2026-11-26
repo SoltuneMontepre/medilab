@@ -67,6 +67,16 @@ class TestOrderForm(OrderCase):
         visible = [bar.get("name") for bar in bars if bar.get("invisible") not in HIDDEN]
         self.assertEqual(visible, ["order_status"])
 
+    def test_payment_badge_is_labelled_in_the_user_language(self):
+        for lang, not_paid, partial in (
+            ("vi_VN", "Chưa thanh toán", "Thanh toán một phần"),
+            ("en_US", "Not paid", "Partially paid"),
+        ):
+            with self.subTest(lang=lang):
+                badge = self.env[MODEL_SALE_ORDER].with_context(lang=lang).fields_get(["payment_badge_status"])
+                labels = dict(badge["payment_badge_status"]["selection"])
+                self.assertEqual((labels["not_paid"], labels["partial"]), (not_paid, partial))
+
     def test_customer_comes_before_its_contact(self):
         names = [
             field.get("name") for field in self._nodes("//sheet//field[@name='customer_id' or @name='partner_id']")

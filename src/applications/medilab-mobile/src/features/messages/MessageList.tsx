@@ -59,7 +59,8 @@ export function MessageList({
 }
 
 function author(message: Message, t: ReturnType<typeof useT>): string {
-  return `${message.mine ? t("messages.you") : message.author}${message.note ? ` · ${t("messages.note")}` : ""}`;
+  const name = message.mine ? t("messages.you") : message.author;
+  return message.note ? `${name} · ${t("messages.note")}` : name;
 }
 
 function Bubble({ message, first }: Readonly<{ message: Message; first: boolean }>) {

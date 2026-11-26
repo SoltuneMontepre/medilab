@@ -26,6 +26,20 @@ else:
     SaleOrderLineBase = object
 
 
+def _sampling_summary(rows):
+    """The amount and container of each sampling row, and the distinct preservations, each as one text or False."""
+    volumes = []
+    preservations = []
+    for row in rows:
+        amount = f"{row['amount']:g} {row['unit'].name}" if row.get("unit") else f"{row['amount']:g}"
+        container = row["requirements"][:1].container_type
+        volumes.append(f"{amount} ({container})" if container else amount)
+        preservation = row["requirements"][:1].preservation
+        if preservation and preservation not in preservations:
+            preservations.append(preservation)
+    return ", ".join(volumes) or False, ", ".join(preservations) or False
+
+
 # Dòng Đơn Hàng
 class SaleOrderLine(models.Model, SaleOrderLineBase):
     _name = MODEL_SALE_ORDER_LINE
@@ -156,17 +170,7 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
             rows, _missing = requirements._sampling_rows(line.sample_type_id, methods)
             groups = {row["group"] for row in rows}
             line.expected_sample_count = max(int(line.product_uom_qty), 1) * len(groups) if groups else 0
-            volumes = []
-            preservations = []
-            for row in rows:
-                amount = f"{row['amount']:g} {row['unit'].name}" if row.get("unit") else f"{row['amount']:g}"
-                container = row["requirements"][:1].container_type
-                volumes.append(f"{amount} ({container})" if container else amount)
-                preservation = row["requirements"][:1].preservation
-                if preservation and preservation not in preservations:
-                    preservations.append(preservation)
-            line.expected_sample_summary = ", ".join(volumes) or False
-            line.sampling_preservation = ", ".join(preservations) or False
+            line.expected_sample_summary, line.sampling_preservation = _sampling_summary(rows)
 
     @api.onchange("product_template_id")
     def _onchange_product_template_id(self):
@@ -390,15 +394,22 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                 if line.parameter_method_id:
                     ways.append(line.parameter_method_id)
                 continue
-            package = line._package_of()
-            if package and not line._package_parts() and line.sample_type_id:
-                partner = line.order_id.partner_id
-                for parameter in package.line_ids.parameter_id:
-                    way = parameter._default_way(line.sample_type_id) & parameter._offered_ways(
-                        line.sample_type_id, partner
-                    )
-                    if way:
-                        ways.append(way)
+            ways += line._package_default_ways()
+        return ways
+
+    def _package_default_ways(self):
+        """The default ways of testing, when offered on the line's sample type, of the parameters of a package line that
+        is not expanded yet."""
+        self.ensure_one()
+        package = self._package_of()
+        if not package or self._package_parts() or not self.sample_type_id:
+            return []
+        partner = self.order_id.partner_id
+        ways = []
+        for parameter in package.line_ids.parameter_id:
+            way = parameter._default_way(self.sample_type_id) & parameter._offered_ways(self.sample_type_id, partner)
+            if way:
+                ways.append(way)
         return ways
 
     def _content_lines(self):
@@ -454,13 +465,7 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                 return changed.write(vals) if changed else True
         if PORTAL_LOCKED_LINE_FIELDS & set(vals) and self.env.user.share and not self.env.su:
             raise AccessError(self.env._("You cannot change the price of an order."))
-        if FROZEN_LINE_FIELDS & set(vals):
-            # A down payment that would become content counts as content too.
-            lines = self if "is_downpayment" in vals else self._content_lines()
-            lines.order_id._check_content_freeze()
-        if vals.get("order_id") and self._content_lines():
-            # A line moved onto another order changes that order's content too.
-            self.env[MODEL_SALE_ORDER].browse(vals["order_id"])._check_content_freeze()
+        self._check_write_content_freeze(vals)
         replaced = (
             self.filtered(lambda line: bool(line.linked_line_ids and line.product_id.id != vals["product_id"]))
             if "product_id" in vals
@@ -484,6 +489,16 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         if parts:
             parts.write({"sample_id": vals["sample_id"]})
         return result
+
+    def _check_write_content_freeze(self, vals):
+        """Refuse writing vals when it changes the content of an order that is frozen."""
+        if FROZEN_LINE_FIELDS & set(vals):
+            # A down payment that would become content counts as content too.
+            lines = self if "is_downpayment" in vals else self._content_lines()
+            lines.order_id._check_content_freeze()
+        if vals.get("order_id") and self._content_lines():
+            # A line moved onto another order changes that order's content too.
+            self.env[MODEL_SALE_ORDER].browse(vals["order_id"])._check_content_freeze()
 
     def _package_of(self):
         return self._template().service_package_id.sudo()

@@ -153,27 +153,25 @@ export function urgentNeedsScheduledSlots({ roomForTheMoves = false } = {}) {
   const stamp = Date.now();
   const scenario = {};
   awayFromQuarterHour();
-  gasChromatograph(stamp).then((made) => {
-    scenario.made = made;
-    receivedTest(made, `Cải bắp Z ${stamp}`).then((test) => (scenario.z = test));
-    receivedTest(made, `Cải bắp Y ${stamp}`).then((test) => (scenario.y = test));
-  });
+  gasChromatograph(stamp).then((made) => (scenario.made = made));
+  cy.then(() => receivedTest(scenario.made, `Cải bắp Z ${stamp}`)).then((test) => (scenario.z = test));
+  cy.then(() => receivedTest(scenario.made, `Cải bắp Y ${stamp}`)).then((test) => (scenario.y = test));
   cy.then(() => {
     callAs(HEAD, "medilab.sample.test", "action_approve_booking", [[scenario.z.id]]);
     callAs(HEAD, "medilab.sample.test", "action_approve_booking", [[scenario.y.id]]);
-    return scheduledBooking(scenario.z).then((booking) => (scenario.zBooking = booking));
-  });
-  cy.then(() => scheduledBooking(scenario.y).then((booking) => (scenario.yBooking = booking)));
+    return scheduledBooking(scenario.z);
+  }).then((booking) => (scenario.zBooking = booking));
+  cy.then(() => scheduledBooking(scenario.y)).then((booking) => (scenario.yBooking = booking));
   cy.then(() => {
     scenario.due = milliseconds(scenario.yBooking.ends_at) + (roomForTheMoves ? RUN : 0);
-    return receivedTest(scenario.made, `Cải bắp X ${stamp}`).then((test) => (scenario.x = test));
-  });
+    return receivedTest(scenario.made, `Cải bắp X ${stamp}`);
+  }).then((test) => (scenario.x = test));
   cy.then(() => {
     [scenario.z, scenario.y, scenario.x].forEach((test) => dueAt(test, scenario.due));
     return callAs(HEAD, "medilab.sample.test.urgent.mark", "create", [
       { sample_test_id: scenario.x.id, reason: "The customer needs it to clear a shipment." },
-    ]).then((wizard) => callAs(HEAD, "medilab.sample.test.urgent.mark", "action_mark", [[wizard]]));
-  });
+    ]);
+  }).then((wizard) => callAs(HEAD, "medilab.sample.test.urgent.mark", "action_mark", [[wizard]]));
   return cy.then(() => scenario);
 }
 

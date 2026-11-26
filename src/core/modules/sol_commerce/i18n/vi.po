@@ -876,6 +876,7 @@ msgstr "Thay đổi trạng thái đơn hàng bằng các thao tác của đơn 
 
 #. module: sol_commerce
 #: model:ir.model.fields,help:sol_commerce.field_sale_order__customer_is_company
+#: model:ir.model.fields,help:sol_commerce.field_sale_order__partner_is_company
 msgid "Check if the contact is a company, otherwise it is a person"
 msgstr "Đánh dấu nếu liên hệ này là một công ty, không đánh dấu nếu là cá nhân"
 
@@ -931,6 +932,7 @@ msgstr "Xác nhận đơn hàng"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__confirmed
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Confirmed"
 msgstr "Đã xác nhận"
 
@@ -1447,6 +1449,7 @@ msgstr "Giá cao hơn tổng giá chỉ tiêu"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__customer_is_company
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__partner_is_company
 msgid "Is a Company"
 msgstr "Là doanh nghiệp"
 
@@ -2093,6 +2096,7 @@ msgid "Phone"
 msgstr "Điện thoại"
 
 #. module: sol_commerce
+#. odoo-python
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__physical_state
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "Physical State"
@@ -2439,12 +2443,15 @@ msgid "Salesperson"
 msgstr "Nhân viên kinh doanh"
 
 #. module: sol_commerce
+#. odoo-python
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sample_id
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "Sample"
 msgstr "Mẫu"
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__sample_type_id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sample_type_id
 msgid "Sample Type"
@@ -2485,6 +2492,7 @@ msgstr "Gửi báo giá"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_quotation__status__sent
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__reported
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Sent"
 msgstr "Đã gửi"
@@ -2545,6 +2553,8 @@ msgid "Start sample collection"
 msgstr "Bắt đầu thu mẫu"
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__status
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__status
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__status
@@ -3304,6 +3314,7 @@ msgstr "Kiểm tra PayOS"
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_account_payment
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__timing
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_badge_status
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Payment"
@@ -3338,6 +3349,7 @@ msgid "Payos Bank Reference"
 msgstr "Mã Giao Dịch Ngân Hàng PayOS"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__payos_checkout_url
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__payos_checkout_url
 msgid "Payos Checkout Url"
 msgstr "Liên Kết Thanh Toán PayOS"
@@ -4438,6 +4450,7 @@ msgstr "Hiệu Quả Thu Tiền"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__date
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_form
 msgid "Date"
 msgstr "Ngày"
 
@@ -4548,6 +4561,8 @@ msgstr "Phương thức thanh toán"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__status__pending
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Pending"
 msgstr "Chờ xác nhận"
 
@@ -5601,6 +5616,7 @@ msgid "Receipt time (Vietnam)"
 msgstr "Thời điểm nhận tiền (giờ Việt Nam)"
 
 #. module: sol_commerce
+#. odoo-python
 #: model:ir.model.fields,field_description:sol_commerce.field_account_payment__received_at
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__received_at
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
@@ -6450,6 +6466,7 @@ msgid "Order was cancelled"
 msgstr "Đơn hàng đã bị huỷ"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_form
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Remaining"
 msgstr "Còn lại"
@@ -6585,3 +6602,18 @@ msgstr "Các Loại Mẫu Có Thể Đặt"
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quoted_line_ids
 msgid "Quoted Lines"
 msgstr "Các Dòng Báo Giá"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__order_line
+msgid "All Order Lines"
+msgstr "Tất Cả Dòng Đơn Hàng"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__partner_is_company
+msgid "Contact Is a Company"
+msgstr "Liên Hệ Là Doanh Nghiệp"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__preferred_payment_method_line_id
+msgid "Preferred Payment Method"
+msgstr "Phương Thức Thanh Toán Ưu Tiên"

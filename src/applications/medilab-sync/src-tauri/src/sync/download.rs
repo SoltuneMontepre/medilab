@@ -3,6 +3,7 @@ use crate::error::{AppError, AppResult};
 use crate::sync::hash::sha256_file;
 use chrono::Local;
 use futures_util::StreamExt;
+use std::ffi::OsStr;
 use std::fs::{self, OpenOptions};
 use std::path::{Path, PathBuf};
 use tokio::io::AsyncWriteExt;
@@ -12,7 +13,7 @@ use tokio::io::AsyncWriteExt;
 pub fn is_internal_path(relative: &str) -> bool {
     let name = Path::new(relative)
         .file_name()
-        .and_then(|value| value.to_str())
+        .and_then(OsStr::to_str)
         .unwrap_or(relative);
     name.contains(".medilab-download-") || name.contains(" (conflict - ")
 }
@@ -21,7 +22,7 @@ pub fn is_internal_path(relative: &str) -> bool {
 pub fn download_temp_path(dest: &Path, job_id: i64) -> PathBuf {
     let name = dest
         .file_name()
-        .and_then(|value| value.to_str())
+        .and_then(OsStr::to_str)
         .unwrap_or("download");
     dest.with_file_name(format!("{name}.medilab-download-{job_id}.tmp"))
 }
@@ -29,13 +30,10 @@ pub fn download_temp_path(dest: &Path, job_id: i64) -> PathBuf {
 /// Đường dẫn bản sao xung đột: `<tên> (conflict - <thiết bị> - <giờ>)<phần mở rộng>`, cùng thư
 /// mục với bản gốc.
 pub fn conflict_copy_path(dest: &Path, device_label: &str) -> PathBuf {
-    let stem = dest
-        .file_stem()
-        .and_then(|value| value.to_str())
-        .unwrap_or("file");
+    let stem = dest.file_stem().and_then(OsStr::to_str).unwrap_or("file");
     let ext = dest
         .extension()
-        .and_then(|value| value.to_str())
+        .and_then(OsStr::to_str)
         .map(|value| format!(".{value}"))
         .unwrap_or_default();
     let stamp = Local::now().format("%Y%m%d-%H%M%S");

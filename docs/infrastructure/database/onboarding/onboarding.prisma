@@ -109,6 +109,8 @@ model OnboardingRun {
   staged_count    Int                      @default(0)
   /// One line per page: fetched, skipped with its reason, or failed with its error.
   log             String?
+  /// File name of the scope file the laboratory uploaded; its bytes are an attachment.
+  scope_filename  String?                  @db.VarChar
   /// The organisation.
   organisation    OnboardingOrganisation?  @relation(fields: [organisation_id], references: [id], onDelete: Restrict)
   /// The user who started the run.

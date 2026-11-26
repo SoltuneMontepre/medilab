@@ -21,6 +21,20 @@ def workspace_metadata(output):
     return {"available": set(WORKSPACE_FILES) <= present, "file_metadata": lines}
 
 
+def claim_mounts(spec, volumes):
+    return [
+        {
+            "container": container["name"],
+            "kind": kind,
+            "read_only": bool(volumes[mount["name"]] or mount.get("readOnly", False)),
+        }
+        for kind in ("initContainers", "containers", "ephemeralContainers")
+        for container in spec.get(kind, [])
+        for mount in container.get("volumeMounts", [])
+        if mount.get("name") in volumes
+    ]
+
+
 def workspace_consumers(pods, claim):
     result = []
     for pod in pods:
@@ -32,18 +46,7 @@ def workspace_consumers(pods, claim):
         }
         if not volumes:
             continue
-        mounts = []
-        for kind in ("initContainers", "containers", "ephemeralContainers"):
-            for container in spec.get(kind, []):
-                for mount in container.get("volumeMounts", []):
-                    if mount.get("name") in volumes:
-                        mounts.append(
-                            {
-                                "container": container["name"],
-                                "kind": kind,
-                                "read_only": bool(volumes[mount["name"]] or mount.get("readOnly", False)),
-                            }
-                        )
+        mounts = claim_mounts(spec, volumes)
         metadata = pod["metadata"]
         result.append(
             {

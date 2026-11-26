@@ -64,8 +64,9 @@ class TestPreflight(unittest.TestCase):
         self.assertTrue(self.inspect(data)["configuration_mode"])
 
     def test_graphql_errors_fail_closed(self):
+        data = self.data()
         with self.assertRaises(RuntimeError):
-            self.inspect(self.data(), [{"message": "private-error-canary"}])
+            self.inspect(data, [{"message": "private-error-canary"}])
 
 
 if __name__ == "__main__":

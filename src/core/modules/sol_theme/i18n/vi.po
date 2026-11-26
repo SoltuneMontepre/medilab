@@ -25,6 +25,12 @@ msgstr "Ứng dụng"
 #. module: sol_theme
 #. odoo-javascript
 #: code:addons/sol_theme/static/src/js/chatter_resize.js:0
+msgid "Collapse the audit log"
+msgstr "Thu gọn nhật ký hoạt động"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/chatter_resize.js:0
 msgid "Collapse the chatter"
 msgstr "Thu gọn khung trao đổi"
 
@@ -45,6 +51,12 @@ msgstr "Hủy tất cả thay đổi"
 #: code:addons/sol_theme/static/src/xml/app_drawer.xml:0
 msgid "Esc"
 msgstr "Esc"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/chatter_resize.js:0
+msgid "Expand the audit log"
+msgstr "Mở rộng nhật ký hoạt động"
 
 #. module: sol_theme
 #. odoo-javascript
@@ -145,3 +157,33 @@ msgstr "%s bản ghi"
 #: code:addons/sol_theme/static/src/js/list_group_text.js:0
 msgid "%s records"
 msgstr "%s bản ghi"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Save search"
+msgstr "Lưu tìm kiếm"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Filter name"
+msgstr "Tên bộ lọc"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Select one or several criteria"
+msgstr "Chọn một hoặc nhiều tiêu chí"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "Enter your password"
+msgstr "Nhập mật khẩu của bạn"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/odoo_translations.js:0
+msgid "No messages yet."
+msgstr "Chưa có tin nhắn nào."

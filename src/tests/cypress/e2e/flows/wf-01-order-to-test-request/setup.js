@@ -94,19 +94,21 @@ export function requestPaymentPath(order, request) {
 
 // The customer reports the bank transfer and the accountant verifies the receipt.
 export function payAdvance(order, customer = CUSTOMERS.nuocSach) {
-  return currentRequest(order).then((request) => {
-    const page = `/orders/${order.id}${request.kind === "advance" ? "/quotation" : ""}`;
-    portalPostAs(customer.login, page, requestPaymentPath(order, request), { method: "bank_transfer" });
-    return callAs("demo.accountant", "account.payment", "search", [
-      [
-        ["payment_request_id", "=", request.id],
-        ["state", "=", "draft"],
-      ],
-    ]).then((ids) => {
+  return currentRequest(order)
+    .then((request) => {
+      const page = `/orders/${order.id}${request.kind === "advance" ? "/quotation" : ""}`;
+      portalPostAs(customer.login, page, requestPaymentPath(order, request), { method: "bank_transfer" });
+      return callAs("demo.accountant", "account.payment", "search", [
+        [
+          ["payment_request_id", "=", request.id],
+          ["state", "=", "draft"],
+        ],
+      ]);
+    })
+    .then((ids) => {
       expect(ids, "reported transfer").to.have.length(1);
       return callAs("demo.accountant", "account.payment", "action_post", [ids]);
     });
-  });
 }
 
 // The customer declines the latest quotation on the portal with a reason.

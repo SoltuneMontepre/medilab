@@ -60,6 +60,8 @@ spec:
               value: us-east-1
             - name: BUCKET_FILESTORE
               value: "1"
+            - name: MEDILAB_MOBILE_RELEASES_FILE
+              value: /mnt/releases/mobile-catalog.json
           ports:
             - name: http
               containerPort: 8069
@@ -95,9 +97,43 @@ spec:
               readOnly: true
             - name: data
               mountPath: /var/lib/odoo
+            - name: releases
+              mountPath: /mnt/releases
+              readOnly: true
+        # Copies Medilab Mobile's release catalog every minute. A failed or partial download keeps the last copy, and
+        # until the first release publishes one Odoo answers update_unavailable.
+        - name: release-catalog
+          image: ghcr.io/soltunemontepre/medilab:sha-8e6924723d1121f7e90a11c5074220bac4e23a62
+          envFrom:
+            - secretRef:
+                name: release-catalog
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                if curl -fsS --proto =https --max-time 30 --max-filesize 1048576 \
+                  -o /mnt/releases/mobile-catalog.json.part "${RELEASE_BUCKET_PUBLIC_ADDRESS%/}/mobile/catalog.json"; then
+                  mv -f /mnt/releases/mobile-catalog.json.part /mnt/releases/mobile-catalog.json
+                else
+                  rm -f /mnt/releases/mobile-catalog.json.part
+                fi
+                sleep 60
+              done
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: releases
+              mountPath: /mnt/releases
       volumes:
         - name: config
           secret:
             secretName: odoo-config
         - name: data
+          emptyDir: {}
+        - name: releases
           emptyDir: {}

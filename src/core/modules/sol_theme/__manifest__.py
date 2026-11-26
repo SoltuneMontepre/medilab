@@ -6,10 +6,11 @@
     "author": "Soltune Montepre",
     "license": "LGPL-3",
     "icon": "/sol_theme/static/description/icon.svg",
-    "depends": ["web", "mail"],
+    "depends": ["web", "mail", "portal"],
     "data": [
         "views/favicon_templates.xml",
         "views/login_templates.xml",
+        "views/portal_templates.xml",
         "views/res_users_views.xml",
     ],
     "assets": {
@@ -29,6 +30,11 @@
             (
                 "prepend",
                 "sol_theme/static/src/scss/frontend_variables.scss",
+            ),
+            (
+                "after",
+                "sol_theme/static/src/scss/frontend_variables.scss",
+                "web/static/src/scss/bootstrap_overridden.scss",
             ),
         ],
         "web.assets_backend": [
@@ -50,15 +56,18 @@
             "sol_theme/static/src/js/app_drawer.js",
             "sol_theme/static/src/js/boolean_button_group_field.js",
             "sol_theme/static/src/js/datetime_field_min_date.js",
+            "sol_theme/static/src/js/chatter_composer.js",
             "sol_theme/static/src/js/chatter_resize.js",
             "sol_theme/static/src/js/list_column_widths.js",
             "sol_theme/static/src/js/list_group_text.js",
+            "sol_theme/static/src/js/odoo_translations.js",
             "sol_theme/static/src/js/user_menu.js",
             "sol_theme/static/src/js/view_button_loading.js",
             "sol_theme/static/src/xml/app_drawer.xml",
             "sol_theme/static/src/xml/boolean_button_group_field.xml",
             "sol_theme/static/src/xml/form_status_indicator.xml",
             "sol_theme/static/src/xml/breadcrumbs.xml",
+            "sol_theme/static/src/xml/chatter.xml",
             "sol_theme/static/src/xml/view_button.xml",
         ],
         "web.assets_frontend": [
@@ -66,6 +75,8 @@
             "sol_theme/static/src/js/iconify_icons.js",
             "sol_theme/static/src/js/iconify_setup.js",
             "sol_theme/static/src/scss/icons.scss",
+            "sol_theme/static/src/scss/buttons.scss",
+            "sol_theme/static/src/scss/modals.scss",
             "sol_theme/static/src/scss/login.scss",
             "sol_theme/static/src/scss/portal.scss",
             "sol_theme/static/src/xml/user_switch.xml",

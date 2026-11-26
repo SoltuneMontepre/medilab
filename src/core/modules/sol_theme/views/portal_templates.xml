@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_layout" inherit_id="portal.frontend_layout" name="MediLab portal layout">
+        <!-- The portal's header is the back office's navbar. -->
+        <xpath expr="//div[@id='wrapwrap']/header/nav" position="attributes">
+            <attribute name="class">navbar navbar-expand navbar-dark bg-primary</attribute>
+        </xpath>
+        <!-- Odoo colours the portal's links and primary buttons with the company's e-mail colours; the theme's apply. -->
+        <xpath expr="//head/t[@t-if='not website']" position="replace" />
+    </template>
+</odoo>

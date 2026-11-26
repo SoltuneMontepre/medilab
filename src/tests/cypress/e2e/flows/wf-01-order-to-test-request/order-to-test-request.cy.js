@@ -4,6 +4,7 @@ import { becomeVisitor, call, callAs, callRefused, refAs, resolveRecord, signIn 
 import { step } from "../../../support/steps";
 import {
   CUSTOMERS,
+  REASON,
   SAMPLING_LINES,
   clearCarts,
   currentRequest,
@@ -15,25 +16,6 @@ import {
   reviseQuotation,
 } from "./setup";
 
-const REASON = "Giá xét nghiệm chì cao hơn báo giá năm trước.";
-
-const ORDER_FIELDS = ["order_status", "quotation_follow_up", "write_date"];
-
-const readOrder =
-  (order, fields = ORDER_FIELDS) =>
-  () =>
-    cy.readRecord(order, fields);
-
-// The expected samples a page shows inside `container`: one sample with its objects, expected samples and groups.
-function expectSampling(container, { objects, expected, groups }) {
-  cy.get(container)
-    .find(".o_medilab_expected_sampling")
-    .within(() => {
-      cy.get(".o_medilab_objects").should("have.text", String(objects));
-      cy.get(".o_medilab_expected").should("have.text", String(expected));
-      cy.get("tbody tr").should("have.length", groups);
-    });
-}
 // The advance request keeps the exact quotation deadline.
 function expectAdvanceDueOnDeadline(order) {
   cy.readRecord(order, ["payment_deadline"]).then(({ payment_deadline }) => currentRequest(order).its("deadline").should("eq", payment_deadline));

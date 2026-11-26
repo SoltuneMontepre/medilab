@@ -883,6 +883,14 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid ""
+"<span class=\"o_audit_system_avatar\" invisible=\"user_id\"><i class=\"oi\" "
+"data-icon=\"settings\" title=\"System\"/></span>"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
 msgid ""
 "<span invisible=\"interruption_assessment\">\n"
@@ -1802,6 +1810,12 @@ msgid "A version of a laboratory file you saved was rejected"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "A version without stored content must record its retention removal."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_version_sha256_format
 msgid "A version's SHA-256 is 64 lowercase hexadecimal digits."
 msgstr ""
@@ -2179,6 +2193,8 @@ msgid "Administer laboratory folders"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
 #: model:medilab.role,name:sol_laboratory.role_administrator
 msgid "Administrator"
 msgstr ""
@@ -2517,6 +2533,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Approve Booking"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Approve Content Removal"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4163,6 +4184,20 @@ msgid "Confirm receipt of %s before entering its results."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/res_partner.py:0
+msgid ""
+"Confirm your corrected email address by opening <a href=\"%s\">this "
+"link</a>."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/res_partner.py:0
+msgid "Confirm your email address"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__confirmed
 msgid "Confirmed"
 msgstr ""
@@ -4225,6 +4260,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__content_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__content_id
 msgid "Content"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__content_removed_at
+msgid "Content Removed On"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4859,6 +4899,7 @@ msgid "Cron Pass"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_res_currency
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__currency_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__currency_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__currency_id
@@ -4929,6 +4970,12 @@ msgid "Customer Rank"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/res_partner.py:0
+msgid "Customer email address confirmed"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__confirmation
 msgid "Customer's Confirmation"
 msgstr ""
@@ -4978,6 +5025,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Date"
 msgstr ""
 
@@ -5646,6 +5695,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_config_parameter__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_http__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_mail_server__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_sequence__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_menu__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__display_name
@@ -5770,6 +5820,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_portal_wizard_user__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_currency__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_groups__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__display_name
@@ -6588,8 +6639,43 @@ msgid "Email Bounced"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__email_confirmation
+msgid "Email Confirmation"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__email_confirmation_token
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__email_confirmation_token
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__email_confirmation_token
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users__email_confirmation_token
+msgid "Email Confirmation Token"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_audit
+msgid "Email Delivery"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__email_retry_attempts
+msgid "Email Retry Attempts"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_mail_thread
 msgid "Email Thread"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/email_confirmation.py:0
+msgid "Email address confirmed. Email delivery has resumed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_mail.py:0
+msgid "Email not sent because the recipient's address is bounced."
 msgstr ""
 
 #. module: sol_laboratory
@@ -7256,6 +7342,12 @@ msgid "Fixed Term"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_folder_retention_review_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_folder_retention_review
+msgid "Flag expired laboratory folders for review"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__folder_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__folder_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__folder_id
@@ -7701,9 +7793,23 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__mandatory_email_retry_interval_hours
+msgid ""
+"Hours to wait between retries of a mandatory customer email that failed "
+"temporarily."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__street_number
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__street_number
 msgid "House"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__mandatory_email_retry_count
+msgid ""
+"How many times to retry a mandatory customer email after a temporary "
+"failure."
 msgstr ""
 
 #. module: sol_laboratory
@@ -7731,6 +7837,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_config_parameter__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_http__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_mail_server__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_sequence__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_menu__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__id
@@ -7855,6 +7962,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_portal_wizard_user__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_currency__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_groups__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__id
@@ -9374,6 +9482,22 @@ msgid "Mandatory"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mandatory_email_retry_count
+msgid "Mandatory Email Retries"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mandatory_email_retry_interval_hours
+msgid "Mandatory Email Retry Interval (hours)"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_notification.py:0
+msgid "Mandatory email permanently bounced after %(attempts)s attempts"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__manufacturer
 msgid "Manufacturer"
 msgstr ""
@@ -9986,6 +10110,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__next_due_date
 msgid "Next Due Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__next_email_retry_at
+msgid "Next Email Retry At"
 msgstr ""
 
 #. module: sol_laboratory
@@ -10657,6 +10786,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only an archived folder past its retention date can be reviewed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only an assigned task can be started."
 msgstr ""
@@ -10685,6 +10820,12 @@ msgstr ""
 msgid ""
 "Only an outsourced sample test that no dispatch holds can move to another "
 "subcontractor: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Only approved retention removal removes verified content."
 msgstr ""
 
 #. module: sol_laboratory
@@ -13858,7 +13999,9 @@ msgid "Quantity"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__queue_name
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "Queue"
 msgstr ""
 
@@ -14661,6 +14804,11 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_content__state__retention_removed
+msgid "Removed by retention"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
 msgid "Reopen editor"
 msgstr ""
@@ -15008,6 +15156,16 @@ msgid "Retention"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__retention_approved_by_id
+msgid "Retention Approved By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__retention_approved_at
+msgid "Retention Approved On"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__retention_days
 msgid "Retention Days"
 msgstr ""
@@ -15015,6 +15173,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__sample_retention_reminder_days
 msgid "Retention Reminder Days"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__retention_review_required
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "Retention Review"
 msgstr ""
 
 #. module: sol_laboratory
@@ -15773,6 +15937,7 @@ msgid "Sent on"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_sequence
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__sequence
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__sequence
 msgid "Sequence"
@@ -17523,6 +17688,18 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/system/res_config_settings.py:0
+msgid "The mandatory email retry count cannot be negative."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_config_settings.py:0
+msgid "The mandatory email retry interval must be at least 1 hour."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
 msgid "The measurement in progress is planned to end %s, after the due date."
 msgstr ""
@@ -17717,6 +17894,12 @@ msgstr ""
 msgid ""
 "The quality registration %(name)s expires today, %(date)s. From tomorrow its"
 " mark is no longer printed on reports."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_mail.py:0
+msgid "The recipient's email address must be confirmed before sending."
 msgstr ""
 
 #. module: sol_laboratory
@@ -18083,6 +18266,12 @@ msgid "This contact is already a customer."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid "This content is no longer available for a new version."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__property_purchase_currency_id
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_purchase_currency_id
 msgid "This currency will be used for purchases from the current partner"
@@ -18127,6 +18316,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/change_request.py:0
 msgid "This document type has no change-request chain."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/email_confirmation.py:0
+msgid "This email confirmation link is invalid or has already been used."
 msgstr ""
 
 #. module: sol_laboratory
@@ -18177,6 +18372,18 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_editing.py:0
 msgid "This file has no version to edit yet."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This folder has not been flagged for retention review yet."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This folder's retention removal was already approved."
 msgstr ""
 
 #. module: sol_laboratory
@@ -18321,6 +18528,13 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid ""
+"This removes eligible unsigned file content from storage while preserving "
+"version history. Signed and shared content stays available. Approve removal?"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/services/laboratory_api.py:0
 msgid "This route does not take the method %s."
@@ -18412,6 +18626,14 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
 msgid "This version is not a version of the file."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "This version's content was removed after administrator approval."
 msgstr ""
 
 #. module: sol_laboratory
@@ -19462,6 +19684,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
+msgid "You saved this version, so another person must sign it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/master_data/customer.py:0
 msgid "Your citizen ID is already registered."
 msgstr ""
@@ -19566,6 +19794,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Audit Log"

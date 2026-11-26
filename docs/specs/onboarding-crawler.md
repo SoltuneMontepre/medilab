@@ -1,6 +1,6 @@
 # Onboarding crawler
 
-Stories: US-AD32, US-AD33, US-AD34, US-AD35
+Stories: US-AD32, US-AD33, US-AD34, US-AD35, US-AD37, US-AD38
 
 ## Goal
 
@@ -14,7 +14,7 @@ The Onboarding module reads public pages of trusted sources and turns them into 
 | ---------------------------------- | -------------------------------------------------------------------------------------------------- |
 | `medilab.onboarding.source`        | A trusted source the developers ship: its adapter, host, start address, delay, page limit and whether it is turned on |
 | `medilab.onboarding.organisation`  | An organisation a source lists, with its key at the source, name, tax ID and accreditation number  |
-| `medilab.onboarding.run`           | One collection: its organisation, sectors, state, counts and log                                    |
+| `medilab.onboarding.run`           | One collection: its organisation, sectors, scope file, state, counts and log                        |
 | `medilab.onboarding.snapshot`      | One fetched document: its address, time, content type, checksum and the attachment with its bytes  |
 | `medilab.onboarding.staged.record` | One proposed master data record: its kind, key at the source, values, edited values, action, match and state |
 
@@ -56,7 +56,7 @@ The `boa` adapter reads BoA's pages as follows:
 - Both PDFs of the scope are fetched, since their addresses do not tell them apart. One whose text holds `LIST OF ACCREDITED TESTS` stages its testing fields and methods, in English; any other, such as the decision, stages nothing.
 - A testing field's key is its Vietnamese name, such as `Hóa`, and its name the English one, such as `Chemical`; it has no code. A method belongs to the field of the last field header before its row.
 - A method's code is the standard body, the number without inner spaces, the version after `-` or `:`, and the reapproval year in parentheses when printed, such as `ASTM D525-12a (2019)`. The number keeps a final capital letter and the parts of a Standard Methods code, as in `SMEWW 3113B:2017` and `SMEWW 4500-NO3-.E:2017`. A compound body such as `BS EN` or `EN ISO` keeps its space. `Official Method` or `Method` after the body is left out, so `AOAC Official Method 2015.01` reads `AOAC 2015.01`. A body right after `/`, as in `ISO/IEC 17025`, starts no code.
-- A method's key is its code within the certificate, `<certificate code>: <code>` such as `VILAS 001: GOST 8226-22`, or its code alone when the scope gives no certificate code. Its name is the English test name of its row, else its code. A code listed in several rows is staged once, with its first row's name, under the certificate whose code the scope gives. A method without a standard body, such as an in-house method, is not staged; the administrator adds it by hand.
+- A method's key is its code within the certificate, `<certificate code>: <code>` such as `VILAS 001: GOST 8226-22`, or its code alone when the scope gives no certificate code. Its name is the English test name of its row, else its code; the name ends before the header of the next page and before the label of a limit of quantitation, such as `Benzen/ benzene:`. A code listed in several rows is staged once, with its first row's name, under the certificate whose code the scope gives. A method without a standard body, such as an in-house method, is not staged; the administrator adds it by hand.
 
 The `fda_bam` adapter reads one page, the chapter index, for food and for cosmetics alike, and lists no organisations. A chapter's key is `FDA BAM Ch. <number>`, such as `FDA BAM Ch. 4A`, and its name the chapter link's text. Every chapter is a method of the one field `Microbiology`, staged in English with the run's sector. Appendices and the archived chapters are skipped. A page without the chapter table, or without a chapter in it, stages nothing and is skipped with its reason in the run's log.
 
@@ -66,12 +66,12 @@ The fetcher is the only code that makes outbound requests. It uses `requests`, w
 
 - It fetches only `https` addresses on the source's host, verifies the certificate, follows no redirect by itself, and checks a redirect's target against the host before fetching it.
 - It reads `robots.txt` of the host once per run and skips a disallowed path. A `robots.txt` that redirects off the host or more than five times disallows every path for the run; one that answers `4xx` or cannot be used, such as one that is not plain text, allows every path.
-- It waits at least the source's delay between two requests of a source, across workers, by keeping the time of the last request on the source row, locked while it is read and written.
+- It waits at least the source's delay between two requests of a source, across workers, by keeping the time of the last request on the source row, locked while it is read and written. The lock leaves the records that name the source writable, so staging, reviewing and accepting go on while a source is read.
 - It sends only `GET` requests with a `User-Agent` naming MediLab, no cookies kept between requests and no credentials.
 - It stops reading a response after 10 MB and after a 30 second timeout, and accepts only HTML, PDF and JSON content types.
 - It counts the pages of each source in a run against the source's page limit, and queues no more of that source's pages once the limit is reached.
 
-The fetcher's tests show that a page on another host, a redirect off the host and a path `robots.txt` disallows are not fetched and are named in the run log; that two requests to a source are never closer than its delay; and that a run stops at the page limit, the size limit, the timeout and a refused content type.
+The fetcher's tests show that a page on another host, a redirect off the host and a path `robots.txt` disallows are not fetched and are named in the run log; that two requests to a source are never closer than its delay; that another worker writes a record of a source while a request holds its row; and that a run stops at the page limit, the size limit, the timeout and a refused content type.
 
 ### Parsing
 
@@ -85,6 +85,16 @@ The job `onboarding.organisations` refreshes the organisations of each turned-on
 
 Uninstalling the module turns the crons of both jobs off, deletes their items and the runs nothing refers to, and then the jobs left without runs, so Odoo removes their crons. A finished run carries the audit entry of its end, which only the cleanup job removes, so a job that has run stays, its cron off.
 
+### Scope file
+
+A run can carry the laboratory's list of accredited tests as a file. The `boa` adapter reads it with the parser of the scope PDFs it fetches, so a file and a fetched scope give the same keys and values.
+
+- Starting the run reads the file once to check it: it is at most 10 MB, starts as a PDF, has text and lists at least one method. Otherwise the start is refused with a message and the run stays a draft.
+- The certificate code of the file is compared with the accreditation number of the run's organisation, ignoring case; another number refuses the start. With no organisation, the organisation of the adapter's source with that number becomes the run's.
+- The file is one more item of the job `onboarding.crawl`, queued after the first pages of the organisation, with the item key `<run id>:<file name>`. Its handler makes no request: it keeps the file as a snapshot whose address downloads the file from the run, and stages what the adapter reads. It runs while the adapter's source is turned off, since it reaches no site, so a demo can show it.
+- The certificate is staged from the file only when the file gives its code and its end of validity, with the same values as the organisation's page: code, issuing body `BoA`, no start of validity and the end of validity after `đến ngày`. The methods name it as their certificate.
+- A file counts as a fetched page in the run's counts, and the run's log names it as read. When no listed organisation has its number, the log says the file was not checked against a source.
+
 ### Staging
 
 The key of a staged record is its adapter's key for it at the source, such as a method's standard code within a certificate. A checksum of its values tells whether the source changed it:
@@ -92,13 +102,13 @@ The key of a staged record is its adapter's key for it at the source, such as a 
 - the same key and checksum as a staged record that is to review, accepted or rejected stages nothing;
 - the same key with another checksum stages a new record, and an older one to review becomes `superseded` and passes its children, such as the methods of a certificate's scope, to the new one.
 
-Matching an existing Laboratory record runs when a record is staged and again when its values are edited. Codes are compared after removing spaces and folding case and compatibility forms, such as full-width digits; names by trigram similarity, as a suggestion; installing the module creates the `pg_trgm` extension when the database lacks it.
+Matching an existing Laboratory record runs when a record is staged and again when its values are edited. Accepting matches again each record, and each method of its scope, that proposes to create a certificate or method whose code Laboratory has since been given: one with the same values is linked, and one with other values proposes an update and stays to review with a message. Codes are compared after removing spaces and folding case and compatibility forms, such as full-width digits; names by trigram similarity, as a suggestion; installing the module creates the `pg_trgm` extension when the database lacks it.
 
 ### Accepting
 
 Accepting runs as the administrator, through the same `create` and `write` of the Laboratory models that their forms use, so their constraints, permissions and audit entries apply. It runs in the administrator's language, so Laboratory's messages come in that language; a name is written in the language of the staged record. Accepting a certificate accepts the methods of its scope into the catalog: a method it matches, or one with the same code, is kept unchanged, and a new one is created in its testing field. Methods whose codes differ only in case, spaces and compatibility forms become one method, under the code of the method they match, if any. The certificate gets no [scope lines](../functional/laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28), since the sources give no parameters or sample types for them; the administrator adds them by hand. Each staged record is accepted in a savepoint with the records it needs, so a refusal leaves it and them to review and does not undo the others of a batch. The accepted record is kept on the staged record as its model and id.
 
-Laboratory does not know about Onboarding. The module adds the origin to the forms of the master data it stages by extending their views with a button that opens the staged records of the record.
+Laboratory does not know about Onboarding. The module adds the origin to the forms of the master data it stages by extending their views with a button that opens the staged records of the record. It extends the subcontractor form the same way, with a line computed on read that names the listed organisation whose accreditation number is the subcontractor's, or says that none has it; nothing is stored on the subcontractor.
 
 ### Document types
 
