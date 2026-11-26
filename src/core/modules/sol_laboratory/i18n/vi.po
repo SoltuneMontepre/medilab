@@ -13312,6 +13312,16 @@ msgid "System"
 msgstr "Hệ Thống"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid ""
+"<span class=\"o_audit_system_avatar\" invisible=\"user_id\"><i class=\"oi\" "
+"data-icon=\"settings\" title=\"System\"/></span>"
+msgstr ""
+"<span class=\"o_audit_system_avatar\" invisible=\"user_id\"><i class=\"oi\" "
+"data-icon=\"settings\" title=\"Hệ Thống\"/></span>"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__parent_model
 msgid "Parent Document Type"
 msgstr "Loại Chứng Từ Cha"

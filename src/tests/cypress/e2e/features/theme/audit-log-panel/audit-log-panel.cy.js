@@ -52,18 +52,23 @@ describe("Resizable audit log", () => {
     });
   });
 
-  it("collapses to give the form the full width and reopens", () => {
+  it("collapses from its heading to a narrow strip and reopens", () => {
     cy.openRecord(SAMPLE);
     rect(".o-mail-ChatterPanel").then((panel) => {
-      cy.get(".o-mail-ChatterToggle").should("have.attr", "aria-expanded", "true").and("have.attr", "title", "Collapse the audit log").click();
+      cy.get(".o_audit_aside .o-mail-ChatterCollapse")
+        .should("have.attr", "aria-expanded", "true")
+        .and("have.attr", "title", "Collapse the audit log")
+        .click();
       cy.get(".o_audit_aside").should("not.be.visible");
-      rect(".o_form_sheet_bg").its("right").should("be.greaterThan", 1440 - 40);
+      cy.get(".o-mail-ChatterDock").should("be.visible").and("have.attr", "title", "Expand the audit log");
+      rect(".o_form_sheet_bg").its("right").should("be.greaterThan", 1440 - 48);
 
       cy.reload();
-      cy.get(".o-mail-ChatterToggle").should("have.attr", "aria-expanded", "false");
+      cy.get(".o-mail-ChatterDock").should("have.attr", "aria-expanded", "false");
       cy.get(".o_audit_aside").should("not.be.visible");
 
-      cy.get(".o-mail-ChatterToggle").click();
+      cy.get(".o-mail-ChatterDock").click();
+      cy.get(".o-mail-ChatterDock").should("not.exist");
       cy.get(".o_audit_aside").should("be.visible");
       rect(".o-mail-ChatterPanel").its("width").should("be.closeTo", panel.width, 2);
     });

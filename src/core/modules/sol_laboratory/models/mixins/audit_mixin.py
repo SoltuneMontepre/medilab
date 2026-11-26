@@ -343,7 +343,7 @@ class AuditMixin(models.AbstractModel, AuditMixinBase):
                     "name": "action_open_audit_history",
                     "type": "object",
                     "class": "oe_stat_button",
-                    "icon": "fa-history",
+                    "icon": "history",
                     "string": self.env._("History"),
                     "groups": AUDIT_READ_GROUP,
                     "invisible": "not id",
