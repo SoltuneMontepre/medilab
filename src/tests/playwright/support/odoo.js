@@ -41,13 +41,14 @@ export async function signIn(page, login, password) {
   await settled(page);
 }
 
-// The dialog on top, or the page when none is open: what the person is looking at.
+// The dialog on top, or the page when none is open: what the person is looking at. Dialogs come after the page in
+// the document, the one on top last.
 export function front(page) {
-  return page.locator(".modal:visible").last().or(page.locator(".o_action_manager")).first();
+  return page.locator(".modal:visible").or(page.locator(".o_action_manager")).last();
 }
 
 function scope(page, within) {
-  return within ?? page.locator(".modal:visible .o_form_view, .modal:visible .o_list_view").last().or(page.locator(".o_action_manager")).first();
+  return within ?? front(page);
 }
 
 // Opens a back-office menu as a person does: the app from the apps menu, then each section and entry of the menu
@@ -108,28 +109,74 @@ export async function newRecord(page) {
   await settled(page);
 }
 
+// The text as a pattern that matches it letter for letter.
+function literal(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export function field(page, name, within) {
   return scope(page, within).locator(`.o_field_widget[name="${name}"]`).first();
 }
 
-// Types into a text, number or date field.
+// Types into a text or number field. Leaving the field takes the value; Tab would add a line after the last cell
+// of an editable list.
 export async function type(page, name, value, within) {
   const input = field(page, name, within).locator("input:not([type=hidden]), textarea").first();
   await input.scrollIntoViewIfNeeded();
   await input.fill(String(value));
-  await input.press("Tab");
+  await input.blur();
   await settled(page);
 }
 
-// Picks a many2one value: types the text and clicks the suggestion that contains it.
-export async function pick(page, name, text, within) {
+// The laboratory's calendar day, `days` and `years` from today.
+export function labDay({ days = 0, years = 0 } = {}) {
+  const [year, month, day] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).format(new Date()).split("-").map(Number);
+  return new Date(Date.UTC(year + years, month - 1, day + days));
+}
+
+// The day as `pattern` writes it, such as mm/dd/yyyy.
+export function written(date, pattern) {
+  const parts = { yyyy: date.getUTCFullYear(), mm: String(date.getUTCMonth() + 1).padStart(2, "0"), dd: String(date.getUTCDate()).padStart(2, "0") };
+  return pattern.toLowerCase().replace(/yyyy|mm|dd/g, (part) => parts[part]);
+}
+
+// Types a day into a date field, in the format the field asks for in the user's language. Returns it as typed.
+export async function typeDate(page, name, date, within) {
+  const widget = field(page, name, within);
+  await widget.scrollIntoViewIfNeeded();
+  // A day already set shows as a button until it is clicked.
+  await widget.locator("input, button").first().click();
+  const input = widget.locator("input").first();
+  await expect(input).toHaveAttribute("placeholder", /yyyy/i);
+  const text = written(date, await input.getAttribute("placeholder"));
+  await input.fill(text);
+  await input.blur();
+  await settled(page);
+  return text;
+}
+
+// Types the text into a many2one or tag field and returns the records it suggests, without the suggestions that
+// create a record.
+export async function suggested(page, name, text, within) {
   const input = field(page, name, within).locator("input").first();
   await input.scrollIntoViewIfNeeded();
   await input.fill("");
+  // The field asks for its suggestions a moment after the last letter.
+  const answered = page.waitForResponse((response) => response.url().includes("name_search"));
   await input.pressSequentially(text, { delay: 20 });
-  const option = page.locator(".o-autocomplete--dropdown-item:visible a", { hasText: text }).first();
-  await expect(option).toBeVisible();
-  await option.click();
+  await answered;
+  await settled(page);
+  await expect(page.locator(".o-autocomplete--dropdown-menu:visible")).toBeVisible();
+  return page.locator(".o-autocomplete--dropdown-item:visible:not(.o_m2o_dropdown_option) a");
+}
+
+// Picks a many2one or tag value: types the text and clicks the record suggested under exactly that name, or else
+// the first one that contains it.
+export async function pick(page, name, text, within) {
+  const records = await suggested(page, name, text, within);
+  await expect(records.filter({ hasText: text }).first()).toBeVisible();
+  const exact = records.filter({ hasText: new RegExp(`^\\s*${literal(text)}\\s*$`) });
+  await ((await exact.count()) ? exact : records.filter({ hasText: text })).first().click();
   await settled(page);
 }
 
@@ -167,9 +214,29 @@ export async function addLine(page, name, within) {
   return list.locator(".o_selected_row");
 }
 
+// Adds a line to a list that is edited in place and returns it.
+export async function addRow(page) {
+  await page.locator(".o_list_button_add:visible").first().click();
+  const row = page.locator(".o_list_view:visible .o_selected_row").last();
+  await expect(row).toBeVisible();
+  await settled(page);
+  return row;
+}
+
+// Saves the form, or the line being edited in a list. A field the screen marks as invalid fails the step with its
+// message.
 export async function save(page) {
-  const button = page.locator(".o_form_button_save:visible").last();
-  if (await button.count()) await button.click();
+  const buttons = page.locator(".o_form_button_save:visible, .o_list_button_save:visible");
+  if (await buttons.count()) await buttons.last().click();
+  await settled(page);
+  const invalid = page.locator(".o_notification:visible", { has: page.locator(".o_notification_bar.bg-danger, .text-danger") });
+  if (await invalid.count()) throw new Error(`Odoo did not save: ${(await invalid.first().innerText()).trim()}`);
+  await expect(buttons).toHaveCount(0);
+}
+
+// Leaves the form without saving what was changed on it.
+export async function discard(page) {
+  await page.locator(".o_form_button_cancel:visible").last().click();
   await settled(page);
   await expect(page.locator(".o_form_button_save:visible")).toHaveCount(0);
 }

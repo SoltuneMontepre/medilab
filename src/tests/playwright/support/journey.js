@@ -100,15 +100,14 @@ export const test = base.extend({
   },
 });
 
-let number = 0;
-base.beforeEach(() => {
-  number = 0;
-});
+// How many steps each test has walked; a hook declared here would only reach the first spec file that loads this one.
+const walked = new WeakMap();
 
 // A business step of the flow, named with the words of its path in the business flows. The report keeps the screen
 // as the step ends.
 export async function step(page, name, run) {
-  number += 1;
+  const number = (walked.get(base.info()) ?? 0) + 1;
+  walked.set(base.info(), number);
   const title = `${String(number).padStart(2, "0")} ${name}`;
   return base.step(title, async () => {
     try {
