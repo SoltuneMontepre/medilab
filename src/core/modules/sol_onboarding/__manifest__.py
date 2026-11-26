@@ -25,6 +25,7 @@
         "views/onboarding/testing_field_views.xml",
         "views/onboarding/testing_method_views.xml",
         "views/onboarding/sample_type_views.xml",
+        "views/onboarding/subcontractor_views.xml",
         "views/onboarding/test_parameter_views.xml",
         "views/system/menus.xml",
     ],

@@ -88,6 +88,16 @@ msgid "Accreditation Code"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_subcontractor__accreditation_listed
+msgid "Accreditation Listed"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_subcontractor__accreditation_listing
+msgid "Accreditation Listing"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__action
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Action"
@@ -184,6 +194,11 @@ msgstr ""
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_accept__code_needed
 msgid "Code Needed"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log
+msgid "Collection Log"
 msgstr ""
 
 #. module: sol_onboarding
@@ -292,6 +307,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_sample_type__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_scheduled_job__display_name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_subcontractor__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_test_parameter__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_field__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_method__display_name
@@ -388,6 +404,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_sample_type__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_scheduled_job__id
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_subcontractor__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_test_parameter__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_field__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_method__id
@@ -447,14 +464,15 @@ msgid "Link"
 msgstr ""
 
 #. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log
-msgid "Collection Log"
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/subcontractor.py:0
+msgid "Listed as %s."
 msgstr ""
 
 #. module: sol_onboarding
-#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log_ids
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__log_ids
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
 msgid "Log"
 msgstr ""
 
@@ -494,6 +512,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__name
 msgid "Name"
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/subcontractor.py:0
+msgid "No listed organisation has this accreditation number."
 msgstr ""
 
 #. module: sol_onboarding
@@ -862,6 +886,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__state
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_search
 msgid "Status"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_subcontractor
+msgid "Subcontractor"
 msgstr ""
 
 #. module: sol_onboarding

@@ -7,6 +7,7 @@ The administrator fills the Laboratory master data from trusted public sources: 
 - **US-AD32** As an administrator, I want to pick my laboratory from the organisations a source lists, with the system suggesting it from the company's details, so that the laboratory's own accreditation scope is collected without typing it.
 - **US-AD33** As an administrator, I want to choose the sectors the laboratory tests in, such as food, and have the system collect the testing methods, parameters and sample types the sources list for them, so that the catalog starts from what such laboratories test.
 - **US-AD34** As an administrator, I want to review the collected records, edit them, and accept or reject them, so that only checked data becomes master data.
+- **US-AD38** As an administrator, I want a subcontractor's accreditation number checked against the organisations the sources list, so that a mistyped or unknown number is noticed when it is entered.
 - **US-AD35** As an administrator, I want to see each collection run with what it fetched and staged, and where each accepted record came from, so that collected master data can be traced to its source.
 
 ## II. Feature details
@@ -90,6 +91,21 @@ Acceptance criteria:
 - A testing method created by accepting shows its origin with the address of the page it came from.
 - No menu, form or list shows the sources to an administrator, and the API refuses to read them.
 - Someone without the permission to accept staged records does not see the Accept button, and the API refuses it.
+
+### 3. Checking a subcontractor's accreditation (US-AD38)
+
+| Rule      | Description |
+| --------- | ----------- |
+| Listed    | The form of a [subcontractor](../../laboratory_module/features/admin.md) whose accreditation number is that of a listed organisation, ignoring case and extra spaces, names that organisation under the number. |
+| Unlisted  | When no listed organisation has the number, the form says so. The subcontractor can still be saved and used: the check informs, it refuses nothing. |
+| No check  | Nothing is said for a subcontractor without an accreditation number, or while no organisation is listed. |
+| Validity  | The list gives no end of validity, so the expiry date the administrator enters is not checked. |
+
+Acceptance criteria:
+
+- A subcontractor with the number `vilas 9950` shows the name of the listed organisation `VILAS 9950`.
+- A subcontractor with a number no listed organisation has shows that it is not listed, and saves.
+- A subcontractor without a number shows nothing about the list.
 
 ## III. Related documents
 

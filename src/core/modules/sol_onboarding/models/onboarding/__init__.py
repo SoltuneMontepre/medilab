@@ -14,6 +14,7 @@ from . import (
     onboarding_staged_record_review,
     onboarding_staged_record_staging,
     sample_type,
+    subcontractor,
     test_parameter,
     testing_field,
     testing_method,

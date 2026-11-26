@@ -16,5 +16,6 @@ from . import (
     test_sectors,
     test_source_access,
     test_staging,
+    test_subcontractor_listing,
     test_uninstall,
 )

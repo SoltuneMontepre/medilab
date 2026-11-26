@@ -89,6 +89,16 @@ msgid "Accreditation Code"
 msgstr "Mã công nhận"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_subcontractor__accreditation_listed
+msgid "Accreditation Listed"
+msgstr "Số công nhận có trong danh sách"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_subcontractor__accreditation_listing
+msgid "Accreditation Listing"
+msgstr "Đối chiếu số công nhận"
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__action
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Action"
@@ -186,6 +196,11 @@ msgstr "Mã"
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_accept__code_needed
 msgid "Code Needed"
 msgstr "Cần mã"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log
+msgid "Collection Log"
+msgstr "Nhật ký thu thập"
 
 #. module: sol_onboarding
 #: model:ir.model,name:sol_onboarding.model_medilab_onboarding_run
@@ -293,6 +308,7 @@ msgstr "Cần phòng ban"
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_sample_type__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_scheduled_job__display_name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_subcontractor__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_test_parameter__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_field__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_method__display_name
@@ -389,6 +405,7 @@ msgstr "Tên miền"
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_sample_type__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_scheduled_job__id
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_subcontractor__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_test_parameter__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_field__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_method__id
@@ -448,14 +465,15 @@ msgid "Link"
 msgstr "Liên kết"
 
 #. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log
-msgid "Collection Log"
-msgstr "Nhật ký thu thập"
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/subcontractor.py:0
+msgid "Listed as %s."
+msgstr "Có trong danh sách với tên %s."
 
 #. module: sol_onboarding
-#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log_ids
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__log_ids
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
 msgid "Log"
 msgstr "Nhật ký"
 
@@ -496,6 +514,12 @@ msgstr "Khóa phương pháp"
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__name
 msgid "Name"
 msgstr "Tên"
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/subcontractor.py:0
+msgid "No listed organisation has this accreditation number."
+msgstr "Không có tổ chức nào trong danh sách mang số công nhận này."
 
 #. module: sol_onboarding
 #. odoo-python
@@ -864,6 +888,11 @@ msgstr "Bắt đầu lúc"
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_search
 msgid "Status"
 msgstr "Trạng thái"
+
+#. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_subcontractor
+msgid "Subcontractor"
+msgstr "Thầu phụ"
 
 #. module: sol_onboarding
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_list
