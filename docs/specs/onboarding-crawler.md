@@ -1,6 +1,6 @@
 # Onboarding crawler
 
-Stories: US-AD32, US-AD33, US-AD34, US-AD35
+Stories: US-AD32, US-AD33, US-AD34, US-AD35, US-AD38
 
 ## Goal
 
@@ -98,7 +98,7 @@ Matching an existing Laboratory record runs when a record is staged and again wh
 
 Accepting runs as the administrator, through the same `create` and `write` of the Laboratory models that their forms use, so their constraints, permissions and audit entries apply. It runs in the administrator's language, so Laboratory's messages come in that language; a name is written in the language of the staged record. Accepting a certificate accepts the methods of its scope into the catalog: a method it matches, or one with the same code, is kept unchanged, and a new one is created in its testing field. Methods whose codes differ only in case, spaces and compatibility forms become one method, under the code of the method they match, if any. The certificate gets no [scope lines](../functional/laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28), since the sources give no parameters or sample types for them; the administrator adds them by hand. Each staged record is accepted in a savepoint with the records it needs, so a refusal leaves it and them to review and does not undo the others of a batch. The accepted record is kept on the staged record as its model and id.
 
-Laboratory does not know about Onboarding. The module adds the origin to the forms of the master data it stages by extending their views with a button that opens the staged records of the record.
+Laboratory does not know about Onboarding. The module adds the origin to the forms of the master data it stages by extending their views with a button that opens the staged records of the record. It extends the subcontractor form the same way, with a line computed on read that names the listed organisation whose accreditation number is the subcontractor's, or says that none has it; nothing is stored on the subcontractor.
 
 ### Document types
 
