@@ -17,6 +17,7 @@ from odoo.addons.sol_onboarding.constants.onboarding import (
     RUN_FAILED,
     RUN_RUNNING,
 )
+from odoo.addons.sol_onboarding.services.adapters.base import Parsed
 from odoo.addons.sol_onboarding.services.adapters.registry import adapter_for
 from odoo.addons.sol_onboarding.services.fetcher import Fetcher, PageSkipped
 from odoo.addons.sol_onboarding.services.parsing import pdf_text
@@ -54,13 +55,18 @@ class OnboardingRunCrawl(models.Model, OnboardingRunCrawlBase):
             return
         payload = item.payload
         source = self.env[MODEL_ONBOARDING_SOURCE].sudo().browse(payload["source_id"]).exists()
-        if not source.enabled:
+        uploaded = payload.get("upload")
+        if uploaded:
+            fetched = self._scope_fetched()
+        elif not source.enabled:
             raise PageSkipped(self.env._("source turned off"))
-        fetched = Fetcher(source, f"run:{self.id}").fetch(item.item_key.partition(":")[2])
+        else:
+            fetched = Fetcher(source, f"run:{self.id}").fetch(item.item_key.partition(":")[2])
         snapshot = self.env[MODEL_ONBOARDING_SNAPSHOT]._keep(self, source, fetched)
         if fetched.content_type == "pdf" and not pdf_text(fetched.body):
             raise PageSkipped(self.env._("PDF without text"))
-        parsed = adapter_for(source).parse(fetched, payload["sector"])
+        adapter = adapter_for(source)
+        parsed = Parsed(adapter.uploaded_scope(fetched.body)) if uploaded else adapter.parse(fetched, payload["sector"])
         # Transactions run at REPEATABLE READ: a cancel committed during the fetch makes the lock raise a serialization
         # error, and one not yet committed a LockError. The item is retried, which counts one attempt, and the retry
         # sees the cancel.
@@ -94,6 +100,8 @@ class OnboardingRunCrawl(models.Model, OnboardingRunCrawlBase):
                 lines.append(self.env._("failed %(address)s: %(error)s", address=address, error=_error(item)))
             elif "skipped" in payload:
                 lines.append(self.env._("skipped %(address)s: %(reason)s", address=address, reason=payload["skipped"]))
+            elif item.status == ITEM_DONE and payload.get("upload"):
+                lines.append(self.env._("read the uploaded file %s", address))
             elif item.status == ITEM_DONE:
                 lines.append(self.env._("fetched %s", address))
             if dropped := payload.get("dropped"):
@@ -103,6 +111,12 @@ class OnboardingRunCrawl(models.Model, OnboardingRunCrawlBase):
         lines += [f"{label}: {kinds[kind]}" for kind, label in labels if kinds[kind]]
         if not items:
             lines.append(self.env._("No turned-on source reads this organisation or these sectors."))
+        if run.scope_file and not run.organisation_id:
+            lines.append(
+                self.env._(
+                    "No listed organisation has the accreditation number of the uploaded file to check it against."
+                )
+            )
         return {
             "page_count": len(run.snapshot_ids),
             "skipped_count": len(items.filtered(lambda item: "skipped" in _payload(item))),

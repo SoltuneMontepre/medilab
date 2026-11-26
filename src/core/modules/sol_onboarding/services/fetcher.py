@@ -137,9 +137,10 @@ class Fetcher:
 
     def _wait_turn(self):
         # The row stays locked until this transaction ends; lock_for_update does not wait for another worker's lock.
+        # Other workers can still write the records that name the source, such as staged records being accepted.
         source = self.source
         try:
-            source.lock_for_update()
+            source.lock_for_update(allow_referencing=True)
         except LockError:
             raise SourceBusy(fields.Datetime.now() + timedelta(seconds=source.delay_seconds)) from None
         source.invalidate_recordset(["last_request_at"])

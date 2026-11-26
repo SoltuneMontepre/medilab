@@ -173,6 +173,21 @@ class TestBoaAdapter(OnboardingCase):
         self.assertEqual(titles["GOST 8226-22"], "Determination of Octan number Engine method")
         self.assertEqual(titles["ASTM D323-20a"], "Determination of saturated vapor pressure")
         self.assertEqual(titles["ASTM D6371-17a"], "Determination of Cold Filter Plugging Point temperature")
+        self.assertTrue(titles["TCVN 3166:2019"].endswith("total aromatics content. GC method"))
+        self.assertTrue(titles["TCVN 7332:2013"].endswith("total oxygen content GC method"))
+
+    def test_a_title_leaves_out_the_next_page_header(self):
+        text = (
+            "LIST OF ACCREDITED TESTS\nSố hiệu/ Code: VILAS 9971\nLĩnh vực thử nghiệm: Hóa\n"
+            "Field of testing: Chemical\n1. Xác định độ bôi trơn \nDetermination of Lubricity (HFRR) method "
+            "ASTM D6079 -22 \nDANH MỤC PHÉP THỬ ĐƯỢC CÔNG NHẬN \nLIST OF ACCREDITED TESTS \nVILAS 9971 \n"
+            "2. Determination of colour ASTM D 1500 -24\n"
+        )
+        methods = BoaAdapter(self.boa)._annex(text)[1:]
+        self.assertEqual(
+            [method.values["name"] for method in methods],
+            ["Determination of Lubricity (HFRR) method", "Determination of colour"],
+        )
 
     def test_the_decision_stages_nothing(self):
         self.assertEqual(self.parse(FIRST_PDF, "pdf", "decision.pdf"), Parsed())

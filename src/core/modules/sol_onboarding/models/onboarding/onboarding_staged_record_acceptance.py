@@ -27,7 +27,10 @@ from odoo.addons.sol_onboarding.constants.onboarding import (
     STAGED_TO_REVIEW,
 )
 from odoo.addons.sol_onboarding.constants.xml_ids import ACCEPT_ACTION
-from odoo.addons.sol_onboarding.models.onboarding.onboarding_staged_record_matching import normalize_code
+from odoo.addons.sol_onboarding.models.onboarding.onboarding_staged_record_matching import (
+    CODE_KINDS,
+    normalize_code,
+)
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_onboarding_staged_record as OnboardingStagedRecordAcceptanceBase
@@ -54,11 +57,12 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
     def action_accept(self):
         """Accept the records, or ask for the values one record misses. The result lists the refused records."""
         self._check_permission("edit")
-        if len(self) == 1 and self._missing_values():
+        updates = self._match_again()
+        if len(self) == 1 and not updates and self._missing_values():
             action = self.env["ir.actions.act_window"]._for_xml_id(ACCEPT_ACTION)
             action["context"] = {"default_staged_record_id": self.id}
             return action
-        refused = self._accept_each()
+        refused = updates | (self - updates)._accept_each()
         if refused:
             return {
                 "type": "ir.actions.act_window",
@@ -76,6 +80,23 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
                 "next": {"type": "ir.actions.act_window_close"},
             },
         }
+
+    def _match_again(self):
+        """Match again the records, and the methods of their scopes, that propose to create a code Laboratory has
+        since been given. Returns the records of self that now propose an update, each with its message, so their
+        changes are reviewed before they are accepted."""
+        stale = (self | self.child_ids).filtered(
+            lambda record: (
+                record.state == STAGED_TO_REVIEW
+                and record.action == ACTION_CREATE
+                and record.kind in CODE_KINDS
+                and bool(record._find_match()[1])
+            )
+        )
+        stale._match()
+        updates = (stale & self).filtered(lambda record: record.action == ACTION_UPDATE)
+        updates.error = self.env._("Laboratory now has this code with other values. Review the changes, then accept.")
+        return updates
 
     def _accept_each(self):
         """Accept each record in a savepoint with the records it needs, so a refusal leaves it and them to review and

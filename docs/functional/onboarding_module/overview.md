@@ -18,8 +18,9 @@ flowchart LR
 
 1. The administrator picks the laboratory's own organisation from those the sources list; the system suggests it from the company's tax ID and name (US-AD32).
 2. The administrator chooses the sectors the laboratory tests in, such as food (US-AD33).
-3. A collection run reads the organisation's accreditation scope and what the sources list for the sectors, and stages what it finds (US-AD35).
-4. The administrator reviews the staged records, edits them, and accepts or rejects them (US-AD34).
+3. The administrator can also upload the laboratory's list of accredited tests; the run stages it and checks it against what the source publishes (US-AD37).
+4. A collection run reads the organisation's accreditation scope and what the sources list for the sectors, and stages what it finds (US-AD35).
+5. The administrator reviews the staged records, edits them, and accepts or rejects them (US-AD34).
 
 ## Core entities
 
@@ -39,8 +40,8 @@ erDiagram
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source        | A site the developers trust and ship with the module, read by an adapter that knows its pages, such as the BoA adapter. Administrators do not see it. |
 | Organisation  | An organisation a source lists, such as an accredited laboratory with its accreditation number. It is what the administrator picks the laboratory from. |
-| Run           | One collection from the sources, for an organisation, sectors or both.                                                                          |
-| Snapshot      | One document a run fetched, kept unchanged, so every staged record can be traced to the page it came from.                                       |
+| Run           | One collection from the sources, for an organisation, sectors, a scope file the laboratory uploads or any of them together.                                                                          |
+| Snapshot      | One document a run fetched or was given, kept unchanged, so every staged record can be traced to the page it came from.                                       |
 | Staged record | One proposed master data record, such as a testing method or an accreditation certificate, with the values the source gives and what accepting it does. |
 
 ## Staged master data
