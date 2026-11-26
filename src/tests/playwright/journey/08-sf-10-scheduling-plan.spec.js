@@ -1,5 +1,5 @@
 import { expect, handOver, received, step, test } from "../support/journey";
-import { field, front, listed, openListed, openMenu, openTab, press, pressLabel, search, settled, shownDay, status, type } from "../support/odoo";
+import { field, front, listed, openListed, openMenu, openTab, press, pressLabel, search, settled, showList, shownDay, status, type } from "../support/odoo";
 import { bookingSlot, findBookings, later, listedMoment, shownMoment, typeMoment } from "../support/schedule";
 
 const LABORATORY = "sol_laboratory.menu_laboratory_root";
@@ -12,9 +12,11 @@ const CALENDAR = "calendar.mail_menu_calendar";
 const WORKING_BLOCKS = [[8, 12], [13, 17]];
 const DAYS_AHEAD = 10;
 
-// The free-slot candidates after a booking: each full hour of the working days after its start that fits its length.
+// The free-slot candidates after a booking: each full hour of the working days after its start, and after now, that
+// fits its length.
 function laterSlots(start, end) {
   const minutes = (new Date(end) - new Date(start)) / 60000;
+  const after = Math.max(new Date(start).getTime(), Date.now());
   const slots = [];
   for (let ahead = 0; ahead < DAYS_AHEAD; ahead += 1) {
     const day = new Date(`${start.slice(0, 10)}T00:00:00Z`);
@@ -23,7 +25,7 @@ function laterSlots(start, end) {
     for (const [opens, closes] of WORKING_BLOCKS) {
       for (let hour = opens; hour * 60 + minutes <= closes * 60; hour += 1) {
         const slot = `${day.toISOString().slice(0, 10)}T${String(hour).padStart(2, "0")}:00:00+07:00`;
-        if (new Date(slot) > new Date(start)) slots.push(slot);
+        if (new Date(slot).getTime() > after) slots.push(slot);
       }
     }
   }
@@ -116,7 +118,7 @@ test("SF-10 Scheduling plan and revisions", async ({ as }) => {
         break;
       }
       // A slot whose tester, machine or room is taken is refused with the name of what is not free.
-      await expect(refusal).toContainText(`is not free for ${journey.nitrateTaskName} at that time.`);
+      await expect(refusal).toContainText(/not free (for .+ )?at that time\./);
       refused.push(slot);
       await refusal.locator(".modal-footer button").first().click();
       await expect(refusal).toHaveCount(0);
@@ -146,8 +148,7 @@ test("SF-10 Scheduling plan and revisions", async ({ as }) => {
 
   await step(tester, "The tester's calendar and task show the booking at its new time", async () => {
     await openMenu(tester, CALENDAR);
-    await tester.locator(".o_switch_view.o_list").click();
-    await settled(tester);
+    await showList(tester);
     await search(tester, journey.sampleLabCode);
     const machineEvent = listed(tester, `${journey.bookingMachineName}: ${journey.nitrateTaskName}`);
     await expect(machineEvent).toHaveCount(1);

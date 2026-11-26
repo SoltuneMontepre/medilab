@@ -1,6 +1,6 @@
 import { expect, handOver, received, step, test } from "../support/journey";
-import { field, front, listed, openListed, openMenu, openTab, pick, press, search, settled, status, suggested } from "../support/odoo";
-import { bookingMachine, bookingSlot, findBookings, listedMoment, shownMoment } from "../support/schedule";
+import { field, front, listed, noticesTab, openListed, openMenu, openNotices, openTab, pick, press, pressLabel, search, settled, showList, status, suggested, toggleMessages } from "../support/odoo";
+import { bookingMachine, bookingSlot, findBookings, listedMoment, typedMoment } from "../support/schedule";
 
 const TASKS = "sol_laboratory.menu_tasks_root";
 const TASK_QUEUE = [TASKS, "sol_laboratory.menu_task_queue"];
@@ -20,25 +20,20 @@ test("WF-03 Testing assignment and scheduling", async ({ as }) => {
   const head = await as("demo.head_of_department");
   const bookingRow = (page) => field(page, "booking_ids").locator(".o_data_row");
 
-  // Opens or closes the messaging menu of the menu bar.
-  const toggleMessages = (page) => page.locator(".o_menu_systray .o-mail-DiscussSystray-class").click();
-  const noticesTab = (page) => page.locator(".o-mail-MessagingMenuInDropdown .o-mail-MessagingMenu-tab[data-id=notification]");
-
-  // The notices the signed-in person received in the application.
-  const openNotices = async (page) => {
-    await toggleMessages(page);
-    await noticesTab(page).click();
-    await settled(page);
-    return page.locator(".o-mail-MessagingMenuInDropdown .o-mail-NotificationItem");
-  };
-
   await step(tester, "The tester chooses to be notified in the application", async () => {
     await tester.locator(".o_user_menu").click();
     await tester.locator(".o-dropdown--menu [data-menu=preferences]").click();
     await settled(tester);
-    await field(tester, "notification_type").locator(".o_radio_item", { hasText: "In Odoo" }).locator("input").check();
-    await Promise.all([tester.waitForEvent("load"), tester.locator(".modal:visible footer button[name=preference_save]").click()]);
-    await settled(tester);
+    const preferences = front(tester);
+    const inApplication = field(tester, "notification_type").locator(".o_radio_item", { hasText: "In Odoo" }).locator("input");
+    if (await inApplication.isChecked()) {
+      await pressLabel(tester, "Discard", { within: preferences });
+    } else {
+      await inApplication.check();
+      // Saving the preferences loads the page again.
+      await Promise.all([tester.waitForEvent("load"), preferences.locator("button[name=preference_save]").click()]);
+      await settled(tester);
+    }
     await toggleMessages(tester);
     await expect(noticesTab(tester)).toBeVisible();
     await toggleMessages(tester);
@@ -149,7 +144,7 @@ test("WF-03 Testing assignment and scheduling", async ({ as }) => {
   });
 
   await step(tester, "The tester is notified of the approved booking", async () => {
-    const approval = `${journey.nitrateTaskName} is approved: it starts at ${shownMoment(booking.start).replace(/ (AM|PM)$/, ":00 $1")}.`;
+    const approval = `${journey.nitrateTaskName} is approved: it starts at ${typedMoment(booking.start)}.`;
     const live = await openNotices(tester);
     await expect.soft(live.filter({ hasText: approval }), "The notice reaches the browser the tester has open").not.toHaveCount(0, { timeout: 3000 });
     await toggleMessages(tester);
@@ -190,8 +185,7 @@ test("WF-03 Testing assignment and scheduling", async ({ as }) => {
     await expect(bookings.locator("td[name=starts_at]")).toHaveText(listedMoment(booking.start));
     await expect(bookings.locator("td[name=status]")).toHaveText("Scheduled");
     await openMenu(tester, CALENDAR);
-    await tester.locator(".o_switch_view.o_list").click();
-    await settled(tester);
+    await showList(tester);
     await search(tester, journey.sampleLabCode);
     const machineEvent = listed(tester, `${booking.machine.name}: ${journey.nitrateTaskName}`);
     await expect(machineEvent).toHaveCount(1);

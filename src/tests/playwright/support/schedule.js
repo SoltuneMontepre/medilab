@@ -1,6 +1,6 @@
 // What the head, the tester and the administrator do on the Machine Schedule: find a booking and read its slot.
 
-import { field, listed, openMenu, search, settled, shownDay } from "./odoo";
+import { field, listed, openMenu, search, settled, showList, shownDay } from "./odoo";
 
 export const MACHINE_SCHEDULE = ["sol_laboratory.menu_laboratory_root", "sol_laboratory.menu_laboratory_schedule", "sol_laboratory.menu_machine_booking"];
 
@@ -49,8 +49,7 @@ export function listedMoment(iso) {
 // Lists the bookings of a sample test that are not finished on the Machine Schedule, which opens as a calendar.
 export async function findBookings(page, sampleTest) {
   await openMenu(page, ...MACHINE_SCHEDULE);
-  await page.locator(".o_switch_view.o_list").click();
-  await settled(page);
+  await showList(page);
   await search(page, sampleTest, { field: "Sample Test" });
   return listed(page, sampleTest);
 }
