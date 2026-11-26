@@ -885,6 +885,11 @@ msgid "Email Bounced"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__email_confirmation_token
+msgid "Email Confirmation Token"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__employee
 msgid "Employee"
 msgstr ""

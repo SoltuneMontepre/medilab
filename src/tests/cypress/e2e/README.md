@@ -36,6 +36,7 @@ src/tests/
         inventory/solution-preparation/
         theme/chatter-resize/
         theme/navbar-more-menu/
+        theme/audit-log-panel/
         laboratory/unlinked-users/
         laboratory/shared-intervals/
         ecommerce/mandatory-notices/
@@ -155,6 +156,7 @@ Not covered because the feature is not built: a notice to the tester and head wh
 | Take a waiting support request and answer it on the phone; the customer reads the answer on the portal and is notified. | [#522](https://github.com/SoltuneMontepre/medilab/issues/522) | `features/mobile/support/` | `support.cy.js` |
 | Send phones on a rolled-back release to the release that replaces it, and let an administrator stop releases and set the oldest version served, below which a phone gets only the updating screen. | [#525](https://github.com/SoltuneMontepre/medilab/issues/525) | `features/mobile/updates/` | `updates.cy.js` |
 | Record planned OverTime for a tester as their head of department; the tester is booked in it only once it is recorded, and moving the booking leaves it. | [#426](https://github.com/SoltuneMontepre/medilab/issues/426) | `features/laboratory/overtime/` | `overtime.cy.js` |
+| Keep a sample or sample test form readable beside its audit log, resize and collapse the panel and keep its width and state, and put it below the form on a narrow window. | [#679](https://github.com/SoltuneMontepre/medilab/issues/679) | `features/theme/audit-log-panel/` | `audit-log-panel.cy.js` |
 
 Solution-preparation scenarios follow their approved feature document and demo starting data. Reserving a directory does not settle the open requirements in that issue.
 

@@ -69,6 +69,11 @@ msgid "Company"
 msgstr "Công ty"
 
 #. module: portal
+#: model:portal.entry,name:portal.portal_entry_base
+msgid "Connection & Security"
+msgstr "Kết nối & Bảo mật"
+
+#. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.address_form_fields
 msgid "Country..."
 msgstr "Quốc gia..."
@@ -89,6 +94,16 @@ msgstr "Bỏ qua"
 #: model_terms:ir.ui.view,arch_db:auth_signup.signup
 msgid "Email"
 msgstr "Email"
+
+#. module: web
+#: model_terms:ir.ui.view,arch_db:web.login
+msgid "Enter your email"
+msgstr "Nhập email của bạn"
+
+#. module: web
+#: model_terms:ir.ui.view,arch_db:web.login
+msgid "Enter your password"
+msgstr "Nhập mật khẩu của bạn"
 
 #. module: auth_signup
 #: model_terms:ir.ui.view,arch_db:auth_signup.reset_password_email

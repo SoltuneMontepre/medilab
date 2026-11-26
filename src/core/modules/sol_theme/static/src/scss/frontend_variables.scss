@@ -1,6 +1,22 @@
-$primary: $o-brand-primary;
-$success: $o-success;
-$info: $o-info;
-$warning: $o-warning;
-$danger: $o-danger;
-$link-color: $o-main-link-color;
+// What the portal sets differently from the back office's Bootstrap variables, which follow this file: its page is
+// white, because it has no sheets, its tables keep Bootstrap's spacing so their columns fit on a phone, and its
+// dividers and controls take the tokens of the styling rules.
+$body-bg: $ml-surface;
+$border-color: $ml-border;
+$table-cell-padding-x: 0.5rem;
+$table-cell-padding-y: 0.5rem;
+
+$input-bg: $ml-surface;
+$input-border-color: $ml-border-control;
+$input-border-radius: $ml-radius;
+$input-placeholder-color: $ml-text-muted;
+$input-focus-border-color: rgba($ml-primary, 0.45);
+$input-focus-box-shadow: $ml-focus-ring;
+$form-select-focus-box-shadow: $ml-focus-ring;
+$form-check-input-border: 1px solid $ml-border-control;
+
+$navbar-dark-color: $ml-text-on-primary;
+$navbar-dark-hover-color: $ml-text-on-primary;
+$navbar-dark-active-color: $ml-text-on-primary;
+$navbar-dark-brand-color: $ml-text-on-primary;
+$navbar-dark-brand-hover-color: $ml-text-on-primary;

@@ -23,6 +23,15 @@ Buttons, status badges and list rows take their color from what they mean. The c
 - A flag that only one line of a list can have is a checkbox that clears the others when ticked, not a toggle.
 - `sol_theme` overrides Odoo and Bootstrap styles that are set with `!important` or with more specific selectors, so its stylesheets use `!important` where an override needs it. SonarQube ignores its rule S9423 (`!important`) for `sol_theme/static/src/scss/`, set in `sonar-project.properties`.
 
+## Customer portal
+
+The customer portal, the catalog, the cart and the pages of **My account**, looks like the back office, so customers and staff see one product.
+
+- **Same variables.** The portal's stylesheet takes the back office's Bootstrap variables: `sol_theme` adds Odoo's `web/static/src/scss/bootstrap_overridden.scss` to `web._assets_frontend_helpers`, so the colours, text, links, borders, radii and fonts that `odoo_variables.scss` sets reach both. `frontend_variables.scss` holds only what the portal sets differently: its page is white, because it has no sheets, its tables keep Bootstrap's spacing so their columns fit on a phone, and its dividers and controls take the tokens of the list above.
+- **Header.** The header is the back office's navbar: `bg-primary`, its links in `$ml-text-on-primary`, and the current section underlined in `$ml-accent-light`.
+- **Components.** Buttons take the colours of `$o-btns-bs-override`, as in the back office, and the back office's `buttons.scss` and `modals.scss` style the portal's buttons and dialogs too. A table's header row is `$ml-bg`, as a list's. `portal.scss` holds only what a variable cannot set.
+- **No other palette.** Odoo colours the portal's links and primary buttons with the company's e-mail colours; `sol_theme` removes them, so the theme's colours apply.
+
 ## Medilab Mobile
 
 [Medilab Mobile](../functional/laboratory_module/applications/medilab-mobile.md) looks like the web, so a person sees one product on both.
@@ -32,6 +41,12 @@ Buttons, status badges and list rows take their color from what they mean. The c
 - **Icons.** The phone uses Material Design Icons, the set the web names `mdi:<name>`, through `MaterialCommunityIcons` of `@expo/vector-icons`, so an action keeps the same icon on the web and the phone.
 - **Light only.** The app has the web's light theme and no dark theme.
 - **Brand.** The app icon, the splash screen and the sign-in screen show the MediLab mark of `sol_theme/static/src/img/medilab.svg`. The splash screen and the navbar take `$ml-primary`.
+
+## Medilab Sync
+
+[Medilab Sync](../functional/laboratory_module/applications/medilab-sync.md) shows the web's logo, so a person recognises it as MediLab on the desktop.
+
+- **Brand.** The installer, the taskbar and tray, the window and the Windows Store tiles show the MediLab mark of `sol_theme/static/src/img/medilab.svg`. `public/app-icon.svg` and `src-tauri/icons/logo.svg` are copies of it, and every icon in `src-tauri/icons/` is generated from it with `bunx tauri icon`; a test fails when the copies differ from the web's mark. A change to the mark regenerates them in the same change.
 
 ## Related documents
 
