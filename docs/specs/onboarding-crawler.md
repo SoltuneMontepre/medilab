@@ -1,6 +1,6 @@
 # Onboarding crawler
 
-Stories: US-AD32, US-AD33, US-AD34, US-AD35, US-AD38
+Stories: US-AD32, US-AD33, US-AD34, US-AD35, US-AD37, US-AD38
 
 ## Goal
 
@@ -14,7 +14,7 @@ The Onboarding module reads public pages of trusted sources and turns them into 
 | ---------------------------------- | -------------------------------------------------------------------------------------------------- |
 | `medilab.onboarding.source`        | A trusted source the developers ship: its adapter, host, start address, delay, page limit and whether it is turned on |
 | `medilab.onboarding.organisation`  | An organisation a source lists, with its key at the source, name, tax ID and accreditation number  |
-| `medilab.onboarding.run`           | One collection: its organisation, sectors, state, counts and log                                    |
+| `medilab.onboarding.run`           | One collection: its organisation, sectors, scope file, state, counts and log                        |
 | `medilab.onboarding.snapshot`      | One fetched document: its address, time, content type, checksum and the attachment with its bytes  |
 | `medilab.onboarding.staged.record` | One proposed master data record: its kind, key at the source, values, edited values, action, match and state |
 
@@ -84,6 +84,16 @@ A run uses the job `onboarding.crawl` ([Scheduled jobs](scheduled-jobs.md)). Sta
 The job `onboarding.organisations` refreshes the organisations of each turned-on source, weekly by default, through the same fetcher. A refresh starts when the source has no refresh item pending or running and its last refresh began more than half the cron interval ago. When it starts, the organisations not seen since the previous refresh are archived, but only if that refresh had no failed page and saw at least one organisation.
 
 Uninstalling the module turns the crons of both jobs off, deletes their items and the runs nothing refers to, and then the jobs left without runs, so Odoo removes their crons. A finished run carries the audit entry of its end, which only the cleanup job removes, so a job that has run stays, its cron off.
+
+### Scope file
+
+A run can carry the laboratory's list of accredited tests as a file. The `boa` adapter reads it with the parser of the scope PDFs it fetches, so a file and a fetched scope give the same keys and values.
+
+- Starting the run reads the file once to check it: it is at most 10 MB, starts as a PDF, has text and lists at least one method. Otherwise the start is refused with a message and the run stays a draft.
+- The certificate code of the file is compared with the accreditation number of the run's organisation, ignoring case; another number refuses the start. With no organisation, the organisation of the adapter's source with that number becomes the run's.
+- The file is one more item of the job `onboarding.crawl`, queued after the first pages of the organisation, with the item key `<run id>:<file name>`. Its handler makes no request: it keeps the file as a snapshot whose address downloads the file from the run, and stages what the adapter reads. It runs while the adapter's source is turned off, since it reaches no site, so a demo can show it.
+- The certificate is staged from the file only when the file gives its code and its end of validity, with the same values as the organisation's page: code, issuing body `BoA`, no start of validity and the end of validity after `đến ngày`. The methods name it as their certificate.
+- A file counts as a fetched page in the run's counts, and the run's log names it as read. When no listed organisation has its number, the log says the file was not checked against a source.
 
 ### Staging
 

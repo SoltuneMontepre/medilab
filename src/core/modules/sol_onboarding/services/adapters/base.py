@@ -55,3 +55,7 @@ class Adapter:
 
     def parse(self, document: Fetched, sector: str | None) -> Parsed:
         raise NotImplementedError
+
+    def uploaded_scope(self, body: bytes) -> tuple[StagedValues, ...]:
+        """What an accreditation scope file a laboratory uploads stages."""
+        raise NotImplementedError

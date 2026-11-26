@@ -13,6 +13,7 @@ from . import (
     test_parsing,
     test_review,
     test_runs,
+    test_scope_file,
     test_sectors,
     test_source_access,
     test_staging,

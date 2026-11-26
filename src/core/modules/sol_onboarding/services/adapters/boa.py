@@ -33,6 +33,7 @@ METHOD_CODE = re.compile(
 ROW = re.compile(r"^\s*(\d{1,3})\.(?=\s|$)", re.M)
 FIELD = re.compile(r"Lĩnh vực thử nghiệm\s*:\s*(\S.*)\n\s*Field of testing\s*:\s*(\S.*)")
 CERTIFICATE_CODE = re.compile(r"Code\s*:\s*([A-Z][A-Z ]*\d+)")
+VALID_UNTIL = re.compile(r"đến ngày\s+(\d{2}/\d{2}/\d{4})")
 ENGLISH_START = re.compile(
     r"\b(Determination|Measur\w*|Test\w*|Analysis|Detection|Enumeration|Identification|Quantification|Calculation)\b"
 )
@@ -56,6 +57,24 @@ class BoaAdapter(Adapter):
         if urlsplit(document.url).path == urlsplit(self.source.start_url).path:
             return self._organisation_list(tree, document.url)
         return self._organisation_page(tree, document.url)
+
+    def uploaded_scope(self, body: bytes) -> tuple[StagedValues, ...]:
+        """The certificate, testing fields and methods of an uploaded list of accredited tests. The certificate is
+        staged only when the file gives its code and its end of validity, with the values the organisation's page
+        gives, so the same certificate is staged once."""
+        text = unicodedata.normalize("NFC", pdf_text(body))
+        records = self._annex(text)
+        code, until = CERTIFICATE_CODE.search(text), VALID_UNTIL.search(text)
+        valid_until = _iso_date(until.group(1)) if until else ""
+        if not (records and code and valid_until):
+            return records
+        values = {
+            "code": clean_text(code.group(1)),
+            "issuing_body": ISSUING_BODY,
+            "valid_from": "",
+            "valid_until": valid_until,
+        }
+        return (StagedValues(KIND_CERTIFICATE, values["code"], values, "en_US"), *records)
 
     def _organisation_list(self, tree, url: str) -> Parsed:
         organisations = []
