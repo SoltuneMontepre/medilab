@@ -73,8 +73,7 @@ class OnboardingRunScopeFile(models.Model, OnboardingRunScopeFileBase):
         chosen = self.organisation_id
         if not code:
             return
-        same_code = [("accreditation_code", "=ilike", code)]
-        if chosen.accreditation_code and not chosen.filtered_domain(same_code):
+        if chosen.accreditation_code and not chosen.filtered_domain([("accreditation_code", "=ilike", code)]):
             raise ValidationError(
                 self.env._(
                     "The scope file is of %(file)s, and the organisation chosen is %(organisation)s.",
@@ -86,7 +85,7 @@ class OnboardingRunScopeFile(models.Model, OnboardingRunScopeFileBase):
             self.organisation_id = (
                 self.env[MODEL_ONBOARDING_ORGANISATION]
                 .sudo()
-                .search([("source_id", "=", self._scope_source().id), *same_code], limit=1)
+                .search([("source_id", "=", self._scope_source().id), ("accreditation_code", "=ilike", code)], limit=1)
             )
 
     def _queue_scope_file(self):
