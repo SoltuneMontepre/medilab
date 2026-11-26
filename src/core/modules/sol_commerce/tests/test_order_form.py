@@ -5,6 +5,7 @@ from lxml import etree
 from odoo import fields
 from odoo.tests import Form, new_test_user, tagged
 from odoo.tests.form import O2MProxy
+from odoo.tools.safe_eval import safe_eval
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import (
@@ -13,6 +14,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_SALE_ORDER,
     MODEL_SALE_ORDER_LINE,
 )
+from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TYPE
 from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
@@ -103,13 +105,47 @@ class TestOrderForm(OrderCase):
         self.assertTrue(literal_eval(assert_instance(contact.get("options"), str)).get("no_create"))
 
     def test_sample_master_data_cannot_be_created_from_the_order(self):
-        for path in ("//list[@name='sol_list']//field[@name='sample_type_id']", f"{LINE_FORM}//field[@name='sample_type_id']"):
+        fields_meta = self.env[MODEL_SALE_ORDER_LINE].fields_get(["sample_type_id"])
+        self.assertEqual(fields_meta["sample_type_id"]["domain"], "[('id', 'in', offered_sample_type_ids)]")
+        for path in (
+            "//list[@name='sol_list']//field[@name='sample_type_id']",
+            f"{LINE_FORM}//field[@name='sample_type_id']",
+        ):
             with self.subTest(path=path):
                 field = self._nodes(path)[0]
                 self.assertTrue(literal_eval(assert_instance(field.get("options"), str)).get("no_create"))
         for name in ("sample_id", "expected_sample_count", "expected_sample_summary"):
             with self.subTest(readonly=name):
-                self.assertEqual(self._nodes(f"//list[@name='sol_list']//field[@name='{name}']")[0].get("readonly"), "1")
+                self.assertEqual(
+                    self._nodes(f"//list[@name='sol_list']//field[@name='{name}']")[0].get("readonly"), "1"
+                )
+
+    def test_package_parameter_rows_save_their_read_only_sample_type(self):
+        for path in (
+            "//list[@name='sol_list']//field[@name='sample_type_id']",
+            f"{LINE_FORM}//field[@name='sample_type_id']",
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(self._nodes(path)[0].get("force_save"), "1")
+
+    def test_package_parameter_rows_expose_only_way_of_testing_in_the_list(self):
+        product = self._nodes("//list[@name='sol_list']//field[@name='product_template_id']")[0]
+        self.assertIn("linked_line_id", product.get("readonly") or "")
+        self.assertIn("linked_virtual_id", product.get("readonly") or "")
+        for name in (
+            "sequence",
+            "sample_type_id",
+            "expected_sample_count",
+            "expected_sample_summary",
+            "product_uom_qty",
+            "price_unit",
+            "tax_ids",
+            "price_subtotal",
+        ):
+            with self.subTest(field=name):
+                node = self._nodes(f"//list[@name='sol_list']//field[@name='{name}']")[0]
+                self.assertIn("linked_line_id", node.get("invisible") or "")
+                self.assertIn("linked_virtual_id", node.get("invisible") or "")
 
     def test_vietnamese_tells_customer_and_contact_apart(self):
         fields = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").fields_get(["customer_id", "partner_id"])
@@ -144,13 +180,25 @@ class TestOrderForm(OrderCase):
         )
         for model, path, variant in cases:
             with self.subTest(model=model):
-                offered = dynamic_model(self.env, model).search(
-                    literal_eval(assert_instance(self._nodes(path)[0].get("domain"), str))
-                )
+                domain = assert_instance(self._nodes(path)[0].get("domain"), str)
+                offered = dynamic_model(self.env, model).search(safe_eval(domain, {"sample_type_id": False}))
                 self.assertIn(variant(self.lead_product), offered)
                 self.assertIn(variant(self.package_product), offered)
                 self.assertNotIn(variant(plain), offered)
                 self.assertFalse(offered.filtered(lambda p: not (p["parameter_id"] or p["service_package_id"])))
+
+    def test_line_domain_offers_only_what_the_chosen_sample_type_can_be_ordered_on(self):
+        surface_water = self.env[MODEL_SAMPLE_TYPE].create({"name": "Surface water", "code": "LM-DOMAIN-SURF"})
+        self.offer(self.parameter, surface_water)
+        cases = (
+            (MODEL_PRODUCT_TEMPLATE, "//list[@name='sol_list']//field[@name='product_template_id']", lambda p: p),
+            (MODEL_PRODUCT_PRODUCT, f"{LINE_FORM}//field[@name='product_id']", lambda p: p.product_variant_id),
+        )
+        for model, path, variant in cases:
+            with self.subTest(model=model):
+                domain = assert_instance(self._nodes(path)[0].get("domain"), str)
+                offered = dynamic_model(self.env, model).search(safe_eval(domain, {"sample_type_id": surface_water.id}))
+                self.assertEqual(offered, variant(self.lead_product))
 
     def test_line_form_follows_the_list(self):
         product = self._nodes(f"{LINE_FORM}//field[@name='product_id']")[0]
@@ -247,3 +295,17 @@ class TestOrderForm(OrderCase):
             with self.subTest(text=text):
                 self.assertIn(text, arch)
         self.assertNotIn("Advance payments", arch)
+
+    def test_customer_is_required_and_locked_after_confirmation(self):
+        customer = self._nodes("//sheet//field[@name='customer_id']")[0]
+        self.assertEqual(customer.get("required"), "1")
+        readonly = customer.get("readonly") or ""
+        self.assertIn("state in ['cancel', 'sale']", readonly)
+        self.assertIn("not order_can_edit", readonly)
+
+    def test_committed_date_is_readonly_until_expected_pickup_is_set(self):
+        committed = self._nodes("//sheet//field[@name='committed_date']")[0]
+        self.assertIsNone(committed.get("placeholder"))
+        readonly = committed.get("readonly") or ""
+        self.assertIn("not expected_collection_date", readonly)
+        self.assertIn("state != 'draft'", readonly)

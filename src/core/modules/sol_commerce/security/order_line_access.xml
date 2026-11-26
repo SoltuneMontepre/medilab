@@ -11,6 +11,13 @@
         <field name="operation">crud</field>
         <field name="domain">[(1, "=", 1)]</field>
     </record>
+    <record id="access_sale_order_line_all" model="ir.access">
+        <field name="name">All order lines</field>
+        <field name="model_id" ref="sale.model_sale_order_line" />
+        <field name="group_id" ref="group_all_orders" />
+        <field name="operation">crud</field>
+        <field name="domain">[(1, "=", 1)]</field>
+    </record>
     <record id="access_cancellation_request_all" model="ir.access">
         <field name="name">All cancellation requests</field>
         <field name="model_id" ref="model_medilab_cancellation_request" />
@@ -110,14 +117,14 @@
         <field name="name">sale.order.line follows order edit</field>
         <field name="model_id" ref="sale.model_sale_order_line" />
         <field name="group_id" ref="sol_laboratory.group_permission_order_edit_all" />
-        <field name="operation">u</field>
+        <field name="operation">cud</field>
         <field name="domain">[("order_id", "access", "write")]</field>
     </record>
     <record id="access_sale_order_line_edit_own" model="ir.access">
         <field name="name">sale.order.line follows own order edit</field>
         <field name="model_id" ref="sale.model_sale_order_line" />
         <field name="group_id" ref="sol_laboratory.group_permission_order_edit_own" />
-        <field name="operation">u</field>
+        <field name="operation">cud</field>
         <field name="domain">[("order_id", "access", "write")]</field>
     </record>
     <record id="access_sale_order_line_delete" model="ir.access">

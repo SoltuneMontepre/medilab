@@ -21,7 +21,10 @@ class SaleOrderLineTax(models.Model, SaleOrderLineTaxBase):
     _inherit = MODEL_SALE_ORDER_LINE
 
     def _compute_tax_ids(self):
-        open_lines = self - self._frozen_lines()
+        parts = self.filtered(lambda line: line._is_package_part())
+        for part in parts:
+            part.tax_ids = False
+        open_lines = self - self._frozen_lines() - parts
         catalog = open_lines.filtered(lambda line: not line.display_type and bool(line._catalog_tax()))
         result = super(SaleOrderLineTax, open_lines - catalog)._compute_tax_ids()
         # Odoo gives a line without a product the company's default tax; a MediLab line takes the tax of its parameter
@@ -60,7 +63,7 @@ class SaleOrderLineTax(models.Model, SaleOrderLineTaxBase):
     def _catalog_tax(self):
         """The tax of the line's parameter price or package; empty for a line outside the catalog."""
         self.ensure_one()
-        template = self.product_id.product_tmpl_id.sudo()
+        template = (self.product_id.product_tmpl_id or self.product_template_id).sudo()
         if template.service_package_id:
             return template.service_package_id.tax_id
         return template.parameter_id.with_context(active_test=False).price_ids[:1].tax_id

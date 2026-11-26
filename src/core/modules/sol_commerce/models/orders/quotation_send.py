@@ -48,7 +48,7 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
             string="Phone", compute="_compute_partner_contact", inverse="_inverse_partner_phone"
         )
         # The parameters and packages quoted, with their prices and discounts.
-        line_ids = fields.One2many(related="order_id.product_line_ids", readonly=False)
+        line_ids = fields.One2many(related="order_id.quoted_line_ids", readonly=False)
         # The order's currency, for the totals.
         currency_id = fields.Many2one(related="order_id.currency_id")
         # The quotation's totals before tax, of tax and with tax.

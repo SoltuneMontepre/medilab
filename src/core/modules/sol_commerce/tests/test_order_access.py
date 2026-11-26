@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from lxml import etree
 
 from odoo.exceptions import AccessError, UserError
@@ -5,7 +7,7 @@ from odoo.fields import Command
 from odoo.tests import new_test_user, tagged
 
 from .order_case import OrderCase
-from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_SALE_REPORT
+from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE, MODEL_SALE_ORDER, MODEL_SALE_REPORT
 
 
 @tagged("post_install", "-at_install")
@@ -116,3 +118,56 @@ class TestOrderAccess(OrderCase):
 
         self.assertEqual(on_screen.user_id, self.sales)
         self.assertFalse(elsewhere.user_id)
+
+    def test_order_editors_can_remove_whole_lines_from_editable_orders_only(self):
+        order = self.make_order(
+            [(self.lead_product, 1), (self.package_product, 1)],
+            status="claimed",
+            user_id=self.sales.id,
+        )
+        lead = order._catalog_lines().filtered(lambda line: line.product_id.product_tmpl_id == self.lead_product)
+        package = order._catalog_lines() - lead
+        parts = package.linked_line_ids
+
+        with self.assertRaises(AccessError):
+            lead.with_user(self.other_sales).unlink()
+        with self.assertRaisesRegex(UserError, "ordered as a whole"):
+            parts[:1].with_user(self.sales).unlink()
+
+        package.with_user(self.sales).unlink()
+        self.assertFalse((package | parts).exists())
+
+        lead.with_user(self.head).unlink()
+        self.assertFalse(order.order_line)
+
+    def test_sales_create_an_unassigned_order_with_a_package_expanded_on_the_form(self):
+        cadmium_product = self.env[MODEL_PRODUCT_TEMPLATE].search([("parameter_id", "=", self.other.id)], limit=1)
+        package = {"product_id": self.package_product.product_variant_id.id, "virtual_id": "medilab_pkg_access"}
+        parts = [
+            {"product_id": product.product_variant_id.id, "linked_virtual_id": "medilab_pkg_access", "price_unit": 0.0}
+            for product in (self.lead_product, cadmium_product)
+        ]
+
+        # The order form sends no salesperson and the parameter lines it expanded under their package.
+        order = (
+            self.env[MODEL_SALE_ORDER]
+            .with_user(self.sales)
+            .with_context(medilab_sales_order=True)
+            .create(
+                {
+                    "customer_id": self.customer.id,
+                    "partner_id": self.contact.id,
+                    "user_id": False,
+                    "expected_collection_date": date.today() + timedelta(days=1),
+                    "order_line": [
+                        Command.create({**vals, "sample_type_id": self.sample_type.id}) for vals in [package, *parts]
+                    ],
+                }
+            )
+        )
+
+        order = order.sudo()
+        package_line = order._catalog_lines()
+        self.assertEqual(len(order.order_line), 3)
+        self.assertEqual(len(package_line.linked_line_ids), 2)
+        self.assertEqual(package_line.linked_line_ids.sample_type_id, self.sample_type)
