@@ -1,0 +1,19 @@
+# The public address of the medilab-release bucket, from which the release-catalog container copies Medilab Mobile's
+# release catalog, read from Doppler.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: release-catalog
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: doppler
+  target:
+    name: release-catalog
+  data:
+    - secretKey: RELEASE_BUCKET_PUBLIC_ADDRESS
+      remoteRef:
+        key: RELEASE_BUCKET_PUBLIC_ADDRESS
