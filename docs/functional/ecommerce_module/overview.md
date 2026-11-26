@@ -19,7 +19,7 @@ Dependencies: [core laboratory module](../laboratory_module/overview.md). It bui
 - Self-service portal where customers view their account information, place orders and track the order status.
 - Secure login and authentication to protect customer data; customers only see their own documents.
 - Responsive design that works on desktop and mobile.
-- Public test catalog with a cart, open without signing in: the customer selects parameters (tests) and service packages, filtered by sample type and parameter group. A parameter has its own price and a package has one price for all its parameters. Submitting asks a visitor for their details and e-mail address.
+- Public test catalog with a cart, open without signing in: the customer selects parameters (tests) and service packages, filtered by sample type and parameter group. A parameter has its own price over time, and a package costs the sum of its parameters. A package's page lists each parameter with its price; the customer can untick parameters or add others, and choose Add to cart or Buy now. Submitting asks a visitor for their details and e-mail address.
 - Reorder a past order, request the cancellation of a confirmed order, and receive notifications at every step.
 
 ### II. Quotation Management
@@ -28,7 +28,7 @@ Dependencies: [core laboratory module](../laboratory_module/overview.md). It bui
 - Quotations can be revised; each revision keeps a link to the one it replaces.
 - The customer accepts a quotation by paying its advance payment request, or declines it with a reason.
 - Once the customer accepts, Sales confirms the sale order and the laboratory can collect samples. From confirmation, the order changes only through a revised quotation the customer accepts.
-- Each quotation version keeps its package prices and package contents; later catalog changes do not alter it.
+- Each quotation version keeps its package lines' prices and parameters; later catalog changes do not alter it.
 - An order keeps the customer's requested date and the expected return date Sales promises; the customer never sees the laboratory's internal due dates.
 
 ### III. Test Request Management
@@ -62,7 +62,7 @@ The tables are drawn in [ecommerce.prisma](../../infrastructure/database/ecommer
 | Rule             | Description                                                                                                                                    |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Cart             | A customer's or visitor's draft order is their cart. Submitting it puts it in the sales queue; a visitor gives their details and e-mail address first. |
-| Order lines | An order line selects a parameter or whole service package, a sample type and a quantity. It retains the selected or resolved default way for each included parameter. Catalog membership and default changes do not rewrite accepted selections; sample tests use them, and a different method requires a revised quotation and customer agreement. Outsourcing a sample test to a subcontracted way with the same method is internal. |
+| Order lines | An order line selects a parameter or a service package with the parameters the customer kept or added, a sample type and a quantity. It retains the selected or resolved default way for each included parameter. Catalog membership and default changes do not rewrite accepted selections; sample tests use them, and a different method requires a revised quotation and customer agreement. Outsourcing a sample test to a subcontracted way with the same method is internal. |
 | Order lifecycle  | An order is draft, submitted, claimed, confirmed, completed or cancelled. Confirming it creates its test request in the Laboratory module and freezes its content, which then changes only through a revised quotation the customer accepts; it is completed when that request's report is issued. |
 | Quotation lines  | When a quotation is priced, each line copies the catalog price and the tax rate in force on the quotation date, its discount and its tax, so a sent quotation never changes with the catalog. |
 | Samples | Sampling requirements determine the expected physical samples, containers and amounts shown when ordering. For each type, objects equal the largest line quantity, and expected samples equal objects times compatible sampling groups. Confirming creates these expected samples and their sample tests; collection staff record the actual handover for customer confirmation. Testing stays within the agreed scope: extra samples and excess material add no test. |

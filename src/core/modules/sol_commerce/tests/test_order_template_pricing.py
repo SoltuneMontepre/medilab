@@ -29,11 +29,10 @@ class TestOrderTemplatePricing(TemplateCase):
         source._catalog_lines().write({"price_unit": 1, "discount": 25})
         template = self.save_template(source)
         self.lead_price.list_price = 160000
-        self.package.list_price = 120000
         order = self.reuse(template)
-        self.assertEqual(order._catalog_lines().mapped("price_unit"), [160000, 120000])
+        self.assertEqual(order._catalog_lines().mapped("price_unit"), [160000, 160000 + 80000])
         self.assertEqual(order._catalog_lines().mapped("discount"), [0, 0])
-        self.assertEqual(order.amount_untaxed, 680000)
+        self.assertEqual(order.amount_untaxed, 2 * 160000 + 3 * 240000)
         self.assertEqual(source._catalog_lines().mapped("price_unit"), [1, 1])
 
     def test_catalog_taxes_and_fiscal_positions_match_ordinary_sales(self):
@@ -50,7 +49,7 @@ class TestOrderTemplatePricing(TemplateCase):
             )
             self.lead_price.tax_id = tax
             self.package.tax_id = tax
-            for product, quantity, untaxed in ((self.lead_product, 2, 300000), (self.package_product, 3, 300000)):
+            for product, quantity, untaxed in ((self.lead_product, 2, 300000), (self.package_product, 3, 3 * 230000)):
                 with self.subTest(rate=rate, product=product.name):
                     source = self.ordinary(product, quantity, fpos)
                     template = self.save_template(source)
@@ -90,7 +89,7 @@ class TestOrderTemplatePricing(TemplateCase):
         self.assertEqual(self.vat._rate_on(today), 10)
         vat10 = self.env["account.chart.template"].ref("tax_sale_vat10")
         position = self.env.company.domestic_fiscal_position_id
-        for product, untaxed in ((self.lead_product, 300000), (self.package_product, 200000)):
+        for product, untaxed in ((self.lead_product, 300000), (self.package_product, 2 * 230000)):
             with self.subTest(product=product.name):
                 ordinary = self.ordinary(product, 2, position)
                 template = self.save_template(ordinary)

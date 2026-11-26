@@ -143,7 +143,9 @@ Parameters are grouped by kind of analysis. The catalog shows the group and its 
 #### Pricing
 
 - **Price per parameter.** Every parameter has its own specific price in the catalog; the group only organises the catalog and does not set a price.
-- **Total = sum of the selected parameters' and packages' prices.** A package line uses the package price, not the sum of its parameters. For a parameter ordered in a quantity, the price is multiplied by the quantity. The cart shows each parameter's price and a running total as parameters are added or removed.
+- **Total = sum of the selected parameters' and packages' prices.** A package line costs the sum of the prices of the parameters it holds. For a parameter ordered in a quantity, the price is multiplied by the quantity. The cart shows each parameter's price and a running total as parameters are added or removed.
+- **Catalog cards.** Each parameter or package is a card with its name, today's price and, when a new price period is entered ahead, the next price and the day it starts. A parameter card names its sample types; a package card shows how many parameters it holds and the first ones, with the rest behind **Show all parameters**.
+- **Package page.** A package's page lists each of its parameters with its own price, all ticked. The customer unticks the ones they do not need or adds other catalog parameters, and the total and the count of chosen parameters update as they do. **Add to cart** keeps them on the page; **Buy now** opens the cart. The same package with the same parameters raises the quantity of its cart line; other parameters make a new line.
 - **Cart lines.** Each cart line is removed, or its quantity raised or lowered by one, in one click. **Save as draft** keeps the cart and leads to the order history, which confirms the draft was saved and lists it as Draft.
 - **Prices exclude VAT.** Tax is added on the quotation and the invoice, not in the cart.
 - **The cart total matches the quotation.** The prices come from the catalog, so the quotation uses the same prices unless sales adjusts them (for example a discount) before sending, or a new price period starts before the quotation date.
@@ -164,8 +166,8 @@ stateDiagram-v2
 | Public catalog        | Anyone can browse the catalog and fill a cart without signing in.                                                                      |
 | Details on submit     | A visitor who is not signed in gives their details and e-mail address when submitting; they become the customer's contact.            |
 | Complete order        | Submitting requires at least one parameter or service package in the cart.                                                             |
-| Ways of testing | Select a sample type for each line and choose an applicable way for each parameter, or use its unique default. A way shows its method only, never whether a department or a subcontractor performs it. Only active ways the laboratory can perform are offered, following the [catalog rules](../../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). An unavailable default shows a reason and viable alternatives for explicit selection; with none, the pair cannot be ordered. |
-| Expected samples | Show the expected sample count, containers and amounts calculated from method sampling requirements. The customer orders parameters and quantities, not physical samples; collection staff confirm the actual samples at handover. Extra samples or excess material add no test; the customer gets them back on request, when collecting the report in person or at a separate pickup. |
+| Items only | The customer chooses parameters, packages and quantities, nothing else. Sales and the laboratory choose each line's sample type and way of testing before the quotation is sent; the customer never sees whether a department or a subcontractor performs a test. |
+| Expected samples | The quotation and the order show the expected sample count, containers and amounts once sales has chosen the sample types and ways. The customer orders parameters and quantities, not physical samples; collection staff confirm the actual samples at handover. Extra samples or excess material add no test; the customer gets them back on request, when collecting the report in person or at a separate pickup. |
 | Requested date | The customer may give the date they want the results, kept as the order's requested date. |
 | Priority request | The customer may ask for priority with the date they want the results; a request without a date is refused. Sales accepts or declines priority on the quotation after the feasibility check; the request itself does not promise the date. |
 | Turnaround | The cart and the quotation show the working days results take from sample receipt, and the expected return date once it is agreed. |
@@ -188,7 +190,10 @@ The customer opens a past order in the order history and chooses **Reorder**. Th
 Acceptance criteria:
 
 - A visitor who is not signed in can browse the catalog and fill a cart.
-- The customer can choose an applicable way or accept its sample-type default and sees expected sampling needs.
+- Unticking a parameter of a package lowers the package line by that parameter's price; adding a parameter raises it by that parameter's price.
+- A package cannot be added with no parameter ticked.
+- **Buy now** adds the package with the chosen parameters and opens the cart.
+- The cart asks for no sample type and no way of testing; sales chooses them before sending the quotation.
 - The customer never sees whether a test is outsourced or which subcontractor performs it.
 - An unavailable default is never silently substituted.
 - A portal priority request reaches Sales for acceptance or refusal on the quotation.

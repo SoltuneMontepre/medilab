@@ -68,13 +68,16 @@ class TestOrderTemplateConcurrency(BaseCase):
                 }
             )
             price = env["medilab.parameter.price"].create(
-                {"parameter_id": parameter.id, "list_price": 150000, "tax_id": tax.id}
+                {
+                    "parameter_id": parameter.id,
+                    "tax_id": tax.id,
+                    "period_ids": [Command.create({"list_price": 150000, "valid_from": "2020-01-01"})],
+                }
             )
             package = env["medilab.service.package"].create(
                 {
                     "name": f"Race package {key}",
                     "code": key,
-                    "list_price": 100000,
                     "tax_id": tax.id,
                     "line_ids": [Command.create({"parameter_id": parameter.id, "quantity": 1})],
                 }
@@ -107,13 +110,13 @@ class TestOrderTemplateConcurrency(BaseCase):
         with registry.cursor() as read_cr:
             env = api.Environment(read_cr, SUPERUSER_ID, {})
             template = env["medilab.order.template"].browse(template_id)
-            self.assertEqual(template.line_ids.product_id.mapped("list_price"), [150000, 100000])
+            self.assertEqual(template.line_ids.product_id.mapped("list_price"), [150000, 150000])
             with registry.cursor() as write_cr:
                 writer = api.Environment(write_cr, SUPERUSER_ID, {})
                 writer["medilab.parameter.price"].browse(price_id).list_price = 160000
                 writer["medilab.service.package"].browse(package_id).action_archive()
             order = template._create_order()
-            self.assertEqual(order.amount_untaxed, 250000)
+            self.assertEqual(order.amount_untaxed, 300000)
             self.assertFalse(order.template_omission_note)
         with registry.cursor() as cr:
             env = api.Environment(cr, SUPERUSER_ID, {})

@@ -46,6 +46,8 @@
 - **Login and contact email.** Is the login email separate from the contact email, and is it verified? Proposed answer, not decided: they are separate; changing the login email is confirmed through the new address; notices and password reset links go only to a confirmed address.
 - **Requested date.** Is the customer's requested date required, and what if the committed return date has already passed when the samples are received? Proposed answer, not decided: the requested date is required when the test request is confirmed; a committed date already past when the samples are received marks the tests urgent at once and tells the head of department.
 - **A foreign currency in words.** How does a Vietnamese invoice in a currency other than VND write the currency in its amount in words? For now it takes the name Odoo gives the currency in Vietnamese, such as "Một trăm Dollar và năm mươi Cent" for USD 100.50; the Vietnamese name, such as "đô la Mỹ" and "xu", or the code would need a name for each currency. (US-A04, US-C16)
+- **Frequency of a package order.** The catalog may let a customer order a package at a frequency (tần suất), such as monthly monitoring. Does a frequency create separate sampling rounds and test requests, or only multiply the price, and how is each round quoted and invoiced? (blocks US-C08)
+- **Changed packages in templates and reorders.** A template and a reorder keep a package and its quantity, not the parameters the customer unticked or added. Should they keep those changes? (US-S09, US-C10)
 
 ## Related documents
 

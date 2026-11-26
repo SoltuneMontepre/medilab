@@ -659,7 +659,7 @@ flowchart TD
 - **Starts from:** an empty laboratory with the modules installed.
 - **Main path:** The administrator configures parameters, ways, explicit sample-type applicability, sampling requirements and prices. The Lab Head authorizes testers per parameter without validity dates. Regulation comparison limits are optional; the measurement-to-report flow works without them.
 - **Alternative paths:**
-  - SF-08-A1: The administrator creates a service package; the customer orders it whole at its own price.
+  - SF-08-A1: The administrator creates a service package; the customer orders it, unticking or adding parameters, at the sum of its parameters' prices.
   - SF-08-A2: The administrator gives a person a role; the person sees the menus of that role and no others.
   - SF-08-A3: A VAT rate changes from a date; quotations dated after it use the new rate.
   - SF-08-A4: The administrator sets the approval chain of a document type; its documents are signed level by level.

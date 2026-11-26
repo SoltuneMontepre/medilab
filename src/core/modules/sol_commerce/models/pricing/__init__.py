@@ -2,4 +2,13 @@
 from . import vnd_mixin
 
 # isort: split
-from . import parameter_price, service_package, service_package_line, subcontract_cost, tax, tax_rate, test_parameter
+from . import (
+    parameter_price,
+    price_period,
+    service_package,
+    service_package_line,
+    subcontract_cost,
+    tax,
+    tax_rate,
+    test_parameter,
+)

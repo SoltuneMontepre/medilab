@@ -277,26 +277,6 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         used = self.order_id._catalog_lines().filtered("sample_type_id").sample_type_id
         self.sudo().sample_type_id = (used & choices)[:1] or choices[:1]
 
-    def _set_cart_selection(self, sample_type_id=None, parameter_method_id=None):
-        """Set the sample type or the way of testing the customer chose in the cart, refusing one not offered."""
-        self.ensure_one()
-        vals = {}
-        if sample_type_id is not None:
-            sample_type = self.env[MODEL_SAMPLE_TYPE].sudo().browse(sample_type_id)
-            if self.linked_line_id or sample_type not in self._sample_type_choices():
-                raise UserError(
-                    self.env._("Choose one of the sample types offered for %s.", self.product_id.display_name)
-                )
-            vals["sample_type_id"] = sample_type.id
-        if parameter_method_id is not None:
-            way = self.env[MODEL_PARAMETER_METHOD].sudo().browse(parameter_method_id)
-            if way not in self.offered_method_ids:
-                raise UserError(
-                    self.env._("Choose one of the ways of testing offered for %s.", self.product_id.display_name)
-                )
-            vals["parameter_method_id"] = way.id
-        self.sudo().write(vals)
-
     def _check_ways_can_be_sent(self):
         """Refuse sending while a parameter has no way of testing or its way can no longer be offered."""
         missing = self.filtered(lambda line: not line.parameter_method_id)
@@ -428,31 +408,33 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         for line in self._catalog_lines():
             package = line._package_of()
             if package and not line.linked_line_ids:
-                parts += line._package_part_vals(package)
+                parts += line._package_part_vals({item.parameter_id: item.quantity for item in package.line_ids})
         if parts:
             self.create(parts)
 
-    def _package_part_vals(self, package):
+    def _package_part_vals(self, quantities):
+        """Values of the zero-priced lines of a package line for the parameters, each tested the given number of times
+        per package."""
         self.ensure_one()
         products = (
             self.env[MODEL_PRODUCT_TEMPLATE]
             .sudo()
             .with_context(active_test=False)
-            .search([("parameter_id", "in", package.line_ids.parameter_id.ids)])
+            .search([("parameter_id", "in", [parameter.id for parameter in quantities])])
         )
         variants = {product.parameter_id: product.product_variant_ids[:1] for product in products}
         vals = []
-        for part in package.line_ids:
-            variant = variants.get(part.parameter_id)
+        for parameter, quantity in quantities.items():
+            variant = variants.get(parameter)
             if not variant:
                 raise UserError(
-                    self.env._("%s has no price, so the package cannot be ordered.", part.parameter_id.display_name)
+                    self.env._("%s has no price, so the package cannot be ordered.", parameter.display_name)
                 )
             vals.append(
                 {
                     "order_id": self.order_id.id,
                     "product_id": variant.id,
-                    "product_uom_qty": part.quantity * self.product_uom_qty,
+                    "product_uom_qty": quantity * self.product_uom_qty,
                     "linked_line_id": self.id,
                     "sample_id": self.sample_id.id,
                     "sample_type_id": self.sample_type_id.id,
@@ -464,12 +446,10 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
 
     def _sync_package_part_quantities(self):
         for line in self._catalog_lines():
-            package = line._package_of()
+            per_package = line._package_parameters() or {}
             for part in line.linked_line_ids:
-                parameter = part.product_id.product_tmpl_id.parameter_id
-                included = package.line_ids.filtered(lambda item, parameter=parameter: item.parameter_id == parameter)
-                if included:
-                    part.product_uom_qty = included.quantity * line.product_uom_qty
+                parameter = part.product_id.product_tmpl_id.sudo().parameter_id
+                part.product_uom_qty = per_package.get(parameter, 1) * line.product_uom_qty
 
     def _copy_to_sample(self, sample):
         """Copy catalog lines onto the sample, keeping their price, discount, taxes and ways of testing."""
@@ -495,9 +475,3 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
             for part in copy.linked_line_ids:
                 part.parameter_method_id = chosen.get(part.product_id) or part.parameter_method_id
         return copies
-
-    def _lock_catalog_price(self):
-        for line in self._catalog_lines() - self._frozen_lines():
-            price = line.product_id.product_tmpl_id.list_price
-            # A price that differs from technical_price_unit is kept when the quantity changes.
-            line.write({"price_unit": price, "technical_price_unit": 0.0 if price else 1.0})

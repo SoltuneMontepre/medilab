@@ -140,8 +140,6 @@ class TestOrderWays(OrderCase):
 
         self.assertIn(own_way, self.parameter._offered_ways(self.sample_type))
         self.assertEqual(line.offered_method_ids, self.pair | self.icp)
-        with self.assertRaisesRegex(UserError, "ways of testing offered"):
-            line._set_cart_selection(parameter_method_id=own_way.id)
 
     def test_an_accepted_way_changes_only_through_a_revision(self):
         order = self.sent_order()
@@ -185,7 +183,7 @@ class TestOrderWays(OrderCase):
         package_line = order._catalog_lines()
         price = package_line.price_unit
 
-        self.package.list_price = 150000
+        self.lead_price.list_price = 170000
         self.package.line_ids.filtered(lambda line: line.parameter_id == self.other).unlink()
         order.with_user(self.sales).action_revise_quotation()
 
@@ -195,19 +193,10 @@ class TestOrderWays(OrderCase):
         )
         self.assertEqual(package_line.linked_line_ids.parameter_method_id.parameter_id, self.parameter | self.other)
 
-    def test_the_cart_offers_only_what_can_be_ordered(self):
+    def test_only_sample_types_offered_for_a_package_can_be_chosen(self):
         order = self.make_order([(self.package_product, 1)])
         line = order._catalog_lines()
         cabbage = self.env[MODEL_SAMPLE_TYPE].create({"name": "Cabbage", "code": "LM-CART"})
 
         self.assertEqual(line._sample_type_choices(), self.sample_type)
-        with self.assertRaisesRegex(UserError, "sample types offered"):
-            line._set_cart_selection(sample_type_id=cabbage.id)
-
-        line._set_cart_selection(sample_type_id=self.sample_type.id)
-        part = line.linked_line_ids.filtered(lambda item: item._own_parameter() == self.parameter)
-        self.assertEqual(part.sample_type_id, self.sample_type)
-        part._set_cart_selection(parameter_method_id=self.icp.id)
-        self.assertEqual(part.parameter_method_id, self.icp)
-        with self.assertRaisesRegex(UserError, "ways of testing offered"):
-            part._set_cart_selection(parameter_method_id=self.other.method_ids[:1].id)
+        self.assertNotIn(cabbage, line._sample_type_choices())
