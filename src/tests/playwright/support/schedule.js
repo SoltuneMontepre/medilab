@@ -61,13 +61,25 @@ export async function bookingSlot(page) {
   return { start: await moment("starts_at"), end: await moment("ends_at") };
 }
 
-// The code of the machine the open booking names, read on the machine's own form, which the booking links to.
+// Types an ISO moment into a date-and-time field of the form.
+export async function typeMoment(page, name, iso, within) {
+  const widget = field(page, name, within);
+  // A moment already set shows as a button until it is clicked.
+  await widget.locator("input, button").first().click();
+  const input = widget.locator("input").first();
+  await input.fill(typedMoment(iso));
+  await input.blur();
+  await settled(page);
+}
+
+// The machine the open booking names, with its code, which only the machine's own form shows: the booking links to
+// it. The machine's form stays open.
 export async function bookingMachine(page) {
   const name = (await field(page, "machine_id").innerText()).trim();
   await field(page, "machine_id").locator("a").click();
   await settled(page);
-  const code = (await field(page, "code").innerText()).trim();
-  await page.locator(".o_control_panel .o_back_button, .o_control_panel .breadcrumb-item a").last().click();
-  await settled(page);
-  return { name, code };
+  // The code is a text for who may only read the machine, and an input for who may edit it.
+  const code = field(page, "code");
+  const editable = code.locator("input");
+  return { name, code: (await editable.count()) ? await editable.inputValue() : (await code.innerText()).trim() };
 }

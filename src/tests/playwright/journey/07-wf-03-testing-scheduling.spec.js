@@ -20,12 +20,16 @@ test("WF-03 Testing assignment and scheduling", async ({ as }) => {
   const head = await as("demo.head_of_department");
   const bookingRow = (page) => field(page, "booking_ids").locator(".o_data_row");
 
-  // The notices of the signed-in person, newest first, in the messaging menu's inbox.
-  const openInbox = async (page) => {
-    await page.locator(".o_menu_systray .o-mail-DiscussSystray-class").click();
-    await page.locator(".o-mail-MessagingMenu button", { hasText: "Inbox" }).click();
+  // Opens or closes the messaging menu of the menu bar.
+  const toggleMessages = (page) => page.locator(".o_menu_systray .o-mail-DiscussSystray-class").click();
+  const noticesTab = (page) => page.locator(".o-mail-MessagingMenuInDropdown .o-mail-MessagingMenu-tab[data-id=notification]");
+
+  // The notices the signed-in person received in the application.
+  const openNotices = async (page) => {
+    await toggleMessages(page);
+    await noticesTab(page).click();
     await settled(page);
-    return page.locator(".o-mail-MessagingMenu .o-mail-NotificationItem");
+    return page.locator(".o-mail-MessagingMenuInDropdown .o-mail-NotificationItem");
   };
 
   await step(tester, "The tester chooses to be notified in the application", async () => {
@@ -35,9 +39,9 @@ test("WF-03 Testing assignment and scheduling", async ({ as }) => {
     await field(tester, "notification_type").locator(".o_radio_item", { hasText: "In Odoo" }).locator("input").check();
     await Promise.all([tester.waitForEvent("load"), tester.locator(".modal:visible footer button[name=preference_save]").click()]);
     await settled(tester);
-    await tester.locator(".o_menu_systray .o-mail-DiscussSystray-class").click();
-    await expect(tester.locator(".o-mail-MessagingMenu button", { hasText: "Inbox" })).toBeVisible();
-    await tester.keyboard.press("Escape");
+    await toggleMessages(tester);
+    await expect(noticesTab(tester)).toBeVisible();
+    await toggleMessages(tester);
   });
 
   await step(head, "The testing tasks of the sample wait in the queue of their department", async () => {
@@ -70,9 +74,9 @@ test("WF-03 Testing assignment and scheduling", async ({ as }) => {
   });
 
   await step(tester, "The assigned tester is notified", async () => {
-    const notices = await openInbox(tester);
+    const notices = await openNotices(tester);
     await expect(notices.filter({ hasText: journey.nitrateTaskName }).first()).toContainText(`${HEAD} assigned you ${journey.nitrateTaskName}.`);
-    await tester.keyboard.press("Escape");
+    await toggleMessages(tester);
   });
 
   await step(head, "The department's plan proposes a booking of the agreed way", async () => {
@@ -129,6 +133,8 @@ test("WF-03 Testing assignment and scheduling", async ({ as }) => {
     await expect(rooms.first().locator("td[name=location_id]")).toHaveText(/\S/);
     await expect(rooms.first().locator("td[name=start]")).toHaveText(/\S/);
     booking.room = (await rooms.first().locator("td[name=location_id]").innerText()).trim();
+    // A room's calendar events are named without its code.
+    booking.roomName = booking.room.replace(/^\S+ /, "");
     booking.status = (await status(head).innerText()).trim();
     Object.assign(booking, { machine: await bookingMachine(head) });
     expect(journey.machineCodes).toContain(booking.machine.code);
@@ -143,9 +149,18 @@ test("WF-03 Testing assignment and scheduling", async ({ as }) => {
   });
 
   await step(tester, "The tester is notified of the approved booking", async () => {
-    const notices = await openInbox(tester);
-    await expect(notices.filter({ hasText: "is approved" }).first()).toContainText(`${journey.nitrateTaskName} is approved: it starts at ${shownMoment(booking.start).replace(/ (AM|PM)$/, ":00 $1")}.`);
-    await tester.keyboard.press("Escape");
+    const approval = `${journey.nitrateTaskName} is approved: it starts at ${shownMoment(booking.start).replace(/ (AM|PM)$/, ":00 $1")}.`;
+    const live = await openNotices(tester);
+    await expect.soft(live.filter({ hasText: approval }), "The notice reaches the browser the tester has open").not.toHaveCount(0, { timeout: 3000 });
+    await toggleMessages(tester);
+    // The application lists a notice sent meanwhile once the page is loaded again.
+    await tester.reload();
+    await settled(tester);
+    const notices = await openNotices(tester);
+    await expect(notices.filter({ hasText: approval })).toHaveCount(1);
+    await expect(notices.filter({ hasText: `${booking.machine.name}: ${journey.nitrateTaskName}` }).first()).toContainText("has been booked");
+    await expect(notices.filter({ hasText: `${booking.roomName}: ${journey.nitrateTaskName}` }).first()).toContainText("has been booked");
+    await toggleMessages(tester);
   });
 
   await step(tester, "The tester finds the scheduled booking of the assigned test in My Tasks", async () => {
@@ -178,8 +193,12 @@ test("WF-03 Testing assignment and scheduling", async ({ as }) => {
     await tester.locator(".o_switch_view.o_list").click();
     await settled(tester);
     await search(tester, journey.sampleLabCode);
-    const event = listed(tester, journey.nitrateTaskName);
-    await expect(event).toHaveCount(1);
-    await expect(event).toContainText(booking.machine.name);
+    const machineEvent = listed(tester, `${booking.machine.name}: ${journey.nitrateTaskName}`);
+    await expect(machineEvent).toHaveCount(1);
+    await expect(machineEvent.locator("td[name=start]")).toHaveText(listedMoment(booking.start));
+    await expect(machineEvent.locator("td[name=stop]")).toHaveText(listedMoment(booking.end));
+    const roomEvent = listed(tester, `${booking.roomName}: ${journey.nitrateTaskName}`);
+    await expect(roomEvent).toHaveCount(1);
+    await expect(roomEvent.locator("td[name=location]")).toHaveText(booking.room);
   });
 });
