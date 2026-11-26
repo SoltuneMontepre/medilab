@@ -95,12 +95,22 @@ export async function clearSearch(page) {
   }
 }
 
+// The rows of the shown list that contain `text`.
+export function listed(page, text) {
+  return front(page).locator(".o_data_row", { hasText: text });
+}
+
+// Opens the record of the shown list whose row contains `text`.
+export async function openListed(page, text) {
+  await listed(page, text).first().locator(".o_data_cell").first().click();
+  await expect(page.locator(".o_form_view:visible").last()).toBeVisible();
+  await settled(page);
+}
+
 // Opens the record of the shown list whose row contains `text`, after searching for it.
 export async function openRow(page, text, options) {
   await search(page, text, options);
-  await page.locator(".o_data_row", { hasText: text }).first().locator(".o_data_cell").first().click();
-  await expect(page.locator(".o_form_view:visible").last()).toBeVisible();
-  await settled(page);
+  await openListed(page, text);
 }
 
 export async function newRecord(page) {
@@ -162,9 +172,10 @@ export async function suggested(page, name, text, within) {
   await input.scrollIntoViewIfNeeded();
   await input.fill("");
   // The field asks for its suggestions a moment after the last letter.
-  const answered = page.waitForResponse((response) => response.url().includes("name_search"));
-  await input.pressSequentially(text, { delay: 20 });
-  await answered;
+  await Promise.all([
+    page.waitForResponse((response) => response.url().includes("name_search")),
+    input.pressSequentially(text, { delay: 20 }),
+  ]);
   await settled(page);
   await expect(page.locator(".o-autocomplete--dropdown-menu:visible")).toBeVisible();
   return page.locator(".o-autocomplete--dropdown-item:visible:not(.o_m2o_dropdown_option) a");
@@ -230,7 +241,7 @@ export async function save(page) {
   if (await buttons.count()) await buttons.last().click();
   await settled(page);
   const invalid = page.locator(".o_notification:visible", { has: page.locator(".o_notification_bar.bg-danger, .text-danger") });
-  if (await invalid.count()) throw new Error(`Odoo did not save: ${(await invalid.first().innerText()).trim()}`);
+  if ((await buttons.count()) && (await invalid.count())) throw new Error(`Odoo did not save: ${(await invalid.first().innerText()).trim()}`);
   await expect(buttons).toHaveCount(0);
 }
 

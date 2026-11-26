@@ -66,10 +66,10 @@ test("SF-06 Accreditation and registration renewal", async ({ as }) => {
     await typeDate(admin, "accreditation_expiry", labDay({ days: -1 }));
     await save(admin);
     await expect(await offeredSubcontractors()).toHaveCount(0);
-    await discard(admin);
   });
 
   await step(admin, "The administrator renews the subcontractor's accreditation and it can be chosen again", async () => {
+    await discard(admin);
     await openMenu(admin, ...SUBCONTRACTORS);
     await openRow(admin, SUBCONTRACTOR);
     await typeDate(admin, "accreditation_expiry", renewedUntil);
@@ -80,6 +80,6 @@ test("SF-06 Accreditation and registration renewal", async ({ as }) => {
       subcontractorValidUntil: iso(renewedUntil),
     });
     await expect(await offeredSubcontractors()).toHaveCount(1);
-    await discard(admin);
   });
+  await discard(admin);
 });

@@ -1,5 +1,5 @@
 import { expect, handOver, startJourney, step, test } from "../support/journey";
-import { addLine, addRow, choose, field, labDay, newRecord, openMenu, openRow, openTab, pick, save, search, status, tick, type, typeDate } from "../support/odoo";
+import { addLine, addRow, choose, field, labDay, listed, newRecord, openListed, openMenu, openRow, openTab, pick, save, search, status, tick, type, typeDate } from "../support/odoo";
 import { openHeader, send } from "../support/portal";
 
 const MASTER_DATA = "sol_laboratory.menu_master_data_root";
@@ -12,6 +12,15 @@ const DEMO_MACHINE = "UVVIS-01";
 const JOURNEY_MACHINE = "UVVIS-JOURNEY";
 const TESTER = "Dang Thi Lan";
 const PRICE = 180000;
+
+// The day the open machine's calibration is due, which the form writes like "Nov 26, 2027", without the year for a
+// day of this year; nothing for a machine without calibration.
+async function calibratedUntil(page) {
+  const shown = (await field(page, "next_calibration_date").innerText()).trim();
+  if (!shown) return null;
+  const [day, year = labDay().getUTCFullYear()] = shown.split(", ");
+  return new Date(`${day}, ${year} UTC`);
+}
 
 test("SF-08 Laboratory setup", async ({ as }) => {
   const tag = startJourney();
@@ -84,35 +93,36 @@ test("SF-08 Laboratory setup", async ({ as }) => {
   });
 
   await step(admin, "The administrator makes sure two calibrated machines in use run the testing method", async () => {
-    await openMenu(admin, MASTER_DATA, ...MACHINES);
-    await search(admin, JOURNEY_MACHINE);
-    if (await admin.locator(".o_data_row", { hasText: JOURNEY_MACHINE }).count()) {
-      await admin.locator(".o_data_row", { hasText: JOURNEY_MACHINE }).locator(".o_data_cell").first().click();
-    } else {
-      await newRecord(admin);
-      await type(admin, "name", "UV-Vis spectrophotometer (journey)");
-      await type(admin, "code", JOURNEY_MACHINE);
-      await pick(admin, "location_id", "P101-B2");
-      const calibration = await addLine(admin, "service_ids");
-      await choose(admin, "kind", "Calibration", calibration);
-      await typeDate(admin, "service_date", labDay(), calibration);
-      await typeDate(admin, "next_due_date", labDay({ years: 1 }), calibration);
-      await type(admin, "performed_by", "Quatest 1", calibration);
-      await openTab(admin, "methods");
-      const link = await addLine(admin, "method_ids");
-      await pick(admin, "method_id", METHOD, link);
-      await type(admin, "duration_minutes", 60, link);
-      await type(admin, "capacity", 1, link);
-      await save(admin);
-    }
-    for (const machine of [JOURNEY_MACHINE, DEMO_MACHINE]) {
-      if (machine === DEMO_MACHINE) {
-        await openMenu(admin, MASTER_DATA, ...MACHINES);
-        await openRow(admin, DEMO_MACHINE);
+    for (const machine of [DEMO_MACHINE, JOURNEY_MACHINE]) {
+      await openMenu(admin, MASTER_DATA, ...MACHINES);
+      await search(admin, machine);
+      if (await listed(admin, machine).count()) {
+        await openListed(admin, machine);
+      } else {
+        expect(machine, `${DEMO_MACHINE} is demo data`).toBe(JOURNEY_MACHINE);
+        await newRecord(admin);
+        await type(admin, "name", "UV-Vis spectrophotometer (journey)");
+        await type(admin, "code", JOURNEY_MACHINE);
+        await pick(admin, "location_id", "P101-B2");
+        await openTab(admin, "methods");
+        const link = await addLine(admin, "method_ids");
+        await pick(admin, "method_id", METHOD, link);
+        await type(admin, "duration_minutes", 60, link);
+        await type(admin, "capacity", 1, link);
       }
+      const calibrated = async () => (await calibratedUntil(admin)) >= labDay({ days: 30 });
+      if (!(await calibrated())) {
+        await openTab(admin, "services");
+        const calibration = await addLine(admin, "service_ids");
+        await choose(admin, "kind", "Calibration", calibration);
+        await typeDate(admin, "service_date", labDay(), calibration);
+        await typeDate(admin, "next_due_date", labDay({ years: 1 }), calibration);
+        await type(admin, "performed_by", "Quatest 1", calibration);
+      }
+      await save(admin);
       await expect(field(admin, "code").locator("input")).toHaveValue(machine);
       await expect(status(admin)).toHaveText("In use");
-      await expect(field(admin, "next_calibration_date")).not.toBeEmpty();
+      expect(await calibrated(), "calibration valid for the next 30 days").toBe(true);
       await openTab(admin, "methods");
       await expect(field(admin, "method_ids").locator(".o_data_row", { hasText: METHOD })).toContainText("60");
     }
