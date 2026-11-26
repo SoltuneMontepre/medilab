@@ -38,6 +38,7 @@ Each plan lists what the flow receives, what it hands over, its steps as clicks,
 - [SF-04 Sample retention, return and disposal](sf-04.md)
 - [SF-06 Accreditation and registration renewal](sf-06.md)
 - [SF-07 Result dates and priority orders](sf-07.md)
+- [SF-08 Laboratory setup](sf-08.md)
 - [SF-09 Customer support and feedback](sf-09.md)
 - [SF-10 Scheduling plan and revisions](sf-10.md)
 - [SF-11 Laboratory file administration](sf-11.md)
