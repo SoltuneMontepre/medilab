@@ -43,8 +43,8 @@
                     <strong>Payment details</strong>
                     <t t-foreach="o.company_id.partner_id.bank_ids" t-as="bank">
                         <div class="medilab_payment_account">
-                            <span t-field="bank.bank_id.name" />
-                            <span t-field="bank.acc_number" />
+                            <span t-field="bank.bank_name" />
+                            <span t-field="bank.account_number" />
                         </div>
                     </t>
                 </div>
