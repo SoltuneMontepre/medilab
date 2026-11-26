@@ -54,9 +54,28 @@ export function cartLine(page, name) {
   return page.locator("main tbody tr", { has: page.locator("td:first-child", { hasText: exactly(name) }) });
 }
 
+// The cart's row under a line, where its sample type and way of testing are chosen.
+export function cartChoices(page, name) {
+  return cartLine(page, name).locator("xpath=following-sibling::tr[1]");
+}
+
 export async function removeFromCart(page, name) {
   await loads(page, () => cartLine(page, name).locator("button[name=quantity][value='0']").click());
   await expect(cartLine(page, name)).toHaveCount(0);
+}
+
+// Opens the customer's order from My orders, found by its number.
+export async function openOrder(page, number) {
+  await openHeader(page, "/orders");
+  await page.locator("main form[action='/orders'] input[name=search]").fill(number);
+  await send(page, "/orders");
+  await loads(page, () => page.locator("main tbody a", { hasText: exactly(number) }).click());
+  await expect(page.locator("main h1")).toHaveText(number);
+}
+
+// What a page's list of details says under `label`, such as Requested date on an order or a quotation.
+export function detail(page, label) {
+  return page.locator("main dl div", { has: page.locator("dt", { hasText: exactly(label) }) }).locator("dd");
 }
 
 // The header's menu of the signed-in user.

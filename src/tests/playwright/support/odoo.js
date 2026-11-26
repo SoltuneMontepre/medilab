@@ -150,6 +150,19 @@ export function written(date, pattern) {
   return pattern.toLowerCase().replace(/yyyy|mm|dd/g, (part) => parts[part]);
 }
 
+// The day a text written as `pattern` names, such as 03/12/2026 as dd/mm/yyyy.
+export function dated(text, pattern) {
+  const order = pattern.toLowerCase().match(/yyyy|mm|dd/g);
+  const numbers = text.match(/\d+/g).map(Number);
+  const part = (name) => numbers[order.indexOf(name)];
+  return new Date(Date.UTC(part("yyyy"), part("mm") - 1, part("dd")));
+}
+
+// The whole đồng of an amount as a screen writes it, such as 151.800 ₫.
+export function money(text) {
+  return Number(text.replace(/\D/g, ""));
+}
+
 // Types a day into a date field, in the format the field asks for in the user's language. Returns it as typed.
 export async function typeDate(page, name, date, within) {
   const widget = field(page, name, within);
