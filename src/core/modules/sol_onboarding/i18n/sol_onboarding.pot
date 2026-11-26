@@ -187,6 +187,16 @@ msgid "Code Needed"
 msgstr ""
 
 #. module: sol_onboarding
+#: model_terms:ir.actions.act_window,help:sol_onboarding.action_medilab_onboarding_run
+msgid "Collect your laboratory's master data"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log
+msgid "Collection Log"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model,name:sol_onboarding.model_medilab_onboarding_run
 msgid "Collection Run"
 msgstr ""
@@ -232,6 +242,13 @@ msgstr ""
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__action__create
 msgid "Create"
+msgstr ""
+
+#. module: sol_onboarding
+#: model_terms:ir.actions.act_window,help:sol_onboarding.action_medilab_onboarding_run
+msgid ""
+"Create a run, pick your laboratory by its name or accreditation number, and "
+"start it."
 msgstr ""
 
 #. module: sol_onboarding
@@ -447,14 +464,9 @@ msgid "Link"
 msgstr ""
 
 #. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log
-msgid "Collection Log"
-msgstr ""
-
-#. module: sol_onboarding
-#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log_ids
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__log_ids
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
 msgid "Log"
 msgstr ""
 
@@ -578,6 +590,11 @@ msgstr ""
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__organisation_id
 msgid "Organisation"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__organisations_notice
+msgid "Organisations Notice"
 msgstr ""
 
 #. module: sol_onboarding
@@ -947,6 +964,21 @@ msgstr ""
 
 #. module: sol_onboarding
 #. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_guidance.py:0
+msgid ""
+"The organisations are still being listed: %s so far. Yours can be picked as "
+"soon as it is listed."
+msgstr ""
+
+#. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
+msgid ""
+"The run works in the background. You are notified when it ends; reload to "
+"see how far it is."
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
 msgid ""
 "The staged %(need)s that %(record)s needs is neither to review nor accepted."
@@ -998,6 +1030,11 @@ msgstr ""
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__parameter_method
 msgid "Way of Testing"
+msgstr ""
+
+#. module: sol_onboarding
+#: model_terms:ir.actions.act_window,help:sol_onboarding.action_medilab_onboarding_run
+msgid "What the run finds waits under Staged Records until you accept it."
 msgstr ""
 
 #. module: sol_onboarding

@@ -21,6 +21,7 @@ class OnboardingOrganisation(models.Model, OnboardingOrganisationBase):
     _name = MODEL_ONBOARDING_ORGANISATION
     _description = "Onboarding Organisation"
     _order = "name, id"
+    _rec_names_search = ["name", "accreditation_code"]
 
     _key_unique = models.Constraint("UNIQUE(source_id, external_key)", "A source lists an organisation once.")
 
@@ -43,6 +44,11 @@ class OnboardingOrganisation(models.Model, OnboardingOrganisationBase):
         seen_at = fields.Datetime(string="Seen At", required=True)
         # False when the source no longer lists the organisation.
         active = fields.Boolean(string="Active", default=True)
+
+    @api.depends("name", "accreditation_code")
+    def _compute_display_name(self):
+        for organisation in self:
+            organisation.display_name = " - ".join(filter(None, [organisation.accreditation_code, organisation.name]))
 
     def _upsert(self, source, values: Iterable[OrganisationValues]):
         """Create or update the source's organisations by key, mark them seen now and bring archived ones back."""
