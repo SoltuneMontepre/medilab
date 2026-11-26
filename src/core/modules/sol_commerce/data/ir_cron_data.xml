@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
+    <record id="cron_refresh_current_prices" model="ir.cron">
+        <field name="name">Start and end price periods</field>
+        <field name="model_id" ref="model_medilab_price_period" />
+        <field name="state">code</field>
+        <field name="code">model._refresh_current_prices()</field>
+        <field name="user_id" ref="base.user_root" />
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <!-- 00:05 in Vietnam, when the day's periods start. -->
+        <field name="nextcall" eval="DateTime.now().strftime('%Y-%m-%d 17:05:00')" />
+    </record>
     <record id="cron_flag_expired_quotations" model="ir.cron">
         <field name="name">Flag expired quotations</field>
         <field name="model_id" ref="model_medilab_quotation" />

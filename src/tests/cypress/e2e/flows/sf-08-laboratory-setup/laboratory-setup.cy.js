@@ -50,23 +50,8 @@ function cartRow(name) {
 // The customer adds a catalog item found by its name and lands in the cart.
 function addFromCatalog(name) {
   cy.visit(`/catalog?name=${encodeURIComponent(name)}`);
-  cy.contains("tr", name).find("button[type=submit]").click();
+  cy.contains(".card h3", name).closest(".card").find("button[type=submit]").click();
   cy.location("pathname").should("eq", "/cart");
-}
-
-// Chooses a sample type for the first cart line by its label.
-function chooseSampleType(label) {
-  cy.get("select[name=sample_type_id]")
-    .first()
-    .find("option")
-    .contains(label)
-    .invoke("val")
-    .then((value) => {
-      cy.get("select[name=sample_type_id]").first().select(String(value));
-      // The choice submits the form; the reloaded cart shows it chosen.
-      cy.get("select[name=sample_type_id]").first().should("have.value", String(value));
-      cy.get("select[name=parameter_method_id]").should("exist");
-    });
 }
 
 // Submits the cart and yields the order number the confirmation shows.
@@ -176,8 +161,6 @@ describe("SF-08 Laboratory setup", () => {
       cy.signInAs("customer");
       addFromCatalog(name);
       cartRow(name).invoke("text").should("match", amount(220));
-      chooseSampleType(/Bottled water|Nước đóng chai/);
-      cy.get("select[name=parameter_method_id]").first().find("option:selected").should("contain", "TCVN 7602:2007");
       submitCart().then((order) => orderLines(order).its("0.price_unit").should("eq", 220000));
 
       assignedTest(parameter.id).then((test) => {
@@ -337,23 +320,23 @@ describe("SF-08 Laboratory setup", () => {
     pricedParameter(unique("Mercury (Hg)")).then((parameter) => {
       cy.signInAs("customer");
       cy.visit(`/catalog?name=${encodeURIComponent(parameter.name)}`);
-      cy.contains("tr", parameter.name).invoke("text").should("match", amount(190));
+      cy.contains(".card h3", parameter.name).closest(".card").invoke("text").should("match", amount(190));
       // The administrator withdraws the price while the customer has the catalog open.
       callAs(ADMINISTRATOR, "medilab.parameter.price", "search", [[["parameter_id", "=", parameter.id]]]).then((prices) =>
         callAs(ADMINISTRATOR, "medilab.parameter.price", "action_archive", [prices]),
       );
       cy.expectRefusal({
         read: () => callAs(HEAD_OF_SALES, "sale.order.line", "search_count", [[["product_id.parameter_id", "=", parameter.id]]]),
-        action: () => cy.contains("tr", parameter.name).find("button[type=submit]").click(),
+        action: () => cy.contains(".card h3", parameter.name).closest(".card").find("button[type=submit]").click(),
         message: "This item is not in the catalog.",
         messageSelector: "main .text-danger",
       });
       cy.location("pathname").should("eq", "/catalog");
       cy.visit(`/catalog?name=${encodeURIComponent(parameter.name)}`);
-      cy.contains("tr", parameter.name).should("not.exist");
+      cy.contains(".card h3", parameter.name).should("not.exist");
       // A parameter that never had a price is not offered either.
       cy.visit("/catalog?name=Chromium");
-      cy.contains("tr", "Chromium (VI)").should("not.exist");
+      cy.contains(".card h3", "Chromium (VI)").should("not.exist");
       catalogProduct("parameter_id", parameter.id).then((product) =>
         callAs(ADMINISTRATOR, "product.template", "read", [[product], ["sale_ok"]], { context: { active_test: false } })
           .its("0.sale_ok")

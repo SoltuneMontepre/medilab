@@ -7,8 +7,8 @@ describe("SF-08 catalog, prices and taxes (F-01, F-02)", () => {
     refAs("demo.administrator", "sol_demo.demo_parameter_group_pesticides").then((pesticides) => {
       becomeVisitor();
       cy.visit(`/catalog?group=${pesticides.id}`);
-      cy.contains("tr", "Chlorpyrifos").should("be.visible");
-      cy.contains("tr", "Lead (Pb)").should("not.exist");
+      cy.contains(".card h3", "Chlorpyrifos").should("be.visible");
+      cy.contains(".card h3", "Lead (Pb)").should("not.exist");
     });
   });
 
@@ -39,8 +39,8 @@ describe("SF-08 catalog, prices and taxes (F-01, F-02)", () => {
 
   it("TC-F02-03 does not offer a parameter without a price and tax", () => {
     cy.visit("/catalog");
-    cy.contains("tr", "Lead (Pb)").should("be.visible");
-    cy.contains("tr", "Cadmium").should("not.exist");
+    cy.contains(".card h3", "Lead (Pb)").should("be.visible");
+    cy.contains(".card h3", "Chromium (VI)").should("not.exist");
     orderAt("claimed").then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);

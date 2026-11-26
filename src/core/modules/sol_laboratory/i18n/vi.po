@@ -20194,3 +20194,23 @@ msgstr "Rút từ chối"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "No machine can finish this test before its due date, and no subcontractor offers a way of testing for it."
 msgstr "Không máy nào hoàn thành chỉ tiêu này kịp trước hạn, và không thầu phụ nào có cách thử cho chỉ tiêu này."
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_price_period_create_all
+msgid "Permission: price.period.create.all"
+msgstr "Quyền: price.period.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_price_period_delete_all
+msgid "Permission: price.period.delete.all"
+msgstr "Quyền: price.period.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_price_period_edit_all
+msgid "Permission: price.period.edit.all"
+msgstr "Quyền: price.period.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_price_period_read_all
+msgid "Permission: price.period.read.all"
+msgstr "Quyền: price.period.read.all"

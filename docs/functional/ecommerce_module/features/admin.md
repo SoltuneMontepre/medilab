@@ -16,7 +16,7 @@ E-commerce keeps prices, taxes and packages in its own tables and does not add c
 
 ### Service packages
 
-- **US-AD20** As an administrator, I want to maintain service packages with their parameters, quantities, price and tax, so that customers can order common sets of tests at one price.
+- **US-AD20** As an administrator, I want to maintain service packages with their parameters, quantities and tax, so that customers can order sets of related tests together.
 
 ## II. Feature details
 
@@ -25,7 +25,7 @@ E-commerce keeps prices, taxes and packages in its own tables and does not add c
 | Rule               | Description                                                                                                                                              |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Parameter price    | A parameter's price, excluding VAT, is the same whichever method tests it, whichever sample type it is tested on and whether a subcontractor tests it. Groups do not set a price. |
-| Price over time    | A parameter or package price is recorded with the period it applies, so a price change, such as next year's prices, is a new period that can be entered ahead. The periods of one price do not overlap. The catalog and cart show the price in force today; a quotation takes the price in force on its date, and its invoices use the quotation's prices. |
+| Price over time    | A parameter's price is recorded with the period it applies, from a first day to a last day or until further notice, so a price change, such as next year's prices, is a new period that can be entered ahead. The periods of one price do not overlap. The catalog and cart show the price in force today, and the catalog shows the next price and the day it starts; a quotation takes the price in force on its date, and its invoices use the quotation's prices. Changing the price in a list sets it from today: the period in force ends the day before. A parameter with no period covering today is not sold. |
 | Tax                | Every parameter price and package has one tax, such as VAT 10% or not subject to VAT. Tax is added on quotations and invoices, never in the cart.         |
 | Tax rate over time | A tax's rate is recorded with the period it applies, so a rate change, such as a temporary VAT reduction, is a new period. The periods of one tax do not overlap. A quotation uses the rate in force on its date, and its invoices use the quotation's rates. |
 | Accounting tax     | Each rate period gives quotation and invoice lines a sales tax of the chart of accounts with the same percent: the one the administrator chooses on the period, otherwise the first sales tax of that percent. A tax coded KCT, not subject to VAT, takes the chart's VAT exemption tax, which invoices print as KCT. |
@@ -40,7 +40,8 @@ Acceptance criteria:
 - A parameter without a price in force and a tax cannot be added to a cart or quotation.
 - A quotation dated on or after the first day of a new price period shows the new price; one dated before it shows the earlier price.
 - A sent quotation keeps its prices when a new price period starts.
-- Adding a price period that overlaps another period of the same parameter or package is refused with a message.
+- Adding a price period that overlaps another period of the same parameter is refused with a message.
+- A parameter whose last period has ended leaves the catalog, and so do the packages that hold it.
 - A quotation dated during a reduced VAT period shows the reduced rate; one dated after it shows the normal rate.
 - An invoice posted after a reduced VAT period ends keeps the reduced rate of its quotation.
 - A rate period whose chosen accounting tax has another percent is refused with a message.
@@ -58,14 +59,13 @@ Ordering packages follows [Sales order and customer order](../../../business/sal
 | Rule          | Description                                                                                                                       |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Content       | A package holds parameters from any groups, each with a quantity of at least one.                                                 |
-| Price         | A package has a price over time, excluding VAT, as a parameter does, and one tax.                                                 |
-| Price warning | When a package's price is higher than the sum of its parameters' own prices in force on the same day times their quantities, the administrator is warned on the package and on the parameter whose price change caused it. |
+| Price         | A package has no price of its own: it costs the sum of its parameters' prices in force on the day times their quantities, excluding VAT. It has one tax. A package with a parameter that has no price today is not sold. |
 | Archiving and deleting | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). A package's lines are deleted with it. |
 
 Acceptance criteria:
 
 - A package cannot hold the same parameter on two lines; the quantity is raised instead.
-- Lowering a parameter's price so that a package containing it costs more than its parts shows a warning on that package.
+- Changing a parameter's price changes the price of every package containing it on the same day.
 - A package that nothing refers to can be deleted, together with its lines.
 - A package on an unfinished quotation cannot be archived; the message lists the quotations.
 
