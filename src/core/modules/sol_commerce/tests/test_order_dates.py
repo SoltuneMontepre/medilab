@@ -8,7 +8,7 @@ from odoo.tests.form import O2MProxy
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
-from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD, MODEL_TEST_REQUEST
+from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD, MODEL_SAMPLE_TEST, MODEL_TEST_REQUEST
 from odoo.addons.sol_laboratory.models.sample_collection.test_request_estimate import TestRequestEstimate
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
@@ -23,6 +23,10 @@ class TestOrderDates(OrderCase):
         cls.parameter.method_ids.turnaround_days = 5
         cls.other.method_ids.turnaround_days = 5
 
+    def today(self):
+        """Today in the laboratory's time zone, as the order's dates count it; the test runs on UTC."""
+        return self.env[MODEL_SAMPLE_TEST]._local_day(fields.Datetime.now())
+
     def test_the_turnaround_is_the_longest_of_the_order_s_ways(self):
         self.other.method_ids.turnaround_days = 7
 
@@ -31,7 +35,7 @@ class TestOrderDates(OrderCase):
         self.assertEqual(order.turnaround_days, 7)
         estimate = order._earliest_return_date()
         assert isinstance(estimate, date)
-        self.assertGreater(estimate, date.today())
+        self.assertGreater(estimate, self.today())
         self.assertEqual(order.committed_date, estimate)
 
     def test_a_way_without_a_turnaround_keeps_the_quotation_from_being_sent(self):
@@ -45,7 +49,7 @@ class TestOrderDates(OrderCase):
     def test_the_expected_return_date_starts_at_the_earliest_date_and_ignores_requested_date(self):
         order = self.make_quotable_order()
         earliest = order._earliest_return_date()
-        requested = date.today() + timedelta(days=60)
+        requested = self.today() + timedelta(days=60)
         order.requested_date = requested
 
         order.with_user(self.sales).action_send_quotation()
@@ -57,7 +61,7 @@ class TestOrderDates(OrderCase):
         # Received today the samples would meet the requested date; paid on the deadline they would not.
         order = self.make_quotable_order()
         requests = self.env[MODEL_TEST_REQUEST]
-        order.requested_date = requests._date_after_working_days(date.today(), order.turnaround_days)
+        order.requested_date = requests._date_after_working_days(self.today(), order.turnaround_days)
         order.payment_deadline = fields.Datetime.now() + timedelta(days=10)
 
         order.with_user(self.sales).action_send_quotation()
@@ -70,7 +74,7 @@ class TestOrderDates(OrderCase):
     def test_without_an_advance_the_turnaround_counts_from_today(self):
         order = self.make_quotable_order()
         requests = self.env[MODEL_TEST_REQUEST]
-        requested = requests._date_after_working_days(date.today(), order.turnaround_days)
+        requested = requests._date_after_working_days(self.today(), order.turnaround_days)
         order.write({"advance_method": "none", "user_id": self.head.id, "requested_date": requested})
 
         order.with_user(self.head).action_send_quotation()
@@ -82,14 +86,14 @@ class TestOrderDates(OrderCase):
 
     def test_a_committed_date_earlier_than_the_turnaround_allows_is_refused(self):
         order = self.make_quotable_order()
-        order.committed_date = date.today()
+        order.committed_date = self.today()
 
         with self.assertRaisesRegex(UserError, "earlier than the laboratory can return results"):
             order.with_user(self.sales).action_send_quotation()
 
     def test_a_priority_request_must_be_decided_before_sending(self):
         order = self.make_quotable_order()
-        order._set_portal_dates((date.today() + timedelta(days=2)).isoformat(), True)
+        order._set_portal_dates((self.today() + timedelta(days=2)).isoformat(), True)
 
         with self.assertRaisesRegex(UserError, "Accept or decline"):
             order.with_user(self.sales).action_send_quotation()
@@ -106,9 +110,9 @@ class TestOrderDates(OrderCase):
 
     def test_an_infeasible_priority_request_is_refused_with_the_earliest_date(self):
         order = self.make_quotable_order()
-        requested = date.today() + timedelta(days=1)
+        requested = self.today() + timedelta(days=1)
         order.write({"requested_date": requested, "priority_request": "requested"})
-        earliest = date.today() + timedelta(days=9)
+        earliest = self.today() + timedelta(days=9)
 
         with (
             patch.object(
@@ -133,7 +137,7 @@ class TestOrderDates(OrderCase):
     def test_an_accepted_priority_commits_the_requested_date_and_makes_the_tests_urgent(self):
         order = self.make_quotable_order()
         # The turnaround starts tomorrow at the latest, so the advance can still be paid in time.
-        requested = self.env[MODEL_TEST_REQUEST]._date_after_working_days(date.today(), 6)
+        requested = self.env[MODEL_TEST_REQUEST]._date_after_working_days(self.today(), 6)
         order.write({"requested_date": requested, "priority_request": "requested"})
 
         with patch.object(
@@ -155,7 +159,7 @@ class TestOrderDates(OrderCase):
 
     def test_the_advance_of_a_priority_order_is_due_before_its_turnaround_starts(self):
         order = self.make_quotable_order()
-        requested = self.env[MODEL_TEST_REQUEST]._date_after_working_days(date.today(), 6)
+        requested = self.env[MODEL_TEST_REQUEST]._date_after_working_days(self.today(), 6)
         self.accept_priority(order, requested)
 
         order.with_user(self.sales).action_send_quotation()
@@ -172,7 +176,7 @@ class TestOrderDates(OrderCase):
 
     def test_a_priority_order_whose_turnaround_should_have_started_is_not_sent(self):
         order = self.make_quotable_order()
-        self.accept_priority(order, date.today() + timedelta(days=3))
+        self.accept_priority(order, self.today() + timedelta(days=3))
 
         with self.assertRaisesRegex(UserError, "Agree a later date"):
             order.with_user(self.sales).action_send_quotation()
@@ -181,11 +185,11 @@ class TestOrderDates(OrderCase):
         order = self.sent_order()
 
         with self.assertRaisesRegex(UserError, "Revise the quotation"):
-            order.with_user(self.sales).requested_date = date.today()
+            order.with_user(self.sales).requested_date = self.today()
 
     def test_the_test_request_takes_the_dates_and_turnaround(self):
         order = self.make_quotable_order()
-        order.requested_date = date.today() + timedelta(days=60)
+        order.requested_date = self.today() + timedelta(days=60)
         order.with_user(self.sales).action_send_quotation()
         self.pay_advance(order)
 
@@ -212,7 +216,7 @@ class TestOrderDates(OrderCase):
         )
         bookings = self.env["medilab.machine.booking"].search_count([])
 
-        check = self.env[MODEL_TEST_REQUEST]._check_priority(self.pair | subcontracted, date.today())
+        check = self.env[MODEL_TEST_REQUEST]._check_priority(self.pair | subcontracted, self.today())
 
         self.assertFalse(check["feasible"])
         self.assertTrue(any("has no turnaround" in reason for reason in check["reasons"]))
@@ -220,7 +224,7 @@ class TestOrderDates(OrderCase):
 
     def test_the_order_shows_how_its_return_date_is_reached(self):
         order = self.make_quotable_order()
-        order.write({"expected_collection_date": date.today() + timedelta(days=7), "requested_date": date.today()})
+        order.write({"expected_collection_date": self.today() + timedelta(days=7), "requested_date": self.today()})
 
         timeline = str(order.return_timeline)
 
@@ -237,7 +241,7 @@ class TestOrderDates(OrderCase):
         # The form helper loads every one-to-many's view, support requests included, which Sales cannot read.
         with Form(self.env[MODEL_SALE_ORDER].with_context(medilab_sales_order=True)) as form:
             form.customer_id = self.customer
-            form.expected_collection_date = date.today() + timedelta(days=1)
+            form.expected_collection_date = self.today() + timedelta(days=1)
             with assert_instance(form.product_line_ids, O2MProxy).new() as line:
                 line.product_template_id = self.package_product
                 line.sample_type_id = self.sample_type
@@ -245,7 +249,7 @@ class TestOrderDates(OrderCase):
             self.assertTrue(first_date)
             self.assertIn("Expected return", str(form.return_timeline))
 
-            form.expected_collection_date = date.today() + timedelta(days=5)
+            form.expected_collection_date = self.today() + timedelta(days=5)
             later_date = form.committed_date
             assert isinstance(first_date, date)
             assert isinstance(later_date, date)
