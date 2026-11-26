@@ -44,16 +44,14 @@ class SaleOrderLinePrice(models.Model, SaleOrderLinePriceBase):
         return template.parameter_id.with_context(active_test=False).price_ids[:1]._price_on(self._price_date())
 
     def _package_parameters(self):
-        """The parameters one unit of a package line tests, with how many times; None while the line has no
-        parameter lines yet, so the package's own parameters count."""
+        """The parameters one unit of a package line tests, with how many times: the package's quantity, or once for
+        a parameter the customer added; None while the line has no parameter lines yet, so the package's own count."""
         self.ensure_one()
-        if not self.linked_line_ids or not self.product_uom_qty:
+        if not self.linked_line_ids:
             return None
-        quantities = {}
-        for part in self.linked_line_ids:
-            parameter = part.product_id.product_tmpl_id.sudo().parameter_id
-            quantities[parameter] = quantities.get(parameter, 0) + part.product_uom_qty / self.product_uom_qty
-        return quantities
+        included = {item.parameter_id: item.quantity for item in self._package_of().line_ids}
+        parameters = self._package_parameter_ids()
+        return {parameter: included.get(parameter, 1) for parameter in parameters}
 
     def _price_date(self):
         """Today for the customer's cart, which shows today's catalog; otherwise the quotation date."""

@@ -332,6 +332,8 @@ class SaleOrder(models.Model, SaleOrderBase):
         variant = product.product_variant_ids[:1]
         if parameters is None and product.service_package_id:
             parameters = product.service_package_id.line_ids.parameter_id
+        elif parameters is not None:
+            product.service_package_id._check_chosen_parameters(parameters)
         line = self._catalog_lines().filtered(
             lambda item: (
                 item.product_id == variant and (parameters is None or item._package_parameter_ids() == parameters)
@@ -358,6 +360,7 @@ class SaleOrder(models.Model, SaleOrderBase):
                 raise UserError(self.env._("Only a draft order can be submitted."))
             if not order._catalog_lines():
                 raise UserError(self.env._("Add at least one parameter or service package."))
+            order.sudo()._catalog_lines()._lock_catalog_price()
             if not order.customer_id:
                 order.sudo()._attach_visitor(visitor or {})
         self.sudo()._set_status(STATUS_SUBMITTED, {"submitted_at": fields.Datetime.now(), "user_id": False})

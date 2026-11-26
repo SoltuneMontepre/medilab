@@ -446,12 +446,10 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
 
     def _sync_package_part_quantities(self):
         for line in self._catalog_lines():
-            package = line._package_of()
+            per_package = line._package_parameters() or {}
             for part in line.linked_line_ids:
-                parameter = part.product_id.product_tmpl_id.parameter_id
-                included = package.line_ids.filtered(lambda item, parameter=parameter: item.parameter_id == parameter)
-                # A parameter the customer added to the package is tested once per package.
-                part.product_uom_qty = (included.quantity or 1) * line.product_uom_qty
+                parameter = part.product_id.product_tmpl_id.sudo().parameter_id
+                part.product_uom_qty = per_package.get(parameter, 1) * line.product_uom_qty
 
     def _copy_to_sample(self, sample):
         """Copy catalog lines onto the sample, keeping their price, discount, taxes and ways of testing."""

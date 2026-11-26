@@ -6378,6 +6378,7 @@ msgstr ""
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_line_package.py:0
+#: code:addons/sol_commerce/models/pricing/service_package.py:0
 msgid "A package keeps at least one parameter."
 msgstr ""
 
@@ -6494,4 +6495,10 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
 msgid "parameters chosen. Untick a parameter you do not need, or add another one; the price is the sum of the parameters."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/pricing/service_package.py:0
+msgid "These parameters are not for sale today: %s"
 msgstr ""

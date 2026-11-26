@@ -6576,6 +6576,7 @@ msgstr "<i class=\"oi me-1\" data-icon=\"tune\" aria-hidden=\"true\"/>Chọn ch�
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_line_package.py:0
+#: code:addons/sol_commerce/models/pricing/service_package.py:0
 msgid "A package keeps at least one parameter."
 msgstr "Gói dịch vụ phải giữ ít nhất một chỉ tiêu."
 
@@ -6693,3 +6694,9 @@ msgstr "chỉ tiêu"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_package_page
 msgid "parameters chosen. Untick a parameter you do not need, or add another one; the price is the sum of the parameters."
 msgstr "chỉ tiêu đã chọn. Bỏ chọn chỉ tiêu bạn không cần hoặc thêm chỉ tiêu khác; giá là tổng giá các chỉ tiêu."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/pricing/service_package.py:0
+msgid "These parameters are not for sale today: %s"
+msgstr "Các chỉ tiêu này hôm nay không được bán: %s"

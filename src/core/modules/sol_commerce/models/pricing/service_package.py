@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
+from odoo.exceptions import UserError
+from odoo.fields import Domain
 
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_PRODUCT_TEMPLATE,
@@ -42,12 +44,13 @@ class ServicePackage(models.Model, ServicePackageBase):
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a service package must be unique.")
 
-    @api.depends("line_ids.quantity", "line_ids.parameter_id.price_ids.list_price")
+    @api.depends(
+        "line_ids.quantity", "line_ids.parameter_id.price_ids.list_price", "line_ids.parameter_id.price_ids.active"
+    )
     def _compute_list_price(self):
         for package in self:
             package.list_price = sum(
-                line.quantity * line.parameter_id.with_context(active_test=False).price_ids[:1].list_price
-                for line in package.line_ids
+                line.quantity * line.parameter_id.price_ids[:1].list_price for line in package.line_ids
             )
 
     @api.model_create_multi
@@ -72,10 +75,7 @@ class ServicePackage(models.Model, ServicePackageBase):
         self.ensure_one()
         if parameters is None:
             parameters = {line.parameter_id: line.quantity for line in self.line_ids}
-        return sum(
-            quantity * parameter.with_context(active_test=False).price_ids[:1]._price_on(date)
-            for parameter, quantity in parameters.items()
-        )
+        return sum(quantity * parameter.price_ids[:1]._price_on(date) for parameter, quantity in parameters.items())
 
     def _is_priced_on(self, date):
         """Whether every parameter of the package has a price on the date, so the package can be sold."""
@@ -83,6 +83,23 @@ class ServicePackage(models.Model, ServicePackageBase):
         return bool(self.line_ids) and all(
             line.parameter_id.price_ids[:1]._is_priced_on(date) for line in self.line_ids
         )
+
+    def _check_chosen_parameters(self, parameters):
+        """Refuse a choice of parameters for the package that is empty or holds a parameter not for sale."""
+        self.ensure_one()
+        if not parameters:
+            raise UserError(self.env._("A package keeps at least one parameter."))
+        sold = (
+            self.env[MODEL_PRODUCT_TEMPLATE]
+            .sudo()
+            .search(Domain("parameter_id", "in", parameters.ids) & Domain("sale_ok", "=", True))
+            .parameter_id
+        )
+        unsold = parameters - sold
+        if unsold:
+            raise UserError(
+                self.env._("These parameters are not for sale today: %s", ", ".join(unsold.mapped("display_name")))
+            )
 
     def _catalog_products(self):
         return self.env[MODEL_PRODUCT_TEMPLATE].sudo().search([("service_package_id", "in", self.ids)])

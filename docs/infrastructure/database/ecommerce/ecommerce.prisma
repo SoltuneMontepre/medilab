@@ -16,6 +16,8 @@ model TestParameter {
   code    String   @unique @db.VarChar
   /// The product that sells the parameter.
   product Product?
+  /// The parameter's catalog price; at most one.
+  price   ParameterPrice?
 
   @@map("medilab_test_parameter")
 }
@@ -211,8 +213,6 @@ model Product {
   parameter      TestParameter?  @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// Taxes added to the price on quotations and invoices.
   taxes          ProductTax[]
-  /// The product's price over time.
-  prices         ProductPrice[]
   /// The parts of a package, one combo per parameter.
   combos         PackageCombo[]
   /// Combo items that include the product.
@@ -227,23 +227,45 @@ model Product {
   @@map("product_template")
 }
 
-/// The catalog price of a parameter product for a period (Giá Theo Kỳ); a package has no price of its own. The periods of one product do not overlap; valid_until is empty or not before valid_from; list_price is not negative.
-model ProductPrice {
+/// The catalog price of a parameter (Giá Chỉ Tiêu): its tax and its price over time. A package has no price of its own; it costs the sum of its parameters' prices.
+model ParameterPrice {
   /// Row identifier.
-  id          Int       @id @default(autoincrement())
-  /// The parameter product the price is for.
-  product_id  Int
-  /// Price of one test for the period, excluding VAT.
-  list_price  Decimal   @db.Decimal
-  /// First day the price applies.
-  valid_from  DateTime  @db.Date
-  /// Last day the price applies; empty when it applies until further notice.
-  valid_until DateTime? @db.Date
-  /// The product.
-  product     Product   @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  id           Int           @id @default(autoincrement())
+  /// The parameter the price is for.
+  parameter_id Int           @unique
+  /// Price of one test in force today, excluding VAT, kept from the periods; 0 when no period covers today.
+  list_price   Decimal       @db.Decimal
+  /// The tax added to the price on quotations and invoices.
+  tax_id       Int
+  /// False when the price is archived and the parameter is no longer sold.
+  active       Boolean       @default(true)
+  /// The parameter.
+  parameter    TestParameter @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
+  /// The tax.
+  tax          LabTax        @relation(fields: [tax_id], references: [id], onDelete: Restrict)
+  /// The price over time.
+  periods      PricePeriod[]
 
-  @@index([product_id, valid_from])
-  @@map("medilab_product_price")
+  @@map("medilab_parameter_price")
+}
+
+/// The price of one test of a parameter for a period (Giá Theo Kỳ). The periods of one price do not overlap; valid_until is empty or not before valid_from; list_price is not negative.
+model PricePeriod {
+  /// Row identifier.
+  id                 Int            @id @default(autoincrement())
+  /// The parameter price the period belongs to.
+  parameter_price_id Int
+  /// Price of one test for the period, excluding VAT.
+  list_price         Decimal        @db.Decimal
+  /// First day the price applies.
+  valid_from         DateTime       @db.Date
+  /// Last day the price applies; empty when it applies until further notice.
+  valid_until        DateTime?      @db.Date
+  /// The parameter price.
+  parameter_price    ParameterPrice @relation(fields: [parameter_price_id], references: [id], onDelete: Cascade)
+
+  @@index([parameter_price_id, valid_from])
+  @@map("medilab_price_period")
 }
 
 /// Odoo's tax (account.tax), shown with the columns this module uses: a tax added to prices, such as VAT 10% or not subject to VAT.
@@ -282,6 +304,8 @@ model LabTax {
   active Boolean      @default(true)
   /// The tax's rate over time.
   rates  LabTaxRate[]
+  /// Parameter prices that add the tax.
+  parameter_prices ParameterPrice[]
 
   @@map("medilab_tax")
 }

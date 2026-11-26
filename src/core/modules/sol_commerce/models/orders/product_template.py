@@ -149,6 +149,8 @@ class ProductTemplate(models.Model, ProductTemplateBase):
         prices = (package.line_ids.parameter_id if package else self.parameter_id).price_ids
         upcoming = prices.period_ids.filtered(lambda period: period.valid_from > today).sorted("valid_from")[:1]
         priced = package or self.parameter_id.price_ids[:1]
+        if upcoming and not priced._is_priced_on(upcoming.valid_from):
+            upcoming = upcoming.browse()
         return {
             "name": (package or self.parameter_id).name,
             "price": priced.list_price,
