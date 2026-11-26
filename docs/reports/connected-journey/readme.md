@@ -36,6 +36,7 @@ Each plan lists what the flow receives, what it hands over, its steps as clicks,
 - [SF-02 Order cancellation](sf-02.md)
 - [SF-03 Change request on a signed document](sf-03.md)
 - [SF-04 Sample retention, return and disposal](sf-04.md)
+- [SF-05 Machine calibration and unavailability](sf-05.md)
 - [SF-06 Accreditation and registration renewal](sf-06.md)
 - [SF-07 Result dates and priority orders](sf-07.md)
 - [SF-08 Laboratory setup](sf-08.md)
