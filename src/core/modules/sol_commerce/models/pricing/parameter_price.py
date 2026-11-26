@@ -141,7 +141,7 @@ class ParameterPrice(models.Model, ParameterPriceBase):
                     order="valid_from",
                     limit=1,
                 )
-                until = later.valid_from - timedelta(days=1) if later else False
+                until = later.valid_from - timedelta(days=1) if later.valid_from else False
             periods.create(
                 {"parameter_price_id": record.id, "list_price": price, "valid_from": date, "valid_until": until}
             )

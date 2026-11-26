@@ -85,7 +85,7 @@ class ProductTemplate(models.Model, ProductTemplateBase):
         product = self.sudo().search([(field_name, "=", owner.id)], limit=1)
         vals = {"name": name, "list_price": list_price, "sale_ok": bool(offered), field_name: owner.id}
         if product:
-            current = product.read(list(vals), load=None)[0]
+            current = product.read(list(vals), load="")[0]
             changed = {key: value for key, value in vals.items() if current[key] != value}
             product._copy_name_translations(owner)
             if not changed:
@@ -147,7 +147,9 @@ class ProductTemplate(models.Model, ProductTemplateBase):
         today = fields.Date.context_today(self)
         package = self.service_package_id
         prices = (package.line_ids.parameter_id if package else self.parameter_id).price_ids
-        upcoming = prices.period_ids.filtered(lambda period: period.valid_from > today).sorted("valid_from")[:1]
+        upcoming = prices.period_ids.filtered(
+            lambda period: bool(period.valid_from and period.valid_from > today)
+        ).sorted("valid_from")[:1]
         priced = package or self.parameter_id.price_ids[:1]
         if upcoming and not priced._is_priced_on(upcoming.valid_from):
             upcoming = upcoming.browse()

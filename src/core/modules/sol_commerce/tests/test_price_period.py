@@ -29,7 +29,9 @@ class TestPricePeriod(OrderCase):
         )
 
     def end_current_period(self, last_day):
-        self.lead_price.period_ids.filtered(lambda period: period.valid_from <= self.today).valid_until = last_day
+        self.lead_price.period_ids.filtered(
+            lambda period: bool(period.valid_from and period.valid_from <= self.today)
+        ).valid_until = last_day
 
     def quotation_on(self, day):
         order = self.make_quotable_order()
