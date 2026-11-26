@@ -449,6 +449,10 @@ msgstr "Liên kết"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log
+msgid "Collection Log"
+msgstr "Nhật ký thu thập"
+
+#. module: sol_onboarding
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log_ids
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__log_ids

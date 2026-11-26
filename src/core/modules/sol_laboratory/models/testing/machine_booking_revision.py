@@ -82,7 +82,7 @@ class MachineBookingRevision(models.Model, MachineBookingRevisionBase):
             stuck = {booking: slot for booking, slot in slots.items() if booking in free and _misses(booking, slot)}
             if not stuck:
                 break
-            fixed |= self.browse().union(*stuck)
+            fixed |= self.browse().union(stuck)
             held.update({booking: slot for booking, slot in stuck.items() if slot})
         moved = {booking: slot for booking, slot in slots.items() if booking in free}
         return moved, held, {booking: slot for booking, slot in slots.items() if booking in urgent}

@@ -912,6 +912,11 @@ msgid "Agreement Reference"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__order_line
+msgid "All Order Lines"
+msgstr ""
+
+#. module: sol_commerce
 #: model:res.groups,name:sol_commerce.group_all_orders
 msgid "All orders"
 msgstr ""
@@ -1592,6 +1597,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_queue
 msgid "Contact"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__partner_is_company
+msgid "Contact Is a Company"
 msgstr ""
 
 #. module: sol_commerce
@@ -4002,6 +4012,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/reconciliation_day.py:0
 msgid "Post the missing payments before locking this day."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__preferred_payment_method_line_id
+msgid "Preferred Payment Method"
 msgstr ""
 
 #. module: sol_commerce
