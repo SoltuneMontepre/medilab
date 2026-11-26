@@ -92,7 +92,7 @@ The key of a staged record is its adapter's key for it at the source, such as a 
 - the same key and checksum as a staged record that is to review, accepted or rejected stages nothing;
 - the same key with another checksum stages a new record, and an older one to review becomes `superseded` and passes its children, such as the methods of a certificate's scope, to the new one.
 
-Matching an existing Laboratory record runs when a record is staged and again when its values are edited. Codes are compared after removing spaces and folding case and compatibility forms, such as full-width digits; names by trigram similarity, as a suggestion; installing the module creates the `pg_trgm` extension when the database lacks it.
+Matching an existing Laboratory record runs when a record is staged and again when its values are edited. Accepting matches again each record, and each method of its scope, that proposes to create a certificate or method whose code Laboratory has since been given: one with the same values is linked, and one with other values proposes an update and stays to review with a message. Codes are compared after removing spaces and folding case and compatibility forms, such as full-width digits; names by trigram similarity, as a suggestion; installing the module creates the `pg_trgm` extension when the database lacks it.
 
 ### Accepting
 
