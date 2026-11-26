@@ -34,6 +34,7 @@ Each plan lists what the flow receives, what it hands over, its steps as clicks,
 - [WF-01 Order to confirmed test request](wf-01.md)
 - [WF-02 Sample reception and handover](wf-02.md)
 - [WF-04 Result entry and approval](wf-04.md)
+- [WF-05 Outsourced testing](wf-05.md)
 - [WF-06 Report signing, release and delivery](wf-06.md)
 - [SF-01 Invoicing and payment collection](sf-01.md)
 - [SF-02 Order cancellation](sf-02.md)
