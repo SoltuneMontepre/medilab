@@ -325,7 +325,18 @@ tasks:
       TZ: Asia/Ho_Chi_Minh
       MEDILAB_URL: "{{.E2E_URL}}"
     cmds:
-      - '. "{{.ROOT_DIR}}/{{.JOURNEY_SCRIPT}}" "{{.ROOT_DIR}}/{{.LOG}}" "{{.FLOW}}"'
+      - '. "{{.ROOT_DIR}}/{{.JOURNEY_SCRIPT}}" "{{.ROOT_DIR}}/{{.LOG}}" run "{{.FLOW}}"'
+
+  test:journey:watch:
+    desc: "Watch the connected journey click by click in a browser window per actor; FLOW=wf-01 watches one flow"
+    silent: true
+    interactive: true
+    dir: "{{.E2E_DIR}}"
+    env:
+      TZ: Asia/Ho_Chi_Minh
+      MEDILAB_URL: "{{.E2E_URL}}"
+    cmds:
+      - '. "{{.ROOT_DIR}}/{{.JOURNEY_SCRIPT}}" "{{.ROOT_DIR}}/{{.LOG}}" watch "{{.FLOW}}"'
 
   test:apps:
     desc: "Run the application tests"

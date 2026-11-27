@@ -238,7 +238,7 @@ The journey checks that the flows of [Business flows](../functional/business-flo
 - Every name the journey types carries the run's tag, and a record made once, such as the second machine, is searched before it is created, so the journey runs again on the same database.
 - `playwright/support/odoo.js` holds the back-office actions and `playwright/support/portal.js` the portal's.
 
-`task test:journey` runs the whole story against the app at `MEDILAB_URL`, which needs the demo data and a running editing service for the report's PDF: `task up`, then `task onlyoffice:up`. `task test:journey FLOW=wf-04` runs one flow on what the last run handed over. The report is in `src/tests/playwright/.output/report`; open it with `bunx playwright show-report playwright/.output/report` from `src/tests`. `MEDILAB_JOURNEY_VIDEO=0` runs without the videos.
+`task test:journey:watch` plays the same journey in a browser window per actor, waiting 600 ms before every click and keystroke, with the flow, the step and the actor at the bottom of the page and a ring where each click lands; `MEDILAB_JOURNEY_WATCH_DELAY` sets the wait in milliseconds, `MEDILAB_JOURNEY_BROWSER=chrome` uses the installed Google Chrome and `FLOW=wf-04` plays one flow. `task test:journey` runs the whole story headless against the app at `MEDILAB_URL`, which needs the demo data and a running editing service for the report's PDF: `task up`, then `task onlyoffice:up`. `task test:journey FLOW=wf-04` runs one flow on what the last run handed over. The report is in `src/tests/playwright/.output/report`; open it with `bunx playwright show-report playwright/.output/report` from `src/tests`. `MEDILAB_JOURNEY_VIDEO=0` runs without the videos.
 
 ## Applications
 

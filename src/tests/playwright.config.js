@@ -1,5 +1,10 @@
 const { defineConfig } = require("@playwright/test");
 
+// MEDILAB_JOURNEY_WATCH=1 opens each actor's browser on the screen and waits MEDILAB_JOURNEY_WATCH_DELAY milliseconds,
+// 600 by default, before every click and keystroke, so a person can follow the journey.
+const watching = process.env.MEDILAB_JOURNEY_WATCH === "1";
+const delay = Number(process.env.MEDILAB_JOURNEY_WATCH_DELAY || 600);
+
 module.exports = defineConfig({
   testDir: "playwright/journey",
   outputDir: "playwright/.output/results",
@@ -8,14 +13,18 @@ module.exports = defineConfig({
   fullyParallel: false,
   retries: 0,
   // A flow is one test of many screens.
-  timeout: 10 * 60 * 1000,
+  timeout: (watching ? 60 : 10) * 60 * 1000,
   expect: { timeout: 15000 },
   reporter: [["list"], ["html", { outputFolder: "playwright/.output/report", open: "never" }]],
   use: {
+    headless: !watching,
+    // MEDILAB_JOURNEY_BROWSER=chrome uses the installed Google Chrome instead of Playwright's Chromium.
+    channel: process.env.MEDILAB_JOURNEY_BROWSER || undefined,
+    launchOptions: { slowMo: watching ? delay : 0 },
     baseURL: process.env.MEDILAB_URL || "http://localhost:8069",
     viewport: { width: 1440, height: 900 },
     timezoneId: "Asia/Ho_Chi_Minh",
-    actionTimeout: 15000,
+    actionTimeout: watching ? 15000 + 20 * delay : 15000,
     navigationTimeout: 30000,
     // Odoo's cached page and background fetches would load a user's first page twice at once.
     serviceWorkers: "block",
