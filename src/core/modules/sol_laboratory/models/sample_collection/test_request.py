@@ -53,6 +53,7 @@ class TestRequest(models.Model, TestRequestBase):
     # A test request is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
     _audit_children = ("sample_ids", "committed_date_change_ids")
+    _lock_free_buttons = ("action_print_labels",)
 
     if not TYPE_CHECKING:
         # Unique code of the request, such as YC.26.11.0001; filled from a sequence when left empty.

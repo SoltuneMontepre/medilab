@@ -22,6 +22,7 @@ Every Laboratory document model that has an edit permission inherits `medilab.lo
 - refuses `write` and `unlink` of a document another user holds an active lock on, naming the holder and since when. Writes with full rights, such as jobs and system steps, are not refused;
 - releases the current user's own editing lock with reason `saved` after they write the document;
 - adds a banner below the form's header, shown only while another user holds the lock: who is editing and since when, and a button to be told when the document is free, hidden once the user asked;
+- hides the form's header buttons while another user holds the lock, except those the model names in `_lock_free_buttons` because they change nothing, such as printing or downloading;
 - offers the form `lock_take`, which takes the lock or refreshes the user's own, `lock_release` with `cancelled` or `left`, and `action_lock_watch`.
 
 Taking a lock needs the right to change the document; others still read it.
@@ -31,7 +32,8 @@ Taking a lock needs the right to change the document; others still read it.
 A patch of Odoo's form controller acts on forms whose model has the mixin:
 
 - The first change of an existing record takes the lock. While the user keeps editing, each change refreshes the last activity, at most once a minute; a user who stops typing for the inactivity period loses the lock.
-- When the lock is held by someone else, the form shows who holds it, discards the change and reloads.
+- While another user holds the lock, the form is read-only: no field, line or "Add a line" can be changed. It returns to editing when the lock is released.
+- When the lock is taken by someone else between the user's load and change, the form shows who holds it, discards the change and reloads.
 - Saving releases the lock on the server. Discarding releases it as `cancelled`, and leaving the record or the form releases it as `left`. A closed browser releases nothing; the lock expires after the inactivity period.
 - Taking and releasing a lock is sent on Odoo's bus to the group of internal users with the document's model and id. An open form of that document that has no unsaved change and no dialog open over it reloads, so its banner appears or disappears without the user reloading. A dialog that adds or edits a line of the form keeps its changes outside the form until it is saved, so a reload under it would drop them.
 
