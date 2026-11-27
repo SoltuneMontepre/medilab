@@ -49,6 +49,17 @@ class MailMail(models.Model, MailMailBase):
             post_send_callback=post_send_callback,
         )
 
+    def _prepare_outgoing_list(self, mail_server=False, doc_to_followers=None):
+        # The email shares its message's subject; a notice without one is titled with its event in each recipient's
+        # language. Its address line has no partner of its own and goes to the notice's one recipient.
+        emails = super()._prepare_outgoing_list(mail_server=mail_server, doc_to_followers=doc_to_followers)
+        event = self.sudo().mail_message_id.subtype_id
+        if not self.subject and event:
+            for email in emails:
+                lang = (email["partner_id"] or self.recipient_ids[:1]).lang
+                email["subject"] = event.with_context(lang=lang or self.env.lang).name
+        return emails
+
     def _has_bounced_recipient(self):
         self.ensure_one()
         if any(self.recipient_ids.mapped("email_bounced")):
@@ -73,7 +84,11 @@ class MailMail(models.Model, MailMailBase):
                 reason = failure_reason or types.get(failure_type, failure_type)
                 entries._log_event("error", self.env._("Email not sent: %s", reason), document)
             else:
-                entries._log_event("integration", self.env._("Email sent: %s", mail.subject or ""), document)
+                entries._log_event(
+                    "integration",
+                    self.env._("Email sent: %s", mail.subject or mail.mail_message_id.subtype_id.name or ""),
+                    document,
+                )
         return super()._postprocess_sent_message(
             success_pids, success_emails, failure_reason=failure_reason, failure_type=failure_type
         )

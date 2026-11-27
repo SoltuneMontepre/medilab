@@ -107,7 +107,8 @@ export function HandoverRecordScreen() {
       <LoadNotice load={load} gone={t("handover.gone")} onRetry={reload} />
       {record && (
         <>
-          <Details record={record} />
+          {/* The signature box replaces the record, so that it and its buttons fit the screen that stops scrolling. */}
+          {step !== "signing" && <Details record={record} />}
           {step === "reading" && signed && (
             <View style={styles.readOnly}>
               <Icon name="lock-outline" size={18} />
