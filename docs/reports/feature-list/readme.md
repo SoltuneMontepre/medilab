@@ -146,7 +146,7 @@ The script stops without writing when the tables are inconsistent or Business fl
 ### F-10 Quotation approval and order confirmation
 
 - TC-F10-01 Main: A quotation above the Head of Sales's thresholds is approved before it is sent; confirming the accepted order creates its test request with the calculated expected samples.
-- TC-F10-02 Rule: Quotations within the thresholds and confirmed orders need no approval; the customer pays the balance before testing unless they may order on credit.
+- TC-F10-02 Rule: Quotations within the thresholds and confirmed orders need no approval; the balance holds back neither sample collection nor testing, and the report reaches the customer once the order is paid in full unless they may order on credit.
 - TC-F10-03 Exception: The salesperson who requested approval cannot approve; a declined quotation goes back to Sales with the reason; a quotation awaiting approval cannot be edited.
 
 ### F-11 Order cancellation

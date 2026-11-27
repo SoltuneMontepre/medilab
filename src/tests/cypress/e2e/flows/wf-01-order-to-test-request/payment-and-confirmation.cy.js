@@ -1,6 +1,6 @@
 import { openTab } from "../../../support/form";
 import { callAs, callRefused } from "../../../support/odoo";
-import { CUSTOMERS, SAMPLING_LINES, orderAt, payAdvance } from "./setup";
+import { CUSTOMERS, SAMPLING_LINES, orderAt } from "./setup";
 
 describe("WF-01 order confirmation and test request (F-10)", () => {
   it("TC-F10-01 carries the accepted quotation's expected samples to the test request", () => {
