@@ -9,6 +9,7 @@ from . import (
     ir_attachment_mobile,
     sample,
     sample_handover,
+    sample_label,
     sample_laboratory_folders,
     sample_mobile,
     sample_return,

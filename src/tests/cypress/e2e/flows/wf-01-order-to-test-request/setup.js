@@ -20,6 +20,15 @@ export const CUSTOMERS = {
 
 const STAGES = ["submitted", "claimed", "sent", "accepted", "confirmed", "paid"];
 
+export function pickupDay(locale = "en-CA") {
+  return new Date(Date.now() + 86400000).toLocaleDateString(locale, {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
+
 // Lead twice and E. coli three times on bottled water: Lead needs an acidified polyethylene bottle and E. coli a chilled
 // sterile glass bottle, so 3 objects in two sampling groups make 6 expected samples.
 export const SAMPLING_LINES = [
@@ -172,6 +181,7 @@ export const orderAt = helper("orderAt", function orderAt(
         partner_id: order.contactId,
         source: "portal",
         order_status: "submitted",
+        expected_collection_date: pickupDay(),
         order_line: lines.map(([, quantity], index) => [0, 0, { product_id: products[index], product_uom_qty: quantity }]),
       },
     ]),

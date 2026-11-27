@@ -81,6 +81,7 @@ Acceptance criteria:
 - The samples of a test request are received only once the request is paid or On credit; receiving a sample of a draft request is refused.
 - With E-commerce, the test request list offers no way to create a test request, and creating one without an order is refused for every role.
 - With E-commerce, a test request has no Confirm action for anyone.
+- The customer signs for each sample before its label is printed. For a request delivered in several collections, **Print Labels** prints the samples already covered by a signed handover record. When none has been signed for, staff see a message to obtain the signature.
 - A sample's label shows its lab code, test request code, results due date and QR code, but not the customer or the customer's name for the sample.
 - Recording the receipt of a sample in good condition sets it to received and creates its testing tasks in each department's queue; an unusable or insufficient sample is never received first.
 - A rejected sample keeps its condition note and gets no testing tasks.
