@@ -54,8 +54,8 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         expected_sample_summary = fields.Char(string="Sample Volume", compute="_compute_expected_sample_summary")
         # Sample preservation condition shown when opening the order line form.
         sampling_preservation = fields.Char(string="Preservation", compute="_compute_expected_sample_summary")
-        # The sample type the line is tested on: chosen in the cart, or the type of its sample; a package's parameter
-        # takes its package's.
+        # The sample type the line is tested on: chosen, or the type of its sample; a package's parameter takes its
+        # package's.
         sample_type_id = fields.Many2one(
             MODEL_SAMPLE_TYPE,
             compute="_compute_sample_type_id",
@@ -64,6 +64,11 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
             readonly=False,
             ondelete="restrict",
             index="btree_not_null",
+            domain="[('id', 'in', offered_sample_type_ids)]",
+        )
+        # The sample types every parameter of the line can be ordered on.
+        offered_sample_type_ids = fields.Many2many(
+            MODEL_SAMPLE_TYPE, string="Offered Sample Types", compute="_compute_offered_sample_type_ids"
         )
         # The way of testing the line's parameter is tested by: chosen, or the parameter's default on the sample type
         # when it is available. Empty on a package line, whose parameters each carry their own.
@@ -84,22 +89,27 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         # choose instead; empty when every default is available.
         default_way_notice = fields.Char(string="Default Way", compute="_compute_default_way_notice")
 
+    def _is_package_part(self):
+        return bool(self.linked_line_id or self.linked_virtual_id)
+
     def _is_catalog_line(self):
-        template = self.product_id.product_tmpl_id
+        template = self.product_id.product_tmpl_id or self.product_template_id
         return bool(template.parameter_id or template.service_package_id)
 
     def _catalog_lines(self):
         """The parameters and packages the customer ordered; the parameters inside a package are not among them."""
-        return self.filtered(lambda line: not line.display_type and not line.linked_line_id and line._is_catalog_line())
+        return self.filtered(
+            lambda line: not line.display_type and not line._is_package_part() and line._is_catalog_line()
+        )
 
     def _frozen_lines(self):
-        """Saved lines whose price, discount and taxes no longer follow the catalog.
+        """Lines whose price, discount and taxes no longer follow the catalog.
 
         These are the lines of an order a quotation was sent for, and the parameters inside a package, which cost 0.
         """
         saved = self.filtered(lambda line: isinstance(line.id, int))
         quoted = saved.order_id.sudo().filtered("quotation_ids")
-        return saved.filtered(lambda line: bool(line.linked_line_id or line.order_id in quoted))
+        return self.filtered(lambda line: line._is_package_part() or (line in saved and line.order_id in quoted))
 
     def _compute_price_unit(self):
         return super(SaleOrderLine, self - self._frozen_lines())._compute_price_unit()
@@ -134,6 +144,7 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
 
     @api.depends(
         "product_id",
+        "product_template_id",
         "product_uom_qty",
         "sample_type_id",
         "parameter_method_id",
@@ -144,7 +155,12 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
     def _compute_expected_sample_summary(self):
         requirements = self.env[MODEL_SAMPLING_REQUIREMENT].sudo()
         for line in self:
-            ways = (line.linked_line_ids | line)._resolved_ways()
+            if line._is_package_part():
+                line.expected_sample_count = 0
+                line.expected_sample_summary = False
+                line.sampling_preservation = False
+                continue
+            ways = (line._package_parts() | line)._resolved_ways()
             methods = self.env[MODEL_PARAMETER_METHOD].concat(ways).sudo().method_id
             if not line.sample_type_id or not methods:
                 line.expected_sample_count = 0
@@ -162,10 +178,33 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         if self.product_template_id and self.product_id.product_tmpl_id != self.product_template_id:
             self.product_id = self.product_template_id.product_variant_id
 
+    @api.onchange("product_template_id", "product_id")
+    def _onchange_product_sample_type(self):
+        if self._is_package_part() or self.sample_id or not self._parameters():
+            return
+        choices = self._sample_type_choices()
+        if self.sample_type_id not in choices:
+            self.sample_type_id = choices if len(choices) == 1 else False
+        elif not self.sample_type_id and len(choices) == 1:
+            self.sample_type_id = choices
+
     @api.onchange("sample_type_id")
     def _onchange_sample_type_detach_sample(self):
         if self.sample_id and self.sample_id.sample_type_id != self.sample_type_id:
             self.sample_id = False
+
+    @api.depends("product_id", "product_template_id", "order_id.partner_id")
+    def _compute_offered_sample_type_ids(self):
+        # A line without a parameter or package yet offers every sample type something on sale can be ordered on, so
+        # the sample type can be chosen first.
+        catalog = None
+        for line in self:
+            if line._parameters():
+                line.offered_sample_type_ids = line._sample_type_choices()
+                continue
+            if catalog is None:
+                catalog = self.env[MODEL_PRODUCT_TEMPLATE]._orderable_sample_types_of_catalog()
+            line.offered_sample_type_ids = catalog
 
     @api.depends("sample_id.sample_type_id", "linked_line_id.sample_type_id")
     def _compute_sample_type_id(self):
@@ -242,29 +281,30 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                     )
                 )
 
+    def _template(self):
+        self.ensure_one()
+        return (self.product_id.product_tmpl_id or self.product_template_id).sudo()
+
     def _parameters(self):
         # The parameter of a parameter line, or the parameters a package includes; read from the shared catalog.
-        self.ensure_one()
-        template = self.product_id.product_tmpl_id.sudo()
-        return template.parameter_id or template.service_package_id.line_ids.parameter_id
+        return self._template()._sold_parameters()
 
     def _own_parameter(self):
         # The parameter a parameter line or a package's parameter tests; empty on a package line.
+        return self._template().parameter_id
+
+    def _package_parts(self):
+        """The parameter lines linked to this package line, whether saved or still in memory."""
         self.ensure_one()
-        return self.product_id.product_tmpl_id.sudo().parameter_id
+        if self.linked_line_ids:
+            return self.linked_line_ids
+        pool = self.order_id.product_line_ids | self.order_id.order_line
+        return pool._get_linked_lines_by_line().get(self, self.browse())
 
     def _sample_type_choices(self):
         """The sample types every parameter of the line can be ordered on."""
         self.ensure_one()
-        parameters = self._parameters()
-        if not parameters:
-            return self.env[MODEL_SAMPLE_TYPE]
-        candidates = parameters[0].sample_type_ids
-        for parameter in parameters[1:]:
-            candidates &= parameter.sample_type_ids
-        return candidates.filtered(
-            lambda sample_type: not any(parameter._order_refusal(sample_type) for parameter in parameters)
-        ).sorted("name")
+        return self._template()._orderable_sample_types(self.order_id.partner_id)
 
     def _preselect_sample_type(self):
         """Give a line new in the cart a sample type to start from, so the expected samples show at once: the one the
@@ -342,7 +382,7 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         is not expanded yet."""
         self.ensure_one()
         package = self._package_of()
-        if not package or self.linked_line_ids or not self.sample_type_id:
+        if not package or self._package_parts() or not self.sample_type_id:
             return []
         partner = self.order_id.partner_id
         ways = []
@@ -360,18 +400,57 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
     def create(self, vals_list):
         order_ids = [vals["order_id"] for vals in vals_list if vals.get("order_id") and not vals.get("is_downpayment")]
         self.env[MODEL_SALE_ORDER].browse(order_ids)._check_content_freeze()
-        lines = super().create(vals_list)
+        # A package's parameter lines expanded on the order form are created after their package and linked to it on
+        # creation, since Sales may not be allowed to write lines of an order they are only creating.
+        parents = [vals for vals in vals_list if not vals.get("linked_virtual_id")]
+        lines = super().create(parents) if parents else self.browse()
+        by_virtual = {line.virtual_id: line.id for line in lines if line.virtual_id}
+        parts = []
+        for vals in vals_list:
+            if vals.get("linked_virtual_id"):
+                linked = by_virtual.get(vals["linked_virtual_id"])
+                parts.append({**vals, "linked_line_id": linked} if linked else vals)
+        if parts:
+            lines |= super().create(parts)
+            # The packages read their parameter lines while being created, before these existed.
+            lines.invalidate_recordset(["linked_line_ids"])
         lines._add_package_parts()
         return lines
 
     def unlink(self):
         self._content_lines().order_id._check_content_freeze()
-        return super().unlink()
+        if not self.env.context.get("_replacing_package_parts"):
+            orphaned = self.filtered(
+                lambda line: bool(
+                    line.linked_line_id
+                    and line.linked_line_id not in self
+                    and line.linked_line_id.exists()
+                    and line.linked_line_id._package_of()
+                )
+            )
+            if orphaned:
+                raise UserError(
+                    self.env._(
+                        "A service package is ordered as a whole; remove the package instead of one of its parameters."
+                    )
+                )
+        return super(SaleOrderLine, self | self.linked_line_ids).unlink()
 
     def write(self, vals):
+        if set(vals) == {"linked_line_id"}:
+            # Odoo links every new line to its package again after creating it; a link that is already set is not a
+            # change, so it needs no write access to the order.
+            changed = self.filtered(lambda line: line.linked_line_id.id != vals["linked_line_id"])
+            if changed != self:
+                return changed.write(vals) if changed else True
         if PORTAL_LOCKED_LINE_FIELDS & set(vals) and self.env.user.share and not self.env.su:
             raise AccessError(self.env._("You cannot change the price of an order."))
         self._check_write_content_freeze(vals)
+        replaced = (
+            self.filtered(lambda line: bool(line.linked_line_ids and line.product_id.id != vals["product_id"]))
+            if "product_id" in vals
+            else self.browse()
+        )
         if "sample_type_id" in vals and "sample_id" not in vals:
             mismatched = self.filtered(
                 lambda line: bool(line.sample_id and line.sample_id.sample_type_id.id != vals["sample_type_id"])
@@ -381,6 +460,9 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                 if mismatched.linked_line_ids:
                     super(SaleOrderLine, cast("SaleOrderLine", mismatched.linked_line_ids)).write({"sample_id": False})
         result = super().write(vals)
+        if replaced:
+            replaced.with_context(_replacing_package_parts=True).linked_line_ids.unlink()
+            replaced._add_package_parts()
         if "product_uom_qty" in vals:
             self._sync_package_part_quantities()
         parts = self.linked_line_ids if "sample_id" in vals else self.browse()
@@ -399,23 +481,23 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
             self.env[MODEL_SALE_ORDER].browse(vals["order_id"])._check_content_freeze()
 
     def _package_of(self):
-        self.ensure_one()
-        return self.product_id.product_tmpl_id.service_package_id.sudo()
+        return self._template().service_package_id.sudo()
 
     def _add_package_parts(self):
         """Give every package line one zero-priced line for each parameter the package includes."""
         parts = []
         for line in self._catalog_lines():
             package = line._package_of()
-            if package and not line.linked_line_ids:
+            # Sales may not yet be allowed to read the lines of an order they are creating.
+            if package and not line.sudo().linked_line_ids:
                 parts += line._package_part_vals({item.parameter_id: item.quantity for item in package.line_ids})
         if parts:
             self.create(parts)
+            for order in self.order_id:
+                order.sudo()._align_package_part_sequences()
 
-    def _package_part_vals(self, quantities):
-        """Values of the zero-priced lines of a package line for the parameters, each tested the given number of times
-        per package."""
-        self.ensure_one()
+    def _package_part_variants(self, quantities):
+        """The product variant of each parameter, with the number of times it is tested per package."""
         products = (
             self.env[MODEL_PRODUCT_TEMPLATE]
             .sudo()
@@ -423,26 +505,53 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
             .search([("parameter_id", "in", [parameter.id for parameter in quantities])])
         )
         variants = {product.parameter_id: product.product_variant_ids[:1] for product in products}
-        vals = []
+        chosen = []
         for parameter, quantity in quantities.items():
             variant = variants.get(parameter)
             if not variant:
                 raise UserError(
                     self.env._("%s has no price, so the package cannot be ordered.", parameter.display_name)
                 )
-            vals.append(
-                {
-                    "order_id": self.order_id.id,
-                    "product_id": variant.id,
-                    "product_uom_qty": quantity * self.product_uom_qty,
-                    "linked_line_id": self.id,
-                    "sample_id": self.sample_id.id,
-                    "sample_type_id": self.sample_type_id.id,
-                    "sequence": self.sequence,
-                    "price_unit": 0.0,
-                }
-            )
-        return vals
+            chosen.append((quantity, variant))
+        return chosen
+
+    def _package_part_vals(self, quantities):
+        """Values of the zero-priced lines of a package line for the parameters, each tested the given number of times
+        per package."""
+        self.ensure_one()
+        return [
+            {
+                "order_id": self.order_id.id,
+                "product_id": variant.id,
+                "product_uom_qty": quantity * self.product_uom_qty,
+                "linked_line_id": self.id,
+                "sample_id": self.sample_id.id,
+                "sample_type_id": self.sample_type_id.id,
+                "sequence": self.sequence,
+                "price_unit": 0.0,
+                "tax_ids": [Command.clear()],
+            }
+            for quantity, variant in self._package_part_variants(quantities)
+        ]
+
+    def _onchange_package_part_vals(self, package):
+        """Values for the in-memory parameter lines expanded when a package is selected on the order form."""
+        self.ensure_one()
+        quantities = {item.parameter_id: item.quantity for item in package.line_ids}
+        return [
+            {
+                "product_id": variant.id,
+                "product_template_id": variant.product_tmpl_id.id,
+                "product_uom_qty": quantity * self.product_uom_qty,
+                "linked_line_id": self._origin.id if self._origin else False,
+                "linked_virtual_id": self.virtual_id if not self._origin else False,
+                "sample_type_id": self.sample_type_id.id,
+                "sequence": self.sequence,
+                "price_unit": 0.0,
+                "tax_ids": [Command.clear()],
+            }
+            for quantity, variant in self._package_part_variants(quantities)
+        ]
 
     def _sync_package_part_quantities(self):
         for line in self._catalog_lines():

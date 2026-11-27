@@ -32,6 +32,13 @@ class ProductTemplate(models.Model, ProductTemplateBase):
         parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, ondelete="restrict", index=True)
         # The service package this product sells; empty for a parameter.
         service_package_id = fields.Many2one(MODEL_SERVICE_PACKAGE, ondelete="restrict", index=True)
+        # The sample types every parameter the product sells can be ordered on.
+        orderable_sample_type_ids = fields.Many2many(
+            MODEL_SAMPLE_TYPE,
+            string="Orderable Sample Types",
+            compute="_compute_orderable_sample_type_ids",
+            search="_search_orderable_sample_type_ids",
+        )
 
     _catalog_kind = models.Constraint(
         "CHECK(parameter_id IS NULL OR service_package_id IS NULL)",
@@ -43,6 +50,59 @@ class ProductTemplate(models.Model, ProductTemplateBase):
     _package_unique = models.Constraint(
         "UNIQUE(service_package_id)", "A service package has only one product, archived products included."
     )
+
+    def _sold_parameters(self):
+        """The parameter a parameter product sells, or the parameters a package product includes; none without a
+        product."""
+        if not self:
+            return self.env[MODEL_TEST_PARAMETER]
+        self.ensure_one()
+        template = self.sudo()
+        return template.parameter_id or template.service_package_id.line_ids.parameter_id
+
+    def _orderable_sample_types(self, partner=None):
+        """The sample types every parameter the product sells can be ordered on, with a way of testing offered to the
+        partner."""
+        parameters = self._sold_parameters()
+        if not parameters:
+            return self.env[MODEL_SAMPLE_TYPE]
+        candidates = parameters[0].sample_type_ids
+        for parameter in parameters[1:]:
+            candidates &= parameter.sample_type_ids
+        return candidates.filtered(
+            lambda sample_type: (
+                not any(
+                    parameter._order_refusal(sample_type) or not parameter._offered_ways(sample_type, partner)
+                    for parameter in parameters
+                )
+            )
+        ).sorted("name")
+
+    @api.depends("parameter_id.sample_type_ids", "service_package_id.line_ids.parameter_id.sample_type_ids")
+    def _compute_orderable_sample_type_ids(self):
+        for template in self:
+            template.orderable_sample_type_ids = template._orderable_sample_types()
+
+    def _search_orderable_sample_type_ids(self, operator, value):
+        if operator != "in":
+            return NotImplemented
+        wanted = self.env[MODEL_SAMPLE_TYPE].browse(value)
+        candidates = (
+            self.with_context(active_test=False)
+            .sudo()
+            .search(
+                Domain("parameter_id.sample_type_ids", "in", wanted.ids)
+                | Domain("service_package_id.line_ids.parameter_id.sample_type_ids", "in", wanted.ids)
+            )
+        )
+        orderable = candidates.filtered(lambda template: bool(template._orderable_sample_types() & wanted))
+        return Domain("id", "in", orderable.ids)
+
+    @api.model
+    def _orderable_sample_types_of_catalog(self):
+        """The sample types at least one parameter on sale can be ordered on."""
+        parameters = self.sudo().search(self._catalog_domain()).parameter_id
+        return parameters.sample_type_ids.sorted("name")
 
     def _in_use_domain(self):
         # Selling the product is what keeps the parameter or package from being archived.

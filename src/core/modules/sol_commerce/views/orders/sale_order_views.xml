@@ -402,17 +402,38 @@
             <xpath expr="//div[@name='so_button_below_order_lines']/widget[@name='discount_menu']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
-            <!-- Prices are whole đồng and lines are counted in whole units. -->
+            <!-- Prices are whole đồng and lines are counted in whole units; package parts carry neither their own price,
+                 quantity nor drag handle. -->
+            <xpath expr="//list[@name='sol_list']/field[@name='sequence']" position="attributes">
+                <attribute name="invisible">combo_item_id or linked_line_id or linked_virtual_id</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/kanban/field[@name='sequence']" position="attributes">
+                <attribute name="invisible">combo_item_id or linked_line_id or linked_virtual_id</attribute>
+            </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='price_unit']/field[@name='price_unit']" position="attributes">
                 <attribute name="widget">monetary</attribute>
                 <attribute name="options">{'currency_field': 'currency_id'}</attribute>
                 <attribute name="readonly">1</attribute>
+                <attribute name="invisible">display_type or linked_line_id or linked_virtual_id</attribute>
             </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='sol_qty']" position="attributes">
                 <attribute name="string">Order Quantity</attribute>
             </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='sol_qty']/field[@name='product_uom_qty']" position="attributes">
                 <attribute name="digits">[16, 0]</attribute>
+                <attribute name="invisible">display_type or linked_line_id or linked_virtual_id</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']/column[@name='sol_uom']/field[@name='product_uom_id']" position="attributes">
+                <attribute name="invisible">display_type or linked_line_id or linked_virtual_id</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']/field[@name='tax_ids']" position="attributes">
+                <attribute name="invisible">display_type or linked_line_id or linked_virtual_id</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']//field[@name='price_subtotal']" position="attributes">
+                <attribute name="invisible">display_type or is_downpayment or linked_line_id or linked_virtual_id</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']//field[@name='price_total']" position="attributes">
+                <attribute name="invisible">display_type or is_downpayment or linked_line_id or linked_virtual_id</attribute>
             </xpath>
             <xpath expr="//list[@name='sol_list']/field[@name='discount']" position="attributes">
                 <attribute name="column_invisible">1</attribute>
@@ -433,8 +454,9 @@
             </xpath>
             <xpath expr="//list[@name='sol_list']//field[@name='product_template_id']" position="attributes">
                 <attribute name="optional" />
+                <attribute name="readonly">(id and not product_updatable) or linked_line_id or linked_virtual_id</attribute>
                 <attribute name="required">not display_type and not is_downpayment</attribute>
-                <attribute name="domain">[('sale_ok', '=', True), '|', ('parameter_id', '!=', False), ('service_package_id', '!=', False)]</attribute>
+                <attribute name="domain">[('sale_ok', '=', True), '|', ('parameter_id', '!=', False), ('service_package_id', '!=', False)] + ([('orderable_sample_type_ids', 'in', [sample_type_id])] if sample_type_id else [])</attribute>
                 <attribute name="placeholder">Type to find a parameter or package...</attribute>
                 <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
             </xpath>
@@ -456,33 +478,39 @@
                 <attribute name="column_invisible">1</attribute>
             </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="after">
-                <field name="sample_id" readonly="1" optional="hide" options="{'no_open': True}" />
-                <field name="sample_type_id" readonly="linked_line_id" options="{'no_create': True}" optional="show" />
+                <field name="sample_id" readonly="1" optional="hide" options="{'no_open': True}" invisible="linked_line_id or linked_virtual_id" />
+                <field name="offered_sample_type_ids" column_invisible="1" />
+                <field name="sample_type_id" force_save="1" readonly="linked_line_id or linked_virtual_id or not offered_sample_type_ids" invisible="display_type or linked_line_id or linked_virtual_id" options="{'no_create': True}" optional="show" />
                 <field name="offered_method_ids" column_invisible="1" />
                 <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" context="{'medilab_way_by_method': True}" />
-                <field name="expected_sample_count" readonly="1" optional="show" />
-                <field name="expected_sample_summary" readonly="1" optional="show" />
+                <field name="expected_sample_count" readonly="1" optional="show" invisible="display_type or linked_line_id or linked_virtual_id" />
+                <field name="expected_sample_summary" readonly="1" optional="show" invisible="display_type or linked_line_id or linked_virtual_id" />
             </xpath>
             <!-- The form of a line, used when the window is narrow, follows the list. -->
             <xpath expr="//field[@name='order_line']/form//label[@for='product_id']" position="attributes">
                 <attribute name="string">Parameter or package</attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="attributes">
-                <attribute name="domain">[('sale_ok', '=', True), '|', ('parameter_id', '!=', False), ('service_package_id', '!=', False)]</attribute>
+                <attribute name="readonly">not product_updatable or linked_line_id or linked_virtual_id</attribute>
+                <attribute name="domain">[('sale_ok', '=', True), '|', ('parameter_id', '!=', False), ('service_package_id', '!=', False)] + ([('product_tmpl_id.orderable_sample_type_ids', 'in', [sample_type_id])] if sample_type_id else [])</attribute>
                 <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']/form/group/group/field[@name='name']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']/form/group/group/field[@name='name']" position="after">
-                <field name="sample_id" readonly="1" invisible="not sample_id" options="{'no_open': True}" />
-                <field name="sample_type_id" readonly="linked_line_id" options="{'no_create': True}" />
+                <field name="linked_line_id" invisible="1" />
+                <field name="virtual_id" invisible="1" />
+                <field name="linked_virtual_id" invisible="1" />
+                <field name="sample_id" readonly="1" invisible="not sample_id or linked_line_id or linked_virtual_id" options="{'no_open': True}" />
+                <field name="offered_sample_type_ids" invisible="1" />
+                <field name="sample_type_id" force_save="1" readonly="linked_line_id or linked_virtual_id or not offered_sample_type_ids" invisible="linked_line_id or linked_virtual_id" options="{'no_create': True}" />
                 <field name="offered_method_ids" invisible="1" />
                 <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" context="{'medilab_way_by_method': True}" />
                 <field name="default_way_notice" class="text-warning" invisible="not default_way_notice" />
-                <field name="expected_sample_count" readonly="1" invisible="not expected_sample_count" />
-                <field name="expected_sample_summary" readonly="1" invisible="not expected_sample_summary" />
-                <field name="sampling_preservation" readonly="1" invisible="not sampling_preservation" />
+                <field name="expected_sample_count" readonly="1" invisible="not expected_sample_count or linked_line_id or linked_virtual_id" />
+                <field name="expected_sample_summary" readonly="1" invisible="not expected_sample_summary or linked_line_id or linked_virtual_id" />
+                <field name="sampling_preservation" readonly="1" invisible="not sampling_preservation or linked_line_id or linked_virtual_id" />
             </xpath>
             <xpath expr="//field[@name='order_line']/form//label[@for='product_uom_qty']" position="attributes">
                 <attribute name="string">Order Quantity</attribute>

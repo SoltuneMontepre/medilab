@@ -6528,6 +6528,33 @@ msgid "Log"
 msgstr "Nhật Ký"
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
+msgid ""
+"A service package is ordered as a whole; remove the package instead of one "
+"of its parameters."
+msgstr ""
+"Nhóm dịch vụ được đặt nguyên nhóm; hãy xóa nhóm dịch vụ thay vì xóa một chỉ "
+"tiêu của nhóm."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__offered_sample_type_ids
+msgid "Offered Sample Types"
+msgstr "Các Loại Mẫu Được Cung Cấp"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_product_product__orderable_sample_type_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_product_template__orderable_sample_type_ids
+msgid "Orderable Sample Types"
+msgstr "Các Loại Mẫu Có Thể Đặt"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__line_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quoted_line_ids
+msgid "Quoted Lines"
+msgstr "Các Dòng Báo Giá"
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__order_line
 msgid "All Order Lines"
 msgstr "Tất Cả Dòng Đơn Hàng"

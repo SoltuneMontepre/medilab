@@ -1,0 +1,37 @@
+.o_form_view .o_sale_order_line_o2m .o_list_table tbody tr.o_data_row.o_medilab_package_line > td {
+    border-bottom-color: #eef2f6 !important;
+}
+
+.o_form_view .o_sale_order_line_o2m .o_list_table tbody tr.o_data_row.o_medilab_package_line > td[name="product_and_description"] {
+    font-weight: 600;
+}
+
+.o_form_view .o_sale_order_line_o2m .o_list_table tbody tr.o_data_row.o_medilab_package_part > td {
+    background-color: #f8fafc !important;
+    padding-top: 0.45rem !important;
+    padding-bottom: 0.45rem !important;
+    border-bottom-color: #eef2f6 !important;
+}
+
+.o_form_view .o_sale_order_line_o2m .o_list_table tbody tr.o_data_row.o_medilab_package_part:hover > td {
+    background-color: #f1f5f9 !important;
+}
+
+.o_form_view .o_sale_order_line_o2m .o_list_table tbody tr.o_data_row.o_medilab_package_part:not(:has(+ tr.o_medilab_package_part)) > td {
+    border-bottom-color: #e2e8f0 !important;
+}
+
+.o_form_view .o_sale_order_line_o2m .o_list_table tbody tr.o_data_row.o_medilab_package_part > td[name="product_and_description"] .o_column_group_field[data-field-name="product_template_id"] {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding-left: 1.25rem;
+    color: #475569;
+    font-size: 0.875rem;
+}
+
+.o_form_view .o_sale_order_line_o2m .o_list_table tbody tr.o_data_row.o_medilab_package_part > td[name="product_and_description"] .o_column_group_field[data-field-name="product_template_id"]::before {
+    content: "↳";
+    color: #94a3b8;
+    flex-shrink: 0;
+}

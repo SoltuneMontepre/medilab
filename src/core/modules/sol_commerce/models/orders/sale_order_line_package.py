@@ -32,7 +32,7 @@ class SaleOrderLinePackage(models.Model, SaleOrderLinePackageBase):
             lambda part: part.product_id.product_tmpl_id.sudo().parameter_id not in parameters
         )
         missing = parameters - self._package_parameter_ids()
-        dropped.unlink()
+        dropped.with_context(_replacing_package_parts=True).unlink()
         if missing:
             self.create(self._package_part_vals(dict.fromkeys(missing, 1)))
         self._lock_catalog_price()
