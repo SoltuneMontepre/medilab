@@ -105,20 +105,21 @@ describe("WF-02 Sample reception and handover", () => {
       });
       cy.readRecord(request, ["status"]).its("status").should("eq", "sample_received");
 
-      step("Staff print the labels of the test request");
-      openMenu(MENU.laboratory, MENU.requests, MENU.testRequests);
-      openRow(request.code);
-      cy.intercept("POST", "/report/download").as("labels");
-      cy.get(".o_statusbar_buttons button[name=action_print_labels]").click();
-      cy.wait("@labels").its("response.statusCode").should("eq", 200);
-
       step("Staff fill in the handover record, which the customer signs");
       fillHandoverRecord(request, sample, "500 ml", { list: () => openMenu(MENU.laboratory, MENU.samples, MENU.handoverRecords) }).then((record) => {
+        callRefused("medilab.test.request", "action_print_labels", [[request.id]]).should("contain", "sign the handover record");
         // The customer signs on the phone of sample delivery staff.
         callAs(STAFF, "medilab.handover.record", "action_sign", [[record.id], PNG]);
         cy.reload();
         cy.get(".o_field_widget[name=status] .o_arrow_button_current").should("contain", "Signed");
       });
+
+      step("Staff print the labels of the samples the customer signed for");
+      openMenu(MENU.laboratory, MENU.requests, MENU.testRequests);
+      openRow(request.code);
+      cy.intercept("POST", "/report/download").as("labels");
+      cy.get(".o_statusbar_buttons button[name=action_print_labels]").click();
+      cy.wait("@labels").its("response.headers.content-type").should("include", "application/pdf");
 
       step("The head of department scans the label, which queues the sample's testing task");
       cy.signInAs("head_of_department");
@@ -465,13 +466,15 @@ describe("WF-02 feature acceptance criteria", () => {
   });
 
   it("TC-F17-02 prints a label with the lab code, request code, due date and QR code, never the customer", () => {
-    staffRequest({ expectedDate: "2099-12-31" }).then(({ code, samples: [sample] }) => {
+    staffRequest({ expectedDate: "2099-12-31" }).then((request) => {
+      const [sample] = request.samples;
+      signedRecord(request, sample);
       cy.signInAs("sample_delivery_staff");
       cy.request(`/report/html/sol_laboratory.report_sample_label/${sample.id}`)
         .its("body")
         .should((html) => {
           expect(html).to.contain(sample.code);
-          expect(html).to.contain(code);
+          expect(html).to.contain(request.code);
           expect(html).to.match(/Due<\/span>\s*<span>[^<]*\d{4}/);
           expect(html).to.match(/<img[^>]+(barcode|qr)/i);
           expect(html).not.to.contain("Nước Uống Sạch");

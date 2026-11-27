@@ -346,6 +346,20 @@ class Sample(models.Model, SampleBase):
     def _in_use_domain(self):
         return Domain("status", "not in", FINISHED_STATUSES)
 
+    def _samples_for_labels(self, *, allow_partial=False):
+        """Only samples the customer acknowledged on a signed record of their request may be labelled."""
+        self.check_access("read")
+        # Read signature status even for staff who may print labels but cannot open the customer's signed record.
+        signed_lines = self.sudo().handover_line_ids.filtered(
+            lambda line: line.record_id.status == "signed" and line.record_id.request_id == line.sample_id.request_id
+        )
+        signed_samples = self & signed_lines.sample_id
+        if not signed_samples or (not allow_partial and signed_samples != self):
+            raise UserError(
+                self.env._("The customer must sign the handover record for each sample before printing its label.")
+            )
+        return signed_samples
+
     def action_receive(self, quantity, condition, condition_note=None, storage_location=None):
         """Record the condition staff decide on arrival. Only a sample in good condition is received; the system
         rejects an unusable one and puts an insufficient one on hold, neither of them received."""

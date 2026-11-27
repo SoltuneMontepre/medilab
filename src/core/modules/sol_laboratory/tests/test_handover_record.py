@@ -1,6 +1,5 @@
 from psycopg2 import IntegrityError
 
-from odoo import fields
 from odoo.exceptions import UserError
 from odoo.fields import Command
 from odoo.tests import new_test_user, tagged
@@ -25,17 +24,7 @@ class TestHandoverRecord(RequestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.customer.email = "reception@anphu.example"
-        cls.record = cls.env[MODEL_HANDOVER_RECORD].create(
-            {
-                "request_id": cls.request.id,
-                "handed_over_at": fields.Datetime.now(),
-                "handed_over_by_name": "Tran Van Khach",
-                "received_by_id": cls.env.ref("sol_laboratory.person_administrator").id,
-                "sample_ids": [
-                    Command.create({"sample_id": cls.sample.id, "quantity": "2 bottles of 1 L", "condition": "good"})
-                ],
-            }
-        )
+        cls.record = cls.handover_for(cls.sample)
         cls.editor = new_test_user(
             cls.env,
             login="handover.editor",
