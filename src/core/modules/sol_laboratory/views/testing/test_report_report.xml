@@ -26,7 +26,7 @@
         <t t-set="header" t-value="report._print_header()" />
         <div class="page" style="font-family: sans-serif; font-size: 10pt">
             <div
-                t-if="report._digital_signing_draft()"
+                t-if="report._print_draft_mark()"
                 style="border: 2px solid #c00; color: #c00; text-align: center; font-weight: bold; padding: 2mm"
             >
                 <span t-out="labels['draft']" />
@@ -70,7 +70,7 @@
                 <strong t-out="labels['signatures']" />
                 <table style="width: 100%; margin-top: 2mm">
                     <tr>
-                        <td t-foreach="report._print_signers()" t-as="signer" style="vertical-align: top">
+                        <td t-foreach="report._print_signers(report_signers=not report._print_for_review())" t-as="signer" style="vertical-align: top">
                             <div t-out="signer['level']" />
                             <div style="margin-top: 12mm; font-weight: bold" t-out="signer['name']" />
                         </td>
@@ -78,7 +78,7 @@
                 </table>
             </div>
             <div
-                t-if="not report._digital_signing_draft() and report._digital_signing_enabled()"
+                t-if="not report._print_draft_mark() and report._digital_signing_enabled()"
                 style="margin-top: 6mm; font-size: 8pt"
                 t-out="labels['verify']"
             />

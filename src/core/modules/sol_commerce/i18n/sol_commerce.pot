@@ -4757,8 +4757,6 @@ msgid "Receivables"
 msgstr ""
 
 #. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 #: model:ir.model.fields,field_description:sol_commerce.field_account_payment__received_at
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__received_at
 msgid "Received At"
@@ -6512,4 +6510,26 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 msgid "working days of receiving the samples."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Sample Received At"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__samples_received
+msgid "Samples received"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__expects_samples
+msgid "Expects Samples"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "The order's samples are all received; none is left to collect."
 msgstr ""

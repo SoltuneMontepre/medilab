@@ -47,7 +47,7 @@ class TestOrderTracking(ChangeRequestCase):
         self.sign()
         return self.released_messages()
 
-    def test_the_order_shows_waiting_testing_then_completed_and_completes_with_the_report(self):
+    def test_the_order_shows_waiting_then_testing_until_the_report_completes_it(self):
         self.assertEqual(self.progress(), "waiting")
 
         result = self.enter()
@@ -55,7 +55,7 @@ class TestOrderTracking(ChangeRequestCase):
 
         self.send(result)
         self.approve(result)
-        self.assertEqual((self.request.status, self.progress()), ("completed", "completed"))
+        self.assertEqual((self.request.status, self.progress()), ("completed", "testing"))
         self.assertEqual(self.order.order_status, "confirmed")
 
         self.sign()

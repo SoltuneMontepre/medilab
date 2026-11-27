@@ -114,7 +114,7 @@
                         type="action"
                         string="Change Template"
                         context="{'default_report_id': id}"
-                        invisible="not pdf_preparable"
+                        invisible="not pdf_preparable or not uses_templates"
                         groups="sol_laboratory.group_permission_test_report_sign_all"
                     />
                     <button

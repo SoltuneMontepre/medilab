@@ -7,9 +7,11 @@ from odoo.tools import format_date
 from odoo.addons.sol_laboratory.constants.laboratory_files import FILE_READ, GENERATED, PERMISSION_DENIED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DOCUMENT_LOCK,
+    MODEL_IR_ACTIONS_REPORT,
     MODEL_LABORATORY_CONTENT,
     MODEL_LABORATORY_EDITING_SESSION,
     MODEL_LABORATORY_FILE,
+    MODEL_LABORATORY_FILE_VERSION,
     MODEL_REPORT_TEMPLATE,
     MODEL_REPORT_TEMPLATE_VERSION,
     MODEL_TEST_REPORT,
@@ -20,14 +22,17 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.constants.report_templates import (
     ARCHIVED,
     AVAILABLE,
+    CANDIDATE_PRINT_CONTEXT,
     CANDIDATE_REVIEW,
     ISSUE_BINDINGS,
     REPORT_GENERATION_CONTEXT,
     REQUIRED_BINDINGS,
 )
-from odoo.addons.sol_laboratory.constants.xml_ids import REPORT_DRAFTS_FOLDER
+from odoo.addons.sol_laboratory.constants.signing import UNSIGNED_PRINT_CONTEXT
+from odoo.addons.sol_laboratory.constants.xml_ids import REPORT_DRAFTS_FOLDER, TEST_REPORT_REPORT
 from odoo.addons.sol_laboratory.models.testing.test_report import ISSUED_STATUSES, PRINT_LANGS
 from odoo.addons.sol_laboratory.services import laboratory_bucket, report_docx
+from odoo.addons.sol_laboratory.services.editing_service_health import is_editing_service_configured
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.report_docx import paragraph, table
 
@@ -70,6 +75,9 @@ class TestReport(models.Model, TestReportBase):
         candidate_current = fields.Boolean(compute="_compute_candidate")
         # True while a PDF can be prepared: the report is unsigned and its results are approved.
         pdf_preparable = fields.Boolean(compute="_compute_candidate")
+        # True when the installation has ONLYOFFICE, so the PDF is converted from a template version's DOCX; without
+        # it, Odoo's own report renders the PDF and template versions do not apply.
+        uses_templates = fields.Boolean(compute="_compute_uses_templates")
 
     _draft_file_unique = models.Constraint("UNIQUE(draft_file_id)", "A DOCX draft belongs to one test report.")
 
@@ -81,6 +89,9 @@ class TestReport(models.Model, TestReportBase):
             report.has_candidate = bool(candidate)
             report.candidate_current = bool(candidate) and candidate._is_current()
             report.pdf_preparable = bool(report.id) and report.sudo()._pdf_blocked() is None
+
+    def _compute_uses_templates(self):
+        self.uses_templates = is_editing_service_configured()
 
     def _candidate(self):
         """The prepared PDF waiting for review and signature; none once the report is issued."""
@@ -153,18 +164,25 @@ class TestReport(models.Model, TestReportBase):
         review becomes obsolete."""
         self.ensure_one()
         self._check_permission("sign")
+        if not is_editing_service_configured():
+            raise UserError(self.env._("Template versions apply only on an installation with ONLYOFFICE."))
         if version == self.sudo().template_version_id:
             raise UserError(self.env._("The report already uses this template version."))
         self._prepare_pdf(version, self.env._("Another template version was chosen."))
 
     def _prepare_pdf(self, version=None, reason=None):
         """Generate the draft again from the template version (the report's own by default) and the business records,
-        and prepare its PDF for the lab head's review with the reserved report number. A failure changes nothing."""
+        and prepare its PDF for the lab head's review with the reserved report number. Without ONLYOFFICE, Odoo's own
+        report renders the PDF instead. A failure changes nothing."""
         self.ensure_one()
         report = self.sudo()
         blocked = report._pdf_blocked()
         if blocked:
             raise UserError(blocked)
+        if not is_editing_service_configured():
+            with self.env[MODEL_DOCUMENT_LOCK]._operation(report):
+                report._candidate()._invalidate(reason or self.env._("The PDF was prepared again."))
+                return report._prepare_built_in_candidate()
         try:
             self.env[MODEL_LABORATORY_EDITING_SESSION]._check_editing_available()
         except LaboratoryFileError as error:
@@ -259,6 +277,24 @@ class TestReport(models.Model, TestReportBase):
         candidates = self.env[MODEL_TEST_REPORT_CANDIDATE]
         pdf = candidates._convert(final_version.content_id, f"{number}.docx")
         return candidates._store(report, final_version, pdf, business, number, day)
+
+    def _prepare_built_in_candidate(self):
+        """Render the report with Odoo's own report as the PDF the lab head reviews and signs, with the reserved report
+        number."""
+        report = self.sudo()
+        business = report._binding_values()
+        # The module ships the report sequence, so a number always comes back.
+        report.code = report.code or cast("str", self.env["ir.sequence"].next_by_code(MODEL_TEST_REPORT))
+        day = report._laboratory_day(fields.Datetime.now())
+        pdf, _report_type = (
+            self.env[MODEL_IR_ACTIONS_REPORT]
+            .sudo()
+            # The PDF is what the lab head signs, so it is rendered as a PDF even where tests would get its HTML.
+            .with_context(**{UNSIGNED_PRINT_CONTEXT: True, CANDIDATE_PRINT_CONTEXT: True}, force_report_rendering=True)
+            ._render_qweb_pdf(TEST_REPORT_REPORT, report.ids)
+        )
+        no_docx = self.env[MODEL_LABORATORY_FILE_VERSION]
+        return self.env[MODEL_TEST_REPORT_CANDIDATE]._store(report, no_docx, pdf, business, report.code, day)
 
     def _check_draft_matches(self, docx, values):
         """Refuse a draft whose template misses bindings or whose business bindings do not print the business

@@ -4,7 +4,7 @@ Stories: US-AD36, US-LH01, US-LH02, US-LH03, US-SD14, SH-04, SH-07, SH-08
 
 ## Goal
 
-Administrators edit report templates in ONLYOFFICE. MediLab generates a DOCX from approved business data and converts it to a read-only PDF, and the Lab Head reviews that PDF before signing. Nobody edits a report draft. Customers receive the issued PDF. The template, data and files behind an issued version remain traceable and unchanged.
+ONLYOFFICE is optional. On an installation with ONLYOFFICE, administrators edit report templates in it, and MediLab generates a DOCX from approved business data and converts it to a read-only PDF. Without ONLYOFFICE, MediLab renders the read-only PDF with its built-in report. Either way the Lab Head reviews that PDF before signing. Nobody edits a report draft. Customers receive the issued PDF. The template, data and files behind an issued version remain traceable and unchanged.
 
 ## Design
 
@@ -74,9 +74,11 @@ Preparing a PDF freezes one candidate for approval:
 3. Convert that DOCX to PDF and store the candidate with its hash and the identifiers of its DOCX, template and data versions. Required generated metadata must be part of this candidate, rather than added by re-rendering after approval.
 4. Present that candidate for review. Its draft status is clear in the interface; a marked draft print is a separate preview copy, never the source used for digital signing.
 
-MediLab prepares the PDF of an unsigned draft report whose results are all approved, with no one's action: the scheduled job `test_report.prepare` runs every minute, and is woken when the report is drafted, and prepares each such report that has no current PDF. Preparing does this in one transaction, holding the report's operation lock and the draft file's row:
+MediLab prepares the PDF of an unsigned draft report whose results are all approved, with no one's action: the scheduled job `test_report.prepare` runs every minute, and is woken when the report is drafted, and prepares each such report that has no current PDF. An installation has ONLYOFFICE when `ONLYOFFICE_INTERNAL_URL` is set. Without it, preparing renders the report with the built-in QWeb report that **Print Draft** prints, without its draft mark and without the report's own signatures, under the report number it reserves, and stores a `medilab.test.report.candidate` of origin built-in, with no template version or DOCX. Its PDF is reviewed, signed and issued like a converted one, and it is current while it waits for review with the same result versions and printed business values. Templates, template versions and **Change Template** apply only with ONLYOFFICE: the button is hidden, and choosing a version is refused.
 
-- It refuses while ONLYOFFICE's health check fails; the job then waits and tries the report again without counting a failed attempt.
+With ONLYOFFICE, preparing does this in one transaction, holding the report's operation lock and the draft file's row:
+
+- It refuses while ONLYOFFICE's health check fails; the job then waits and tries the report again without counting a failed attempt. A configured ONLYOFFICE that is down never falls back to the built-in report.
 - It generates the draft again from the report's template version, or from the available version of its language the Lab Head chose, and the business records, so a draft never differs from them.
 - It refuses when a required binding is missing from the template, or when a business binding does not print what the business records give.
 - It reserves the report number from the report sequence, fills `report_number` and `report_date` into a new DOCX version of the draft, has ONLYOFFICE convert that version to PDF, and stores a `medilab.test.report.candidate` waiting for review with the PDF, its SHA-256, the template version, the DOCX version, the result versions, the printed number and date, and the printed business values. A failed conversion stores nothing and keeps no number; the job counts a failed attempt and tries again, up to 8 attempts, and an item that fails for good alerts the administrator as every failed job item does.
@@ -114,7 +116,8 @@ A failed conversion blocks preparation of a new candidate and clearly identifies
 
 - An administrator edits and previews a template in ONLYOFFICE and makes a valid saved version available; a missing required binding prevents availability.
 - Generating a report uses an available template in the request's language and the approved result versions, excluding cancelled tests.
-- Once every result of a request is approved, MediLab prepares its report's PDF without anyone editing a draft, and the Lab Head reviews it. While ONLYOFFICE is unavailable the report waits for its PDF.
+- Once every result of a request is approved, MediLab prepares its report's PDF without anyone editing a draft, and the Lab Head reviews it. While a configured ONLYOFFICE is unavailable the report waits for its PDF.
+- Without ONLYOFFICE, the built-in PDF is prepared, and the Lab Head reviews, signs and issues it; a mismatch with approved data blocks signing, and no template version can be chosen.
 - Nobody can edit a report draft. Correcting a generated business value goes through business records, regeneration and fresh review.
 - A rejection keeps the signing task. Once the results it named are approved again, MediLab prepares a new PDF, which the Lab Head reviews in the same task.
 - Only the Lab Head, who signs the report, chooses another template version or has the PDF prepared again, and not once any level has signed. Sample delivery staff record deliveries and cannot.
