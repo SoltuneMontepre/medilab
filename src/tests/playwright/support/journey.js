@@ -168,4 +168,13 @@ export async function step(page, name, run) {
   });
 }
 
+// A business step the journey cannot drive: one the business takes on Medilab Mobile, Medilab Sync or by e-mail, or one
+// that waits for days to pass. The report lists it with where it happens, and the flow goes on as the business does.
+export async function outside(name, where) {
+  const number = (walked.get(base.info()) ?? 0) + 1;
+  walked.set(base.info(), number);
+  base.info().annotations.push({ type: "Outside the browser", description: `${name} (${where})` });
+  await base.step(`${String(number).padStart(2, "0")} Outside the browser: ${name} (${where})`, async () => {});
+}
+
 export { expect };
