@@ -19991,6 +19991,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample.py:0
 msgid "The customer must sign the handover record for each sample before printing its label."
+msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report_candidate__origin__built_in
