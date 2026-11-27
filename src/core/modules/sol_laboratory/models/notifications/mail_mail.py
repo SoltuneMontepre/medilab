@@ -51,12 +51,12 @@ class MailMail(models.Model, MailMailBase):
 
     def _prepare_outgoing_list(self, mail_server=False, doc_to_followers=None):
         # The email shares its message's subject; a notice without one is titled with its event in each recipient's
-        # language.
+        # language. Its address line has no partner of its own and goes to the notice's one recipient.
         emails = super()._prepare_outgoing_list(mail_server=mail_server, doc_to_followers=doc_to_followers)
         event = self.sudo().mail_message_id.subtype_id
         if not self.subject and event:
             for email in emails:
-                lang = email["partner_id"].lang if email["partner_id"] else False
+                lang = (email["partner_id"] or self.recipient_ids[:1]).lang
                 email["subject"] = event.with_context(lang=lang or self.env.lang).name
         return emails
 

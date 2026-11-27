@@ -40,7 +40,7 @@ class TestNoticePortal(HttpCase):
         user.partner_id.write({"parent_id": parent.id, "email": f"{login}@example.com"})
         return user
 
-    def raise_notice(self, user, subject="Invoice HD-1", body="Invoice HD-1 is attached."):
+    def raise_notice(self, user, subject: str | None = "Invoice HD-1", body="Invoice HD-1 is attached."):
         self.keys += 1
         message = self.env[MODEL_MAIL_MESSAGE].raise_event(
             EVENT_INVOICE_SENT,
@@ -91,8 +91,8 @@ class TestNoticePortal(HttpCase):
         self.assertNotEqual(title, event.with_context(lang="en_US").name)
         self.assertIn(title, page.text)
         self.assertIn(title, self.url_open(f"/my/notifications/{notice.id}").text)
-        [email] = notice.mail_mail_id._prepare_outgoing_list()
-        self.assertEqual(email["subject"], title)
+        emails = notice.mail_mail_id._prepare_outgoing_list()
+        self.assertEqual({email["subject"] for email in emails}, {title})
 
     def test_opening_a_notice_shows_it_and_records_the_first_open_once(self):
         notice = self.raise_notice(self.hoa)
