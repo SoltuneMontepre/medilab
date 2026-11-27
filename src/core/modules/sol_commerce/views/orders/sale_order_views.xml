@@ -297,7 +297,9 @@
             </xpath>
             <xpath expr="//group[@name='partner_details']" position="inside">
                 <field name="reordered_from_id" readonly="1" invisible="not reordered_from_id" />
-                <field name="requested_date" invisible="not requested_date" />
+                <field name="min_requested_date" invisible="1" />
+                <field name="requested_date" invisible="not requested_date and state != 'draft'" readonly="state != 'draft'" options="{'min_date': 'min_requested_date'}" />
+                <field name="standard_return_date" invisible="not standard_return_date or state != 'draft'" />
                 <field name="priority_request" invisible="not priority_request" decoration-warning="priority_request == 'requested'" widget="badge" />
                 <field name="test_request_id" readonly="1" invisible="not test_request_id" />
                 <field name="collection_summary" invisible="not collection_summary" />

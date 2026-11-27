@@ -6727,3 +6727,116 @@ msgstr "chỉ tiêu đã chọn. Bỏ chọn chỉ tiêu bạn không cần ho�
 #: code:addons/sol_commerce/models/pricing/service_package.py:0
 msgid "These parameters are not for sale today: %s"
 msgstr "Các chỉ tiêu này hôm nay không được bán: %s"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
+msgid ""
+"A date before the standard return date is a priority request, which adds "
+"%(amount)s excluding VAT (%(rate)s%%). Sales confirms whether the laboratory"
+" can meet it."
+msgstr "Ngày sớm hơn ngày trả kết quả tiêu chuẩn là yêu cầu ưu tiên, cộng thêm %(amount)s chưa gồm VAT (%(rate)s%%). Bộ phận kinh doanh sẽ xác nhận phòng thử nghiệm có kịp hay không."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
+msgid ""
+"A date before the standard return date is a priority request. Sales confirms"
+" whether the laboratory can meet it."
+msgstr "Ngày sớm hơn ngày trả kết quả tiêu chuẩn là yêu cầu ưu tiên. Bộ phận kinh doanh sẽ xác nhận phòng thử nghiệm có kịp hay không."
+
+#. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_res_config_settings__priority_surcharge_percent
+msgid ""
+"Added as a quotation line when Sales accepts a priority order: this "
+"percentage of the ordered lines after their discounts, excluding VAT. 0 adds"
+" no line. Applies to quotations not sent yet."
+msgstr "Được thêm thành một dòng báo giá khi bộ phận kinh doanh chấp nhận đơn ưu tiên: tỷ lệ này tính trên các dòng đã đặt sau chiết khấu, chưa gồm VAT. 0 thì không thêm dòng. Áp dụng cho các báo giá chưa gửi."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
+msgid "Choose a date on or after %s for the results."
+msgstr "Hãy chọn ngày nhận kết quả từ %s trở đi."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form_orders
+msgid ""
+"Customers and Sales may ask for results earlier than the standard "
+"turnaround."
+msgstr "Khách hàng và bộ phận kinh doanh có thể yêu cầu kết quả sớm hơn thời gian trả kết quả chuẩn."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__min_requested_date
+msgid "Min Requested Date"
+msgstr "Ngày khách yêu cầu sớm nhất"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__res_config_settings__priority_orders__off
+msgid "Not offered"
+msgstr "Không áp dụng"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__res_config_settings__priority_orders__on
+msgid "Offered"
+msgstr "Áp dụng"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__priority_orders
+#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form_orders
+msgid "Priority Orders"
+msgstr "Đơn ưu tiên"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__priority_surcharge_percent
+msgid "Priority Surcharge (%)"
+msgstr "Phụ phí ưu tiên (%)"
+
+#. module: sol_commerce
+#: model:product.template,name:sol_commerce.product_priority_surcharge_product_template
+msgid "Priority surcharge"
+msgstr "Phụ phí ưu tiên"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__priority_min_turnaround_days
+msgid "Shortest Priority Turnaround (working days)"
+msgstr "Thời gian ưu tiên ngắn nhất (ngày làm việc)"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__standard_return_date
+msgid "Standard Return Date"
+msgstr "Ngày trả kết quả tiêu chuẩn"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
+msgid ""
+"Standard return date: %(date)s, %(days)s working days after the samples are "
+"picked up today."
+msgstr "Ngày trả kết quả tiêu chuẩn: %(date)s, %(days)s ngày làm việc sau khi lấy mẫu hôm nay."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/res_config_settings.py:0
+msgid "The priority surcharge must be between 0% and 100%."
+msgstr "Phụ phí ưu tiên phải từ 0% đến 100%."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/res_config_settings.py:0
+msgid "The shortest priority turnaround must be at least 1 working day."
+msgstr "Thời gian ưu tiên ngắn nhất phải tối thiểu 1 ngày làm việc."
+
+#. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_res_config_settings__priority_orders
+msgid ""
+"Whether customers and Sales may ask for results earlier than the standard "
+"turnaround."
+msgstr "Khách hàng và bộ phận kinh doanh có được yêu cầu kết quả sớm hơn thời gian trả kết quả chuẩn hay không."
+
+#. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_res_config_settings__priority_min_turnaround_days
+msgid ""
+"Working days from the expected sample pickup to the earliest date a priority"
+" order may ask for."
+msgstr "Số ngày làm việc từ ngày lấy mẫu dự kiến đến ngày sớm nhất mà đơn ưu tiên được yêu cầu."

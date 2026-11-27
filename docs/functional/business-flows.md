@@ -608,13 +608,13 @@ flowchart TD
 
 - **Trigger:** Sales prepares a quotation or changes its scope, a customer asks for earlier results, or a committed or internal result date needs review.
 - **Result:** The customer has a feasible expected return date beside their requested date, internal due dates are derived or explicitly overridden, and accepted priority marks the tests urgent.
-- **Stories:** US-C22, US-S21, US-S22, US-HD04, US-HD13, US-HD14.
+- **Stories:** US-C22, US-S21, US-S22, US-AD39, US-HD04, US-HD13, US-HD14.
 - **Features:** [F-08](../reports/feature-list/readme.md#f-08-estimated-result-date-and-priority-check).
 - **States:** proposed return date → expected return date; automatic internal due dates recalculated, manual overrides retained; accepted priority → urgent tests.
 - **Starts from:** quotations in preparation, authorized people and required resource schedules, and outsourced ways with transport and processing turnaround.
 - **Main path:** The quotation shows the standard turnaround of its ways of testing, in working days from sample receipt, and the date results would be returned for samples picked up on the day Sales agrees with the customer when sending, later when the laboratory's load, including confirmed orders whose samples have not arrived, leaves the order's tests to finish later. Sales records the customer's requested date; when that estimate meets it, it becomes the expected return date, otherwise receiving the first sample fixes the expected return date at the receipt day plus the turnaround, or later under the same load. Automatic internal due dates follow the expected return date.
 - **Alternative paths:**
-  - SF-07-A1: The customer requests priority on the portal; Sales accepts or declines it on the quotation after checking feasibility. Accepted priority makes its tests urgent.
+  - SF-07-A1: A requested date earlier than the standard return date, and no earlier than the shortest priority turnaround the administrator allows, makes the order a priority request; the cart shows the priority surcharge. Sales accepts or declines it on the quotation after checking feasibility. Accepted priority adds the surcharge line and makes its tests urgent.
   - SF-07-A2: Adding a parameter updates the estimated return date.
   - SF-07-A3: The head changes an internal due date with a reason. Preserve it when the expected return date changes; recalculate only automatic dates. The feasibility check only reads: it uses company working days, holidays and leave, proposes the earliest feasible date and reserves or moves no bookings. An infeasible date may be kept with a reason and risk flag.
 - **Exceptions:**

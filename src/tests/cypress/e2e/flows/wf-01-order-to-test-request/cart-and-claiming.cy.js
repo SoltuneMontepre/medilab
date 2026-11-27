@@ -53,33 +53,49 @@ describe("WF-01 portal cart and order claiming (F-04, F-05)", () => {
     cy.get("form[action='/cart/submit']").should("exist");
   });
 
-  it("TC-F04-04 keeps a priority request and submitted details after missing-date validation", () => {
+  it("TC-F04-04 keeps the requested date and submitted details after refusing a date that is too early", () => {
     becomeVisitor().then(() => {
       cy.contains(".card h3", "Lead (Pb)").closest(".card").find("button[type=submit]").click();
       cy.location("pathname").should("eq", "/cart");
       cy.get("form[action='/cart/submit'] input[name=name]").type("Lê Văn Khách");
       cy.get("form[action='/cart/submit'] input[name=email]").type("priority@example.test");
       cy.get("form[action='/cart/submit'] input[name=phone]").type("0901234567");
-      cy.get("#requested_date").should("have.value", "");
-      cy.get("#priority").check();
+      cy.get("#requested_date").should("have.value", "").and("have.attr", "min");
+      // The browser offers no earlier day; the server refuses one sent all the same.
+      cy.get("#requested_date").invoke("removeAttr", "min").type("2020-01-01");
       cy.get("form[action='/cart/submit'] button[type=submit]").first().click();
 
       cy.location("pathname").should("eq", "/cart");
-      cy.contains("p.text-danger", "Give the date you want the results to ask for priority.");
+      cy.contains("p.text-danger", "Choose a date on or after");
       cy.get("form[action='/cart/submit']").should("exist");
       cy.contains("tr", "Lead (Pb)").should("exist");
-      cy.get("#priority").should("be.checked");
-      cy.get("#requested_date").should("have.value", "");
+      cy.get("#requested_date").should("have.value", "2020-01-01");
       cy.get("form[action='/cart/submit'] input[name=name]").should("have.value", "Lê Văn Khách");
       cy.get("form[action='/cart/submit'] input[name=email]").should("have.value", "priority@example.test");
       cy.get("form[action='/cart/submit'] input[name=phone]").should("have.value", "0901234567");
 
       cy.visit("/cart");
-      cy.get("#priority").should("not.be.checked");
       cy.get("#requested_date").should("have.value", "");
       cy.get("form[action='/cart/submit'] input[name=name]").should("have.value", "");
       cy.get("form[action='/cart/submit'] input[name=email]").should("have.value", "");
       cy.get("form[action='/cart/submit'] input[name=phone]").should("have.value", "");
+    });
+  });
+
+  it("TC-F08-04 tells the customer that a date before the standard return date is a priority request", () => {
+    becomeVisitor().then(() => {
+      cy.contains(".card h3", "Lead (Pb)").closest(".card").find("button[type=submit]").click();
+      cy.location("pathname").should("eq", "/cart");
+      cy.get(".o_medilab_priority_notice").should("not.be.visible");
+      cy.get("#requested_date").then(($input) => {
+        const earliest = $input.attr("min");
+        const standard = $input.attr("data-standard");
+        expect(earliest < standard, "the earliest day is before the standard return date").to.be.true;
+        cy.get("#requested_date").type(earliest);
+        cy.get(".o_medilab_priority_notice").should("be.visible").and("contain", "priority request");
+        cy.get("#requested_date").clear().type(standard);
+        cy.get(".o_medilab_priority_notice").should("not.be.visible");
+      });
     });
   });
 

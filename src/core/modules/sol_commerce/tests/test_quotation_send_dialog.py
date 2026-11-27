@@ -57,6 +57,8 @@ class TestQuotationSendDialog(OrderCase):
         requests = self.env[MODEL_TEST_REQUEST]
         order.requested_date = requests._date_after_working_days(date.today() + timedelta(days=1), 5)
         order.expected_collection_date = date.today() + timedelta(days=21)
+        # The requested date is then earlier than the standard return date: Sales declines priority.
+        order.with_user(self.sales).action_decline_priority()
 
         self.dialog(order).save().action_send()
 

@@ -1164,12 +1164,6 @@ msgid "Archived"
 msgstr ""
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid ""
-"Ask for priority: Sales confirms whether the laboratory can meet this date"
-msgstr ""
-
-#. module: sol_commerce
 #: model:portal.entry,description:sol_commerce.portal_entry_support
 msgid "Ask the laboratory for help and follow the conversation"
 msgstr ""
@@ -2478,7 +2472,7 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+#: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
 msgid "Enter the date you want the results as a date."
 msgstr ""
 
@@ -2704,12 +2698,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
 msgid "Give an expected pickup day that has not passed."
-msgstr ""
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
-msgid "Give the date you want the results to ask for priority."
 msgstr ""
 
 #. module: sol_commerce
@@ -3499,7 +3487,7 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+#: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
 msgid "Only a priority request with a requested date can be accepted."
 msgstr ""
 
@@ -4979,11 +4967,6 @@ msgid "Results released"
 msgstr ""
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "Results within"
-msgstr ""
-
-#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__return_timeline
 msgid "Return Timeline"
 msgstr ""
@@ -5726,7 +5709,7 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+#: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
 msgid ""
 "The laboratory cannot return results by %(requested)s. The earliest feasible"
 " date is %(earliest)s; offer it to the customer."
@@ -5800,7 +5783,7 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+#: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
 msgid "The priority request cannot be checked: %s"
 msgstr ""
 
@@ -6510,6 +6493,114 @@ msgid "working days of receiving the samples"
 msgstr ""
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "working days of receiving the samples."
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
+msgid ""
+"A date before the standard return date is a priority request, which adds "
+"%(amount)s excluding VAT (%(rate)s%%). Sales confirms whether the laboratory"
+" can meet it."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
+msgid ""
+"A date before the standard return date is a priority request. Sales confirms"
+" whether the laboratory can meet it."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_res_config_settings__priority_surcharge_percent
+msgid ""
+"Added as a quotation line when Sales accepts a priority order: this "
+"percentage of the ordered lines after their discounts, excluding VAT. 0 adds"
+" no line. Applies to quotations not sent yet."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
+msgid "Choose a date on or after %s for the results."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form_orders
+msgid ""
+"Customers and Sales may ask for results earlier than the standard "
+"turnaround."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__min_requested_date
+msgid "Min Requested Date"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__res_config_settings__priority_orders__off
+msgid "Not offered"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__res_config_settings__priority_orders__on
+msgid "Offered"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__priority_orders
+#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form_orders
+msgid "Priority Orders"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__priority_surcharge_percent
+msgid "Priority Surcharge (%)"
+msgstr ""
+
+#. module: sol_commerce
+#: model:product.template,name:sol_commerce.product_priority_surcharge_product_template
+msgid "Priority surcharge"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__priority_min_turnaround_days
+msgid "Shortest Priority Turnaround (working days)"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__standard_return_date
+msgid "Standard Return Date"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
+msgid ""
+"Standard return date: %(date)s, %(days)s working days after the samples are "
+"picked up today."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/res_config_settings.py:0
+msgid "The priority surcharge must be between 0% and 100%."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/res_config_settings.py:0
+msgid "The shortest priority turnaround must be at least 1 working day."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_res_config_settings__priority_orders
+msgid ""
+"Whether customers and Sales may ask for results earlier than the standard "
+"turnaround."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_res_config_settings__priority_min_turnaround_days
+msgid ""
+"Working days from the expected sample pickup to the earliest date a priority"
+" order may ask for."
 msgstr ""

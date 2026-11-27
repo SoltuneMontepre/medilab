@@ -10,6 +10,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_QUOTATION,
     MODEL_SALE_ORDER,
 )
+from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REQUEST
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 DISCOUNT_WIZARD = "sale.order.discount"
@@ -126,15 +127,22 @@ def seed_dates(env):
     orders["feasible"].requested_date = today + timedelta(days=30)
     later = orders["later"]
     later.write({"requested_date": today + timedelta(days=1)})
-    # The earliest date Sales can promise, counted from the advance's payment deadline.
+    # A date earlier than the standard return date is a priority request; Sales declines it and promises the earliest
+    # date, counted from the advance's payment deadline.
+    _as(later, sales).action_decline_priority()
     later.committed_date = later._earliest_return_date()
     accepted = orders["priority_accepted"]
+    requests = env[MODEL_TEST_REQUEST]
+    # Picked up in 3 working days, results 1 working day after the turnaround from today are earlier than the
+    # standard return date, and leave time to pay the advance.
+    priority_date = requests._date_after_working_days(today, accepted.turnaround_days + 1)
     # The demo has no free slots to check, so the accepted request is written as Sales would leave it.
     accepted.write(
         {
-            "requested_date": today + timedelta(days=14),
+            "expected_collection_date": requests._date_after_working_days(today, 3),
+            "requested_date": priority_date,
             "priority_request": "accepted",
-            "committed_date": today + timedelta(days=14),
+            "committed_date": priority_date,
         }
     )
     declined = orders["priority_declined"]

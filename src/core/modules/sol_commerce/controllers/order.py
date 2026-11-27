@@ -130,7 +130,7 @@ class CustomerOrder(InvoicePortal):
                 "quotations": order.quotation_ids.sorted("revision", reverse=True),
                 "revising": order.state == "draft",
                 "lines": order._catalog_lines(),
-                "discount_lines": order._discount_lines(),
+                "order_wide_lines": order._discount_lines() | order._priority_surcharge_lines(),
                 "advance": advance,
                 "payment_request": advance,
                 "legacy_invoice": legacy_invoice,
