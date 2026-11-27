@@ -15,6 +15,11 @@ HEALTH_PATH = "/healthcheck"
 TIMEOUT = 3
 
 
+def is_editing_service_configured():
+    """True when the installation has an editing service, whether or not it answers now."""
+    return bool(os.environ.get(INTERNAL_URL_VARIABLE))
+
+
 def is_editing_service_up():
     """True when the editing service answers its health check with true."""
     service_url = os.environ.get(INTERNAL_URL_VARIABLE)

@@ -74,6 +74,8 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
     if not TYPE_CHECKING:
         # True while a sample collection task of the order's test request is open.
         has_open_collection = fields.Boolean(compute="_compute_has_open_collection")
+        # True while the order's test request still expects samples to be collected.
+        expects_samples = fields.Boolean(compute="_compute_expects_samples", compute_sudo=True)
         # The open collection's appointment and who claimed it, for Sales, who cannot open the task.
         collection_summary = fields.Char(string="Sample Collection", compute="_compute_has_open_collection")
         # The test request the confirmed order produced.
@@ -91,6 +93,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             [
                 ("collection_hold", "Awaiting sample payment"),
                 ("awaiting_samples", "Awaiting samples"),
+                ("samples_received", "Samples received"),
                 ("in_progress", "Processing"),
                 ("payment_hold", "Waiting for full payment"),
                 ("ready", "Ready"),
@@ -144,7 +147,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 escape(_("Physical State")),
                 escape(_("Amount Received")),
                 escape(_("Condition")),
-                escape(_("Received At")),
+                escape(_("Sample Received At")),
                 escape(_("Status")),
                 rows,
             )
@@ -218,7 +221,18 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             return "payment_hold" if self._withholds_report() else "ready"
         if test_status in ("testing", "awaiting_approval"):
             return "in_progress"
+        if test_status == "sample_received":
+            return "samples_received"
         return "collection_hold" if hold else "awaiting_samples"
+
+    @api.depends("test_request_id.status", "test_request_id.sample_ids.status")
+    def _compute_expects_samples(self):
+        for order in self:
+            request = order.test_request_id
+            order.expects_samples = bool(request) and (
+                request.status in AWAITING_SAMPLE_STATUSES
+                or any(sample.status == "expected" for sample in request.sample_ids)
+            )
 
     def _can_collect_samples(self):
         self.ensure_one()
@@ -503,6 +517,8 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             hold = order._collection_hold()
             if hold:
                 raise UserError(hold)
+            if not order.expects_samples:
+                raise UserError(self.env._("The order's samples are all received; none is left to collect."))
         if self.env.context.get(COLLECTION_DIALOG) and not appointment:
             # The button asks Sales for the appointment and the place first.
             self.ensure_one()

@@ -34,6 +34,7 @@ class TestOrderHistoryFilters(PortalCase):
             | processing
             | self.make_confirmed_order()
             | self.confirmed_with_request("testing")
+            | self.confirmed_with_request("completed")
             | self.confirmed_with_request("reported")
             | self.make_order([(self.lead_product, 1)], status="completed")
             | self.make_order([(self.lead_product, 1)], status="cancelled")

@@ -219,6 +219,7 @@ from . import (
     test_regulation_limit_migration,
     test_regulation_selection,
     test_reminders,
+    test_report_built_in_pdf,
     test_report_candidate_migration,
     test_report_editor_page,
     test_report_permission_migration,

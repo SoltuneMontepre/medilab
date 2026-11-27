@@ -26,6 +26,7 @@ class TestCustomerOrders(OrderCase):
         for request_status, shown in (
             ("testing", "testing"),
             ("awaiting_approval", "testing"),
+            ("completed", "testing"),
             ("reported", "completed"),
         ):
             confirmed.test_request_id.sudo().write({"status": request_status})
