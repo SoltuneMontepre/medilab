@@ -88,7 +88,9 @@ class MailMessage(models.Model, MailMessageBase):
                         "model": document._name,
                         "res_id": document.id,
                         "body": body,
-                        "subject": subject or event.name,
+                        # Without a subject of its own, a notice is titled with its event in each reader's
+                        # language.
+                        "subject": subject or False,
                         "message_type": "notification",
                         "subtype_id": event.id,
                         "notification_key": key,
@@ -231,7 +233,6 @@ class MailMessage(models.Model, MailMessageBase):
             .sudo()
             .create(
                 {
-                    "subject": self.subject or event.name,
                     "body_html": self.body or "",
                     "email_from": self.env.company.email or self.env.user.email or "notifications@localhost",
                     "email_to": partner.email,

@@ -124,7 +124,7 @@ class SubcontractDispatchDelivery(models.Model, SubcontractDispatchBase):
 
     def _heads(self):
         """The users who head the departments that test the dispatch's sample tests."""
-        departments = self.env[MODEL_DEPARTMENT].union(*(test._tested_by() for test in self.sudo().sample_test_ids))
+        departments = self.env[MODEL_DEPARTMENT].union(test._tested_by() for test in self.sudo().sample_test_ids)
         return departments.manager_id.user_id.partner_id - self.env.user.partner_id
 
     def _notify_heads(self, event, kind, body):

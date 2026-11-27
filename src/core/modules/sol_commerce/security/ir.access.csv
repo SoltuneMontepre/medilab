@@ -1,5 +1,6 @@
 id,name,model_id,group_id/id,operation,domain
 access_medilab_parameter_price_user,medilab.parameter.price user,medilab.parameter.price,base.group_user,r,
+access_medilab_price_period_user,medilab.price.period user,medilab.price.period,base.group_user,r,
 access_medilab_service_package_user,medilab.service.package user,medilab.service.package,base.group_user,r,
 access_medilab_service_package_line_user,medilab.service.package.line user,medilab.service.package.line,base.group_user,r,
 access_medilab_subcontract_cost_user,medilab.subcontract.cost user,medilab.subcontract.cost,base.group_user,r,

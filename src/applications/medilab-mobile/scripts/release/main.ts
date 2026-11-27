@@ -20,7 +20,11 @@ function httpsUrl(name: string): string {
   if (!value.startsWith("https://")) {
     throw new Error(`${name} must start with https://.`);
   }
-  return value.replace(/\/+$/, "");
+  let end = value.length;
+  while (value[end - 1] === "/") {
+    end -= 1;
+  }
+  return value.slice(0, end);
 }
 
 const version = required("MEDILAB_MOBILE_VERSION");

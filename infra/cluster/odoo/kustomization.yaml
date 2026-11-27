@@ -6,6 +6,7 @@ resources:
   - config.yaml
   - filestore.yaml
   - payos.yaml
+  - release-catalog.yaml
   - pre-sync-backup.yaml
   - upgrade-job.yaml
   - deployment.yaml
@@ -14,4 +15,4 @@ resources:
   - network-policy.yaml
 images:
   - name: ghcr.io/soltunemontepre/medilab
-    newTag: sha-8ff47869e805d086ebede0e4e43c7304dda3c455
+    newTag: sha-9990222e5dce36370db3beaf9151ab0a2a7a29f5

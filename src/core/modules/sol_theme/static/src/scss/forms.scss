@@ -1,3 +1,38 @@
+// The boxed look of every text input, select and picker: on forms, in the search panel and in the custom filter dialog.
+@mixin ml-input-box {
+  border: 1px solid $ml-border !important;
+  border-radius: $ml-radius !important;
+  background-color: $ml-surface !important;
+  color: $ml-text;
+  font-size: $ml-font-size-base !important;
+  font-weight: 400;
+  line-height: 1.35;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.75rem !important;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  box-shadow: none !important;
+  width: 100%;
+
+  &::placeholder {
+    color: $ml-text-muted;
+    opacity: 0.85;
+  }
+
+  &:hover:not(:disabled):not(:focus) {
+    border-color: $ml-border-control !important;
+  }
+
+  &:focus,
+  &:focus-visible,
+  &:focus-within {
+    border-color: rgba($ml-primary, 0.45) !important;
+    box-shadow: $ml-focus-ring !important;
+    outline: none;
+  }
+}
+
 .o_form_view {
   min-width: 0;
   max-width: 100%;
@@ -26,6 +61,8 @@
     box-shadow: $ml-shadow-form;
 
     > h3 {
+      display: flex;
+      align-items: center;
       margin: 0;
       padding: 0.875rem 1.25rem;
       border-bottom: 1px solid $ml-border;
@@ -126,15 +163,14 @@
         }
       }
     }
+  }
 
-    @media (min-width: 1534px) {
-      flex: 0 0 32rem;
-      align-self: flex-start;
-      max-height: calc(100% - 2.75rem);
-      margin: 0.75rem 1.25rem 2rem 0;
-      overflow-y: auto;
-      scrollbar-width: thin;
-    }
+  // Beside the sheet it fills the resizable panel of chatter_resize.js and scrolls on its own.
+  .o-mail-ChatterBody > .o_audit_aside {
+    max-height: calc(100% - 2.75rem);
+    margin: 0.75rem 1.25rem 2rem 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
   }
 
   .o_form_sheet_bg {
@@ -205,6 +241,15 @@
       .o_field_char {
         width: auto !important;
       }
+    }
+  }
+
+  // Some Odoo forms, such as the group form, put the title straight in the sheet; its field takes the sheet's width.
+  .o_form_sheet > h1 {
+    .o_field_widget,
+    .o_field_char {
+      width: 100% !important;
+      max-width: none !important;
     }
   }
 
@@ -350,7 +395,9 @@
   }
 
   .o_wrap_label:has(+ .o_wrap_input .o_required_modifier:not(.o_readonly_modifier)) .o_form_label::after,
-  .o_wrap_label:has(+ .o_cell .o_required_modifier:not(.o_readonly_modifier)) .o_form_label::after {
+  .o_wrap_label:has(+ .o_cell .o_required_modifier:not(.o_readonly_modifier)) .o_form_label::after,
+  .o_wrap_label:has(+ .o_wrap_input .o_required_modifier.o_readonly_modifier > .o_many2one:empty) .o_form_label::after,
+  .o_wrap_label:has(+ .o_cell .o_required_modifier.o_readonly_modifier > .o_many2one:empty) .o_form_label::after {
     content: " *";
     color: $ml-danger;
     font-weight: 700;
@@ -420,36 +467,7 @@
   .o_field_widget textarea,
   .o_field_widget select,
   .o_field_widget .o_input {
-    border: 1px solid $ml-border !important;
-    border-radius: $ml-radius !important;
-    background-color: $ml-surface !important;
-    color: $ml-text;
-    font-size: $ml-font-size-base !important;
-    font-weight: 400;
-    line-height: 1.35;
-    min-height: 2.25rem;
-    padding: 0.35rem 0.75rem !important;
-    transition:
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
-    box-shadow: none !important;
-    width: 100%;
-
-    &::placeholder {
-      color: $ml-text-muted;
-      opacity: 0.85;
-    }
-
-    &:hover:not(:disabled):not(:focus) {
-      border-color: $ml-border-control !important;
-    }
-
-    &:focus,
-    &:focus-visible {
-      border-color: rgba($ml-primary, 0.45) !important;
-      box-shadow: $ml-focus-ring !important;
-      outline: none;
-    }
+    @include ml-input-box;
   }
 
   .oe_title {
@@ -486,6 +504,8 @@
   }
 
   .oe_title .o_required_modifier:not(.o_readonly_modifier) {
+    position: relative;
+
     input::placeholder,
     .o_input::placeholder {
       color: $ml-danger;
@@ -535,10 +555,6 @@
     position: absolute;
     top: 100%;
     left: 0;
-  }
-
-  .oe_title .o_required_modifier:not(.o_readonly_modifier) {
-    position: relative;
   }
 
   // CSS content cannot use .po translations, so the Vietnamese label is set by language here.
@@ -951,11 +967,21 @@
       flex-shrink: 0;
       align-items: center;
 
+      // A step's arrow tip and the notch of the step after it cover the caret's width, so those sides add it to their
+      // padding; the leftmost step has no notch and the rightmost no tip.
       .o_arrow_button {
         font-size: 0.72rem !important;
-        padding: 0.25rem 0.65rem 0.25rem 0.95rem !important;
+        padding: 0.25rem calc(var(--o-statusbar-caret-width) + var(--o-statusbar-caret-gap) + 0.5rem) !important;
         white-space: nowrap;
         min-height: 0;
+
+        &.o_last {
+          padding-inline-start: 0.65rem !important;
+        }
+
+        &.o_first {
+          padding-inline-end: 0.65rem !important;
+        }
       }
     }
 
@@ -1816,5 +1842,77 @@
 
   &:has(.o_external_button) input {
     padding-right: 3.5rem !important;
+  }
+}
+
+// An address keeps Odoo's city, state and zip line; its boxed inputs are kept apart by a gap.
+.o_form_view .o_address_format {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  > .o_field_widget {
+    flex: 1 1 100%;
+    width: auto !important;
+    margin: 0 !important;
+  }
+
+  > .o_address_city,
+  > .o_address_state,
+  > .o_address_zip {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+.o_search_bar_menu {
+  .o_add_custom_group_menu {
+    @include ml-input-box;
+    padding-right: 2.25rem !important;
+    background: $ml-surface
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%235b6880' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6l5 5 5-5'/%3E%3C/svg%3E")
+      right 0.75rem center / 0.875rem no-repeat !important;
+    cursor: pointer;
+  }
+
+  .o_accordion_values .o_input {
+    @include ml-input-box;
+    max-width: none;
+  }
+
+  // The form that saves a search sits flush under its toggle, with the toggle's side padding, instead of indented like
+  // a sub-option.
+  .o_favorite_menu .o_accordion_values {
+    margin-left: 0 !important;
+    padding: 0.25rem 1.25rem 0.75rem !important;
+  }
+
+  .o_save_favorite,
+  .o_edit_favorite {
+    flex: 1 1 auto;
+    width: auto !important;
+    white-space: nowrap;
+  }
+}
+
+// The custom filter's field, operator and value boxes look like form inputs; an input inside one of them stays plain.
+.o_tree_editor .o_tree_editor_editor {
+  > .o_input {
+    @include ml-input-box;
+  }
+
+  > .o_input .o_input {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    min-height: 0;
+    padding: 0 !important;
+  }
+
+  .o_model_field_selector_chain_part {
+    border: none !important;
+    background: transparent;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 }

@@ -124,7 +124,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
         cy.expectRefusal({
           read: readOrder(order),
           action: () => cy.sendQuotation(),
-          message: "Thêm ít nhất một chỉ tiêu hoặc nhóm dịch vụ trước khi gửi báo giá.",
+          message: "Thêm ít nhất một chỉ tiêu hoặc gói dịch vụ trước khi gửi báo giá.",
         });
       });
   });

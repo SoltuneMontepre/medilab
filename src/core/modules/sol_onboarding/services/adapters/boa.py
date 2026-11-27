@@ -20,6 +20,7 @@ CODE_LABEL = "Mã số công nhận"
 VALID_UNTIL_LABEL = "Ngày hiệu lực"
 SCOPE_ID = "tochuc-congnhan"
 ANNEX_TITLE = "LIST OF ACCREDITED TESTS"
+PAGE_HEADER = "DANH MỤC PHÉP THỬ"
 METHOD_CODE = re.compile(
     # Standard body, not right after "/" as in ISO/IEC; "Official Method" or "Method" after it is left out of the code.
     r"(?<!/)\b((?:BS|DIN|NF)\s+EN|EN\s+ISO|TCVN|ISO|ASTM|GOST|AOAC|SMEWW|EN|IEC|EPA|USP|BS|DIN|JIS|NF)\s+"
@@ -30,8 +31,9 @@ METHOD_CODE = re.compile(
     r"(?:\s*\(\s*(e?\d{4})\s*\))?"  # reapproval year, such as (2019) or (e2003)
 )
 ROW = re.compile(r"^\s*(\d{1,3})\.(?=\s|$)", re.M)
-FIELD = re.compile(r"Lĩnh vực thử nghiệm\s*:\s*(.+?)\s*\n\s*Field of testing\s*:\s*(.+)")
+FIELD = re.compile(r"Lĩnh vực thử nghiệm\s*:\s*(\S.*)\n\s*Field of testing\s*:\s*(\S.*)")
 CERTIFICATE_CODE = re.compile(r"Code\s*:\s*([A-Z][A-Z ]*\d+)")
+VALID_UNTIL = re.compile(r"đến ngày\s+(\d{2}/\d{2}/\d{4})")
 ENGLISH_START = re.compile(
     r"\b(Determination|Measur\w*|Test\w*|Analysis|Detection|Enumeration|Identification|Quantification|Calculation)\b"
 )
@@ -55,6 +57,24 @@ class BoaAdapter(Adapter):
         if urlsplit(document.url).path == urlsplit(self.source.start_url).path:
             return self._organisation_list(tree, document.url)
         return self._organisation_page(tree, document.url)
+
+    def uploaded_scope(self, body: bytes) -> tuple[StagedValues, ...]:
+        """The certificate, testing fields and methods of an uploaded list of accredited tests. The certificate is
+        staged only when the file gives its code and its end of validity, with the values the organisation's page
+        gives, so the same certificate is staged once."""
+        text = unicodedata.normalize("NFC", pdf_text(body))
+        records = self._annex(text)
+        code, until = CERTIFICATE_CODE.search(text), VALID_UNTIL.search(text)
+        valid_until = _iso_date(until.group(1)) if until else ""
+        if not (records and code and valid_until):
+            return records
+        values = {
+            "code": clean_text(code.group(1)),
+            "issuing_body": ISSUING_BODY,
+            "valid_from": "",
+            "valid_until": valid_until,
+        }
+        return (StagedValues(KIND_CERTIFICATE, values["code"], values, "en_US"), *records)
 
     def _organisation_list(self, tree, url: str) -> Parsed:
         organisations = []
@@ -144,11 +164,18 @@ def _code(match: re.Match) -> str:
     return code
 
 
-# The English test name of a row, from its first English word to the first word that is not English text.
+# The English test name of a row, from its first English word to the first word that is not English text. The header
+# of the next page and the label of a limit of quantitation are not part of it.
 def _title(segment: str) -> str:
-    text = clean_text(METHOD_CODE.sub(" ", segment))
+    text = clean_text(METHOD_CODE.sub(" ", segment.partition(PAGE_HEADER)[0]))
     start = ENGLISH_START.search(text)
     if not start:
         return ""
     words = text[start.start() :].split()
-    return " ".join(takewhile(lambda word: word.isascii() and not TITLE_END.match(word), words))
+    title = list(takewhile(lambda word: word.isascii() and not TITLE_END.match(word), words))
+    # A word ending in a colon right before a limit is its label, after the Vietnamese half that ends in a slash.
+    if title and title[-1].endswith(":"):
+        title.pop()
+        while title and title[-1].endswith("/"):
+            title.pop()
+    return " ".join(title)

@@ -18,6 +18,7 @@ from odoo.addons.sol_commerce.constants.models import (
 from odoo.addons.sol_commerce.constants.notifications import EVENT_BALANCE_REQUESTED
 from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_NONE,
+    ADVANCE_PAID_STATES,
     BALANCE_AT_COLLECTION,
     BALANCE_BEFORE_COLLECTION,
     QUOTATION_ACCEPTED,
@@ -50,6 +51,20 @@ CONFIRMING_ORDER_IDS = ContextVar("medilab_confirming_order_ids", default=frozen
 COLLECTION_DIALOG = "medilab_collection_dialog"
 # Statuses of a test request whose samples have not arrived yet, while payment can still hold their collection.
 AWAITING_SAMPLE_STATUSES = ("draft", "confirmed", "paid", "on_credit")
+# Badge color of each sample status in the collected samples table; any other status is grey.
+SAMPLE_STATUS_BADGES = {
+    "received": "text-bg-info",
+    "testing": "text-bg-info",
+    "awaiting_approval": "text-bg-warning",
+    "on_hold": "text-bg-warning",
+    "completed": "text-bg-success",
+    "reported": "text-bg-success",
+    "retained": "text-bg-secondary",
+    "disposed": "text-bg-secondary",
+    "returned": "text-bg-secondary",
+    "rejected": "text-bg-danger",
+    "cancelled": "text-bg-danger",
+}
 
 
 # Đơn Hàng: confirming the order creates its test request, whose sample collection sales then start.
@@ -104,19 +119,6 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
     )
     def _compute_collected_samples_html(self):
         _ = self.env._
-        status_badges = {
-            "received": "text-bg-info",
-            "testing": "text-bg-info",
-            "awaiting_approval": "text-bg-warning",
-            "on_hold": "text-bg-warning",
-            "completed": "text-bg-success",
-            "reported": "text-bg-success",
-            "retained": "text-bg-secondary",
-            "disposed": "text-bg-secondary",
-            "returned": "text-bg-secondary",
-            "rejected": "text-bg-danger",
-            "cancelled": "text-bg-danger",
-        }
         for order in self:
             samples = order.sudo().test_request_id.sample_ids.filtered(
                 lambda s: bool(s.status != "expected" or s.received_at or s.condition)
@@ -126,35 +128,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 order.collected_samples_html = False
                 continue
             order.has_collected_samples = True
-            states = dict(samples._fields["physical_state"]._description_selection(self.env))
-            conditions = dict(samples._fields["condition"]._description_selection(self.env))
-            statuses = dict(samples._fields["status"]._description_selection(self.env))
-            rows = Markup("").join(
-                Markup(
-                    "<tr>"
-                    '<td class="fw-semibold">%s</td>'
-                    "<td>%s</td>"
-                    "<td>%s</td>"
-                    "<td>%s</td>"
-                    "<td>%s</td>"
-                    "<td>%s</td>"
-                    "<td>%s</td>"
-                    '<td><span class="badge rounded-pill %s">%s</span></td>'
-                    "</tr>"
-                )
-                % (
-                    escape(sample.code or ""),
-                    escape(sample.customer_sample_name or ""),
-                    escape(sample.sample_type_id.display_name or ""),
-                    escape(states.get(sample.physical_state, "") if sample.physical_state else ""),
-                    escape(sample.received_quantity or ""),
-                    escape(conditions.get(sample.condition or "", "")),
-                    escape(format_datetime(self.env, sample.received_at) if sample.received_at else ""),
-                    status_badges.get(sample.status or "", "text-bg-secondary"),
-                    escape(statuses.get(sample.status or "", sample.status or "")),
-                )
-                for sample in samples.sorted("id")
-            )
+            rows = self._collected_sample_rows(samples)
             order.collected_samples_html = Markup(
                 '<div class="bg-white border rounded-3 overflow-hidden">'
                 '<table class="table table-sm align-middle mb-0">'
@@ -175,10 +149,43 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 rows,
             )
 
+    def _collected_sample_rows(self, samples):
+        """Table rows of the collected samples, in the order they were logged."""
+        states = dict(samples._fields["physical_state"]._description_selection(self.env))
+        conditions = dict(samples._fields["condition"]._description_selection(self.env))
+        statuses = dict(samples._fields["status"]._description_selection(self.env))
+        return Markup("").join(
+            Markup(
+                "<tr>"
+                '<td class="fw-semibold">%s</td>'
+                "<td>%s</td>"
+                "<td>%s</td>"
+                "<td>%s</td>"
+                "<td>%s</td>"
+                "<td>%s</td>"
+                "<td>%s</td>"
+                '<td><span class="badge rounded-pill %s">%s</span></td>'
+                "</tr>"
+            )
+            % (
+                escape(sample.code or ""),
+                escape(sample.customer_sample_name or ""),
+                escape(sample.sample_type_id.display_name or ""),
+                escape(states.get(sample.physical_state, "") if sample.physical_state else ""),
+                escape(sample.received_quantity or ""),
+                escape(conditions.get(sample.condition or "", "")),
+                escape(format_datetime(self.env, sample.received_at) if sample.received_at else ""),
+                SAMPLE_STATUS_BADGES.get(sample.status or "", "text-bg-secondary"),
+                escape(statuses.get(sample.status or "", sample.status or "")),
+            )
+            for sample in samples.sorted("id")
+        )
+
     @api.depends(
         "payment_status",
         "on_credit",
         "payment_request_ids.state",
+        "quotation_ids.advance_invoice_id.payment_state",
         "balance_due",
         "order_status",
         "test_request_id.status",
@@ -199,26 +206,26 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             if order.order_status not in (STATUS_CONFIRMED, STATUS_COMPLETED):
                 order.result_status = False
                 continue
-            test_status = order.sudo().test_request_id.status
-            if test_status == "reported":
-                order.result_status = "reported"
-            elif test_status == "completed":
-                order.result_status = "payment_hold" if order._withholds_report() else "ready"
-            elif test_status in ("testing", "awaiting_approval"):
-                order.result_status = "in_progress"
-            elif hold:
-                order.result_status = "collection_hold"
-            else:
-                order.result_status = "awaiting_samples"
+            order.result_status = order._result_status(hold)
+
+    def _result_status(self, hold):
+        """Where the confirmed order's test result stands, from its test request; `hold` is its collection hold."""
+        self.ensure_one()
+        test_status = self.sudo().test_request_id.status
+        if test_status == "reported":
+            return "reported"
+        if test_status == "completed":
+            return "payment_hold" if self._withholds_report() else "ready"
+        if test_status in ("testing", "awaiting_approval"):
+            return "in_progress"
+        return "collection_hold" if hold else "awaiting_samples"
 
     def _can_collect_samples(self):
         self.ensure_one()
         return not self._collection_hold()
 
     def _collection_hold(self):
-        """Why the order's samples cannot be collected yet, or False: its advance is not verified, or Sales asked for
-        the balance before collection and it is not paid. Otherwise the balance is due at collection or before the
-        report, which waits until the order is paid. Nothing holds an order whose samples are in already."""
+        """A verified advance releases collection even when the balance falls due before the samples arrive."""
         self.ensure_one()
         if self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total):
             return False
@@ -228,9 +235,15 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         advance = self.sudo().payment_request_ids.filtered(
             lambda ask: ask.kind == "advance" and ask.quotation_id == quotation
         )
-        if not quotation or any(ask.state != "funded" for ask in advance):
+        legacy_invoice = quotation.sudo().advance_invoice_id
+        if (
+            not quotation
+            or any(ask.state != "funded" for ask in advance)
+            or (legacy_invoice and legacy_invoice.payment_state not in ADVANCE_PAID_STATES)
+        ):
             return self.env._("Verify the order's advance before collecting its samples.")
-        if self.balance_due == BALANCE_BEFORE_COLLECTION:
+        # An unpaid, non-credit order sent without an advance still owes its first payment on the agreed terms.
+        if not (advance or legacy_invoice) and self.balance_due == BALANCE_BEFORE_COLLECTION:
             return self.env._("Verify the order balance before collecting its samples.")
         return False
 
@@ -351,7 +364,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         self.sudo().payment_request_id = request
         order = self.with_context(lang=self._get_lang())
         values = {"amount": order.currency_id.format(amount), "order": order.name}
-        if self.balance_due == BALANCE_BEFORE_COLLECTION:
+        if self.balance_due == BALANCE_BEFORE_COLLECTION and self._collection_hold():
             body = order.env._(
                 "Pay the remaining %(amount)s for order %(order)s before its samples are collected.", **values
             )
@@ -372,8 +385,12 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         )
 
     def _release_test_request(self):
-        for request in self.sudo().test_request_id.filtered(lambda item: item.status == "confirmed"):
-            request._set_status("paid")
+        for order in self.sudo():
+            request = order.test_request_id
+            if order.order_status == STATUS_CONFIRMED and request.status == "confirmed":
+                status = request._status_after_confirmation()
+                if status:
+                    request._set_status(status)
 
     def _keep_order_numbers(self):
         """Write each order's number on its test request, which keeps it once uninstalling E-commerce drops the link."""

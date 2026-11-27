@@ -9,7 +9,7 @@ from odoo.addons.sol_commerce.constants.models import MODEL_TAX
 @tagged("post_install", "-at_install")
 class TestTaxArchiving(PricingCase):
     def test_tax_of_active_price_or_package_cannot_be_archived(self):
-        package = self.create_package(300000, (self.parameter, 2))
+        package = self.create_package((self.parameter, 2))
 
         with self.assertRaises(UserError) as refusal:
             self.vat.action_archive()
@@ -18,7 +18,7 @@ class TestTaxArchiving(PricingCase):
         self.assertIn(package.name, str(refusal.exception))
 
     def test_tax_of_archived_price_and_package_can_be_archived_but_not_deleted(self):
-        package = self.create_package(300000, (self.parameter, 2))
+        package = self.create_package((self.parameter, 2))
         self.lead_price.action_archive()
         package.action_archive()
 
@@ -44,7 +44,7 @@ class TestTaxArchiving(PricingCase):
 
     def test_parameter_of_active_package_cannot_be_archived(self):
         self.pair.action_archive()
-        package = self.create_package(300000, (self.parameter, 2))
+        package = self.create_package((self.parameter, 2))
 
         with self.assertRaises(UserError) as refusal:
             self.parameter.action_archive()

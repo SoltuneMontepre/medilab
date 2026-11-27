@@ -3,7 +3,6 @@
     <record id="demo_service_package_bottled_water_basic" model="medilab.service.package">
         <field name="code">NDC-01</field>
         <field name="name">Bottled water basic</field>
-        <field name="list_price">380000</field>
         <field name="tax_id" ref="demo_tax_vat10" />
         <field
             name="line_ids"
@@ -17,13 +16,25 @@
     <record id="demo_service_package_bottled_water_microbiology" model="medilab.service.package">
         <field name="code">NDC-02</field>
         <field name="name">Bottled water microbiology</field>
-        <field name="list_price">300000</field>
         <field name="tax_id" ref="demo_tax_vat10" />
         <field
             name="line_ids"
             eval="[
                 Command.create({'parameter_id': ref('demo_test_parameter_coliforms')}),
                 Command.create({'parameter_id': ref('demo_test_parameter_e_coli')}),
+            ]"
+        />
+    </record>
+    <record id="demo_service_package_heavy_metals_water" model="medilab.service.package">
+        <field name="code">NDC-03</field>
+        <field name="name">Heavy metals in water</field>
+        <field name="tax_id" ref="demo_tax_vat10" />
+        <field
+            name="line_ids"
+            eval="[
+                Command.create({'parameter_id': ref('demo_test_parameter_lead')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_cadmium')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_arsenic')}),
             ]"
         />
     </record>

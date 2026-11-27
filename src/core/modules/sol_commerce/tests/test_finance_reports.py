@@ -13,7 +13,6 @@ from .invoicing_case import InvoicingCase, post_legacy_advance_invoice
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_ACCOUNT_MOVE,
     MODEL_ACCOUNT_PAYMENT,
-    MODEL_PARAMETER_PRICE,
     MODEL_PRODUCT_TEMPLATE,
     MODEL_RECEIVABLE_REPORT,
 )
@@ -37,17 +36,15 @@ REPORT_PERMISSIONS = ("revenue.report.read.all", "receivable.report.read.all", "
 class TestFinanceReports(InvoicingCase, PricingCase):
     """Revenue spreads packages over their groups, the reports count confirmed payments only, the outstanding report
     ages each debt and the collection report measures how fast invoices are paid. Lead costs 150,000 VND in heavy
-    metals, coliforms 50,000 VND in microbiology, and a package of one lead and two coliform tests 100,001 VND."""
+    metals, coliforms 50,000 VND in microbiology, and a package of one lead and two coliform tests."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.microbiology = cls.env[MODEL_PARAMETER_GROUP].create({"name": "Microbiology"})
         cls.coliforms = cls.create_parameter("Coliforms", cls.microbiology)
-        cls.env[MODEL_PARAMETER_PRICE].create(
-            {"parameter_id": cls.coliforms.id, "list_price": 50000, "tax_id": cls.vat.id}
-        )
-        cls.package = cls.create_package(100001, (cls.parameter, 1), (cls.coliforms, 2))
+        cls.create_price(cls.coliforms, 50000)
+        cls.package = cls.create_package((cls.parameter, 1), (cls.coliforms, 2))
         products = cls.env[MODEL_PRODUCT_TEMPLATE]
         cls.lead_product = products.search([("parameter_id", "=", cls.parameter.id)]).product_variant_id
         cls.package_product = products.search([("service_package_id", "=", cls.package.id)]).product_variant_id

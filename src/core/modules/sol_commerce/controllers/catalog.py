@@ -7,13 +7,14 @@ from odoo.http import request
 from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import SOURCE_PORTAL, STATUS_DRAFT
 from odoo.addons.sol_commerce.constants.xml_ids import PUBLIC_PARTNER
-from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
+from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_TEST_PARAMETER
 from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 CART_SESSION = "medilab_cart_id"
 CART_FORM_SESSION = "medilab_cart_form"
 CART_PATH = "/cart"
+CATALOG_PATH = "/catalog"
 ORDERS_PATH = "/orders"
 
 
@@ -45,13 +46,37 @@ class Catalog(http.Controller):
             },
         )
 
+    @http.route("/catalog/packages/<int:product_tmpl_id>", type="http", auth="public", **FRONTEND_PAGE)
+    def package(self, product_tmpl_id, **kwargs):
+        product = request_env()[MODEL_PRODUCT_TEMPLATE].sudo().browse(product_tmpl_id).exists()
+        if not product.sale_ok or not product.service_package_id:
+            return request.redirect(CATALOG_PATH)
+        return request.render(
+            "sol_commerce.catalog_package_page",
+            {
+                "product": product,
+                "offer": product._catalog_offer(),
+                "extras": product._package_extras(),
+                "cart_quantity": int(sum(self._cart()._catalog_lines().mapped("product_uom_qty"))),
+            },
+        )
+
     @http.route("/catalog/add", type="http", auth="public", methods=["POST"])
-    def add(self, product_tmpl_id, quantity="1", **kwargs):
+    def add(self, product_tmpl_id, quantity="1", buy_now=None, **kwargs):
         product = request_env()[MODEL_PRODUCT_TEMPLATE].sudo().browse(int(product_tmpl_id)).exists()
+        chosen = request.httprequest.form.getlist("parameter_ids")
+        parameters = (
+            request_env()[MODEL_TEST_PARAMETER].sudo().browse([int(value) for value in chosen if value.isdigit()])
+            if product.service_package_id and "parameters_chosen" in kwargs
+            else None
+        )
         try:
-            self._get_or_create_cart().add_catalog_product(product, self._quantity(quantity))
+            self._get_or_create_cart().add_catalog_product(product, self._quantity(quantity), parameters)
         except UserError as error:
-            return request.redirect(f"/catalog?error={quote(str(error))}")
+            back = f"{CATALOG_PATH}/packages/{product.id}" if parameters is not None else CATALOG_PATH
+            return request.redirect(f"{back}?error={quote(str(error))}")
+        if parameters is not None and not buy_now:
+            return request.redirect(f"{CATALOG_PATH}/packages/{product.id}?added=1")
         return request.redirect(CART_PATH)
 
     @http.route(CART_PATH, type="http", auth="public", **FRONTEND_PAGE)
@@ -95,20 +120,6 @@ class Catalog(http.Controller):
         else:
             line.sudo().product_uom_qty = qty
             line._lock_catalog_price()
-        return request.redirect(CART_PATH)
-
-    @http.route("/cart/selection", type="http", auth="public", methods=["POST"])
-    def update_selection(self, line_id, sample_type_id=None, parameter_method_id=None, **kwargs):
-        catalog_lines = self._cart()._catalog_lines()
-        line = (catalog_lines | catalog_lines.linked_line_ids).filtered(lambda item: str(item.id) == line_id)[:1]
-        if not line:
-            return request.redirect(CART_PATH)
-        try:
-            line._set_cart_selection(
-                sample_type_id=self._id(sample_type_id), parameter_method_id=self._id(parameter_method_id)
-            )
-        except UserError as error:
-            return request.redirect(f"{CART_PATH}?error={quote(str(error))}")
         return request.redirect(CART_PATH)
 
     @http.route("/cart/save", type="http", auth="public", methods=["POST"])

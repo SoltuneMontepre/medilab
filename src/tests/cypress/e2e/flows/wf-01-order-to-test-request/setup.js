@@ -20,6 +20,15 @@ export const CUSTOMERS = {
 
 const STAGES = ["submitted", "claimed", "sent", "accepted", "confirmed", "paid"];
 
+export function pickupDay(locale = "en-CA") {
+  return new Date(Date.now() + 86400000).toLocaleDateString(locale, {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
+
 // Lead twice and E. coli three times on bottled water: Lead needs an acidified polyethylene bottle and E. coli a chilled
 // sterile glass bottle, so 3 objects in two sampling groups make 6 expected samples.
 export const SAMPLING_LINES = [
@@ -94,19 +103,21 @@ export function requestPaymentPath(order, request) {
 
 // The customer reports the bank transfer and the accountant verifies the receipt.
 export function payAdvance(order, customer = CUSTOMERS.nuocSach) {
-  return currentRequest(order).then((request) => {
-    const page = `/orders/${order.id}${request.kind === "advance" ? "/quotation" : ""}`;
-    portalPostAs(customer.login, page, requestPaymentPath(order, request), { method: "bank_transfer" });
-    return callAs("demo.accountant", "account.payment", "search", [
-      [
-        ["payment_request_id", "=", request.id],
-        ["state", "=", "draft"],
-      ],
-    ]).then((ids) => {
+  return currentRequest(order)
+    .then((request) => {
+      const page = `/orders/${order.id}${request.kind === "advance" ? "/quotation" : ""}`;
+      portalPostAs(customer.login, page, requestPaymentPath(order, request), { method: "bank_transfer" });
+      return callAs("demo.accountant", "account.payment", "search", [
+        [
+          ["payment_request_id", "=", request.id],
+          ["state", "=", "draft"],
+        ],
+      ]);
+    })
+    .then((ids) => {
       expect(ids, "reported transfer").to.have.length(1);
       return callAs("demo.accountant", "account.payment", "action_post", [ids]);
     });
-  });
 }
 
 // The customer declines the latest quotation on the portal with a reason.
@@ -170,6 +181,7 @@ export const orderAt = helper("orderAt", function orderAt(
         partner_id: order.contactId,
         source: "portal",
         order_status: "submitted",
+        expected_collection_date: pickupDay(),
         order_line: lines.map(([, quantity], index) => [0, 0, { product_id: products[index], product_uom_qty: quantity }]),
       },
     ]),

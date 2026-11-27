@@ -4,6 +4,7 @@ import { becomeVisitor, call, callAs, callRefused, refAs, resolveRecord, signIn 
 import { step } from "../../../support/steps";
 import {
   CUSTOMERS,
+  REASON,
   SAMPLING_LINES,
   clearCarts,
   currentRequest,
@@ -11,32 +12,21 @@ import {
   latestQuotation,
   orderAt,
   payAdvance,
+  pickupDay,
   requestPaymentPath,
   reviseQuotation,
 } from "./setup";
 
-const REASON = "Giá xét nghiệm chì cao hơn báo giá năm trước.";
-
-const ORDER_FIELDS = ["order_status", "quotation_follow_up", "write_date"];
-
-const readOrder =
-  (order, fields = ORDER_FIELDS) =>
-  () =>
-    cy.readRecord(order, fields);
-
-// The expected samples a page shows inside `container`: one sample with its objects, expected samples and groups.
-function expectSampling(container, { objects, expected, groups }) {
-  cy.get(container)
-    .find(".o_medilab_expected_sampling")
-    .within(() => {
-      cy.get(".o_medilab_objects").should("have.text", String(objects));
-      cy.get(".o_medilab_expected").should("have.text", String(expected));
-      cy.get("tbody tr").should("have.length", groups);
-    });
-}
 // The advance request keeps the exact quotation deadline.
 function expectAdvanceDueOnDeadline(order) {
   cy.readRecord(order, ["payment_deadline"]).then(({ payment_deadline }) => currentRequest(order).its("deadline").should("eq", payment_deadline));
+}
+
+function sendQuotationAndWait(beforeSend) {
+  cy.intercept("POST", "**/web/dataset/call_button/medilab.quotation.send/action_send*").as("sendQuotation");
+  cy.sendQuotation(beforeSend);
+  // Saving the dialog prepares the quotation PDF before Odoo dispatches the Send action.
+  cy.wait("@sendQuotation", { requestTimeout: 60000, responseTimeout: 60000 }).its("response.body").should("not.have.property", "error");
 }
 
 describe("WF-01 Order to confirmed test request", () => {
@@ -45,17 +35,11 @@ describe("WF-01 Order to confirmed test request", () => {
     step("Customer fills a cart from the catalog");
     cy.signInAs("customer");
     cy.get(`${PORTAL_MENU} a[href='/catalog']`).click();
-    cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
+    cy.contains(".card h3", "Lead (Pb)").closest(".card").find("button[type=submit]").click();
     cy.location("pathname").should("eq", "/cart");
-    step("Customer chooses the sample type and submits the order");
-    // The customer chooses the sample type, and the parameter's default way of testing on it is filled in.
-    cy.get("select[name=sample_type_id]")
-      .first()
-      .find("option")
-      .contains(/Nước đóng chai|Bottled water/)
-      .invoke("val")
-      .then((value) => cy.get("select[name=sample_type_id]").first().select(String(value)));
-    cy.get("select[name=parameter_method_id]").first().invoke("val").should("not.be.empty");
+    step("Customer submits the order; sales and the laboratory choose the sample type and way of testing");
+    cy.get("select[name=sample_type_id]").should("not.exist");
+    cy.get("select[name=parameter_method_id]").should("not.exist");
     cy.get("form[action='/cart/submit'] button[type=submit]").first().click();
     cy.contains("h1", "Order submitted");
     cy.contains("p", "is in the sales queue.")
@@ -75,13 +59,21 @@ describe("WF-01 Order to confirmed test request", () => {
         cy.contains(".o_data_row", submitted.name).find("button[name=action_claim]").click();
         cy.contains(".o_data_row", submitted.name).should("not.exist");
 
-        step("Sales opens the order and checks its line and sample type");
-        const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-        callAs("demo.sales", "sale.order", "write", [[order.id], { expected_collection_date: tomorrow }]);
+        step("Sales opens the order and sets its sample type");
+        callAs("demo.sales", "sale.order", "write", [[order.id], { expected_collection_date: pickupDay() }]);
+        refAs("demo.sales", "sol_demo.demo_sample_type_bottled_water").then((bottled) =>
+          callAs("demo.sales", "sale.order.line", "search", [
+            [
+              ["order_id", "=", order.id],
+              ["linked_line_id", "=", false],
+              ["display_type", "=", false],
+            ],
+          ]).then((ids) => callAs("demo.sales", "sale.order.line", "write", [ids, { sample_type_id: bottled.id }])),
+        );
         openMenu(MENU.sales, MENU.orders);
         openRow(submitted.name);
         step("Sales asks for an online advance and sends the quotation");
-        cy.sendQuotation(() => {
+        sendQuotationAndWait(() => {
           choose("payment_method", "Trực tuyến");
           choose("advance_mode", "Phần trăm");
           cy.get(".modal:visible .o_field_widget[name=advance_value] input").clear().type("30");
@@ -102,39 +94,39 @@ describe("WF-01 Order to confirmed test request", () => {
           },
         ).then((lines) => lines.filter((line) => !line.is_downpayment).forEach((line) => expect(line.parameter_method_id).to.be.ok));
         expectAdvanceDueOnDeadline(order);
-        latestQuotation(order.id).then((quotation) => {
-          expect(quotation.status).to.equal("sent");
-          expect(quotation.payment_request_ids).to.have.length(1);
-          cy.signInAs("customer");
-          cy.visit(`/orders/${order.id}/quotation`);
-          cy.contains("h2", "Advance payment request");
-          cy.get("button[name=method][value=payos]").click();
-          cy.get("#payos-pending").should("be.visible");
+        return latestQuotation(order.id)
+          .then((quotation) => {
+            expect(quotation.status).to.equal("sent");
+            expect(quotation.payment_request_ids).to.have.length(1);
+            cy.signInAs("customer");
+            cy.visit(`/orders/${order.id}/quotation`);
+            cy.contains("h2", "Advance payment request");
+            cy.get("button[name=method][value=payos]").click();
+            cy.get("#payos-pending").should("be.visible");
+          })
+          .then(() => order);
+      })
+      .then((order) => {
+        // The local demo gets no PayOS callback; verify a transfer for this same advance.
+        step("The accountant verifies the 30% advance on the submitted order");
+        payAdvance(order);
+        step("Sales confirms the same order while its balance is still open");
+        cy.signInAs("sales");
+        cy.openRecord(order);
+        cy.intercept("POST", "**/web/dataset/call_button/sale.order/action_confirm_order*").as("confirmOrder");
+        cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
+        cy.wait("@confirmOrder").its("response.body").should("not.have.property", "error");
+        currentRequest(order).should("include", { kind: "balance", state: "open" });
+        cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
+        cy.readRecord(order, ["order_status", "test_request_id", "sample_ids"]).then((read) => {
+          expect(read.order_status).to.equal("confirmed");
+          call("medilab.test.request", "read", [[read.test_request_id[0]], ["status", "sample_ids"]]).then(([request]) => {
+            expect(request.status).to.equal("paid");
+            expect(request.sample_ids).to.have.length(read.sample_ids.length);
+          });
         });
+        callRefused("sale.order", "write", [[order.id], { validity_date: "2099-12-31" }]).should("eq", "Không thể thay đổi đơn hàng đã xác nhận.");
       });
-
-    // PayOS never answers a local demo, so the order confirmed below is one whose advance is already paid.
-    step("Sales confirms a paid order, which creates its test request");
-    orderAt("accepted").then((paid) => {
-      cy.signInAs("sales");
-      cy.openRecord(paid);
-      cy.intercept("POST", "**/web/dataset/call_button/sale.order/action_confirm_order*").as("confirmOrder");
-      cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
-      cy.wait("@confirmOrder").its("response.body").should("not.have.property", "error");
-      // A portal order owes its balance before its samples are collected.
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
-      currentRequest(paid).its("kind").should("eq", "balance");
-      payAdvance(paid);
-      cy.openRecord(paid);
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
-      cy.readRecord(paid, ["order_status", "test_request_id", "sample_ids"]).then((read) => {
-        expect(read.order_status).to.equal("confirmed");
-        call("medilab.test.request", "read", [[read.test_request_id[0]], ["status", "sample_ids"]]).then(([request]) =>
-          expect(request.sample_ids).to.have.length(read.sample_ids.length),
-        );
-      });
-      callRefused("sale.order", "write", [[paid.id], { validity_date: "2099-12-31" }]).should("eq", "Không thể thay đổi đơn hàng đã xác nhận.");
-    });
   });
 
   it("TC-WF01-A1 lets sales create the order for a customer who called", () => {
@@ -143,6 +135,7 @@ describe("WF-01 Order to confirmed test request", () => {
     newRecord("/odoo/lab-orders");
     pick("customer_id", "Công ty TNHH Nước Uống Sạch");
     pick("partner_id", "Phạm Thị Hoa");
+    cy.get(".o_field_widget[name=expected_collection_date] input").type(`${pickupDay("vi-VN")}{enter}`);
     step("Sales adds Lead (Pb), whose price fills in, and saves the order");
     cy.get(".o_field_widget[name=product_line_ids] .o_field_x2many_list_row_add button").first().click();
     pick("product_template_id", "Lead (Pb)");
@@ -162,7 +155,7 @@ describe("WF-01 Order to confirmed test request", () => {
     const email = `visitor.${Date.now()}@example.com`;
     step("A visitor who is not signed in adds Lead (Pb) to a cart");
     becomeVisitor();
-    cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
+    cy.contains(".card h3", "Lead (Pb)").closest(".card").find("button[type=submit]").click();
     step("The visitor gives a name and an e-mail address and submits the cart");
     cy.get("form[action='/cart/submit'] input[name=name]").type("Lê Văn Khách");
     cy.get("form[action='/cart/submit'] input[name=email]").type(email);
@@ -228,9 +221,9 @@ describe("WF-01 Order to confirmed test request", () => {
       step("Sales revises the quotation and sends the new version");
       cy.signInAs("sales");
       cy.openRecord(order);
-      cy.intercept("POST", "**/web/dataset/call_button/medilab.quotation.send/action_send*").as("sendRevision");
-      cy.sendQuotation();
-      cy.wait("@sendRevision").its("response.body").should("not.have.property", "error");
+      sendQuotationAndWait(() => {
+        cy.get(".modal:visible .o_field_widget[name=advance_value] input").clear().type("30");
+      });
       latestQuotation(order.id).its("revision").should("eq", 2);
       step("The customer accepts the new version by paying its advance");
       payAdvance(order);
@@ -276,7 +269,7 @@ describe("WF-01 Order to confirmed test request", () => {
       step("The Head of Sales sends the quotation without an advance");
       cy.signInAs("head_of_sales");
       cy.openRecord(order);
-      cy.sendQuotation(() => {
+      sendQuotationAndWait(() => {
         choose("payment_method", "Cash");
         choose("advance_mode", "No advance");
       });

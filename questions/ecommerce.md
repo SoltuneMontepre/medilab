@@ -29,6 +29,7 @@
   - An account flagged as a possible duplicate, waiting for sales to clear or merge it (US-S04).
   - A day of PayOS transactions, waiting for the accountant to reconcile and lock it (US-A13).
 - **Whole quantities on orders.** An order template line is a whole number of parameters or packages, but the order form and the cart only refuse a quantity below 1, so an order can still carry 1.5 tests and cannot then be saved as a template. Must an order line also be a whole number? (US-S09)
+- **Portal tab title.** Every portal page's browser tab says "Odoo", Odoo's title for a page that sets none, while the back office's tab shows the screen's name, such as "Quotations". What should a portal page's tab show: the page's name, the laboratory's name, "MediLab", or a combination?
 
 - **Measuring approval thresholds.** Is the discount threshold measured per line or on the whole quotation, and before or after VAT? Proposed answer, not decided: the discount share is (catalog total − total after every discount) / catalog total before VAT, worked out for the whole quotation and for each line, taking the larger; the amount threshold is compared with the total after discounts, VAT included.
 - **Packages with untestable parameters.** Is a package offered when one of its parameters has no way of testing available? Proposed answer, not decided: a package is shown only when each of its parameters has an available way of testing; archiving a parameter warns the administrator about the packages that contain it.
@@ -44,6 +45,9 @@
 - **Portal users who leave the customer.** Who revokes the portal account of a person who leaves the customer's company? Proposed answer, not decided: the customer asks sales or support; the Head of Sales revokes the account at once and keeps its history; an account never moves to another company.
 - **Login and contact email.** Is the login email separate from the contact email, and is it verified? Proposed answer, not decided: they are separate; changing the login email is confirmed through the new address; notices and password reset links go only to a confirmed address.
 - **Requested date.** Is the customer's requested date required, and what if the committed return date has already passed when the samples are received? Proposed answer, not decided: the requested date is required when the test request is confirmed; a committed date already past when the samples are received marks the tests urgent at once and tells the head of department.
+- **A foreign currency in words.** How does a Vietnamese invoice in a currency other than VND write the currency in its amount in words? For now it takes the name Odoo gives the currency in Vietnamese, such as "Một trăm Dollar và năm mươi Cent" for USD 100.50; the Vietnamese name, such as "đô la Mỹ" and "xu", or the code would need a name for each currency. (US-A04, US-C16)
+- **Frequency of a package order.** The catalog may let a customer order a package at a frequency (tần suất), such as monthly monitoring. Does a frequency create separate sampling rounds and test requests, or only multiply the price, and how is each round quoted and invoiced? (blocks US-C08)
+- **Changed packages in templates and reorders.** A template and a reorder keep a package and its quantity, not the parameters the customer unticked or added. Should they keep those changes? (US-S09, US-C10)
 
 ## Related documents
 

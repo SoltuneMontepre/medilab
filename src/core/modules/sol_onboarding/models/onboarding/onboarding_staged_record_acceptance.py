@@ -27,7 +27,10 @@ from odoo.addons.sol_onboarding.constants.onboarding import (
     STAGED_TO_REVIEW,
 )
 from odoo.addons.sol_onboarding.constants.xml_ids import ACCEPT_ACTION
-from odoo.addons.sol_onboarding.models.onboarding.onboarding_staged_record_matching import normalize_code
+from odoo.addons.sol_onboarding.models.onboarding.onboarding_staged_record_matching import (
+    CODE_KINDS,
+    normalize_code,
+)
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_onboarding_staged_record as OnboardingStagedRecordAcceptanceBase
@@ -54,11 +57,12 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
     def action_accept(self):
         """Accept the records, or ask for the values one record misses. The result lists the refused records."""
         self._check_permission("edit")
-        if len(self) == 1 and self._missing_values():
+        updates = self._match_again()
+        if len(self) == 1 and not updates and self._missing_values():
             action = self.env["ir.actions.act_window"]._for_xml_id(ACCEPT_ACTION)
             action["context"] = {"default_staged_record_id": self.id}
             return action
-        refused = self._accept_each()
+        refused = updates | (self - updates)._accept_each()
         if refused:
             return {
                 "type": "ir.actions.act_window",
@@ -76,6 +80,23 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
                 "next": {"type": "ir.actions.act_window_close"},
             },
         }
+
+    def _match_again(self):
+        """Match again the records, and the methods of their scopes, that propose to create a code Laboratory has
+        since been given. Returns the records of self that now propose an update, each with its message, so their
+        changes are reviewed before they are accepted."""
+        stale = (self | self.child_ids).filtered(
+            lambda record: (
+                record.state == STAGED_TO_REVIEW
+                and record.action == ACTION_CREATE
+                and record.kind in CODE_KINDS
+                and bool(record._find_match()[1])
+            )
+        )
+        stale._match()
+        updates = (stale & self).filtered(lambda record: record.action == ACTION_UPDATE)
+        updates.error = self.env._("Laboratory now has this code with other values. Review the changes, then accept.")
+        return updates
 
     def _accept_each(self):
         """Accept each record in a savepoint with the records it needs, so a refusal leaves it and them to review and
@@ -168,33 +189,36 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
         for method in self._scope_methods():
             groups[normalize_code(method.code or "")] |= method
         for group in groups.values():
-            matched = catalog
-            field = self.env[MODEL_TESTING_FIELD]
-            for method in group:
-                found = record_as(method._matched_record(), catalog)
-                if method.action != ACTION_CREATE and not found:
-                    raise UserError(
-                        self.env._(
-                            "The matched record of %s no longer exists. Set the match again.", method._describe()
-                        )
-                    )
-                matched = matched or found
-                if method.action != ACTION_UPDATE:
-                    field = field or method._method_field()
-            to_accept = group.filtered(lambda method: method.action != ACTION_UPDATE)
-            if not to_accept:
-                continue
-            code = matched.code or group[0].code
-            record = (
-                matched
-                or catalog.search([("code", "=", code)], limit=1)
-                or catalog.with_context(lang=self.lang).create(
-                    {"code": code, "name": group[0].name or code, "field_id": (field or self.field_id).id}
-                )
-            )
-            for method in to_accept:
-                method._mark_accepted(record)
+            self._accept_method_group(group, catalog)
         return certificate
+
+    def _accept_method_group(self, group, catalog):
+        """Accept the certificate's scope methods whose codes make one method into the matched method, the catalog
+        method with their code, or a new one."""
+        matched = catalog
+        field = self.env[MODEL_TESTING_FIELD]
+        for method in group:
+            found = record_as(method._matched_record(), catalog)
+            if method.action != ACTION_CREATE and not found:
+                raise UserError(
+                    self.env._("The matched record of %s no longer exists. Set the match again.", method._describe())
+                )
+            matched = matched or found
+            if method.action != ACTION_UPDATE:
+                field = field or method._method_field()
+        to_accept = group.filtered(lambda method: method.action != ACTION_UPDATE)
+        if not to_accept:
+            return
+        code = matched.code or group[0].code
+        record = (
+            matched
+            or catalog.search([("code", "=", code)], limit=1)
+            or catalog.with_context(lang=self.lang).create(
+                {"code": code, "name": group[0].name or code, "field_id": (field or self.field_id).id}
+            )
+        )
+        for method in to_accept:
+            method._mark_accepted(record)
 
     def _scope_methods(self):
         """The staged methods of a certificate's scope that are to review, in the order they were staged."""

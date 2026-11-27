@@ -1,0 +1,65 @@
+# demo.sample_delivery_staff opens the draft handover record of Trần Văn Bình and has the customer sign it: the signature
+# box and its buttons are on the screen without scrolling, on a release build made for the MediLab at localhost:8069.
+appId: com.medilab.mobile
+name: Handover signing
+env:
+  LOGIN: demo.sample_delivery_staff
+  PASSWORD: demo
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "language-en"
+    timeout: 60000
+- tapOn:
+    id: "language-en"
+- tapOn:
+    id: "sign-in-login"
+- inputText: ${LOGIN}
+- hideKeyboard
+- tapOn:
+    id: "sign-in-password"
+- inputText: ${PASSWORD}
+- hideKeyboard
+- tapOn:
+    id: "sign-in-submit"
+- extendedWaitUntil:
+    visible:
+      id: "tab-menu"
+    timeout: 60000
+- tapOn:
+    id: "tab-menu"
+- tapOn:
+    id: "home-handover-records"
+- scrollUntilVisible:
+    element:
+      id: "handover-record"
+      text: ".*Trần Văn Bình.*"
+    direction: DOWN
+    timeout: 30000
+- tapOn:
+    id: "handover-record"
+    text: ".*Trần Văn Bình.*"
+- extendedWaitUntil:
+    visible:
+      id: "handover-sign"
+    timeout: 30000
+- tapOn:
+    id: "handover-sign"
+- swipe:
+    from:
+      id: "signature-pad"
+    direction: RIGHT
+- assertVisible:
+    id: "handover-next"
+    enabled: true
+- tapOn:
+    id: "handover-next"
+- tapOn:
+    id: "handover-confirm"
+- scrollUntilVisible:
+    element:
+      id: "handover-read-only"
+    direction: DOWN
+    timeout: 30000

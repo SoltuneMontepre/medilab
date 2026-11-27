@@ -22,7 +22,8 @@ class MedilabBinary(Binary):
     def content_image(self, *args, **kwargs):
         return super().content_image(*args, **kwargs)
 
-    @http.route()
+    # A bundle is public and immutable, and the CDN does not cache an answer that sets the session cookie.
+    @http.route(save_session=False)
     def content_assets(self, filename=None, unique=ANY_UNIQUE, nocache=False, assets_params=None):
         # Odoo builds a bundle it has no attachment for, so a bundle whose file is lost loses its attachment first.
         request_env()[MODEL_IR_ATTACHMENT]._drop_lost_asset_bundle(filename, unique, assets_params or {})

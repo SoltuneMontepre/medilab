@@ -128,6 +128,29 @@ class TestAcceptingCertificates(OnboardingCase):
         written = self.env[MODEL_TESTING_METHOD].with_context(active_test=False).search([("code", "ilike", "9876")])
         self.assertEqual(written, method)
 
+    def test_laboratory_records_entered_after_staging_are_matched_on_accept(self):
+        certificate, child = self.stage(self.certificate(), self.method("TCVN 9881:2014", "Entered later"))
+        self.assertEqual((certificate.action, child.action), ("create", "create"))
+        method = self.lab_method("tcvn  9881:2014", "Entered later")
+        typed = self.env[MODEL_ACCREDITATION_CERTIFICATE].create(
+            {"code": CERTIFICATE_CODE.lower(), "issuing_body": "Typed"}
+        )
+
+        certificate.with_user(self.admin).action_accept()
+
+        self.assertEqual(
+            (certificate.state, certificate.action, certificate.record_id), ("to_review", "update", typed.id)
+        )
+        self.assertTrue(certificate.error)
+        self.assertEqual((child.state, child.action, child.record_id), ("to_review", "link", method.id))
+
+        certificate.with_user(self.admin).action_accept()
+
+        self.assertEqual((certificate.state, child.state, child.record_id), ("accepted", "accepted", method.id))
+        self.assertEqual(typed.issuing_body, "BoA")
+        codes = self.env[MODEL_TESTING_METHOD].search([("code", "ilike", "9881")]).mapped("code")
+        self.assertEqual(codes, ["tcvn  9881:2014"])
+
     def test_child_updates_stay_to_review(self):
         method = self.lab_method("TCVN 9877:2012", "Old certificate title")
         certificate, changed, new = self.stage(

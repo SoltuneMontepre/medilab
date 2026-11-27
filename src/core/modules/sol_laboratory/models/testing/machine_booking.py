@@ -267,7 +267,7 @@ class MachineBooking(models.Model, MachineBookingBase):
                     locks._own_edits()._release("saved")
                 return True
         moving = bool({"status", "starts_at", "person_id", "machine_id"} & set(vals))
-        left = self.browse().union(*(booking._sharing() for booking in self)) - self if moving else self.browse()
+        left = self.browse().union(booking._sharing() for booking in self) - self if moving else self.browse()
         result = super().write(vals)
         if moving:
             self._sync_schedule()
@@ -510,7 +510,7 @@ class MachineBooking(models.Model, MachineBookingBase):
             for step, offset, length in self._room_steps(self.sample_test_id.parameter_method_id)
             if step not in held
         ]
-        (events - events.browse().union(*(event for _step, event, _begin, _length in planned))).unlink()
+        (events - events.browse().union(event for _step, event, _begin, _length in planned)).unlink()
         # The overlap constraint checks each row as it is written: moving later, the last step moves first.
         if any(event and begin > event.start for _step, event, begin, _length in planned):
             planned.reverse()

@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from "react";
 import { AppState } from "react-native";
 
 import { UnreachableError, type Me, type ModuleList } from "./api";
@@ -16,7 +16,7 @@ export interface Person {
 
 const PersonContext = createContext<{ load: Load<Person>; reload: () => Promise<void> }>({
   load: { state: "loading" },
-  reload: async () => undefined,
+  reload: () => Promise.resolve(),
 });
 
 /** Reads the person and the installed modules once the phone is signed in, for the navigation and the screens that
@@ -39,7 +39,8 @@ export function PersonProvider({ children }: Readonly<{ children: ReactNode }>) 
     return () => foreground.remove();
   }, [unread, refresh]);
 
-  return <PersonContext.Provider value={{ load, reload }}>{children}</PersonContext.Provider>;
+  const value = useMemo(() => ({ load, reload }), [load, reload]);
+  return <PersonContext.Provider value={value}>{children}</PersonContext.Provider>;
 }
 
 /** Reads the person again when they were not read, such as when a screen tries again after MediLab was not reached. */

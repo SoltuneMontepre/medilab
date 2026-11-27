@@ -1,8 +1,10 @@
 import { browser } from "@web/core/browser/browser";
 import { _t } from "@web/core/l10n/translation";
 import { ResizablePanel } from "@web/core/resizable_panel/resizable_panel";
+import { SIZES } from "@web/core/ui/ui_utils";
 import { patch } from "@web/core/utils/patch";
 import { createElement } from "@web/core/utils/xml";
+import { useSubEnv } from "@web/owl2/utils";
 import { FormCompiler } from "@web/views/form/form_compiler";
 import { FormRenderer } from "@web/views/form/form_renderer";
 
@@ -29,7 +31,7 @@ function storeChatter(width, collapsed) {
   }
 }
 
-// The width and the collapsed state of the chatter beside a form.
+// The width and the collapsed state of the chatter or audit log beside a form.
 patch(FormRenderer.prototype, {
   setup() {
     super.setup();
@@ -51,33 +53,39 @@ patch(FormRenderer.prototype, {
       this.state.chatterCollapsed = !this.state.chatterCollapsed;
       storeChatter(this.chatterWidth, this.state.chatterCollapsed);
     };
+    // The chatter's top bar holds the button that collapses it.
+    useSubEnv({ collapseChatter: { run: this.toggleChatter, label: _t("Collapse the chatter") } });
   },
-  get chatterToggleLabel() {
-    return this.state.chatterCollapsed ? _t("Expand the chatter") : _t("Collapse the chatter");
+  get expandChatterLabel() {
+    return _t("Expand the chatter");
+  },
+  get collapseAuditLogLabel() {
+    return _t("Collapse the audit log");
+  },
+  get expandAuditLogLabel() {
+    return _t("Expand the audit log");
   },
 });
 
-// Wraps the chatter beside a form in Odoo's resizable panel, with a button on the bar that collapses it.
-function wrapChatter(res, container) {
-  const chatter = container.querySelector("t[t-component='__comp__.mailComponents.Chatter']");
-  const toggle = createElement(
+// Odoo's resizable panel around a feed beside a form. Collapsed, the panel is a narrow strip that expands it again.
+function resizablePanel(feed, icon, expandLabel) {
+  const dock = createElement(
     "button",
     {
       type: "button",
-      class: "o-mail-ChatterToggle",
+      class: "o-mail-ChatterDock d-print-none",
+      "t-if": "__comp__.state.chatterCollapsed",
       "t-on-click": "__comp__.toggleChatter",
-      "t-att-aria-label": "__comp__.chatterToggleLabel",
-      "t-att-title": "__comp__.chatterToggleLabel",
-      "t-att-aria-expanded": "__comp__.state.chatterCollapsed ? 'false' : 'true'",
+      "t-att-aria-label": expandLabel,
+      "t-att-title": expandLabel,
+      "aria-expanded": "false",
     },
     [
-      createElement("i", {
-        class: "oi",
-        "t-att-data-icon": "__comp__.state.chatterCollapsed ? 'chevron_backward' : 'chevron_forward'",
-      }),
+      createElement("i", { class: "oi oi-fw", "data-icon": "keyboard_double_arrow_left" }),
+      createElement("i", { class: "oi oi-fw", "data-icon": icon }),
     ],
   );
-  const panel = createElement(
+  return createElement(
     "t",
     {
       "t-component": "__comp__.mailComponents.ResizablePanel",
@@ -90,18 +98,21 @@ function wrapChatter(res, container) {
     [
       createElement("t", { "t-set-slot": "default" }, [
         createElement("div", { class: "o-mail-ChatterPanelContent" }, [
-          createElement("div", { class: "o-mail-ChatterBar flex-shrink-0 d-print-none" }, [toggle]),
+          dock,
           createElement("div", { class: "o-mail-ChatterBody flex-grow-1", "t-att-class": "{ 'd-none': __comp__.state.chatterCollapsed }" }, [
-            chatter.cloneNode(true),
+            feed,
           ]),
         ]),
       ]),
     ],
   );
-  const hasPreview = Boolean(res.querySelector(".o_attachment_preview"));
-  const aside = createElement("t", { "t-if": `${ASIDE_LAYOUTS}.includes(__comp__.mailLayout(${hasPreview}))` }, [panel]);
-  const beside = createElement("t", { "t-else": "" }, [chatter.cloneNode(true)]);
-  chatter.replaceWith(aside, beside);
+}
+
+// Shows the panel while the condition holds, and the feed as it is otherwise.
+function wrapFeed(feed, condition, panel) {
+  const aside = createElement("t", { "t-if": condition }, [panel]);
+  const other = createElement("t", { "t-else": "" }, [feed.cloneNode(true)]);
+  feed.replaceWith(aside, other);
 }
 
 patch(FormCompiler.prototype, {
@@ -110,7 +121,37 @@ patch(FormCompiler.prototype, {
     const container = res.querySelector(".o-mail-Form-chatter:not(.o-isInFormSheetBg)");
     // Only a chatter that can sit beside the form has the class expression.
     if (container?.hasAttribute("t-attf-class")) {
-      wrapChatter(res, container);
+      const chatter = container.querySelector("t[t-component='__comp__.mailComponents.Chatter']");
+      const hasPreview = Boolean(res.querySelector(".o_attachment_preview"));
+      wrapFeed(
+        chatter,
+        `${ASIDE_LAYOUTS}.includes(__comp__.mailLayout(${hasPreview}))`,
+        resizablePanel(chatter.cloneNode(true), "forum", "__comp__.expandChatterLabel"),
+      );
+    }
+    // A document's audit log sits beside the sheet where the form puts its parts in a row, and collapses from its heading.
+    const auditLog = res.querySelector(".o_form_renderer > .o_audit_aside");
+    if (auditLog) {
+      const besideSheet = auditLog.cloneNode(true);
+      besideSheet.querySelector("h3")?.append(
+        createElement(
+          "button",
+          {
+            type: "button",
+            class: "o-mail-ChatterCollapse btn btn-link text-muted ms-auto px-1 py-0 d-print-none",
+            "aria-expanded": "true",
+            "t-att-aria-label": "__comp__.collapseAuditLogLabel",
+            "t-att-title": "__comp__.collapseAuditLogLabel",
+            "t-on-click": "__comp__.toggleChatter",
+          },
+          [createElement("i", { class: "oi oi-fw", "data-icon": "keyboard_double_arrow_right", role: "img" })],
+        ),
+      );
+      wrapFeed(
+        auditLog,
+        `__comp__.uiService.size >= ${SIZES.XXL}`,
+        resizablePanel(besideSheet, "fact_check", "__comp__.expandAuditLogLabel"),
+      );
     }
     return res;
   },

@@ -107,6 +107,20 @@ class SetCountryScriptTest(unittest.TestCase):
             )
 
 
+class NormalAppReadyTest(unittest.TestCase):
+    def test_invalid_saved_port_is_refused_before_any_request(self):
+        for port in ("8069@attacker.test", "0", "65536", ""):
+            with (
+                self.subTest(port=port),
+                patch.object(demo_bootstrap, "optional_volume_names", return_value=()),
+                patch.object(demo_bootstrap, "_compose"),
+                patch.object(demo_bootstrap, "urlopen") as urlopen,
+                self.assertRaisesRegex(BootstrapError, "saved Odoo port is invalid"),
+            ):
+                demo_bootstrap._normal_app_ready("project", "owner", {"MEDILAB_ODOO_PORT": port})
+            urlopen.assert_not_called()
+
+
 class DemoBootstrapEnvironmentTest(unittest.TestCase):
     def completed_selection(self, root):
         project = "medilab-bootstrap-test-01"
@@ -917,6 +931,137 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
 
             run.assert_not_called()
             self.assertTrue(marker_path.exists())
+
+    def test_clean_discards_an_interrupted_bootstrap_without_recovery(self):
+        with local_state_directory() as directory:
+            root = Path(directory)
+            project, config, marker, marker_path = self.completed_selection(root)
+            marker["status"] = "running"
+            config["MEDILAB_ODOO_IMAGE"] = f"localhost/{project}-odoo:owner"
+            marker_path.write_text(json.dumps(marker), encoding="utf-8")
+            env_path = root / ".env"
+            env_path.write_text(
+                "".join(f"{key}={value}\n" for key, value in config.items())
+                + "MEDILAB_URL=http://localhost:8069\n",
+                encoding="utf-8",
+            )
+            resources = {
+                "containers": [{"Id": "odoo-id"}],
+                "networks": [{"Id": "network-id"}],
+                "volumes": [{"Name": config["MEDILAB_DB_VOLUME"]}],
+            }
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.COMPOSE_ENV_FILE", env_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch("demo_bootstrap._assert_local_engine"),
+                patch("demo_bootstrap._assert_owned_resources", return_value=resources),
+                patch("builtins.input", return_value="owner"),
+                patch("demo_bootstrap._run") as run,
+            ):
+                clean()
+
+            run.assert_any_call(["docker", "stop", "odoo-id"], check=False)
+            run.assert_any_call(["docker", "rm", "odoo-id"], check=False)
+            run.assert_any_call(["docker", "network", "rm", "network-id"], check=False)
+            run.assert_any_call(["docker", "volume", "rm", config["MEDILAB_DB_VOLUME"]])
+            run.assert_any_call(
+                ["docker", "image", "rm", config["MEDILAB_ODOO_IMAGE"]], check=False
+            )
+            self.assertFalse(marker_path.exists())
+            self.assertEqual(
+                env_path.read_text(encoding="utf-8"),
+                "MEDILAB_URL=http://localhost:8069\n",
+            )
+
+    def test_clean_refuses_an_interrupted_bootstrap_on_another_container_engine(self):
+        with local_state_directory() as directory:
+            project, _config, marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            marker["status"] = "failed"
+            marker["engine"] = "unix:///var/run/docker.sock"
+            marker_path.write_text(json.dumps(marker), encoding="utf-8")
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch(
+                    "demo_bootstrap._assert_local_engine",
+                    return_value="unix:///home/dev/.docker/desktop/docker.sock",
+                ),
+                patch(
+                    "demo_bootstrap._assert_owned_resources",
+                    return_value={"containers": [], "networks": [], "volumes": []},
+                ),
+                patch("builtins.input") as confirm,
+                patch("demo_bootstrap._run") as run,
+                self.assertRaisesRegex(
+                    BootstrapError, "selected container engine does not match"
+                ),
+            ):
+                clean()
+            confirm.assert_not_called()
+            run.assert_not_called()
+            self.assertEqual(json.loads(marker_path.read_text()), marker)
+
+    def test_clean_refuses_a_worktree_without_bootstrap_marker(self):
+        with (
+            local_state_directory() as temporary,
+            patch("demo_bootstrap.MARKER", Path(temporary) / "missing.json"),
+            patch("demo_bootstrap.project_name", return_value="medilab-test"),
+            patch("demo_bootstrap._assert_local_engine"),
+            patch("demo_bootstrap._run") as run,
+            self.assertRaisesRegex(BootstrapError, "no unfinished fresh bootstrap"),
+        ):
+            clean()
+
+        run.assert_not_called()
+
+    def test_recover_leaves_a_discarded_marker_for_setup(self):
+        with local_state_directory() as directory:
+            project, config, marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            marker["status"] = "running"
+            marker["disposable"] = True
+            marker_path.write_text(json.dumps(marker), encoding="utf-8")
+            volume = {"Name": config["MEDILAB_DB_VOLUME"]}
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch("demo_bootstrap._assert_local_engine"),
+                patch(
+                    "demo_bootstrap._assert_owned_resources",
+                    return_value={
+                        "containers": [],
+                        "networks": [],
+                        "volumes": [volume],
+                    },
+                ),
+                patch("builtins.input", return_value="owner"),
+                patch("demo_bootstrap._run") as run,
+            ):
+                demo_bootstrap.recover()
+            run.assert_called_once_with(["docker", "volume", "rm", volume["Name"]])
+            saved = json.loads(marker_path.read_text())
+            self.assertEqual(saved["status"], "discarded")
+            self.assertNotIn("disposable", saved)
+
+    def test_recover_refuses_a_completed_bootstrap(self):
+        with local_state_directory() as directory:
+            project, _config, marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch("demo_bootstrap._assert_local_engine"),
+                patch("demo_bootstrap._run") as run,
+                self.assertRaisesRegex(BootstrapError, "Recovery refused"),
+            ):
+                demo_bootstrap.recover()
+            run.assert_not_called()
+            self.assertEqual(json.loads(marker_path.read_text()), marker)
 
     def test_reset_refuses_volumes_outside_the_completed_marker(self):
         with local_state_directory() as directory:

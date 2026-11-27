@@ -36,6 +36,7 @@ src/tests/
         inventory/solution-preparation/
         theme/chatter-resize/
         theme/navbar-more-menu/
+        theme/audit-log-panel/
         laboratory/unlinked-users/
         laboratory/shared-intervals/
         ecommerce/mandatory-notices/
@@ -74,7 +75,7 @@ Paths below are relative to `cypress/e2e/`. The issue descriptions use flat path
 | WF-02 | Sample reception and handover | [#153](https://github.com/SoltuneMontepre/medilab/issues/153) | `flows/wf-02-sample-reception/` | `sample-reception.cy.js` |
 | WF-03 | Testing assignment and scheduling | [#154](https://github.com/SoltuneMontepre/medilab/issues/154), [#315](https://github.com/SoltuneMontepre/medilab/issues/315) | `flows/wf-03-testing-scheduling/` | `testing-scheduling.cy.js`, `unhappy-paths.cy.js`, `reassignment-reasons.cy.js`, `reassignment-handover.cy.js`, `sample-test-cancellation.cy.js`, `booking-rescheduling.cy.js`, `plan-revision.cy.js`, `notification-integrity.cy.js`, `booking-adjustments.cy.js` |
 | WF-04 | Result entry and approval | [#155](https://github.com/SoltuneMontepre/medilab/issues/155) | `flows/wf-04-result-approval/` | `result-approval.cy.js` |
-| WF-05 | Outsourced testing | [#156](https://github.com/SoltuneMontepre/medilab/issues/156) | `flows/wf-05-outsourced-testing/` | `outsourced-testing.cy.js` |
+| WF-05 | Outsourced testing | [#156](https://github.com/SoltuneMontepre/medilab/issues/156) | `flows/wf-05-outsourced-testing/` | `outsourced-testing.cy.js`, `outsourcing-suggestions-and-dispatches.cy.js`, `direct-outsourcing.cy.js`, `subcontractor-results.cy.js` |
 | WF-06 | Report signing, release and delivery | [#157](https://github.com/SoltuneMontepre/medilab/issues/157), [#431](https://github.com/SoltuneMontepre/medilab/issues/431), [#432](https://github.com/SoltuneMontepre/medilab/issues/432) | `flows/wf-06-report-release/` | `report-release.cy.js`, `report-preparation.cy.js` |
 | WF-04, SF-11 | Result files and laboratory file administration: the back-office screens that browse, download, sign and administer folders, members, versions, locks and devices, and the device API calls a Medilab Sync computer makes against them, uploads with real bytes included. Medilab Sync's own screens and saves in the real editor are not exercised here, lock expiry is simulated, and TC-F53-03 leaves the folder of a hidden sample uncovered. | [#168](https://github.com/SoltuneMontepre/medilab/issues/168) | `flows/wf-07-laboratory-files/` | `laboratory-files.cy.js`, `laboratory-file-versions.cy.js`, `sync-setup.cy.js` |
 | SF-01 | Invoicing and payment collection | [#158](https://github.com/SoltuneMontepre/medilab/issues/158) | `flows/sf-01-payment-collection/` | `payment-collection.cy.js` |
@@ -133,7 +134,7 @@ Not covered because the feature is not built: a notice to the tester and head wh
 | Import scope lines into a certificate with their parameters and sample types; a sample test is accredited only when one line covers its method, parameter and sample type or an ancestor, and never when subcontracted. | [#412](https://github.com/SoltuneMontepre/medilab/issues/412) | `features/laboratory/accreditation-scope/` | `accreditation-scope.cy.js` |
 | Pick an organisation, start a run, review staged records and accept a certificate with its methods. | [#176](https://github.com/SoltuneMontepre/medilab/issues/176) | `features/onboarding/master-data-staging/` | `master-data-staging.cy.js` |
 | Prepare a solution from scanned bottles; verify the resulting stock movements and container. | [#181](https://github.com/SoltuneMontepre/medilab/issues/181) | `features/inventory/solution-preparation/` | `solution-preparation.cy.js` |
-| Resize and collapse the chatter that sits beside a form, and keep its width and state. | [#282](https://github.com/SoltuneMontepre/medilab/issues/282) | `features/theme/chatter-resize/` | `chatter-resize.cy.js` |
+| Resize and collapse the chatter that sits beside a form, keep its width and state, and open it ready to send a message without moving the focus. | [#282](https://github.com/SoltuneMontepre/medilab/issues/282) | `features/theme/chatter-resize/` | `chatter-resize.cy.js` |
 | Move the menu bar sections that do not fit a narrow window into the More menu, in every app. | [#393](https://github.com/SoltuneMontepre/medilab/issues/393) | `features/theme/navbar-more-menu/` | `navbar-more-menu.cy.js` |
 | Move a booking into another sample's machine interval of the same method, which books its room once, and refuse a sample once the interval is full. | [#420](https://github.com/SoltuneMontepre/medilab/issues/420) | `features/laboratory/shared-intervals/` | `shared-intervals.cy.js` |
 | See that a booking whose end passed still holds its machine and puts the next booking on it at risk, which stays where it is. | [#424](https://github.com/SoltuneMontepre/medilab/issues/424) | `features/laboratory/machine-conditions/` | `machine-conditions.cy.js` |
@@ -155,6 +156,7 @@ Not covered because the feature is not built: a notice to the tester and head wh
 | Take a waiting support request and answer it on the phone; the customer reads the answer on the portal and is notified. | [#522](https://github.com/SoltuneMontepre/medilab/issues/522) | `features/mobile/support/` | `support.cy.js` |
 | Send phones on a rolled-back release to the release that replaces it, and let an administrator stop releases and set the oldest version served, below which a phone gets only the updating screen. | [#525](https://github.com/SoltuneMontepre/medilab/issues/525) | `features/mobile/updates/` | `updates.cy.js` |
 | Record planned OverTime for a tester as their head of department; the tester is booked in it only once it is recorded, and moving the booking leaves it. | [#426](https://github.com/SoltuneMontepre/medilab/issues/426) | `features/laboratory/overtime/` | `overtime.cy.js` |
+| Keep a sample or sample test form readable beside its audit log, resize and collapse the panel and keep its width and state, and put it below the form on a narrow window. | [#679](https://github.com/SoltuneMontepre/medilab/issues/679) | `features/theme/audit-log-panel/` | `audit-log-panel.cy.js` |
 
 Solution-preparation scenarios follow their approved feature document and demo starting data. Reserving a directory does not settle the open requirements in that issue.
 

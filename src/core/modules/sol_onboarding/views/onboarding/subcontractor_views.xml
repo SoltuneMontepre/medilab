@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_subcontractor_form_listing" model="ir.ui.view">
+        <field name="name">medilab.subcontractor.form.listing</field>
+        <field name="model">medilab.subcontractor</field>
+        <field name="inherit_id" ref="sol_laboratory.view_medilab_subcontractor_form" />
+        <field name="arch" type="xml">
+            <field name="accreditation_number" position="after">
+                <field name="accreditation_listed" invisible="1" />
+                <field
+                    name="accreditation_listing"
+                    nolabel="1"
+                    colspan="2"
+                    invisible="not accreditation_listing"
+                    decoration-success="accreditation_listed"
+                    decoration-warning="not accreditation_listed"
+                />
+            </field>
+        </field>
+    </record>
+</odoo>

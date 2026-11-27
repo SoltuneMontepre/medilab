@@ -240,6 +240,39 @@ class TestComposeEnv(unittest.TestCase):
             self.assertIn("MEDILAB_ODOO_PORT=28069", values)
             self.assertNotIn("medilab-07088fb8", values)
 
+    def test_dev_setup_refuses_a_selected_value_that_adds_lines(self):
+        with local_state_directory() as temporary:
+            directory = Path(temporary)
+            marker = directory / ".local/marker.json"
+            env = directory / ".env"
+            marker.write_text(
+                json.dumps(
+                    {
+                        "project": "medilab-bootstrap-test-01",
+                        "selected_project": True,
+                        "worktree": str(directory.resolve()),
+                        "config": {
+                            "COMPOSE_PROJECT_NAME": "medilab-bootstrap-test-01",
+                            "MEDILAB_ODOO_PORT": "28069\nDB_PASSWORD=injected",
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            env.write_text("COMPOSE_PROJECT_NAME=medilab-07088fb8\n", encoding="utf-8")
+            with (
+                patch("compose_env.MARKER", marker),
+                patch("compose_env.ENV_FILE", env),
+                self.assertRaisesRegex(
+                    ValueError, "invalid value for MEDILAB_ODOO_PORT"
+                ),
+            ):
+                main()
+            self.assertEqual(
+                env.read_text(encoding="utf-8"),
+                "COMPOSE_PROJECT_NAME=medilab-07088fb8\n",
+            )
+
     def test_worktree_with_the_main_checkout_name_gets_an_isolated_project(self):
         with local_state_directory() as temporary:
             root = Path(temporary)

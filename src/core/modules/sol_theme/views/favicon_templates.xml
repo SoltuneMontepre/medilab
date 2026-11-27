@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="favicon" inherit_id="web.layout" name="MediLab Favicon">
+        <xpath expr="//html" position="attributes">
+            <attribute name="t-att-lang">(html_data or {}).get('lang') or (request and request.env.lang or '').replace('_', '-') or None</attribute>
+        </xpath>
         <xpath expr="//link[@rel='shortcut icon']" position="attributes">
             <attribute name="t-att-href">x_icon or '/sol_theme/static/src/img/icons/favicon.ico'</attribute>
         </xpath>

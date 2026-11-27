@@ -16,7 +16,8 @@ Documents, diagrams and supporting material that belong to no other folder.
 - [CloudBeaver initialization evidence](cloudbeaver-initialization.md): upstream lifecycle, comparison with the older implementation, regression coverage and production verification limits
 - [CloudBeaver review](cloudbeaver-review.md): strict findings, real Kubernetes verification, production evidence gaps and rollout decision
 - [CloudBeaver security and peer review](cloudbeaver-security-review.md): manual review findings, MD5 protocol/storage assessment and recovery safety boundaries
-- [Local setup security review](local-setup-security-review.md): Sonar source-to-sink dispositions, private-state integrity fixes and security-owner gates
+- [Local setup security review](local-setup-security-review.md): the local trust boundary, private-state integrity fixes and security-owner gates
+- [Sonar dispositions](sonar-dispositions.md): each SonarQube false positive the repository ignores, with its scope and the controls that make it safe
 - [Cypress Tap and AI Skills](cypress-tap.md): verified capabilities, source pin, installation and validation requirements for local Cypress agent workflows
 - [WF-03 test plan](wf-03-test-plan.md): testing assignment and scheduling: business rules, the scenario matrix and its coverage, concurrency design, confirmed defects and open decisions
 - [WF-04 demo](wf-04-demo/readme.md): the script of demo scenarios DS-04a to DS-04g with the result files the tester saves, the edge cases to show and the script that seeds their samples

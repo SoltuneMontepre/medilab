@@ -1,34 +1,44 @@
-// Odoo's portal colours buttons and links on public pages with the company's e-mail colours; the theme's colours win.
-html:root {
-    --portal-primary-color: #{$ml-primary};
-    --portal-text-color: #{$ml-text-on-primary};
+// Buttons take the back office's colours, which Odoo applies only to the back office's own Bootstrap buttons.
+@each $-name, $-value in $o-btns-bs-override {
+    .btn-#{$-name} {
+        @include button-variant(
+            map-get($-value, background),
+            map-get($-value, border),
+            map-get($-value, color),
+            map-get($-value, hover-background),
+            map-get($-value, hover-border),
+            map-get($-value, hover-color),
+            map-get($-value, active-background),
+            map-get($-value, active-border),
+            map-get($-value, active-color)
+        );
+    }
 }
 
-// That link colour is set with !important, so the current page of a pager would read primary on primary.
-.pagination .page-item.active > .page-link {
-    color: $ml-text-on-primary !important;
+// A table's header row is shaded as a list's in the back office.
+.table > thead {
+    --table-bg: #{$ml-bg};
+
+    th {
+        color: $ml-text-secondary;
+        font-weight: 600;
+    }
 }
 
-// Secondary buttons look as in the back office: white and outlined with navy text, instead of the beige of Odoo's
-// frontend palette, which also sets them inside each colour combination.
-.btn-secondary {
-    --btn-bg: #{$ml-surface} !important;
-    --btn-border-color: #{$ml-border-control} !important;
-    --btn-color: #{$ml-secondary} !important;
-    --btn-hover-bg: #{$ml-secondary-light} !important;
-    --btn-hover-border-color: #{$ml-border-control} !important;
-    --btn-hover-color: #{$ml-secondary} !important;
-    --btn-active-bg: #{$ml-secondary-light} !important;
-    --btn-active-border-color: #{$ml-border-control} !important;
-    --btn-active-color: #{$ml-secondary} !important;
-    --btn-disabled-bg: #{$ml-surface} !important;
-    --btn-disabled-border-color: #{$ml-border-control} !important;
-    --btn-disabled-color: #{$ml-text-muted} !important;
+// The portal home's cards describe their page in the muted text: the link colour Odoo fades there stays under 4.5:1.
+.o_portal_index_card .opacity-75 {
+    color: $ml-text-muted;
+    opacity: 1 !important;
 }
 
-// Odoo's portal colours every link with !important; a link styled as a secondary button keeps the button's colour.
-a.btn-secondary {
-    color: $ml-secondary !important;
+// The header's links light up on hover as the back office navbar's entries do.
+header#top .navbar-dark .nav-link {
+    border-radius: $ml-radius-sm;
+
+    &:hover,
+    &:focus-visible {
+        background-color: rgba($ml-text-on-primary, 0.08);
+    }
 }
 
 // A catalog filter with nothing picked reads as a placeholder, while the options of its open list keep the body colour.
@@ -40,8 +50,8 @@ a.btn-secondary {
     color: $ml-text;
 }
 
-// The portal's section links: the current one is underlined, and below the large breakpoint they take their own row
-// under the logo, side by side, scrolling sideways when they do not fit.
+// The portal's section links: the current one is underlined as in the back office navbar, and below the large
+// breakpoint they take their own row under the logo, side by side, scrolling sideways when they do not fit.
 .o_medilab_portal_navigation {
     flex-direction: row;
     flex-wrap: nowrap;
@@ -50,7 +60,7 @@ a.btn-secondary {
 
     .nav-link.active {
         font-weight: $font-weight-semibold;
-        box-shadow: inset 0 -2px 0 currentColor;
+        box-shadow: inset 0 -3px 0 $ml-accent-light;
     }
 }
 

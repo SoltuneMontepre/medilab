@@ -3,6 +3,7 @@ from odoo.fields import Command
 from .common import MasterDataCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CUSTOMER,
+    MODEL_HANDOVER_RECORD,
     MODEL_PERMISSION,
     MODEL_PERSON,
     MODEL_SAMPLE_TYPE,
@@ -43,6 +44,17 @@ class RequestCase(MasterDataCase):
                         }
                     )
                 ],
+            }
+        )
+
+    @classmethod
+    def handover_for(cls, sample):
+        return cls.env[MODEL_HANDOVER_RECORD].create(
+            {
+                "request_id": sample.request_id.id,
+                "handed_over_by_name": "Tran Van Khach",
+                "received_by_id": cls.env.ref("sol_laboratory.person_administrator").id,
+                "sample_ids": [Command.create({"sample_id": sample.id, "quantity": "1 bottle", "condition": "good"})],
             }
         )
 

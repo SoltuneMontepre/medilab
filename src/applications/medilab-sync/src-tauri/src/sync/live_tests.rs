@@ -102,35 +102,15 @@ fn sha(bytes: &[u8]) -> String {
 impl Live {
     /// Ghi tệp rồi xếp hàng upload giống watcher, và claim job như worker.
     fn write_and_enqueue(&self, relative: &str, bytes: &[u8]) -> JobRow {
-        let path = self.local.join(relative);
-        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
-        std::fs::write(&path, bytes).unwrap();
-        let file_id = self
-            .db
-            .upsert_file(
-                self.folder_id,
-                relative,
-                bytes.len() as i64,
-                unix_mtime(&path),
-                &sha256_file(&path).unwrap(),
-            )
-            .unwrap();
-        self.db
-            .enqueue_upload(
-                self.folder_id,
-                file_id,
-                relative,
-                bytes.len() as i64,
-                None,
-                None,
-            )
-            .unwrap();
+        self.queue_upload(relative, bytes);
         self.db.next_job().unwrap().unwrap()
     }
 
-    /// Ghi tệp và xếp hàng upload nhưng KHÔNG claim (để một tiến trình khác claim); trả id job.
-    fn write_and_enqueue_pending(&self, relative: &str, bytes: &[u8]) -> i64 {
+    /// Ghi tệp và xếp hàng upload như watcher nhưng KHÔNG claim (để dispatcher hoặc một tiến
+    /// trình khác claim); trả id job.
+    fn queue_upload(&self, relative: &str, bytes: &[u8]) -> i64 {
         let path = self.local.join(relative);
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
         std::fs::write(&path, bytes).unwrap();
         let file_id = self
             .db
@@ -941,33 +921,6 @@ fn live_dispatcher(
 }
 
 impl Live {
-    /// Ghi tệp và xếp hàng upload như watcher, KHÔNG claim (để dispatcher claim).
-    fn queue_upload(&self, relative: &str, bytes: &[u8]) -> i64 {
-        let path = self.local.join(relative);
-        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
-        std::fs::write(&path, bytes).unwrap();
-        let file_id = self
-            .db
-            .upsert_file(
-                self.folder_id,
-                relative,
-                bytes.len() as i64,
-                unix_mtime(&path),
-                &sha256_file(&path).unwrap(),
-            )
-            .unwrap();
-        self.db
-            .enqueue_upload(
-                self.folder_id,
-                file_id,
-                relative,
-                bytes.len() as i64,
-                None,
-                None,
-            )
-            .unwrap()
-    }
-
     /// Xếp hàng download một tệp đã có trên server vào thư mục thứ hai, KHÔNG claim.
     fn queue_download(
         &self,
@@ -2014,7 +1967,7 @@ async fn live_multipart_pause_resume_and_process_kill() {
 
     // 4. Kill TIẾN TRÌNH giữa multipart: worker con claim job và upload qua cùng proxy.
     let bytes = random_bytes(KILL_TEST_PARTS as usize * 16 * MIB);
-    let job_id = lv.write_and_enqueue_pending("process-kill.bin", &bytes);
+    let job_id = lv.queue_upload("process-kill.bin", &bytes);
     let mut child = tokio::process::Command::new(std::env::current_exe().unwrap())
         .args([
             "--ignored",

@@ -75,6 +75,9 @@ ASKED_KEYS = {
     KIND_PARAMETER_METHOD: ("department_id",),
 }
 
+# Adapter that reads an accreditation scope file a laboratory uploads.
+SCOPE_FILE_ADAPTER = "boa"
+
 MAX_BYTES = 10 * 1024 * 1024
 TIMEOUT_SECONDS = 30
 CONNECT_TIMEOUT_SECONDS = 10

@@ -100,7 +100,7 @@ function recordToDebugConsole(metric: SafeIpcPerformanceMetric): void {
 }
 
 /** Gọi Tauri invoke thật; helper này giúp factory nhận dependency generic có kiểu rõ ràng. */
-async function invokeTauri<T>(command: IpcCommandName, args?: InvokeArgs): Promise<T> {
+function invokeTauri<T>(command: IpcCommandName, args?: InvokeArgs): Promise<T> {
   return invoke<T>(command, args);
 }
 

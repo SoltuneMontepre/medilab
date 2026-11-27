@@ -424,6 +424,10 @@
             min-height: 0;
         }
     }
+
+    .o_required_modifier::after {
+        display: none !important;
+    }
 }
 
 .o_list_renderer .o_field_x2many_list_row_add .btn-link {
@@ -437,12 +441,6 @@
         height: 0.875rem;
         background-color: currentColor;
         mask: $ml-icon-plus center / contain no-repeat;
-    }
-}
-
-.o_list_renderer .o_data_cell {
-    .o_required_modifier::after {
-        display: none !important;
     }
 }
 

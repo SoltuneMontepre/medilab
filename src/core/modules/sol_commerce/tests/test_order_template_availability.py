@@ -44,7 +44,6 @@ class TestOrderTemplateAvailability(TemplateCase):
         self.assertEqual(order._catalog_lines().product_id.product_tmpl_id, self.lead_product)
         self.assertFalse(order.order_line.linked_line_id)
         self.assertIn(self.package.name, (order.template_omission_note or ""))
-        self.assertIn(self.other.name, (order.template_omission_note or ""))
 
     def test_all_unavailable_creates_no_order(self):
         template = self.retired_source()

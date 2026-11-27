@@ -58,7 +58,21 @@ class ServicePackageLine(models.Model, ServicePackageLineBase):
                 new[key]["quantity"] = new[key].get("quantity", 1) + vals.get("quantity", 1)
             else:
                 new[key] = dict(vals)
-        return raised | super().create(list(new.values()))
+        lines = raised | super().create(list(new.values()))
+        lines.package_id._sync_catalog_product()
+        return lines
+
+    def write(self, vals):
+        packages = self.package_id
+        result = super().write(vals)
+        (packages | self.package_id)._sync_catalog_product()
+        return result
+
+    def unlink(self):
+        packages = self.package_id
+        result = super().unlink()
+        packages.exists()._sync_catalog_product()
+        return result
 
     def _in_use_domain(self):
         # A line keeps its parameter in use while its package is active.

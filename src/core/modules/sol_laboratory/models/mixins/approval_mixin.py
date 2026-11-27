@@ -26,6 +26,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SIGNING_PROCESS,
 )
 from odoo.addons.sol_laboratory.services.model_lookup import record_as
+from odoo.addons.sol_laboratory.services.translations import in_every_language
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_approval_mixin as ApprovalMixinBase
@@ -324,8 +325,8 @@ class ApprovalMixin(models.AbstractModel, ApprovalMixinBase):
                 "level_id": level.id,
                 "signer_id": person.id,
                 "signer_name": person.name,
-                "signer_role": role.name,
-                "level_name": level.name,
+                "signer_role": in_every_language(self.env, lambda lang: role.with_context(lang=lang).name),
+                "level_name": in_every_language(self.env, lambda lang: level.with_context(lang=lang).name),
                 "decision": decision,
                 "reason": reason,
             }

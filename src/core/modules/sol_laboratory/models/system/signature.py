@@ -46,11 +46,11 @@ class Signature(models.Model, SignatureBase):
         signer_id = fields.Many2one(MODEL_PERSON, string="Signer", required=True, ondelete="restrict")
         # Name of the signer at the time of signing.
         signer_name = fields.Char(required=True)
-        # Name of the role the signer signed with at the time: the level's own, or a later level's that signed it in
-        # the signer's own name.
-        signer_role = fields.Char(required=True)
-        # Name of the level at the time of signing.
-        level_name = fields.Char(required=True)
+        # Name of the role the signer signed with at the time, in each language: the level's own, or a later level's
+        # that signed it in the signer's own name.
+        signer_role = fields.Char(required=True, translate=True)
+        # Name of the level at the time of signing, in each language.
+        level_name = fields.Char(required=True, translate=True)
         # Whether the signer signed or rejected the document.
         decision = fields.Selection([(DECISION_SIGNED, "Signed"), (DECISION_REJECTED, "Rejected")], required=True)
         # Reason the signer gave for a rejection.

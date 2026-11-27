@@ -3,7 +3,7 @@ import { save } from "../../../support/form";
 import { milliseconds, shownTime, typeTime } from "../../features/laboratory/scheduling/setup";
 import { displayZone, dragBookingToSlot, wallClock } from "./screens";
 import { eventsGone, scheduleState } from "./state";
-import { HEAD, TESTER, awayFromQuarterHour, bookedOnOneMachine, book, assignedChromium, releaseFixtures, resetFixtures } from "./setup";
+import { HEAD, TESTER, awayFromQuarterHour, bookedOnOneMachine, cancelledThroughScreen, releaseFixtures, resetFixtures } from "./setup";
 
 beforeEach(() => {
   resetFixtures();
@@ -88,33 +88,23 @@ describe("SF-10 the head moves and cancels a department booking", () => {
   });
 
   it("TC-SF10-A2 partial lets the head cancel a booking, which leaves the sample test assigned and open to scheduling", () => {
-    assignedChromium().then(({ test }) => {
-      awayFromQuarterHour();
-      book(test).then((booking) => {
-        const eventIds = [booking.calendar_event_id[0], ...booking.room_event_ids];
-        cy.signInAs("head_of_department");
-        cy.visit(`/odoo/machine-schedule/${booking.id}`);
-        cy.intercept("POST", "**/medilab.machine.booking/action_cancel").as("cancelledByHead");
-        cy.get(".o_statusbar_buttons button[name=action_cancel]").click();
-        cy.wait("@cancelledByHead").its("response.body.error").should("not.exist");
-        cy.get(".o_statusbar_buttons button[name=action_cancel]").should("not.exist");
-        scheduleState([test]).should((after) => {
-          const cancelled = after.bookings.find((row) => row.id === booking.id);
-          expect(cancelled.status).to.equal("cancelled");
-          expect(cancelled.calendar_event_id).to.equal(false);
-          expect(cancelled.room_event_ids).to.be.empty;
-          // The cancelled slot goes back to the department's plan, which proposes another and reserves nothing.
-          expect(after.bookings.filter((row) => row.id !== booking.id).map((row) => row.status)).to.deep.equal(["proposed"]);
-          expect(after.tasks[0].planned_start).to.equal(false);
-          expect(after.tasks[0].planned_end).to.equal(false);
-          expect(after.tasks[0].status).to.equal("assigned");
-          expect(after.tests[0].status).to.equal("assigned");
-          expect(after.events).to.be.empty;
-        });
-        eventsGone(eventIds);
-        cy.openRecord(test);
-        cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("be.visible");
+    cancelledThroughScreen("head_of_department").then(({ test, booking, eventIds }) => {
+      scheduleState([test]).should((after) => {
+        const cancelled = after.bookings.find((row) => row.id === booking.id);
+        expect(cancelled.status).to.equal("cancelled");
+        expect(cancelled.calendar_event_id).to.equal(false);
+        expect(cancelled.room_event_ids).to.be.empty;
+        // The cancelled slot goes back to the department's plan, which proposes another and reserves nothing.
+        expect(after.bookings.filter((row) => row.id !== booking.id).map((row) => row.status)).to.deep.equal(["proposed"]);
+        expect(after.tasks[0].planned_start).to.equal(false);
+        expect(after.tasks[0].planned_end).to.equal(false);
+        expect(after.tasks[0].status).to.equal("assigned");
+        expect(after.tests[0].status).to.equal("assigned");
+        expect(after.events).to.be.empty;
       });
+      eventsGone(eventIds);
+      cy.openRecord(test);
+      cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("be.visible");
     });
   });
 

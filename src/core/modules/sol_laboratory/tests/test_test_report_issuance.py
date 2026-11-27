@@ -5,31 +5,15 @@ from odoo.tests import tagged
 
 from .change_request_case import ChangeRequestCase
 from .report_case import PDF
-from odoo.addons.sol_laboratory.constants.models import MODEL_SIGNATURE, MODEL_TEST_REPORT, MODEL_TEST_RESULT
+from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REPORT, MODEL_TEST_RESULT
 from odoo.addons.sol_laboratory.constants.report_templates import REVIEWED_CANDIDATE_CONTEXT
 from odoo.addons.sol_laboratory.constants.settings import DIGITAL_SIGNING_PARAMETER
-
-ISSUED_EVENT = "sol_laboratory.event_test_report_issued"
 
 
 @tagged("post_install", "-at_install")
 class TestTestReportIssuance(ChangeRequestCase):
     """The lab head signs the prepared PDF they reviewed, which is issued as it is with digital signing off; result
     corrections stop an unissued report's signing and replace an issued one."""
-
-    def signature_of(self, report):
-        return self.env[MODEL_SIGNATURE].search(
-            [("document_model", "=", report._name), ("document_id", "=", report.id), ("withdrawn_at", "=", False)]
-        )
-
-    def issued_messages(self, report):
-        return self.env["mail.message"].search(
-            [
-                ("model", "=", report._name),
-                ("res_id", "=", report.id),
-                ("subtype_id", "=", self.env.ref(ISSUED_EVENT).id),
-            ]
-        )
 
     def correct(self, correction, value=0.006):
         """Approve the correction of a result, then send and approve its new version with the value."""
@@ -64,7 +48,7 @@ class TestTestReportIssuance(ChangeRequestCase):
         self.assertEqual(bytes(report.attachment_id.raw), PDF)
         self.assertEqual(report.attachment_id.res_model, MODEL_TEST_REPORT)
         self.assertEqual(candidate.status, "issued")
-        self.assertEqual(self.signature_of(report).document_hash, hashlib.sha256(PDF).hexdigest())
+        self.assertEqual(self.standing_signatures(report).document_hash, hashlib.sha256(PDF).hexdigest())
         self.assertEqual(len(self.issued_messages(report)), 1)
 
     def test_a_pdf_out_of_date_with_the_records_cannot_be_signed(self):

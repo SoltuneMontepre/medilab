@@ -1,3 +1,5 @@
+package medilab.cloudbeaver;
+
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
@@ -6,6 +8,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.Strictness;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,7 +18,10 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermissions;
 
 final class JsonFiles {
-    static JsonObject read(Path path) throws Exception {
+    private JsonFiles() {
+    }
+
+    static JsonObject read(Path path) throws IOException {
         try (var reader = new JsonReader(Files.newBufferedReader(path, StandardCharsets.UTF_8))) {
             reader.setStrictness(Strictness.LENIENT);
             JsonObject result = element(reader).getAsJsonObject();
@@ -26,7 +32,7 @@ final class JsonFiles {
         }
     }
 
-    private static JsonElement element(JsonReader reader) throws Exception {
+    private static JsonElement element(JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.BEGIN_OBJECT) {
             JsonObject object = new JsonObject();
             reader.beginObject();
@@ -52,13 +58,13 @@ final class JsonFiles {
         return JsonParser.parseReader(reader);
     }
 
-    static void sync(Path path) throws Exception {
+    static void sync(Path path) throws IOException {
         try (var channel = FileChannel.open(path, Files.isDirectory(path) ? StandardOpenOption.READ : StandardOpenOption.WRITE)) {
             channel.force(true);
         }
     }
 
-    static void write(Path path, JsonObject value) throws Exception {
+    static void write(Path path, JsonObject value) throws IOException {
         Files.createDirectories(path.getParent());
         Path temporary = Files.createTempFile(path.getParent(), ".medilab-", ".tmp",
             PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));

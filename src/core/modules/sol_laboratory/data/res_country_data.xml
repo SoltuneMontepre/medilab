@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Odoo prints the tax ID's label of the company's country on reports and invoices, and English without one.
+         Base's countries are not updated, so the label is written on every update. -->
+    <function model="res.country" name="write">
+        <value eval="[ref('base.vn')]" />
+        <value eval="{'vat_label': 'Tax ID'}" />
+    </function>
+</odoo>

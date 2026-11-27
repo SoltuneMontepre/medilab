@@ -32,9 +32,9 @@ function orderRequestId(order) {
   return callAs(SALES, "sale.order", "read", [[order.id], ["test_request_id"]]).then(([read]) => read.test_request_id[0]);
 }
 
-// The test request of a confirmed and paid order, with its samples expected.
+// A portal order whose advance is verified and whose balance is still open at reception.
 export function orderRequest() {
-  return orderAt("paid").then(orderRequestId).then(readRequest);
+  return orderAt("confirmed").then(orderRequestId).then(readRequest);
 }
 
 // The sample collection task sales start on a confirmed order, waiting in the queue of sample delivery staff, with the

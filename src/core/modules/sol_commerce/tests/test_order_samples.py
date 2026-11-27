@@ -1,7 +1,13 @@
+from datetime import date, timedelta
+
 from odoo.exceptions import UserError, ValidationError
-from odoo.tests import tagged
+from odoo.tests import Form, tagged
+from odoo.tests.form import M2MProxy, O2MProxy
 
 from .order_case import OrderCase
+from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE, MODEL_SALE_ORDER
+from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TYPE
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -125,3 +131,82 @@ class TestOrderSamples(OrderCase):
 
         with self.assertRaisesRegex(UserError, "Choose a sample type"):
             order.with_user(self.sales).action_send_quotation()
+
+    def test_order_line_offers_only_sample_types_supported_by_every_parameter(self):
+        surface_water = self.env[MODEL_SAMPLE_TYPE].create({"name": "Surface water", "code": "LM-SURF"})
+        cabbage = self.env[MODEL_SAMPLE_TYPE].create({"name": "Cabbage", "code": "LM-CAB"})
+        self.offer(self.parameter, surface_water)
+        cadmium_product = self.env[MODEL_PRODUCT_TEMPLATE].search([("parameter_id", "=", self.other.id)], limit=1)
+
+        order = self.make_order([(self.lead_product, 1), (self.package_product, 1), (cadmium_product, 1)])
+        lead = order._catalog_lines().filtered(lambda line: line.product_id.product_tmpl_id == self.lead_product)
+        package = self.package_line(order)
+        cadmium = order._catalog_lines() - lead - package
+
+        self.assertEqual(lead.offered_sample_type_ids, self.sample_type | surface_water)
+        self.assertEqual(package.offered_sample_type_ids, self.sample_type)
+        self.assertEqual(cadmium.offered_sample_type_ids, self.sample_type)
+        self.assertNotIn(cabbage, lead.offered_sample_type_ids)
+
+    def test_selecting_a_package_on_the_form_expands_its_parameters_without_duplicating_on_save(self):
+        surface_water = self.env[MODEL_SAMPLE_TYPE].create({"name": "Surface water", "code": "LM-FORM-SURF"})
+        self.offer(self.parameter, surface_water)
+        # The form helper loads every one-to-many's view, support requests included, which Sales cannot read.
+        with Form(self.env[MODEL_SALE_ORDER].with_context(medilab_sales_order=True)) as form:
+            form.customer_id = self.customer
+            form.expected_collection_date = date.today() + timedelta(days=1)
+            lines = assert_instance(form.product_line_ids, O2MProxy)
+            with lines.new() as line:
+                line.product_template_id = self.lead_product
+                line.sample_type_id = surface_water
+            with lines.edit(0) as line:
+                # Switching to the package drops surface_water (unsupported by Cadmium) and fills the sole common type.
+                line.product_template_id = self.package_product
+            self.assertEqual(len(lines), 3)
+            order = form.save()
+
+        self.assertEqual(len(order.order_line), 3)
+        package = self.package_line(order)
+        self.assertEqual(package.sample_type_id, self.sample_type)
+        self.assertEqual(package.linked_line_ids.sample_type_id, self.sample_type)
+        self.assertFalse(package.linked_line_ids.tax_ids)
+        self.assertEqual(order.quoted_line_ids, package)
+
+    def test_parameter_choices_follow_the_chosen_sample_type(self):
+        surface_water = self.env[MODEL_SAMPLE_TYPE].create({"name": "Surface water", "code": "LM-PICK-SURF"})
+        self.offer(self.parameter, surface_water)
+        cadmium_product = self.env[MODEL_PRODUCT_TEMPLATE].search([("parameter_id", "=", self.other.id)], limit=1)
+        products = self.env[MODEL_PRODUCT_TEMPLATE]
+
+        on_surface_water = products.search([("orderable_sample_type_ids", "in", [surface_water.id])])
+        on_bottled_water = products.search([("orderable_sample_type_ids", "in", [self.sample_type.id])])
+
+        self.assertIn(self.lead_product, on_surface_water)
+        # Cadmium is not offered on surface water, so neither is the package that includes it.
+        self.assertNotIn(cadmium_product, on_surface_water)
+        self.assertNotIn(self.package_product, on_surface_water)
+        self.assertLessEqual(self.lead_product | cadmium_product | self.package_product, on_bottled_water)
+
+    def test_sample_type_can_be_chosen_before_the_parameter(self):
+        surface_water = self.env[MODEL_SAMPLE_TYPE].create({"name": "Surface water", "code": "LM-FIRST-SURF"})
+        self.offer(self.parameter, surface_water)
+        cabbage = self.env[MODEL_SAMPLE_TYPE].create({"name": "Cabbage", "code": "LM-FIRST-CAB"})
+        self.offer(self.other, cabbage)
+        # The form helper loads every one-to-many's view, support requests included, which Sales cannot read.
+        with Form(self.env[MODEL_SALE_ORDER].with_context(medilab_sales_order=True)) as form:
+            form.customer_id = self.customer
+            form.expected_collection_date = date.today() + timedelta(days=1)
+            lines = assert_instance(form.product_line_ids, O2MProxy)
+            with lines.new() as line:
+                offered = assert_instance(line.offered_sample_type_ids, M2MProxy)
+                self.assertIn(surface_water, offered)
+                self.assertIn(self.sample_type, offered)
+                line.sample_type_id = surface_water
+                line.product_template_id = self.lead_product
+                self.assertEqual(line.sample_type_id, surface_water)
+                offered = assert_instance(line.offered_sample_type_ids, M2MProxy)
+                self.assertIn(self.sample_type, offered)
+                self.assertNotIn(cabbage, offered)
+            order = form.save()
+
+        self.assertEqual(order.order_line.sample_type_id, surface_water)

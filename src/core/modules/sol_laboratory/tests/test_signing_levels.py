@@ -41,6 +41,19 @@ class TestSigningLevels(ResultCase):
         self.as_person(result, self.other_head).action_sign()
         self.assertEqual(result.status, "approved")
 
+    def test_the_role_and_level_signed_with_read_in_the_language_of_whoever_opens_the_signatures(self):
+        self.env["res.lang"]._activate_lang("vi_VN")
+        self.head_level.role_id.update_field_translations("name", {"vi_VN": "Trưởng Phòng"})
+        self.tester_level.update_field_translations("name", {"vi_VN": "Kiểm nghiệm viên"})
+        result = self.enter()
+
+        self.send(result, self.head)
+
+        row = self.rows(result).with_context(lang="vi_VN")
+        self.assertEqual((row.signer_role, row.level_name), ("Trưởng Phòng", "Kiểm nghiệm viên"))
+        row = row.with_context(lang="en_US")
+        self.assertEqual((row.signer_role, row.level_name), (self.head_level.role_id.name, self.tester_level.name))
+
     def test_a_head_rejects_at_the_tester_level_in_their_own_name_when_it_can_reject(self):
         self.tester_level.can_reject = True
         result = self.enter()
