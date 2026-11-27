@@ -7,6 +7,8 @@ const SAMPLE_TESTS = [LABORATORY, "sol_laboratory.menu_laboratory_samples", "sol
 const DISPATCHES_TO_CARRY = [LABORATORY, "sol_laboratory.menu_laboratory_schedule", "sol_laboratory.menu_dispatch_to_carry"];
 const TASKS = "sol_laboratory.menu_tasks_root";
 
+// The demo subcontractor of the subcontracted lead way.
+const SUBCONTRACTOR = "Northern Testing Laboratory";
 const CARRIER = "Vo Van Tai";
 const SUBCONTRACTOR_CONTACT = "Nguyen Thi Lan";
 const RESULT = "4.6";
@@ -17,10 +19,10 @@ const buttons = (page) => page.locator(".o_form_view:visible .o_statusbar_button
 const button = (page, label) => buttons(page).getByRole("button", { name: label, exact: true });
 
 test("WF-05 Outsourced testing", async ({ as }) => {
-  const journey = received("tag", "customerName", "customerLogin", "customerPassword", "orderNumber", "requestCode", "sampleType", "sampleLabCode", "leadParameterName", "leadMethod", "subcontractorName");
+  const journey = received("tag", "customerName", "customerLogin", "customerPassword", "orderNumber", "requestCode", "sampleType", "sampleLabCode", "leadParameterName", "leadMethod");
   const labCode = journey.sampleLabCode;
   const acceptedWay = `${journey.leadParameterName} – ${journey.leadMethod}`;
-  const subcontractedWay = `${acceptedWay} (${journey.subcontractorName})`;
+  const subcontractedWay = `${acceptedWay} (${SUBCONTRACTOR})`;
   const dispatch = {};
   const lead = {};
 
@@ -50,7 +52,7 @@ test("WF-05 Outsourced testing", async ({ as }) => {
     await expect(dialog).toHaveCount(0);
     await expect(field(head, "code")).toHaveText(/^PGTP\.\S+$/);
     await expect(status(head)).toHaveAttribute("data-value", "draft");
-    await expect(field(head, "subcontractor_id").locator("input")).toHaveValue(journey.subcontractorName);
+    await expect(field(head, "subcontractor_id").locator("input")).toHaveValue(SUBCONTRACTOR);
     await expect(dispatched(head)).toHaveCount(1);
     await expect(dispatched(head).locator("td[name=parameter_method_id]")).toHaveText(subcontractedWay);
     await expect(dispatched(head).locator("td[name=status]")).toHaveText("Outsourced");
@@ -163,7 +165,7 @@ test("WF-05 Outsourced testing", async ({ as }) => {
     await expect(waiting, "the subcontractor's result waits under Results to approve").toHaveCount(1);
     await expect(waiting.locator("td[name=entered_by_id]")).toHaveText(SUBCONTRACTOR_CONTACT);
     await openListed(head, journey.leadParameterName);
-    await expect(field(head, "subcontractor_id")).toHaveText(journey.subcontractorName);
+    await expect(field(head, "subcontractor_id")).toHaveText(SUBCONTRACTOR);
     await expect(field(head, "value_display")).toHaveText(lead.result.slice(0, -lead.unit.length).trim());
     await expect(status(head)).toHaveAttribute("data-value", "requested");
     await pressLabel(head, "Approve", { within: buttons(head) });
@@ -202,7 +204,7 @@ test("WF-05 Outsourced testing", async ({ as }) => {
     await openOrder(customer, journey.orderNumber);
     const order = customer.locator("main");
     await expect(order).toContainText(acceptedWay);
-    await expect(order).not.toContainText(journey.subcontractorName);
+    await expect(order).not.toContainText(SUBCONTRACTOR);
     await expect(order).not.toContainText(dispatch.code);
     await expect(order).not.toContainText(/outsourc|subcontract/i);
   });
