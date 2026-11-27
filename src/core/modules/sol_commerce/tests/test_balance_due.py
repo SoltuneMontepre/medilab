@@ -47,10 +47,10 @@ class TestBalanceDue(OrderCase):
         unpaid.payment_request_ids.filtered(lambda ask: ask.kind == "advance").state = "open"
         self.env.flush_all()
 
-        path = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.24.0" / "post-migrate.py"
+        path = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.25.0" / "post-migrate.py"
         migrate = load_script(str(path), "release_funded_advances").migrate
-        migrate(self.env.cr, "20.0.1.23.0")
-        migrate(self.env.cr, "20.0.1.23.0")
+        migrate(self.env.cr, "20.0.1.24.0")
+        migrate(self.env.cr, "20.0.1.24.0")
         self.env.invalidate_all()
 
         self.assertEqual(funded.test_request_id.status, "paid")

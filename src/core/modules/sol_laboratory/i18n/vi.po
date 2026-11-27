@@ -2779,6 +2779,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_sample_label__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__display_name
@@ -3950,6 +3951,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_sample_label__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__id
