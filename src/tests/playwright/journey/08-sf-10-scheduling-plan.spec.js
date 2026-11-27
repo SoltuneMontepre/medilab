@@ -20,6 +20,7 @@ test("SF-10 Scheduling plan and revisions", async ({ as }) => {
     await expect(bookings.locator("td[name=machine_id]")).toHaveText(journey.bookingMachineName);
     await expect(bookings.locator("td[name=starts_at]")).toHaveText(listedMoment(planned.start));
     await expect(bookings.locator("td[name=ends_at]")).toHaveText(listedMoment(planned.end));
+    await expect(bookings.locator("td[name=priority]")).toHaveText(/\S/);
     await expect(bookings.locator("td[name=status]")).toHaveText("Scheduled");
   });
 
