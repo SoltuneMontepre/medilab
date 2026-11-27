@@ -20,7 +20,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Receipt      | The subcontractor confirms receipt of a sent dispatch, which marks it received and notifies the head of department. |
 | Entering     | Once its dispatch is received, the results of an outsourced sample test are entered either by the subcontractor or by a lab QA of the laboratory; each result records who entered it. |
 | Cancelled    | A test cancelled after its dispatch was sent shows as cancelled on the dispatch, and no result can be entered for it. |
-| Approval     | A result entered by a subcontractor goes to the head of department for approval as soon as it is entered, and the head is notified; it is approved like the laboratory's own results. |
+| Approval     | A result entered by a subcontractor goes to the head of department for approval as soon as it is entered, and the head is notified; it is approved like the laboratory's own results. Entering it signs its first level in the name of the subcontractor's person. A result compared with the sample's regulation needs the laboratory's conclusion first: it waits for a lab QA to assess and send it. |
 | First say    | While a result the subcontractor entered waits for approval, a lab QA cannot enter another result for the test. |
 | Rejection    | A rejected result stays on the dispatch page with the head's reason, beside the field to enter the new result. |
 

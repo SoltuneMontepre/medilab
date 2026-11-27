@@ -1776,8 +1776,8 @@ model Signature {
   document_hash    String?       @db.VarChar
   /// The level signed at.
   level_id         Int
-  /// The person who signed.
-  signer_id        Int
+  /// The person who signed; empty for a subcontractor's person, who signs in to the portal and is no person of the laboratory.
+  signer_id        Int?
   /// Signer's name at the time of signing.
   signer_name      String        @db.VarChar
   /// Name of the role the signer signed with at the time: the level's own, or a later level's that signed it in the signer's own name.
@@ -1792,8 +1792,8 @@ model Signature {
   withdrawn_at     DateTime?
   /// The level signed at.
   level            ApprovalLevel @relation(fields: [level_id], references: [id], onDelete: Restrict)
-  /// The person who signed.
-  signer           Person        @relation(fields: [signer_id], references: [id], onDelete: Restrict)
+  /// The person who signed; empty for a subcontractor's person.
+  signer           Person?       @relation(fields: [signer_id], references: [id], onDelete: Restrict)
 
   @@index([signer_id])
   @@map("medilab_signature")

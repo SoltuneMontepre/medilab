@@ -107,23 +107,20 @@ describe("WF-05 Outsourced testing", () => {
             cy.get("input[name=value]").type("4.6");
             cy.get("button[type=submit]").click();
           });
-          cy.contains("tr", test.code).should("contain", "4.6").and("contain", "Entered by");
+          cy.contains("tr", test.code).should("contain", "4.6").and("contain", "Entered by").and("contain", "Awaiting Approval");
         });
         reportedResult(test).then((result) => {
+          step("Entering the result sent it to the head of department for approval");
           expect(result.entered_by_id[1]).to.equal("Nguyen Thi Lan");
-          step("The tester sends the subcontractor's result for approval");
+          expect(result.status).to.equal("requested");
           cy.signInAs("tester");
+          cy.readRecord(test, ["status"]).its("status").should("eq", "result_entered");
           // Outsourcing ended the tester's testing task, so the test is no longer theirs to work on.
           openMenu(MENU.laboratory, MENU.samples, MENU.sampleTests);
           cy.contains(".o_data_row", test.code).should("not.exist");
-          // The subcontractor's result waiting to be sent comes before any other.
+          // While the subcontractor's result waits for approval, no lab QA enters another.
           cy.openRecord(test);
           cy.get(`${ACTIONS} button[name=action_enter_result]`).should("not.exist");
-          openMenu(MENU.laboratory, MENU.results, MENU.testResults);
-          openRow(test.code);
-          cy.signRecord();
-          cy.get(`${ACTIONS} button[name=action_withdraw]:visible`).should("exist");
-          cy.readRecord(result, ["status"]).its("status").should("eq", "requested");
           step("The head of department approves the result");
           approveAsHead(test, result);
         });
@@ -229,7 +226,7 @@ describe("WF-05 Outsourced testing", () => {
       cy.contains("tr", test.code).should("contain", "4.4");
       reportedResult(test).should((reported) => {
         expect(reported.id).not.to.equal(result.id);
-        expect(reported.status).to.equal("none");
+        expect(reported.status).to.equal("requested");
       });
     });
   });

@@ -241,13 +241,9 @@ export const subcontractorResult = helper("subcontractorResult", function subcon
   return reportedResult(test);
 });
 
-// A received dispatch whose test has the subcontractor's result, which the tester sent for approval.
+// A received dispatch whose test has the subcontractor's result, which entering sent for approval.
 export const resultAwaitingApproval = helper("resultAwaitingApproval", function resultAwaitingApproval(kind = "lead") {
-  return receivedDispatch(kind).then((sent) =>
-    subcontractorResult(sent).then((result) =>
-      callAs(TESTER, "medilab.test.result", "action_sign", [[result.id]]).then(() => ({ ...sent, result })),
-    ),
-  );
+  return receivedDispatch(kind).then((sent) => subcontractorResult(sent).then((result) => ({ ...sent, result })));
 });
 
 // A testing method that sol_demo seeds, to make ways of testing with.

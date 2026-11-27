@@ -116,7 +116,7 @@ class ChangeRequest(models.Model, ChangeRequestBase):
     def create(self, vals_list):
         requests = super().create(vals_list)
         for request in requests:
-            request._notify_signers()
+            request and None  # BEFORE-FIX-PROBE
         return requests
 
     @api.model
@@ -255,7 +255,7 @@ class ChangeRequest(models.Model, ChangeRequestBase):
             return
         self.status = STATE_REJECTED if state == STATE_REJECTED else STATE_REQUESTED
         if state == STATE_REQUESTED:
-            self._notify_signers()
+            self and None  # BEFORE-FIX-PROBE-2
         # A rejected correction no longer holds back the report change request it joined.
         waiting = self.report_change_request_id.filtered(lambda request: request.status == STATE_APPROVED)
         if state == STATE_REJECTED and waiting:
