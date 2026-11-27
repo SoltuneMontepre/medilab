@@ -51,3 +51,8 @@
 
 - [Sales](../docs/functional/ecommerce_module/features/sales.md)
 - [Accountant](../docs/functional/ecommerce_module/features/accountant.md)
+- **Balance due of a portal order.** The Send quotation dialog preselects a balance due at sample collection for an order the customer submitted, and the test request then stays confirmed, not paid, until the balance is paid, which holds sample reception. Sales documents "before the report" as the default and say neither choice holds collection. Is the default or the hold a defect, or do the documents change? (blocks US-S07, US-S12)
+- **Requested date.** SF-07 says Sales records the customer's requested date, but only the customer can give it, on the cart; Sales has no field for it. Should Sales be able to record it on the order, or does the main path change to the customer giving it? (blocks US-S21)
+- **Cancelling the test request with its order.** Accepting a cancellation request cancels the order but leaves its test request and expected samples as they were; nothing cancels them. Should accepting cancel them, or do staff cancel the test request? (blocks US-S16, US-S17)
+- **Closing a support request.** SF-09's main path ends when the request is answered and the customer notified, but its diagram ends on a closed request and Sales close it once the question is settled. Is closing part of the main path, and can the customer close it? (blocks US-S20)
+- **E-mail delivery of a report.** An order's test request is always delivered in person, so the e-mail delivery of WF-06's main path happens only if Sales changes the delivery method on the test request. Should the order or the customer carry the delivery method? (blocks US-C18)

@@ -98,3 +98,8 @@
 ## Related documents
 
 - [Laboratory overview](../docs/functional/laboratory_module/overview.md)
+- **Notices that are not sent.** These steps say a person is notified, and the system sends nothing: the tester and the head when a machine's downtime returns their booking to the plan (SF-05), the head when a subcontractor enters a result (WF-05), the Lab Head when a draft report is ready to sign (WF-06; only the signing task appears), and the approver when a change request is raised (SF-03). Which of them become notices, and through which event? (blocks US-AD10, US-HD08, US-LH01, US-LH03)
+- **Subcontractor results.** A result the subcontractor enters stays a draft until a tester of the department sends it, because the approval chain has a tester level before the head; WF-05 says the head approves it like any other result. Should a subcontractor's result skip the tester level, and who is told it waits? (blocks US-SUB02, US-HD08)
+- **Approver of a result change request.** SH-07 and the SF-03 diagram name the head of department, while the demo approval chain of result change requests has only the Lab Head. Which is right? (blocks US-T11, SH-07)
+- **Folder members.** The owner of a sample folder adds members in Medilab Sync, and assigning a testing task also adds its tester. Are both routes intended? (blocks US-HD15)
+- **Disposing of a sample that never arrived.** When an order is cancelled before its sample is received, SF-04-A2 disposes of the sample of a cancelled request. Is there anything to dispose of, or should such a sample be cancelled only? (blocks US-T10)
