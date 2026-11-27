@@ -7915,6 +7915,7 @@ msgstr "Giao Nhận Mẫu"
 
 #. module: sol_laboratory
 #: model:ir.actions.report,name:sol_laboratory.action_report_sample_label
+#: model:ir.model,name:sol_laboratory.model_report_sol_laboratory_report_sample_label
 msgid "Sample Label"
 msgstr "Tem Mẫu"
 
@@ -20215,3 +20216,9 @@ msgstr "Quyền: price.period.edit.all"
 #: model:res.groups,name:sol_laboratory.group_permission_price_period_read_all
 msgid "Permission: price.period.read.all"
 msgstr "Quyền: price.period.read.all"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "The customer must sign the handover record for each sample before printing its label."
+msgstr "Khách hàng phải ký biên bản giao nhận của mẫu trước khi in tem cho mẫu đó."
