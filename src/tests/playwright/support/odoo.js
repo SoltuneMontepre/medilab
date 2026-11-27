@@ -150,6 +150,13 @@ export function labDay({ days = 0, years = 0 } = {}) {
   return new Date(Date.UTC(year + years, month - 1, day + days));
 }
 
+// The first laboratory day from Monday to Friday, `days` after today or later.
+export function workingDay(days) {
+  let day = labDay({ days });
+  while ([0, 6].includes(day.getUTCDay())) day = labDay({ days: ++days });
+  return day;
+}
+
 // The day as `pattern` writes it, such as mm/dd/yyyy.
 export function written(date, pattern) {
   const parts = { yyyy: date.getUTCFullYear(), mm: String(date.getUTCMonth() + 1).padStart(2, "0"), dd: String(date.getUTCDate()).padStart(2, "0") };
