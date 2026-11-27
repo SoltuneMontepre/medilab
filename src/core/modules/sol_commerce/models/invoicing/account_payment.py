@@ -122,9 +122,11 @@ class AccountPayment(models.Model, AccountPaymentBase):
             return self.browse()
         customer = invoice.sudo().partner_id.commercial_partner_id
         return self.filtered(
-            lambda payment: payment.state in CONFIRMED_STATES
-            and invoice in payment.invoice_ids
-            and payment.partner_id.commercial_partner_id == customer
+            lambda payment: (
+                payment.state in CONFIRMED_STATES
+                and invoice in payment.invoice_ids
+                and payment.partner_id.commercial_partner_id == customer
+            )
         ).sorted(lambda payment: (payment.date, payment.id))
 
     @api.model
