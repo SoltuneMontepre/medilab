@@ -106,7 +106,7 @@ class MachineBookingInterruptions(models.Model, MachineBookingInterruptionsBase)
             booking: self.env._("%s can no longer be used at that time.", former[booking].display_name)
             for booking in returned
         }
-        returned and None  # BEFORE-FIX-PROBE
+        returned._notify_returned(starts, reasons, tester=True)
         self.sudo().search([("machine_id", "in", machines.ids), ("status", "=", "in_progress")]).filtered(
             lambda booking: bool(booking.ends_at and booking.ends_at > booking.machine_id._usable_until())
         )._interrupt()

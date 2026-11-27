@@ -180,7 +180,7 @@ class TestReport(models.Model, TestReportBase):
             candidate = report._prepare_candidate()
             if not candidate._is_current():
                 raise UserError(self.env._("The prepared PDF does not match the business records; prepare it again."))
-        report and None  # BEFORE-FIX-PROBE
+        report._notify_prepared(candidate)
         return candidate
 
     def _notify_prepared(self, candidate):
