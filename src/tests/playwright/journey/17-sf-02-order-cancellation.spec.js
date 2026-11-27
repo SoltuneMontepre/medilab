@@ -1,5 +1,5 @@
 import { expect, handOver, received, step, test } from "../support/journey";
-import { choose, field, listed, money, openListed, openMenu, openRow, openTab, press, pressLabel, search, settled, status, type } from "../support/odoo";
+import { choose, field, labDay, listed, money, openListed, openMenu, openRow, openTab, press, pressLabel, save, search, settled, shownDay, status, type, typeDate, written } from "../support/odoo";
 import { cartButton, cartChoices, loads, openHeader, openOrder } from "../support/portal";
 
 const SALES = "sale.sale_menu_root";
@@ -19,9 +19,19 @@ const VI = {
   unpaid: "Chưa thanh toán",
   awaitingAccountant: "Chờ kế toán xác nhận",
   advancePaid: "Đã tạm ứng",
+  acceptingCancels: "Chấp nhận sẽ hủy đơn hàng. Khoản tạm ứng đã thanh toán không được hoàn lại.",
 };
 
+const SALES_DAY = "dd/mm/yyyy";
+
 const shown = async (locator) => (await locator.innerText()).trim();
+
+// The first day from Monday to Friday, `days` after today or later.
+function workingDay(days) {
+  let day = labDay({ days });
+  while ([0, 6].includes(day.getUTCDay())) day = new Date(day.getTime() + 24 * 60 * 60 * 1000);
+  return day;
+}
 
 test("SF-02 Order cancellation", async ({ as }) => {
   const journey = received("tag", "customerName", "customerLogin", "customerPassword", "orderNumber", "parameterName", "methodCode", "leadParameterName", "leadMethod", "sampleType", "salesName");
@@ -93,6 +103,13 @@ test("SF-02 Order cancellation", async ({ as }) => {
     const sampleTypes = await lines.locator("td[name=sample_type_id]").allInnerTexts();
     expect(sampleTypes[0].trim()).not.toBe("");
     expect(sampleTypes[1]).toBe(sampleTypes[0]);
+  });
+
+  await step(sales, "Sales sets the sample pickup day agreed with the customer", async () => {
+    const pickup = workingDay(1);
+    await typeDate(sales, "expected_collection_date", pickup);
+    await save(sales);
+    await expect(shownDay(sales, "expected_collection_date")).toHaveAttribute("data-tooltip", written(pickup, SALES_DAY));
   });
 
   await step(sales, "Sales sends the quotation with a 30 % advance by bank transfer and the balance due before the report", async () => {
@@ -189,7 +206,7 @@ test("SF-02 Order cancellation", async ({ as }) => {
     await expect(field(sales, "reason")).toHaveText(reason);
     await press(sales, "action_accept");
     const confirmation = sales.locator(".modal:visible");
-    await expect(confirmation.locator(".modal-body")).toHaveText("Accepting cancels the order. A paid advance is not returned.");
+    await expect(confirmation.locator(".modal-body")).toHaveText(VI.acceptingCancels);
     await confirmation.locator(".modal-footer .btn-primary").click();
     await settled(sales);
     await expect(status(sales)).toHaveAttribute("data-value", "accepted");
@@ -217,13 +234,6 @@ test("SF-02 Order cancellation", async ({ as }) => {
   const staff = await as("demo.sample_delivery_staff");
   const requestRow = () => listed(staff, reorder.request);
 
-  const openRequest = async () => {
-    await openMenu(staff, ...TEST_REQUESTS);
-    await search(staff, journey.customerName, { field: "Customer" });
-    await expect(requestRow()).toHaveCount(1);
-    await openListed(staff, reorder.request);
-  };
-
   // business-flows.md SF-02 main path: "the order and its test request are cancelled".
   await step(staff, "The test request of the cancelled order and its expected sample are cancelled", async () => {
     await openMenu(staff, ...TEST_REQUESTS);
@@ -234,27 +244,26 @@ test("SF-02 Order cancellation", async ({ as }) => {
     const sample = field(staff, "sample_ids").locator(".o_data_row");
     await expect(sample).toHaveCount(1);
     await expect.soft(sample.locator("td[name=status]"), "the expected sample is cancelled with its order").toHaveText("Cancelled", { timeout: 1000 });
-    reorder.requestStatusAfterAccept = await shown(status(staff));
-    handOver("SF-02", { reorderRequestStatusAfterAccept: reorder.requestStatusAfterAccept });
+    reorder.requestStatus = await shown(status(staff));
+    handOver("SF-02", { reorderRequestStatusAfterAccept: reorder.requestStatus, reorderRequestStatus: reorder.requestStatus });
   });
 
-  if (reorder.requestStatusAfterAccept !== "Cancelled") {
+  if (reorder.requestStatus !== "Cancelled") {
     await step(staff, "Workaround: sample delivery staff cancel the test request by hand, which cancels its sample", async () => {
-      await expect(staff.locator(".o_statusbar_buttons button[name=action_cancel]")).toBeVisible();
+      const cancel = staff.locator(".o_form_view:visible .o_statusbar_buttons button[name=action_cancel]");
+      await expect.soft(cancel, "sample delivery staff can cancel the test request by hand").toHaveCount(1, { timeout: 1000 });
+      if (!(await cancel.count())) return;
       await press(staff, "action_cancel");
       const confirmation = staff.locator(".modal:visible");
       await expect(confirmation.locator(".modal-body")).toHaveText("Cancel this test request with its samples and sample tests?");
       await confirmation.locator(".modal-footer .btn-primary").click();
       await settled(staff);
-      await openRequest();
       await expect(status(staff)).toHaveAttribute("data-value", "cancelled");
       await expect(field(staff, "sample_ids").locator(".o_data_row td[name=status]")).toHaveText(["Cancelled"]);
+      await openMenu(staff, ...TEST_REQUESTS);
+      await search(staff, journey.customerName, { field: "Customer" });
+      await expect(requestRow().locator("td[name=status]")).toHaveText("Cancelled");
+      handOver("SF-02", { reorderRequestStatus: await shown(requestRow().locator("td[name=status]")) });
     });
   }
-
-  await step(staff, "The test request of the reorder ends cancelled", async () => {
-    await openRequest();
-    await expect(status(staff)).toHaveAttribute("data-value", "cancelled");
-    handOver("SF-02", { reorderRequestStatus: await shown(status(staff)) });
-  });
 });

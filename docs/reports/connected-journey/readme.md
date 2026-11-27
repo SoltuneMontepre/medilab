@@ -23,9 +23,9 @@ Every name the journey types carries a run tag, written `{TAG}`, so the journey 
 | 13 | SF-01 Invoicing and payment collection | The balance is paid and confirmed; invoices and receipts are downloadable. |
 | 14 | WF-06 Report signing, release and delivery | The Lab Head approves the report, it is issued and delivered, and the customer downloads it. |
 | 15 | SF-03 Change request on a signed document | A change request on the issued report produces a replacement through WF-06. |
-| 16 | SF-04 Sample retention, return and disposal | The tester disposes of the sample after the report. |
+| 16 | SF-04 Sample retention, return and disposal | The sample type keeps the sample 30 days after the report, so disposing of it and returning it are refused until its retention ends. |
 | 17 | SF-09 Customer support and feedback, support | The customer opens a support request about the order, Sales answers and the customer rates the order. |
-| 18 | SF-02 Order cancellation | The customer reorders, Sales confirms the reorder, the customer requests its cancellation and Sales accepts. |
+| 18 | SF-02 Order cancellation | The customer reorders, Sales confirms the reorder, the customer requests its cancellation and Sales accepts; staff then cancel the reorder's test request by hand. |
 
 ## Flow plans
 

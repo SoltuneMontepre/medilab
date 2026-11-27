@@ -84,7 +84,7 @@ test("SF-09 Customer support and feedback, support", async ({ as }) => {
     await openHeader(customer, "/support");
     const row = customer.locator("main tbody tr", { hasText: support.code });
     await expect(row.locator(".badge")).toHaveText("Answered");
-    await loads(customer, () => row.locator(`a`, { hasText: support.code }).click());
+    await loads(customer, () => row.locator("a", { hasText: support.code }).click());
     await expect(supportBadge).toHaveText("Answered");
     await expect(message(customer, answer)).toBeVisible();
   });
@@ -109,7 +109,7 @@ test("SF-09 Customer support and feedback, support", async ({ as }) => {
   await step(customer, "The customer sees the request closed", async () => {
     await openHeader(customer, "/support");
     const row = customer.locator("main tbody tr", { hasText: support.code });
-    await loads(customer, () => row.locator(`a`, { hasText: support.code }).click());
+    await loads(customer, () => row.locator("a", { hasText: support.code }).click());
     await expect(supportBadge).toHaveText("Closed");
     await expect(customer.locator("main .alert")).toContainText("This request is closed.");
     handOver("SF-09", { supportRequestStatus: (await supportBadge.innerText()).trim() });
