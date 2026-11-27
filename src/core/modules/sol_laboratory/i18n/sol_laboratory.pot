@@ -19983,3 +19983,19 @@ msgstr ""
 #: model:res.groups,name:sol_laboratory.group_permission_price_period_read_all
 msgid "Permission: price.period.read.all"
 msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report_candidate__origin__built_in
+msgid "Built-in"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__uses_templates
+msgid "Uses Templates"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "Template versions apply only on an installation with ONLYOFFICE."
+msgstr ""

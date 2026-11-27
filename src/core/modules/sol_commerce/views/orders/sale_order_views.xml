@@ -127,13 +127,14 @@
                     invisible="order_status != 'claimed' or state == 'draft' or quotation_follow_up not in ('paid', 'accepted') and not (source == 'sales' and advance_method == 'none' and quotation_follow_up == 'unpaid')"
                 />
                 <field name="has_open_collection" invisible="1" />
+                <field name="expects_samples" invisible="1" />
                 <button
                     name="action_start_sample_collection"
                     type="object"
                     string="Start sample collection"
                     class="btn-primary o_start_sample_collection"
                     context="{'medilab_collection_dialog': True}"
-                    invisible="order_status != 'confirmed' or show_unpaid_warning or has_open_collection"
+                    invisible="order_status != 'confirmed' or show_unpaid_warning or has_open_collection or not expects_samples"
                 />
                 <button name="%(action_payment_collection)d" type="action" string="Record payment" class="btn-primary"
                     context="{'default_order_id': id}" invisible="not can_record_collection" groups="base.group_user" />
@@ -275,7 +276,7 @@
                             name="result_status"
                             widget="badge"
                             decoration-success="result_status in ('ready', 'reported')"
-                            decoration-info="result_status == 'in_progress'"
+                            decoration-info="result_status in ('samples_received', 'in_progress')"
                             decoration-warning="result_status in ('awaiting_samples', 'collection_hold', 'payment_hold')"
                         />
                     </div>

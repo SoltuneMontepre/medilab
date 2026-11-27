@@ -3,6 +3,7 @@ from pathlib import Path
 
 from odoo.modules.module import get_module_path
 from odoo.tests import TransactionCase, tagged
+from odoo.tools.convert import convert_file
 
 
 @tagged("post_install", "-at_install")
@@ -77,5 +78,22 @@ class TestDemoRolePermissions(TransactionCase):
         self.assertFalse(
             self.env.ref("sol_demo.demo_res_users_tester").has_group(
                 "sol_laboratory.group_permission_test_report_deliver_all"
+            )
+        )
+
+    def test_an_upgrade_gives_each_demo_role_the_permissions_it_lists_and_keeps_those_added_by_hand(self):
+        role = self.env.ref("sol_demo.demo_role_lab_head")
+        listed = self.env.ref("sol_laboratory.permission_report_template_version_read_all")
+        by_hand = self.env.ref("sol_laboratory.permission_audit_entry_read_all")
+        role.permission_ids = role.permission_ids - listed + by_hand
+
+        convert_file(self.env, "sol_demo", "data/sol_laboratory/role.xml", {}, mode="update")
+        self.env.invalidate_all()
+
+        self.assertIn(listed, role.permission_ids)
+        self.assertIn(by_hand, role.permission_ids)
+        self.assertTrue(
+            self.env.ref("sol_demo.demo_res_users_lab_head").has_group(
+                "sol_laboratory.group_permission_report_template_version_read_all"
             )
         )

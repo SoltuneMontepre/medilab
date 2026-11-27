@@ -32,11 +32,12 @@ CUSTOMER_STATUSES = [
     (STATUS_COMPLETED, "Completed"),
     (STATUS_CANCELLED, "Cancelled"),
 ]
-# Test request statuses the customer sees as Testing, Completed or Cancelled; any other is Waiting.
+# Test request statuses the customer sees as Testing, Completed or Cancelled; any other is Waiting. Approved results
+# stay Testing until the report is issued.
 REQUEST_STATUS_TO_CUSTOMER = {
     "testing": STATUS_TESTING,
     "awaiting_approval": STATUS_TESTING,
-    "completed": STATUS_COMPLETED,
+    "completed": STATUS_TESTING,
     "reported": STATUS_COMPLETED,
     "cancelled": STATUS_CANCELLED,
 }

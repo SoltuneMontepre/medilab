@@ -15,6 +15,7 @@ How the `sol_demo` module seeds data for demos and browser checks.
 - A record that needs records loaded after it is completed in a later file, such as a team's lead set in `person.xml` once the people exist. An upgrade skips that completion for a record the same upgrade created, so a record that later data needs completed, such as a handover record signed before a return of its extras, is completed by a seeding function instead.
 - Record XML ids are `demo_<model>_<short name>`, such as `demo_test_parameter_lead`. Records that seeding code creates in Python follow the same rule. The parent Odoo creates for a delegated record, such as a product's template, keeps the name Odoo gives it: the record's id followed by the parent model.
 - Data files use `noupdate="1"`, so upgrading the module does not overwrite records changed during a demo. Function calls stay outside it, so every upgrade runs them: a seeding function, which adds only what is missing, or a call that records loaded after it need, such as flagging Odoo's stock location as the central store, because an upgrade leaves the records of other modules unchanged.
+- A demo role's permissions are linked by a `write` function call outside the `noupdate` block of `role.xml`, not set on the role's record. Every upgrade links the permissions each role lists and unlinks none, so a database created before a permission was added gets it, and permissions given by hand stay.
 
 ## Laboratory catalog
 
