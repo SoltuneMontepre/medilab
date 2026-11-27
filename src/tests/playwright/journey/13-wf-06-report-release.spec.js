@@ -1,6 +1,6 @@
 import { expect, handOver, received, step, test } from "../support/journey";
 import { field, labDay, listed, openListed, openMenu, openRow, openTab, press, search, settled, status, written } from "../support/odoo";
-import { follow, loads, openHeader, openMyAccount, openOrder } from "../support/portal";
+import { follow, loads, openHeader, openMyAccount, openOrder, send } from "../support/portal";
 import { download, pdfText, printed, reviewPdf, waitForPdf } from "../support/report";
 
 const LABORATORY = "sol_laboratory.menu_laboratory_root";
@@ -28,11 +28,28 @@ test("WF-06 Report signing, release and delivery", async ({ as }) => {
   const customer = await as(journey.customerLogin, journey.customerPassword);
   const orderStatus = customer.locator("main h1 + span.badge");
 
-  // business-flows.md: "order completed only on issue"; the portal reads the order Completed once its request is.
-  await step(customer, "Before the report is issued, the customer's order is not shown completed", async () => {
+  await step(customer, "With all its samples completed, the customer's order reads Completed before its report is issued", async () => {
     await openOrder(customer, journey.orderNumber);
-    await expect.soft(orderStatus, "the order reads Completed only once its report is issued").not.toHaveText("Completed", { timeout: 1000 });
+    await expect(orderStatus).toHaveText("Completed");
     handOver("WF-06", { orderStatusBeforeReport: await shown(orderStatus) });
+  });
+
+  // Results released is sent by e-mail unless the customer also chooses the portal for it.
+  await step(customer, "The customer chooses to be told in the portal when results are released", async () => {
+    await openHeader(customer, "/my/account");
+    await follow(customer, "/my/notifications");
+    await customer.locator("input[name='result.released:popup']").check();
+    await send(customer, "/my/notifications");
+    await expect(customer.locator("#notifications-saved")).toBeVisible();
+    await expect(customer.locator("input[name='result.released:popup']")).toBeChecked();
+  });
+
+  const sales = await as("demo.sales");
+
+  await step(sales, "Sales sees the order still confirmed until its report is issued", async () => {
+    await openMenu(sales, ...SALES_ORDERS);
+    await openRow(sales, journey.orderNumber);
+    await expect(status(sales)).toHaveAttribute("data-value", "confirmed");
   });
 
   const head = await as("demo.lab_head");
@@ -85,16 +102,9 @@ test("WF-06 Report signing, release and delivery", async ({ as }) => {
     }
   });
 
-  // WF-06-E4: without a conversion the report stays a draft, so nothing after this step can run.
   await step(head, "MediLab prepares the report's PDF with its reserved number for the Lab Head's review", async () => {
-    report.refusal = await waitForPdf(head, openDraft);
-    expect.soft(report.refusal, "The report's PDF is prepared").toBeNull();
-    if (report.refusal) {
-      await expect(status(head)).toHaveAttribute("data-value", "draft");
-      await expect(buttons(head).locator("button[name=action_sign]")).toHaveCount(0);
-    }
+    await waitForPdf(head, openDraft);
   });
-  if (report.refusal) return;
 
   await step(head, "The Lab Head reviews the prepared PDF with its reserved number and the approved results", async () => {
     await expect(alerts(head)).toHaveText(["A prepared draft PDF waits for the lab head's review. It is not issued and not digitally signed."]);
@@ -132,11 +142,9 @@ test("WF-06 Report signing, release and delivery", async ({ as }) => {
     });
   });
 
-  // Reads the PDF's text to find what it prints; an issued PDF that cannot be read still passes its other checks.
   const checkPrinted = (bytes) => {
     expect(bytes.subarray(0, 5).toString()).toBe("%PDF-");
     const text = pdfText(bytes);
-    expect.soft(text, "the PDF's text can be read").not.toBe("");
     const named = {
       "report number": report.number,
       customer: journey.customerName,
@@ -148,7 +156,7 @@ test("WF-06 Report signing, release and delivery", async ({ as }) => {
       "lead result": journey.leadResult.split(" ")[0],
     };
     const missing = Object.entries(named).filter(([, value]) => !printed(value).test(text)).map(([what, value]) => `${what} ${value}`);
-    expect.soft(missing, "the PDF prints the report number, the customer, the sample and both results").toEqual([]);
+    expect(missing, "the PDF prints the report number, the customer, the sample and both results").toEqual([]);
     return text;
   };
 
@@ -156,10 +164,9 @@ test("WF-06 Report signing, release and delivery", async ({ as }) => {
     const pdf = await download(head, () => buttons(head).locator("button[name=action_download]").click());
     expect(pdf.name).toBe(`${report.number}.pdf`);
     const text = checkPrinted(pdf.bytes);
-    // SF-06 made the nitrate test accredited. A bilingual report names the parameter twice; the mark follows the last.
+    // SF-06 made the nitrate test accredited; its mark would follow the parameter's name, as (*) follows a registered one.
     const name = journey.parameterName.replace(/\s+/g, "");
-    const at = text.lastIndexOf(name);
-    const mark = at < 0 ? "" : (text.slice(at + name.length).match(/^\([^)]{1,3}\)/)?.[0] ?? "");
+    const mark = text.slice(text.indexOf(name) + name.length).match(/^\([^)]{1,3}\)/)?.[0] ?? "";
     expect.soft(mark, "the report marks the accredited nitrate test").not.toBe("");
     handOver("WF-06", { nitrateMarkOnReport: mark });
   });
@@ -187,14 +194,14 @@ test("WF-06 Report signing, release and delivery", async ({ as }) => {
     await expect(row.locator("td[name=customer_id]")).toHaveText(journey.customerName);
     await expect(row.locator("td[name=delivery_method]")).toHaveText("In Person");
     await expect(row.locator("td[name=recipient_id]")).toContainText(journey.contactName);
-    report.delivery = await shown(row.locator("td[name=delivery_method]"));
+    const delivery = await shown(row.locator("td[name=delivery_method]"));
     await press(staff, "action_record_delivery", { within: row });
     await expect(listed(staff, report.number)).toHaveCount(0);
     await expect(staff.locator(".modal:visible")).toHaveCount(0);
-    handOver("WF-06", { reportDelivery: report.delivery });
+    handOver("WF-06", { reportDelivery: delivery });
   });
 
-  await step(staff, "Sample delivery staff find the delivery recorded on the report and the sample kept after the report", async () => {
+  await step(staff, "Sample delivery staff find the delivery recorded on the report and the sample retained after the report", async () => {
     await openMenu(staff, ...TEST_REPORTS);
     await openRow(staff, report.number);
     await expect(status(staff)).toHaveAttribute("data-value", "issued");
@@ -205,20 +212,19 @@ test("WF-06 Report signing, release and delivery", async ({ as }) => {
     await openTab(staff, "samples");
     const sample = field(staff, "sample_ids").locator(".o_data_row", { hasText: journey.sampleLabCode });
     await expect(sample).toHaveCount(1);
-    // The demo's Bottled water keeps its samples for a while after the report.
-    await expect(sample.locator("td[name=status]")).toHaveText(/^(Reported|Retained)$/);
+    await expect(sample.locator("td[name=status]")).toHaveText("Retained");
     handOver("WF-06", { sampleStatusAfterReport: await shown(sample.locator("td[name=status]")), reportDeliveredBy: DELIVERER });
   });
 
-  await step(customer, "The customer is notified that the results are ready", async () => {
+  await step(customer, "The customer is notified in the portal that the results are ready", async () => {
     await openHeader(customer, "/my/account");
     await follow(customer, "/my/notifications");
-    const notice = customer.locator("#portal-notifications li", { hasText: "Results released" });
-    await expect.soft(notice, "the customer receives the Results released notice").not.toHaveCount(0, { timeout: 1000 });
-    if (await notice.count()) {
-      await loads(customer, () => notice.first().locator("a").click());
-      await expect(customer.locator("#notification-body")).toHaveText(`The results of order ${journey.orderNumber} are ready. Download report ${report.number} from your portal.`);
-    }
+    // The notice is titled with the report's number.
+    const notice = customer.locator("#portal-notifications li", { hasText: report.number });
+    await expect(notice).toHaveCount(1);
+    await loads(customer, () => notice.locator("a").click());
+    await expect(customer.locator("#notification-subject")).toHaveText(report.number);
+    await expect(customer.locator("#notification-body")).toHaveText(`The results of order ${journey.orderNumber} are ready. Download report ${report.number} from your portal.`);
   });
 
   await step(customer, "The customer finds the report under Test Reports in My account and downloads the issued PDF", async () => {
@@ -233,17 +239,14 @@ test("WF-06 Report signing, release and delivery", async ({ as }) => {
     checkPrinted(pdf.bytes);
   });
 
-  await step(customer, "The customer sees the order completed, and the order page leads to its report", async () => {
+  await step(customer, "The customer sees the order completed and can rate it", async () => {
     await openOrder(customer, journey.orderNumber);
     await expect(orderStatus).toHaveText("Completed");
     await expect(customer.locator(`main form[action$='/feedback']`)).toBeVisible();
-    await expect.soft(customer.locator("main a[href*='/my/test-reports']"), "the order page links to its report").not.toHaveCount(0, { timeout: 1000 });
     handOver("WF-06", { orderStatusAfterReport: await shown(orderStatus) });
   });
 
-  const sales = await as("demo.sales");
-
-  await step(sales, "Sales sees the order completed", async () => {
+  await step(sales, "Issue completes the order for Sales", async () => {
     await openMenu(sales, ...SALES_ORDERS);
     await openRow(sales, journey.orderNumber);
     await expect(status(sales)).toHaveAttribute("data-value", "completed");

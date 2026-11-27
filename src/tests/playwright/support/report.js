@@ -10,24 +10,23 @@ function reviewButton(page) {
 }
 
 // Waits on the open report for the PDF MediLab prepares on its own, opening the report again with `reopen` as a
-// person does to see it. When none comes in time, the Lab Head has it prepared with Prepare PDF. Returns why the
-// preparation was refused, or nothing once the PDF waits for review.
+// person does to see it. When none comes in time, the Lab Head has it prepared with Prepare PDF; a refused
+// preparation fails with its reason.
 export async function waitForPdf(page, reopen, { seconds = 90 } = {}) {
   const deadline = Date.now() + seconds * 1000;
   while (!(await reviewButton(page).isVisible()) && Date.now() < deadline) {
     await page.waitForTimeout(10000);
     await reopen();
   }
-  if (await reviewButton(page).isVisible()) return null;
+  if (await reviewButton(page).isVisible()) return;
   await press(page, "action_prepare_pdf", { refusals: true });
-  const refusal = page.locator(".o_error_dialog");
+  const refusal = page.locator(".o_error_dialog .modal-body");
   if (await refusal.count()) {
-    const reason = (await refusal.locator(".modal-body").innerText()).trim();
+    const reason = (await refusal.innerText()).trim();
     await closeDialog(page);
-    return reason;
+    expect(reason, "the report's PDF is prepared").toBeNull();
   }
   await expect(reviewButton(page)).toBeVisible();
-  return null;
 }
 
 // Opens the prepared PDF with Review PDF, which shows it in a tab of its own, and returns the PDF's file name.

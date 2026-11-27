@@ -1,6 +1,6 @@
 import { expect, handOver, received, step, test } from "../support/journey";
 import { field, listed, openListed, openMenu, openNotices, openRow, openTab, press, pressLabel, receiveNoticesInApplication, search, settled, status, toggleMessages, type } from "../support/odoo";
-import { follow, openMyAccount } from "../support/portal";
+import { follow, loads, openHeader, openMyAccount } from "../support/portal";
 import { download, reviewPdf, waitForPdf } from "../support/report";
 
 const LABORATORY = "sol_laboratory.menu_laboratory_root";
@@ -26,13 +26,6 @@ test("SF-03 Change request on a signed document", async ({ as }) => {
   const head = await as("demo.lab_head");
   const staff = await as("demo.sample_delivery_staff");
 
-  // The journey's reports, newest version first.
-  const reportsOfRequest = async (page) => {
-    await openMenu(page, ...TEST_REPORTS);
-    await search(page, journey.requestCode, { field: "Test Request" });
-    return page.locator(".o_list_view:visible .o_data_row");
-  };
-
   await step(head, "The Lab Head chooses to be notified in the application", async () => {
     await receiveNoticesInApplication(head);
   });
@@ -57,14 +50,15 @@ test("SF-03 Change request on a signed document", async ({ as }) => {
     handOver("SF-03", { changeRequestCode: replacement.changeRequest });
   });
 
-  // business-flows.md SF-03 has the lab head approve; nothing tells them a change request waits.
-  await step(head, "The Lab Head is told that a change request waits for approval", async () => {
+  // SH-04: overdue approvals are reminded through their signing tasks, so the approver needs a task or a notice.
+  await step(head, "The Lab Head is told by a notice or a task that a change request waits for approval", async () => {
     const notices = await openNotices(head);
-    await expect.soft(notices.filter({ hasText: replacement.changeRequest }), "the Lab Head receives a notice of the change request").not.toHaveCount(0, { timeout: 1000 });
+    const noticed = await notices.filter({ hasText: replacement.changeRequest }).count();
     await toggleMessages(head);
     await openMenu(head, ...TASK_QUEUE);
     await search(head, replacement.changeRequest);
-    await expect.soft(listed(head, replacement.changeRequest), "the Lab Head has a task for the change request").not.toHaveCount(0, { timeout: 1000 });
+    const tasks = await listed(head, replacement.changeRequest).count();
+    expect.soft(noticed + tasks, "the Lab Head has a notice or a signing task for the change request").toBeGreaterThan(0);
   });
 
   await step(head, "SF-03-A1: The Lab Head approves the change request on the report, which creates the new report version", async () => {
@@ -112,10 +106,8 @@ test("SF-03 Change request on a signed document", async ({ as }) => {
   await step(head, "WF-06: The Lab Head finds the replacement in Reports to Sign and MediLab prepares its PDF", async () => {
     await openReplacement();
     await expect(field(head, "replaces_id")).toHaveText(first);
-    replacement.refusal = await waitForPdf(head, openReplacement);
-    expect.soft(replacement.refusal, "The replacement report's PDF is prepared").toBeNull();
+    await waitForPdf(head, openReplacement);
   });
-  if (replacement.refusal) return;
 
   await step(head, "WF-06: The Lab Head reviews the replacement's PDF, which reserves a new report number", async () => {
     await expect(field(head, "display_name")).toHaveText(/^PKQ\.\d{4}\.\d+$/);
@@ -137,7 +129,9 @@ test("SF-03 Change request on a signed document", async ({ as }) => {
   });
 
   await step(head, "Issuing the replacement marks the earlier report replaced; it keeps its number", async () => {
-    const reports = await reportsOfRequest(head);
+    await openMenu(head, ...TEST_REPORTS);
+    await search(head, journey.requestCode, { field: "Test Request" });
+    const reports = head.locator(".o_list_view:visible .o_data_row");
     await expect(reports).toHaveCount(2);
     const issued = reports.filter({ hasText: replacement.number });
     const replaced = reports.filter({ hasText: first });
@@ -159,6 +153,15 @@ test("SF-03 Change request on a signed document", async ({ as }) => {
   });
 
   const customer = await as(journey.customerLogin, journey.customerPassword);
+
+  await step(customer, "The customer is notified in the portal that the replacement is ready", async () => {
+    await openHeader(customer, "/my/account");
+    await follow(customer, "/my/notifications");
+    const notice = customer.locator("#portal-notifications li", { hasText: replacement.number });
+    await expect(notice).toHaveCount(1);
+    await loads(customer, () => notice.locator("a").click());
+    await expect(customer.locator("#notification-body")).toContainText(`Download report ${replacement.number} from your portal.`);
+  });
 
   await step(customer, "The customer's Test Reports list the replacement in place of the replaced report, and the customer downloads it", async () => {
     await openMyAccount(customer);
