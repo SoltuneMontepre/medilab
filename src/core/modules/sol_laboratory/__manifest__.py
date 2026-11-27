@@ -12,6 +12,7 @@
         "security/ir.access.csv",
         "data/res_lang_data.xml",
         "data/res_company_data.xml",
+        "data/res_country_data.xml",
         "data/ir_sequence_data.xml",
         "data/role_data.xml",
         "data/permission_data.xml",

@@ -78,6 +78,7 @@ function RecordRow({ record }: Readonly<{ record: HandoverRecordSummary }>) {
       accessibilityLabel={[record.code, record.request, record.handed_over_by].join(", ")}
       style={({ pressed }) => [shared.card, styles.card, pressed && styles.pressed]}
       onPress={() => router.push(handoverRecordPath(record.id))}
+      testID="handover-record"
     >
       <View style={styles.head}>
         <Text style={[shared.label, styles.name]}>{record.code}</Text>

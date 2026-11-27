@@ -40,7 +40,7 @@ class TestNoticePortal(HttpCase):
         user.partner_id.write({"parent_id": parent.id, "email": f"{login}@example.com"})
         return user
 
-    def raise_notice(self, user, subject="Invoice HD-1", body="Invoice HD-1 is attached."):
+    def raise_notice(self, user, subject: str | None = "Invoice HD-1", body="Invoice HD-1 is attached."):
         self.keys += 1
         message = self.env[MODEL_MAIL_MESSAGE].raise_event(
             EVENT_INVOICE_SENT,
@@ -77,6 +77,22 @@ class TestNoticePortal(HttpCase):
         self.assertIn("New", page.text)
         # The list shows the title and date; the text is read on the notice.
         self.assertNotIn("is attached", page.text)
+
+    def test_a_notice_without_a_subject_is_titled_with_its_event_in_the_readers_language(self):
+        self.env["res.lang"]._activate_lang("vi_VN")
+        self.env["ir.module.module"]._load_module_terms(["sol_commerce"], ["vi_VN"], overwrite=True)
+        self.hoa.lang = "vi_VN"
+        event = self.env["mail.message.subtype"]._event(EVENT_INVOICE_SENT)
+        notice = self.raise_notice(self.hoa, subject=None)
+
+        page = self.get(self.hoa, "/my/notifications")
+
+        title = event.with_context(lang="vi_VN").name
+        self.assertNotEqual(title, event.with_context(lang="en_US").name)
+        self.assertIn(title, page.text)
+        self.assertIn(title, self.url_open(f"/my/notifications/{notice.id}").text)
+        emails = notice.mail_mail_id._prepare_outgoing_list()
+        self.assertEqual({email["subject"] for email in emails}, {title})
 
     def test_opening_a_notice_shows_it_and_records_the_first_open_once(self):
         notice = self.raise_notice(self.hoa)
