@@ -98,7 +98,7 @@ Do this once per cloud environment, in its settings: the environment menu in the
 ## Run the app
 
 1. If `docker info` fails, the setup script did not start Docker: run the Docker lines of the setup script.
-2. Run `task up`. It starts the database, Garage, CloudBeaver and Odoo at `http://localhost:8069`, which the built-in Chromium opens. A new database holds no modules until they are installed.
+2. Run `task up`. It starts the database, Garage, CloudBeaver, Mailpit and Odoo at `http://localhost:8069`, which the built-in Chromium opens. A new database holds no modules until they are installed.
 
 The database listens on `localhost:15432` with user and password `root`. When it was not up at session start, the `postgres` MCP server has already failed; query the database with `PGPASSWORD=root psql -h localhost -p 15432 -U root -d medilab`.
 
