@@ -68,7 +68,8 @@ export async function openMenu(page, app, ...entries) {
     await item.click();
     await settled(page);
   }
-  await expect(page.locator(".o_action_manager .o_view_controller:visible, .modal:visible").first()).toBeVisible();
+  // An app's own page, such as the Tasks dashboard, is an action without a view.
+  await expect(page.locator(".o_action_manager .o_view_controller:visible, .o_action_manager .o_action:visible, .modal:visible").first()).toBeVisible();
 }
 
 // Filters the shown list as a person types in its search box, by the first suggestion or the one labelled `field`.
