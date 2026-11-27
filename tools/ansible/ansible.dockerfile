@@ -2,6 +2,7 @@ FROM docker.io/library/python:3.13.16-slim-trixie
 
 ENV VIRTUAL_ENV=/opt/ansible \
     PATH=/opt/ansible/bin:$PATH \
+    PYTHONUNBUFFERED=1 \
     ANSIBLE_CONFIG=/work/infra/ansible/ansible.cfg \
     ANSIBLE_LOCAL_TEMP=/tmp/ansible \
     ANSIBLE_FORCE_COLOR=1

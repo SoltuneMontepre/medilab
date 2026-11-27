@@ -2,3 +2,5 @@ reset_namespace: medilab
 reset_cluster: medilab-db
 reset_database: medilab
 reset_application: odoo
+reset_argocd_namespace: argocd
+reset_backup: "{{ reset_cluster }}-reset"

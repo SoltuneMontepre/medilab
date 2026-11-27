@@ -1,10 +1,258 @@
-- name: Run the reset script
-  ansible.builtin.script:
-    cmd: reset.sh "{{ reset_namespace }}" "{{ reset_cluster }}" "{{ reset_database }}" "{{ reset_application }}"
-    executable: /bin/bash
-  register: reset_report
+- name: Check connection to the k3s server
+  ansible.builtin.ping:
+
+- name: Remove the previous reset backup
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - delete
+      - backup.postgresql.cnpg.io
+      - "{{ reset_backup }}"
+      - -n
+      - "{{ reset_namespace }}"
+      - --ignore-not-found
+      - --wait=true
+  register: reset_previous_backup
+  changed_when: "'deleted' in reset_previous_backup.stdout"
+
+- name: Start the pre-reset backup
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - apply
+      - -n
+      - "{{ reset_namespace }}"
+      - -f
+      - "-"
+    stdin: "{{ lookup('ansible.builtin.template', 'backup.yaml.j2') }}"
   changed_when: true
 
-- name: Show the report
+- name: Wait for the pre-reset backup to complete
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - get
+      - backup.postgresql.cnpg.io
+      - "{{ reset_backup }}"
+      - -n
+      - "{{ reset_namespace }}"
+      - -o
+      - "jsonpath={.status.phase}|{.status.error}"
+  register: reset_backup_state
+  until: reset_backup_state.stdout.split('|', 1)[0] in ['completed', 'failed']
+  retries: 120
+  delay: 15
+  changed_when: false
+  failed_when: reset_backup_state.stdout.split('|', 1)[0] != 'completed'
+
+- name: Find the primary database pod
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - get
+      - pod
+      - -n
+      - "{{ reset_namespace }}"
+      - -l
+      - "cnpg.io/cluster={{ reset_cluster }},cnpg.io/instanceRole=primary"
+      - -o
+      - name
+  register: reset_primary_pod
+  changed_when: false
+  failed_when: reset_primary_pod.stdout_lines | length != 1
+
+- name: Drop and recreate the database
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - exec
+      - -n
+      - "{{ reset_namespace }}"
+      - "{{ reset_primary_pod.stdout | trim }}"
+      - -c
+      - postgres
+      - --
+      - psql
+      - -v
+      - ON_ERROR_STOP=1
+      - -d
+      - postgres
+      - -c
+      - "DROP DATABASE IF EXISTS {{ reset_database }} WITH (FORCE)"
+      - -c
+      - "CREATE DATABASE {{ reset_database }} OWNER {{ reset_database }}"
+  changed_when: true
+
+- name: Record the sync start time
+  ansible.builtin.command:
+    argv:
+      - date
+      - -u
+      - +%Y-%m-%dT%H:%M:%SZ
+  register: reset_sync_started
+  changed_when: false
+
+- name: Start the Argo CD sync
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - patch
+      - application
+      - "{{ reset_application }}"
+      - -n
+      - "{{ reset_argocd_namespace }}"
+      - --type=merge
+      - -p
+      - '{"operation":{"initiatedBy":{"username":"cd-reset"},"sync":{"revision":"main"}}}'
+  changed_when: true
+
+- name: Wait for Argo CD to start the sync
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - get
+      - application
+      - "{{ reset_application }}"
+      - -n
+      - "{{ reset_argocd_namespace }}"
+      - -o
+      - "jsonpath={.status.operationState.startedAt}"
+  register: reset_sync_ack
+  until: reset_sync_ack.stdout >= reset_sync_started.stdout
+  retries: 24
+  delay: 5
+  changed_when: false
+
+- name: Wait for the Argo CD sync and module upgrade
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - get
+      - application
+      - "{{ reset_application }}"
+      - -n
+      - "{{ reset_argocd_namespace }}"
+      - -o
+      - "jsonpath={.status.operationState.startedAt}|{.status.operationState.phase}|{.status.operationState.message}"
+  register: reset_sync_state
+  until: >-
+    reset_sync_state.stdout.split('|', 2)[0] >= reset_sync_started.stdout
+    and reset_sync_state.stdout.split('|', 2)[1] in ['Succeeded', 'Failed', 'Error']
+  retries: 120
+  delay: 30
+  changed_when: false
+  failed_when: >-
+    reset_sync_state.stdout.split('|', 2)[0] < reset_sync_started.stdout
+    or reset_sync_state.stdout.split('|', 2)[1] != 'Succeeded'
+
+- name: Report the Argo CD sync status
   ansible.builtin.debug:
-    msg: "{{ reset_report.stdout_lines }}"
+    msg: "{{ reset_sync_state.stdout.split('|', 2)[2] }}"
+
+- name: Restart Odoo
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - rollout
+      - restart
+      - deployment/odoo
+      - -n
+      - "{{ reset_namespace }}"
+  changed_when: true
+
+- name: Wait for the Odoo rollout
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - rollout
+      - status
+      - deployment/odoo
+      - -n
+      - "{{ reset_namespace }}"
+      - --timeout=15s
+  register: reset_rollout
+  until: reset_rollout.rc == 0
+  retries: 40
+  delay: 1
+  changed_when: false
+
+- name: Find the primary database pod for verification
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - get
+      - pod
+      - -n
+      - "{{ reset_namespace }}"
+      - -l
+      - "cnpg.io/cluster={{ reset_cluster }},cnpg.io/instanceRole=primary"
+      - -o
+      - name
+  register: reset_verify_pod
+  changed_when: false
+  failed_when: reset_verify_pod.stdout_lines | length != 1
+
+- name: Read the company currency
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - exec
+      - -n
+      - "{{ reset_namespace }}"
+      - "{{ reset_verify_pod.stdout | trim }}"
+      - -c
+      - postgres
+      - --
+      - psql
+      - -v
+      - ON_ERROR_STOP=1
+      - -d
+      - "{{ reset_database }}"
+      - -Atc
+      - "select r.name from res_company c join res_currency r on r.id = c.currency_id order by c.id limit 1"
+  register: reset_currency
+  changed_when: false
+
+- name: Read the sol_demo module state
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - exec
+      - -n
+      - "{{ reset_namespace }}"
+      - "{{ reset_verify_pod.stdout | trim }}"
+      - -c
+      - postgres
+      - --
+      - psql
+      - -v
+      - ON_ERROR_STOP=1
+      - -d
+      - "{{ reset_database }}"
+      - -Atc
+      - "select state from ir_module_module where name = 'sol_demo'"
+  register: reset_demo
+  changed_when: false
+
+- name: Verify VND currency and demo data
+  ansible.builtin.assert:
+    that:
+      - reset_currency.stdout | trim == 'VND'
+      - reset_demo.stdout | trim == 'installed'
+    fail_msg: >-
+      Expected currency VND and sol_demo installed,
+      got currency={{ reset_currency.stdout | trim }}, sol_demo={{ reset_demo.stdout | trim }}.
+    success_msg: "Currency: {{ reset_currency.stdout | trim }}, sol_demo: {{ reset_demo.stdout | trim }}"
