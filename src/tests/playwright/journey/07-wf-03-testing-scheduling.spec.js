@@ -1,5 +1,5 @@
 import { expect, handOver, received, step, test } from "../support/journey";
-import { field, front, listed, noticesTab, openListed, openMenu, openNotices, openTab, pick, press, pressLabel, search, settled, showList, status, suggested, toggleMessages } from "../support/odoo";
+import { field, front, listed, openListed, openMenu, openNotices, openTab, pick, press, receiveNoticesInApplication, search, settled, showList, status, suggested, toggleMessages } from "../support/odoo";
 import { bookingMachine, bookingSlot, findBookings, listedMoment, typedMoment } from "../support/schedule";
 
 const TASKS = "sol_laboratory.menu_tasks_root";
@@ -21,22 +21,7 @@ test("WF-03 Testing assignment and scheduling", async ({ as }) => {
   const bookingRow = (page) => field(page, "booking_ids").locator(".o_data_row");
 
   await step(tester, "The tester chooses to be notified in the application", async () => {
-    await tester.locator(".o_user_menu").click();
-    await tester.locator(".o-dropdown--menu [data-menu=preferences]").click();
-    await settled(tester);
-    const preferences = front(tester);
-    const inApplication = field(tester, "notification_type").locator(".o_radio_item", { hasText: "In Odoo" }).locator("input");
-    if (await inApplication.isChecked()) {
-      await pressLabel(tester, "Discard", { within: preferences });
-    } else {
-      await inApplication.check();
-      // Saving the preferences loads the page again.
-      await Promise.all([tester.waitForEvent("load"), preferences.locator("button[name=preference_save]").click()]);
-      await settled(tester);
-    }
-    await toggleMessages(tester);
-    await expect(noticesTab(tester)).toBeVisible();
-    await toggleMessages(tester);
+    await receiveNoticesInApplication(tester);
   });
 
   await step(head, "The testing tasks of the sample wait in the queue of their department", async () => {

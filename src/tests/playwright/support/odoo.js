@@ -325,6 +325,26 @@ export async function openNotices(page) {
   return page.locator(".o-mail-MessagingMenuInDropdown .o-mail-NotificationItem");
 }
 
+// Chooses, in the user's preferences, to be notified in the application instead of by e-mail.
+export async function receiveNoticesInApplication(page) {
+  await page.locator(".o_user_menu").click();
+  await page.locator(".o-dropdown--menu [data-menu=preferences]").click();
+  await settled(page);
+  const preferences = front(page);
+  const inApplication = field(page, "notification_type").locator(".o_radio_item", { hasText: "In Odoo" }).locator("input");
+  if (await inApplication.isChecked()) {
+    await pressLabel(page, "Discard", { within: preferences });
+  } else {
+    await inApplication.check();
+    // Saving the preferences loads the page again.
+    await Promise.all([page.waitForEvent("load"), preferences.locator("button[name=preference_save]").click()]);
+    await settled(page);
+  }
+  await toggleMessages(page);
+  await expect(noticesTab(page)).toBeVisible();
+  await toggleMessages(page);
+}
+
 // Opens the user menu and signs out.
 export async function signOut(page) {
   await page.locator(".o_user_menu button").click();
