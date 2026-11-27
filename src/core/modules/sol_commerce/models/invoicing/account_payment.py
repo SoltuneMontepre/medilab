@@ -115,6 +115,18 @@ class AccountPayment(models.Model, AccountPaymentBase):
     def _pending_manual_collection(self):
         return self.state == "draft" and self.method in ("cash", "bank_transfer")
 
+    def _portal_receipts(self, invoice):
+        """The confirmed payments among these whose receipt the portal user of the invoice's environment opens."""
+        # A reader who sees the invoice only through its access token cannot open a receipt.
+        if not invoice.has_access("read"):
+            return self.browse()
+        customer = invoice.sudo().partner_id.commercial_partner_id
+        return self.filtered(
+            lambda payment: payment.state in CONFIRMED_STATES
+            and invoice in payment.invoice_ids
+            and payment.partner_id.commercial_partner_id == customer
+        ).sorted(lambda payment: (payment.date, payment.id))
+
     @api.model
     def _validated_collection_amount(self, invoice, amount, *, subtract_pending=False):
         """The amount a new payment may collect. An empty amount means the whole residual."""

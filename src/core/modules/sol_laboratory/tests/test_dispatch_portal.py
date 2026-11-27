@@ -55,6 +55,18 @@ class TestDispatchPortal(HttpCase, DispatchCase):
         self.assertFalse(self.test.result_ids)
         self.assertNotIn("cannot be negative", self.url_open(f"/my/dispatches/{dispatch.id}").text)
 
+    def test_a_result_entered_through_the_page_awaits_the_head_approval(self):
+        # Without a regulation to compare with, the result needs no conclusion from the laboratory.
+        self.sample.regulation_id = False
+        dispatch = self.receive_dispatch(self.outsource())
+        self.sign_in(self.northern_user)
+
+        page = self.enter_through_the_page(dispatch, "0.008")
+
+        self.assertIn("Awaiting Approval", page.text)
+        self.assertEqual(self.test.result_ids.status, "requested")
+        self.assertEqual(self.test.status, "result_entered")
+
     def enter_through_the_page(self, dispatch, value):
         page = self.url_open(f"/my/dispatches/{dispatch.id}").text
         token = re.search(r'name="csrf_token" value="([^"]+)"', page)

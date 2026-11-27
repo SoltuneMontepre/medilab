@@ -16,6 +16,18 @@
         </xpath>
     </template>
 
+    <template id="portal_invoice_receipts" inherit_id="account.portal_invoice_page">
+        <xpath expr="//div[hasclass('o_download_pdf')]" position="after">
+            <t t-set="receipts" t-value="invoice.matched_payment_ids._portal_receipts(invoice.with_env(request.env))" />
+            <div t-if="receipts" id="medilab_payment_receipts" class="d-flex flex-column gap-2">
+                <h6 class="mb-0 small text-muted">Receipts</h6>
+                <a t-foreach="receipts" t-as="payment" class="btn btn-light text-start" t-attf-href="/my/invoices/#{invoice.id}/receipt/#{payment.id}" role="button">
+                    <i class="oi oi-fw me-1" data-icon="receipt_long" aria-hidden="true" /><span t-field="payment.date" /> · <span t-field="payment.amount" />
+                </a>
+            </div>
+        </xpath>
+    </template>
+
     <template id="payment_request_summary" name="Payment request">
         <section class="border rounded p-3 mb-4" id="medilab_payment_request">
             <h2 t-if="payment_request.kind == 'advance'" class="h4">Advance payment request</h2>

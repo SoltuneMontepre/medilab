@@ -5616,6 +5616,11 @@ msgid "Receipt time (Vietnam)"
 msgstr "Thời điểm nhận tiền (giờ Việt Nam)"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_receipts
+msgid "Receipts"
+msgstr "Phiếu Thu"
+
+#. module: sol_commerce
 #. odoo-python
 #: model:ir.model.fields,field_description:sol_commerce.field_account_payment__received_at
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__received_at
@@ -5906,11 +5911,6 @@ msgstr ""
 "tuyến qua đường dẫn đã gửi, hoặc bộ phận kinh doanh ghi nhận tiền mặt."
 
 #. module: sol_commerce
-#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__balance_due__before_collection
-msgid "Before sample collection"
-msgstr "Trước khi thu mẫu"
-
-#. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__balance_due__before_report
 msgid "Before the report"
 msgstr "Trước khi trả kết quả"
@@ -5928,15 +5928,6 @@ msgid ""
 "Nobody has claimed the sample collection of order %(order)s, due at "
 "%(appointment)s."
 msgstr "Chưa ai nhận việc thu mẫu của đơn %(order)s, hẹn lúc %(appointment)s."
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
-msgid ""
-"Pay the remaining %(amount)s for order %(order)s before its samples are "
-"collected."
-msgstr ""
-"Thanh toán số tiền còn lại %(amount)s cho đơn %(order)s trước khi thu mẫu."
 
 #. module: sol_commerce
 #. odoo-python
@@ -5980,12 +5971,6 @@ msgstr "Mốc Thời Gian"
 #: model:medilab.scheduled.job,name:sol_commerce.scheduled_job_unclaimed_collections
 msgid "Unclaimed sample collections"
 msgstr "Việc thu mẫu chưa có người nhận"
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
-msgid "Verify the order balance before collecting its samples."
-msgstr "Xác nhận đã thanh toán số dư đơn hàng trước khi thu mẫu."
 
 #. module: sol_commerce
 #. odoo-python

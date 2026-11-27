@@ -19,7 +19,6 @@ from odoo.addons.sol_commerce.constants.notifications import EVENT_BALANCE_REQUE
 from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_NONE,
     BALANCE_AT_COLLECTION,
-    BALANCE_BEFORE_COLLECTION,
     QUOTATION_ACCEPTED,
     QUOTATION_REPLACED,
     QUOTATION_SENT,
@@ -223,9 +222,9 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         return not self._collection_hold()
 
     def _collection_hold(self):
-        """Why the order's samples cannot be collected yet, or False: its advance is not verified, or Sales asked for
-        the balance before collection and it is not paid. Otherwise the balance is due at collection or before the
-        report, which waits until the order is paid. Nothing holds an order whose samples are in already."""
+        """Why the order's samples cannot be collected yet, or False: its advance is not verified. The balance holds
+        back no collection; the report waits until the order is paid. Nothing holds an order whose samples are in
+        already."""
         self.ensure_one()
         if self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total):
             return False
@@ -237,8 +236,6 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         )
         if not quotation or any(ask.state != "funded" for ask in advance):
             return self.env._("Verify the order's advance before collecting its samples.")
-        if self.balance_due == BALANCE_BEFORE_COLLECTION:
-            return self.env._("Verify the order balance before collecting its samples.")
         return False
 
     def _withholds_report(self):
@@ -358,11 +355,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         self.sudo().payment_request_id = request
         order = self.with_context(lang=self._get_lang())
         values = {"amount": order.currency_id.format(amount), "order": order.name}
-        if self.balance_due == BALANCE_BEFORE_COLLECTION:
-            body = order.env._(
-                "Pay the remaining %(amount)s for order %(order)s before its samples are collected.", **values
-            )
-        elif self.balance_due == BALANCE_AT_COLLECTION:
+        if self.balance_due == BALANCE_AT_COLLECTION:
             body = order.env._(
                 "Pay the remaining %(amount)s for order %(order)s when its samples are collected, online or to our "
                 "staff. Its report is released once the order is paid in full.",

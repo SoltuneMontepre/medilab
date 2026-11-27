@@ -1204,11 +1204,6 @@ msgid "Bank transfer"
 msgstr ""
 
 #. module: sol_commerce
-#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__balance_due__before_collection
-msgid "Before sample collection"
-msgstr ""
-
-#. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__balance_due__before_report
 msgid "Before the report"
 msgstr ""
@@ -3659,14 +3654,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid ""
-"Pay the remaining %(amount)s for order %(order)s before its samples are "
-"collected."
-msgstr ""
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
-msgid ""
 "Pay the remaining %(amount)s for order %(order)s when its samples are "
 "collected, online or to our staff. Its report is released once the order is "
 "paid in full."
@@ -4388,6 +4375,11 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
 msgid "Receipt time (Vietnam)"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_receipts
+msgid "Receipts"
 msgstr ""
 
 #. module: sol_commerce
@@ -5796,12 +5788,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "Verify the full requested advance before confirming the order."
-msgstr ""
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
-msgid "Verify the order balance before collecting its samples."
 msgstr ""
 
 #. module: sol_commerce

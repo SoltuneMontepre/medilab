@@ -450,6 +450,39 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
         self.assertTrue(missing.headers["Location"].endswith("/my"))
         self.assertEqual(self.entries(payment, "download").user_id, self.customer)
 
+    def receipt_links(self, page):
+        return re.findall(r'href="(/my/invoices/\d+/receipt/\d+)"', page.text)
+
+    def test_the_invoice_page_links_each_confirmed_payment_to_its_receipt(self):
+        self.authenticate(self.customer.login, self.customer.login)
+        invoice_page = f"/my/invoices/{self.invoice.id}"
+        self.url_open(
+            f"{invoice_page}/pay",
+            data={"csrf_token": self.csrf_token(), "method": "bank_transfer", "amount": "1000"},
+            allow_redirects=False,
+        )
+        payment = self.env["account.payment"].search([("invoice_ids", "in", self.invoice.id)])
+
+        pending = self.url_open(invoice_page)
+        payment.action_post()
+        page = self.url_open(invoice_page)
+        receipt = self.url_open(self.receipt_links(page)[0])
+
+        self.assertEqual(self.receipt_links(pending), [])
+        self.assertEqual(self.receipt_links(page), [f"{invoice_page}/receipt/{payment.id}"])
+        self.assertEqual(receipt.status_code, 200)
+        self.assertIn("1000", receipt.text.replace(",", "").replace("\xa0", "").replace(" ", ""))
+
+        self.authenticate(self.other.login, self.other.login)
+        refused = self.url_open(f"{invoice_page}/receipt/{payment.id}", allow_redirects=False)
+        self.assertEqual(self.receipt_links(self.url_open(invoice_page)), [])
+        self.assertIn(refused.status_code, (301, 302, 303))
+
+        self.authenticate(None, None)
+        shared = self.url_open(self.invoice.get_portal_url())
+        self.assertEqual(shared.status_code, 200)
+        self.assertEqual(self.receipt_links(shared), [])
+
     def test_payos_checkout_follows_the_provider_and_a_paid_invoice_is_refused(self):
         provider = self.env.ref("sol_commerce.payment_provider_payos")
         method = self.env.ref("sol_commerce.payment_method_payos_qr")

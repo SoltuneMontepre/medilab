@@ -25,8 +25,8 @@ class TestChangeRequestResult(ChangeRequestCase):
         self.assertEqual(self.as_person(result, self.tester).status, "approved")
         self.assertEqual(self.test.status, "testing")
         self.assertEqual(self.test._testing_task().note, request.requested_change)
-        message = self.messages(request)
-        self.assertEqual(message.subtype_id, self.env.ref("sol_laboratory.event_change_request_approved"))
+        message = self.messages(request, "sol_laboratory.event_change_request_approved")
+        self.assertEqual(len(message), 1)
         self.assertEqual(message.notification_ids.res_partner_id, self.tester.user_id.partner_id)
 
     def test_the_new_version_is_signed_again_and_reported_in_place_of_the_old_one(self):
@@ -69,8 +69,8 @@ class TestChangeRequestResult(ChangeRequestCase):
         self.assertEqual(request.rejection_reason, "The worksheet confirms a dilution of 5.")
         self.assertEqual((result.status, result.is_replaced, self.test.status), ("approved", False, "approved"))
         self.assertFalse(self.env[MODEL_TEST_RESULT].search_count([("replaces_id", "=", result.id)]))
-        message = self.messages(request)
-        self.assertEqual(message.subtype_id, self.env.ref("sol_laboratory.event_change_request_rejected"))
+        message = self.messages(request, "sol_laboratory.event_change_request_rejected")
+        self.assertEqual(len(message), 1)
         self.assertIn("The worksheet confirms a dilution of 5.", (message.body or ""))
         with self.assertRaises(UserError):
             self.as_person(request, self.lab_head).action_withdraw()

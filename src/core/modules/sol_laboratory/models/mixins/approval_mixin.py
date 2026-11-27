@@ -290,6 +290,17 @@ class ApprovalMixin(models.AbstractModel, ApprovalMixinBase):
         # The first level of the document that has not signed yet.
         return self._approval_levels().filtered(lambda other: other not in rows.level_id)[:1]
 
+    def _approval_waiting_signers(self):
+        """The level the document waits for and the active holders of its role who can sign it, those of the department
+        that did the work when the level requires it; empty once every level signed."""
+        self.ensure_one()
+        level = self._approval_next_level(self._approval_open_rows())
+        people = level.role_id.sudo().person_ids.filtered("active")
+        if level.same_department:
+            department = self._approval_department()
+            people = people.filtered(lambda person: self._approval_department_matches(department, person))
+        return level, people
+
     def _approval_signer_role(self, level, person):
         """The role the person acts with at the level: its own, or else the role of the nearest later level of the
         document they hold, as a higher level signs a lower one in their own name. Empty when they hold neither."""
@@ -311,9 +322,13 @@ class ApprovalMixin(models.AbstractModel, ApprovalMixinBase):
     def _approval_check_withdraw(self):
         self._approval_own_row()._check_withdrawable(self._approval_process_completed())
 
-    def _approval_record(self, level, decision, reason=False):
+    def _approval_signer(self, level):
+        """The person who signs or rejects at the level now, with the name and role their signature records."""
         person = self.env[MODEL_PERSON]._current()
-        role = self._approval_signer_role(level, person)
+        return person, person.name, self._approval_signer_role(level, person).name
+
+    def _approval_record(self, level, decision, reason=False):
+        person, name, role = self._approval_signer(level)
         self._approval_start()
         self.env[MODEL_SIGNATURE].sudo().create(
             {
@@ -323,8 +338,8 @@ class ApprovalMixin(models.AbstractModel, ApprovalMixinBase):
                 "document_hash": self._approval_document_hash(),
                 "level_id": level.id,
                 "signer_id": person.id,
-                "signer_name": person.name,
-                "signer_role": role.name,
+                "signer_name": name,
+                "signer_role": role,
                 "level_name": level.name,
                 "decision": decision,
                 "reason": reason,

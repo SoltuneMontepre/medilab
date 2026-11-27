@@ -112,7 +112,7 @@ class TestSubcontractDispatch(DispatchCase):
         self.assertEqual(dispatches._portal_dispatches(self.northern_user), northern)
         self.assertEqual(dispatches._portal_dispatches(self.southern_user), southern)
 
-    def test_a_subcontractor_result_records_its_user_and_waits_for_approval_like_any_other(self):
+    def test_a_subcontractor_result_to_compare_with_the_regulation_waits_for_a_lab_qa_to_assess_and_send_it(self):
         dispatch = self.receive_dispatch(self.outsource())
         portal = self.env[MODEL_SUBCONTRACT_DISPATCH].with_user(self.northern_user)
 

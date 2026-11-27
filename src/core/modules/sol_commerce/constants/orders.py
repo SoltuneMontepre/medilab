@@ -43,7 +43,6 @@ ADVANCE_PERCENTAGE = "percentage"
 ADVANCE_FIXED = "fixed"
 ADVANCE_PAID_STATES = ("paid", "in_payment")
 # When the balance after the advance is due; whatever Sales chose, the issued report waits until the order is paid.
-BALANCE_BEFORE_COLLECTION = "before_collection"
 BALANCE_AT_COLLECTION = "at_collection"
 BALANCE_BEFORE_REPORT = "before_report"
 # The advance fields stop changing once the current revision is sent.

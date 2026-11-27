@@ -17,7 +17,6 @@ from odoo.addons.sol_commerce.constants.notifications import EVENT_ORDER_UPDATED
 from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_NONE,
     BALANCE_AT_COLLECTION,
-    BALANCE_BEFORE_COLLECTION,
     BALANCE_BEFORE_REPORT,
     CUSTOMER_CANCELLABLE,
     FINISHED_STATUSES,
@@ -132,12 +131,10 @@ class SaleOrder(models.Model, SaleOrderBase):
         )
         # The percentage or fixed amount of the advance, depending on the advance mode.
         advance_value = fields.Float()
-        # When the balance after the advance is due: before the samples are collected, when they are collected, or
-        # before the report is released: before collection for a portal order, before the report for one Sales creates.
-        # Sales sets it on the quotation; the customer may pay it in several payments.
+        # When the balance after the advance is due: when the samples are collected, or before the report is released.
+        # Sales sets it on the quotation; the customer may pay it in several payments. Neither holds back collection.
         balance_due = fields.Selection(
             [
-                (BALANCE_BEFORE_COLLECTION, "Before sample collection"),
                 (BALANCE_AT_COLLECTION, "At sample collection"),
                 (BALANCE_BEFORE_REPORT, "Before the report"),
             ],
@@ -212,8 +209,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         return orders
 
     def _fill_create_values(self, vals_list):
-        """Default the source, salesperson and status of a sales order and the balance timing of its source, and stamp
-        the submission and claim times."""
+        """Default the source, salesperson and status of a sales order, and stamp the submission and claim times."""
         now = fields.Datetime.now()
         sales = self.env.context.get("medilab_sales_order")
         for vals in vals_list:
@@ -222,8 +218,6 @@ class SaleOrder(models.Model, SaleOrderBase):
                 vals.setdefault("source", SOURCE_SALES)
                 vals.setdefault("user_id", self.env.uid)
                 vals.setdefault("order_status", STATUS_CLAIMED)
-            portal = vals.get("source", SOURCE_PORTAL) == SOURCE_PORTAL
-            vals.setdefault("balance_due", BALANCE_BEFORE_COLLECTION if portal else BALANCE_BEFORE_REPORT)
             if vals.get("order_status") == STATUS_SUBMITTED and not vals.get("submitted_at"):
                 vals["submitted_at"] = now
             if vals.get("order_status") == STATUS_CLAIMED and not vals.get("claimed_at"):
@@ -430,7 +424,9 @@ class SaleOrder(models.Model, SaleOrderBase):
         return True
 
     def _cancel_laboratory_documents(self):
-        """Cancel the test request and everything under it, once that model exists."""
+        """Cancel the test request and everything under it, as its own Cancel does."""
+        # Deciding the order's cancellation is the permission that matters; sales cannot edit test requests.
+        self.sudo().test_request_id.filtered(lambda request: request.status != "cancelled").action_cancel()
 
     def _laboratory_blocks_cancellation(self):
         """True once a test of the order's request is approved."""

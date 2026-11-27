@@ -54,6 +54,20 @@ class TestOrderCancellation(OrderCase):
         self.assertEqual(request.status, "accepted")
         self.assertEqual(self.env["account.move"].search_count([("move_type", "=", "out_refund")]), refunds)
 
+    def test_accepting_cancels_the_test_request_and_its_expected_samples(self):
+        order = self.make_confirmed_order()
+        test_request = order.test_request_id
+        self.assertEqual(test_request.status, "paid")
+        self.assertEqual(set(test_request.sample_ids.mapped("status")), {"expected"})
+        request = order.with_user(self.portal).action_request_cancellation("We no longer need it")
+
+        request.with_user(self.sales).action_accept()
+
+        self.assertEqual(order.order_status, "cancelled")
+        self.assertEqual(test_request.status, "cancelled")
+        self.assertEqual(set(test_request.sample_ids.mapped("status")), {"cancelled"})
+        self.assertEqual(set(test_request.sample_ids.test_ids.mapped("status")), {"cancelled"})
+
     def test_customer_can_withdraw_an_open_request(self):
         order = self.make_order([(self.lead_product, 1)], status="confirmed", user_id=self.sales.id)
         request = order.with_user(self.portal).action_request_cancellation("Wait")

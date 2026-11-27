@@ -42,8 +42,9 @@ class Signature(models.Model, SignatureBase):
         document_hash = fields.Char(string="Document Hash")
         # The level signed at.
         level_id = fields.Many2one(MODEL_APPROVAL_LEVEL, string="Level", required=True, ondelete="restrict")
-        # The person who signed.
-        signer_id = fields.Many2one(MODEL_PERSON, string="Signer", required=True, ondelete="restrict")
+        # The person who signed; empty for a subcontractor's person, who signs in to the portal and is no person of the
+        # laboratory.
+        signer_id = fields.Many2one(MODEL_PERSON, string="Signer", ondelete="restrict")
         # Name of the signer at the time of signing.
         signer_name = fields.Char(required=True)
         # Name of the role the signer signed with at the time: the level's own, or a later level's that signed it in
@@ -112,7 +113,7 @@ class Signature(models.Model, SignatureBase):
     def _check_withdrawable(self, process_completed=False):
         self.ensure_one()
         signature = self.sudo()
-        if signature.signer_id != self.env[MODEL_PERSON]._current():
+        if not signature.signer_id or signature.signer_id != self.env[MODEL_PERSON]._current():
             raise UserError(self.env._("Only the person who signed can withdraw a signature."))
         if signature.withdrawn_at:
             raise UserError(self.env._("This signature is already withdrawn."))

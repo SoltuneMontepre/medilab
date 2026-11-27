@@ -94,9 +94,19 @@ class MachineBookingInterruptions(models.Model, MachineBookingInterruptionsBase)
 
     @api.model
     def _requeue(self, machines):
-        """Also end the measurements in progress on a machine that can no longer finish them: it broke down or lost
-        its calibration."""
+        """Tell the tester and the head of department of each booking that a machine it can no longer use returned to
+        the plan, and end the measurements in progress on a machine that can no longer finish them: it broke down or
+        lost its calibration."""
+        scheduled = self.sudo().search([("machine_id", "in", machines.ids), ("status", "=", "scheduled")])
+        starts = {booking: start for booking in scheduled if isinstance(start := booking.starts_at, datetime)}
+        former = {booking: booking.machine_id for booking in scheduled}
         result = super()._requeue(machines)
+        returned = scheduled.filtered(lambda booking: booking.status == "proposed" and booking in starts)
+        reasons = {
+            booking: self.env._("%s can no longer be used at that time.", former[booking].display_name)
+            for booking in returned
+        }
+        returned._notify_returned(starts, reasons, tester=True)
         self.sudo().search([("machine_id", "in", machines.ids), ("status", "=", "in_progress")]).filtered(
             lambda booking: bool(booking.ends_at and booking.ends_at > booking.machine_id._usable_until())
         )._interrupt()
@@ -131,16 +141,21 @@ class MachineBookingInterruptions(models.Model, MachineBookingInterruptionsBase)
         department why; nobody else is assigned."""
         if not self:
             return
-        zone = self.env.company.tz or "UTC"
         starts = {booking: start for booking in self if isinstance(start := booking.starts_at, datetime)}
         self._set({"status": "proposed", "starts_at": False, "ends_at": False})
         self._plan(self.sudo().department_id)
+        self._notify_returned(starts, dict.fromkeys(self, reason))
+
+    def _notify_returned(self, starts, reasons, tester=False):
+        """Tell the head of each booking's department, and its tester when asked, that it went back to the plan from
+        its start for its reason, and where the plan put it."""
+        zone = self.env.company.tz or "UTC"
         for booking in self:
             body = self.env._(
                 "%(booking)s, planned from %(start)s, went back to the plan. %(reason)s",
                 booking=booking.display_name,
                 start=format_datetime(self.env, starts[booking], tz=zone),
-                reason=reason,
+                reason=reasons[booking],
             )
             planned = booking.starts_at
             body += " " + (
@@ -148,11 +163,14 @@ class MachineBookingInterruptions(models.Model, MachineBookingInterruptionsBase)
                 if isinstance(planned, datetime)
                 else self.env._("No free slot finishes it by its due date.")
             )
+            partners = booking.department_id.manager_id.user_id.partner_id
+            if tester:
+                partners |= booking.person_id.user_id.partner_id
             self.env[MODEL_MAIL_MESSAGE].raise_event(
                 EVENT_MACHINE_BOOKING_RETURNED,
                 booking,
                 f"machine_booking:{booking.id}:{starts[booking]}:returned",
                 body,
                 subject=booking.display_name,
-                partners=booking.department_id.manager_id.user_id.partner_id,
+                partners=partners,
             )

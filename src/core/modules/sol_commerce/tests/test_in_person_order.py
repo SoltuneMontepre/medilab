@@ -7,17 +7,17 @@ from .order_case import OrderCase
 @tagged("post_install", "-at_install")
 class TestInPersonOrder(OrderCase):
     """Sales shows or prints the quotation to a customer at the counter and confirms the order once it is paid, or at
-    once without an advance; a portal order's balance is due before collection by default."""
+    once without an advance; every order's balance is due before the report by default."""
 
     def sales_order(self, **vals):
         order = self.make_quotable_order()
         order.write({"source": "sales", **vals})
         return order
 
-    def test_a_portal_order_pays_its_balance_before_collection_by_default(self):
+    def test_a_portal_order_pays_its_balance_before_the_report_by_default(self):
         order = self.make_order([(self.lead_product, 1)])
 
-        self.assertEqual(order.balance_due, "before_collection")
+        self.assertEqual(order.balance_due, "before_report")
 
     def test_an_order_sales_creates_pays_its_balance_before_the_report_by_default(self):
         order = (

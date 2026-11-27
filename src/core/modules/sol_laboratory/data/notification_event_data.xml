@@ -154,6 +154,17 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_test_report_prepared" model="mail.message.subtype">
+        <field name="name">Test report ready to review</field>
+        <field name="description">The PDF of a test report you sign was prepared and waits for your review</field>
+        <field name="code">test_report.prepared</field>
+        <field name="res_model">medilab.test.report</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <record id="event_test_report_issued" model="mail.message.subtype">
         <field name="name">Results released</field>
         <field name="description">The test report of your request is issued and ready to download</field>
@@ -171,6 +182,17 @@
         <field name="code">test_report.delivered</field>
         <field name="res_model">medilab.test.report</field>
         <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_change_request_waiting" model="mail.message.subtype">
+        <field name="name">Change request to sign</field>
+        <field name="description">A change request waits for your signature</field>
+        <field name="code">change_request.waiting</field>
+        <field name="res_model">medilab.change.request</field>
+        <field name="internal" eval="True" />
         <field name="default" eval="False" />
         <field name="mandatory" eval="True" />
         <field name="enabled" eval="True" />
@@ -265,7 +287,7 @@
 
     <record id="event_machine_booking_returned" model="mail.message.subtype">
         <field name="name">Machine booking returned to the plan</field>
-        <field name="description">Leave or an unavailable location returned a booking that had not started to the plan</field>
+        <field name="description">Leave, an unavailable location or an unavailable machine returned a booking that had not started to the plan</field>
         <field name="code">machine_booking.returned</field>
         <field name="res_model">medilab.machine.booking</field>
         <field name="internal" eval="True" />

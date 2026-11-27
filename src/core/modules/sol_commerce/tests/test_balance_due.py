@@ -10,28 +10,27 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
 
 @tagged("post_install", "-at_install")
 class TestBalanceDue(OrderCase):
-    """Sales sets on the quotation when the balance after a 30 % advance is due; the report waits for it whatever the
-    choice."""
+    """Sales sets on the quotation when the balance after a 30 % advance is due; neither choice holds back collection,
+    and the report waits for it whatever the choice."""
 
-    def confirmed(self, balance_due):
+    def confirmed(self, balance_due=None):
         order = self.make_quotable_order()
-        order.write({"advance_mode": "percentage", "advance_value": 30, "balance_due": balance_due})
+        order.write({"advance_mode": "percentage", "advance_value": 30})
+        if balance_due:
+            order.balance_due = balance_due
         order.with_user(self.sales).action_send_quotation()
         self.pay_advance(order)
         order.with_user(self.sales).action_confirm_order()
         return order
 
-    def test_a_balance_due_before_collection_holds_the_collection_until_it_is_paid(self):
+    def test_a_portal_order_owes_its_balance_before_the_report_and_its_samples_are_collected_at_once(self):
         self.route_collection_to_delivery_staff()
-        order = self.confirmed("before_collection")
+        order = self.confirmed()
 
-        self.assertTrue(order.show_unpaid_warning)
-        with self.assertRaisesRegex(UserError, "Verify the order balance"):
-            order.with_user(self.sales).action_start_sample_collection()
-
-        self.pay_advance(order)
-        order.invalidate_recordset(["payment_status", "show_unpaid_warning"])
-
+        self.assertEqual(order.source, "portal")
+        self.assertEqual(order.balance_due, "before_report")
+        self.assertNotEqual(order.payment_status, "paid")
+        self.assertEqual(order.test_request_id.status, "paid")
         self.assertFalse(order.show_unpaid_warning)
         order.with_user(self.sales).action_start_sample_collection()
         self.assertTrue(self.collection_tasks(order))
@@ -67,7 +66,7 @@ class TestBalanceDue(OrderCase):
         self.assertEqual(request.status, "sample_received")
 
     def test_a_received_order_shows_no_collection_hold(self):
-        order = self.confirmed("before_collection")
+        order = self.confirmed("at_collection")
         order.test_request_id.status = "sample_received"
         order.invalidate_recordset(["show_unpaid_warning", "payment_notice"])
 
@@ -78,7 +77,7 @@ class TestBalanceDue(OrderCase):
         order = self.sent_order()
 
         with self.assertRaises(UserError):
-            order.with_user(self.sales).balance_due = "before_collection"
+            order.with_user(self.sales).balance_due = "at_collection"
 
     def test_an_unclaimed_collection_due_within_a_day_is_raised_with_the_salesperson(self):
         self.route_collection_to_delivery_staff()

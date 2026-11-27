@@ -122,6 +122,40 @@ class TestInterruptions(ResultCase):
                 }
             )
 
+    def test_a_machine_put_under_repair_returns_its_bookings_not_started_and_tells_their_tester_and_head(self):
+        booking = self.schedule(self.test, self.tester)
+        self.assertEqual(booking.machine_id, self.fast)
+
+        self.fast.status = "under_repair"
+
+        self.assertEqual((booking.status, booking.machine_id), ("proposed", self.slow))
+        message = self.env["mail.message"].search(
+            [("model", "=", booking._name), ("res_id", "=", booking.id), ("subtype_id", "=", self.env.ref(RETURNED_EVENT).id)]
+        )
+        self.assertEqual(len(message), 1)
+        self.assertEqual(message.notification_key, f"machine_booking:{booking.id}:{MONDAY}:returned")
+        self.assertEqual(message.notification_ids.res_partner_id, (self.tester | self.head).user_id.partner_id)
+        self.assertIn(self.fast.display_name, message.body or "")
+
+    def test_a_planned_downtime_returns_the_bookings_it_overlaps_and_tells_their_tester_and_head(self):
+        booking = self.schedule(self.test, self.tester)
+
+        self.fast.service_ids = [
+            Command.create({"kind": "maintenance", "downtime_start": MONDAY, "downtime_end": MONDAY + timedelta(hours=1)})
+        ]
+
+        self.assertEqual(booking.status, "proposed")
+        self.assertEqual(self.notified(RETURNED_EVENT, booking), (self.tester | self.head).user_id.partner_id)
+
+    def test_a_machine_change_that_leaves_a_booking_in_place_tells_nobody(self):
+        booking = self.schedule(self.test, self.tester)
+
+        self.slow.status = "under_repair"
+        self.fast.status = "in_use"
+
+        self.assertEqual((booking.status, booking.machine_id), ("scheduled", self.fast))
+        self.assertFalse(self.notified(RETURNED_EVENT, booking))
+
     def test_a_machine_failure_keeps_the_recorded_data_as_an_interrupted_result_the_head_assesses(self):
         booking = self.fail_during_measurement()
 

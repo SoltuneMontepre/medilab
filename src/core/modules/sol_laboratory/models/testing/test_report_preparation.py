@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_CONTENT,
     MODEL_LABORATORY_EDITING_SESSION,
     MODEL_LABORATORY_FILE,
+    MODEL_MAIL_MESSAGE,
     MODEL_REPORT_TEMPLATE,
     MODEL_REPORT_TEMPLATE_VERSION,
     MODEL_TEST_REPORT,
@@ -17,6 +18,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_REPORT_DRAFT,
     MODEL_TEST_RESULT,
 )
+from odoo.addons.sol_laboratory.constants.notifications import EVENT_TEST_REPORT_PREPARED
 from odoo.addons.sol_laboratory.constants.report_templates import (
     ARCHIVED,
     AVAILABLE,
@@ -178,7 +180,27 @@ class TestReport(models.Model, TestReportBase):
             candidate = report._prepare_candidate()
             if not candidate._is_current():
                 raise UserError(self.env._("The prepared PDF does not match the business records; prepare it again."))
-            return candidate
+        report._notify_prepared(candidate)
+        return candidate
+
+    def _notify_prepared(self, candidate):
+        """Tell the people who can sign the report that its prepared PDF waits for their review, once for each PDF,
+        unless they had it prepared themselves."""
+        level, people = self._approval_waiting_signers()
+        if not level:
+            return
+        self.env[MODEL_MAIL_MESSAGE].raise_event(
+            EVENT_TEST_REPORT_PREPARED,
+            self,
+            f"test_report:{self.id}:{candidate.id}:prepared",
+            self.env._(
+                "The PDF of report %(report)s of %(request)s is prepared and waits for your review.",
+                report=candidate.report_number,
+                request=self.request_id.code,
+            ),
+            subject=candidate.report_number,
+            partners=people.user_id.partner_id - self.env.user.partner_id,
+        )
 
     def _generate_draft(self, version=None):
         """Fill the template version with the report's business data, leaving the issue details empty, and store it as

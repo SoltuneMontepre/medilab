@@ -249,8 +249,8 @@ class SubcontractDispatch(models.Model, SubcontractDispatchBase):
         return self.sudo().search(domain & Domain("id", "=", dispatch_id) if dispatch_id else domain)
 
     def _portal_enter_result(self, sample_test_id, value, value_text):
-        """A subcontractor's person enters the result of a test of the dispatch, as a number or as a text; it waits
-        for the laboratory to send it for approval."""
+        """A subcontractor's person enters the result of a test of the dispatch, as a number or as a text; entering it
+        sends it for approval, unless the laboratory first assesses it against the sample's regulation."""
         self.ensure_one()
         test = self.sample_test_ids.filtered(lambda other: other.id == sample_test_id)
         if self.status != "received":
@@ -269,8 +269,10 @@ class SubcontractDispatch(models.Model, SubcontractDispatchBase):
             measured = math.nan
         if not math.isfinite(measured):
             raise UserError(self.env._("%s is not a number.", value))
-        return (
+        result = (
             self.env[MODEL_TEST_RESULT]
             .sudo()
             .create({"sample_test_id": test.id, "value": measured, "value_text": text or False})
         )
+        result._send_from_portal()
+        return result

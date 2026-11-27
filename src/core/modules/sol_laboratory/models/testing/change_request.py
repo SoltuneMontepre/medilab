@@ -23,6 +23,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.constants.notifications import (
     EVENT_CHANGE_REQUEST_APPROVED,
     EVENT_CHANGE_REQUEST_REJECTED,
+    EVENT_CHANGE_REQUEST_WAITING,
 )
 from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model, is_versioned_document, model_as
 
@@ -110,6 +111,13 @@ class ChangeRequest(models.Model, ChangeRequestBase):
                 documents = self.env[model].sudo().browse(requests.mapped("document_id"))
                 for request, document in zip(requests, documents, strict=True):
                     request.document_name = document.display_name
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        requests = super().create(vals_list)
+        for request in requests:
+            request._notify_signers()
+        return requests
 
     @api.model
     def _raise(self, document_model, document_id, requested_change, reason):
@@ -206,6 +214,27 @@ class ChangeRequest(models.Model, ChangeRequestBase):
             partners=partner,
         )
 
+    def _notify_signers(self):
+        """Tell the people who can sign the level the request waits for, once for each level of each version, unless
+        they acted themselves."""
+        request = self.sudo()
+        level, people = request._approval_waiting_signers()
+        if not level:
+            return
+        self.env[MODEL_MAIL_MESSAGE].raise_event(
+            EVENT_CHANGE_REQUEST_WAITING,
+            request,
+            f"change_request:{request.id}:{request.document_version}:{level.id}:waiting",
+            self.env._(
+                "Change request %(code)s on %(document)s waits for your signature: %(change)s",
+                code=request.code,
+                document=request.document_name,
+                change=request.requested_change,
+            ),
+            subject=request.code,
+            partners=people.user_id.partner_id - self.env.user.partner_id,
+        )
+
     def _approval_chain(self, purpose=PURPOSE_CHANGE_REQUEST):
         # A change request is signed through the chain its document type has for change requests.
         return model_as(self.env, self.document_model, self.env[MODEL_APPROVAL_MIXIN])._approval_chain(purpose)
@@ -225,6 +254,8 @@ class ChangeRequest(models.Model, ChangeRequestBase):
             self._apply()
             return
         self.status = STATE_REJECTED if state == STATE_REJECTED else STATE_REQUESTED
+        if state == STATE_REQUESTED:
+            self._notify_signers()
         # A rejected correction no longer holds back the report change request it joined.
         waiting = self.report_change_request_id.filtered(lambda request: request.status == STATE_APPROVED)
         if state == STATE_REJECTED and waiting:

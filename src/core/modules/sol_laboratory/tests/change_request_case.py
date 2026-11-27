@@ -26,5 +26,7 @@ class ChangeRequestCase(ReportCase):
             ._raise(document._name, document.id, change, reason)
         )
 
-    def messages(self, request):
-        return self.env["mail.message"].search([("model", "=", request._name), ("res_id", "=", request.id)])
+    def messages(self, request, event):
+        return self.env["mail.message"].search(
+            [("model", "=", request._name), ("res_id", "=", request.id), ("subtype_id", "=", self.env.ref(event).id)]
+        )
