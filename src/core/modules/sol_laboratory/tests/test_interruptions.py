@@ -130,7 +130,11 @@ class TestInterruptions(ResultCase):
 
         self.assertEqual((booking.status, booking.machine_id), ("proposed", self.slow))
         message = self.env["mail.message"].search(
-            [("model", "=", booking._name), ("res_id", "=", booking.id), ("subtype_id", "=", self.env.ref(RETURNED_EVENT).id)]
+            [
+                ("model", "=", booking._name),
+                ("res_id", "=", booking.id),
+                ("subtype_id", "=", self.env.ref(RETURNED_EVENT).id),
+            ]
         )
         self.assertEqual(len(message), 1)
         self.assertEqual(message.notification_key, f"machine_booking:{booking.id}:{MONDAY}:returned")
@@ -141,7 +145,9 @@ class TestInterruptions(ResultCase):
         booking = self.schedule(self.test, self.tester)
 
         self.fast.service_ids = [
-            Command.create({"kind": "maintenance", "downtime_start": MONDAY, "downtime_end": MONDAY + timedelta(hours=1)})
+            Command.create(
+                {"kind": "maintenance", "downtime_start": MONDAY, "downtime_end": MONDAY + timedelta(hours=1)}
+            )
         ]
 
         self.assertEqual(booking.status, "proposed")

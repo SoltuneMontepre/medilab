@@ -3686,6 +3686,22 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "Change request %(code)s on %(document)s waits for your signature: %(change)s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_change_request_waiting
+msgid "Change request to sign"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_change_request_waiting
+msgid "A change request waits for your signature"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
 msgid "Change request %(code)s was rejected: %(reason)s"
 msgstr ""
 
@@ -9003,8 +9019,8 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_returned
 msgid ""
-"Leave or an unavailable location returned a booking that had not started to "
-"the plan"
+"Leave, an unavailable location or an unavailable machine returned a booking "
+"that had not started to the plan"
 msgstr ""
 
 #. module: sol_laboratory
@@ -9385,6 +9401,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_overrun
 msgid "Machine booking overran"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
+msgid "%s can no longer be used at that time."
 msgstr ""
 
 #. module: sol_laboratory
@@ -16801,6 +16823,22 @@ msgstr ""
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_test_result
 #: model:ir.ui.menu,name:sol_laboratory.menu_test_result
 msgid "Test Results"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The PDF of report %(report)s of %(request)s is prepared and waits for your review."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_test_report_prepared
+msgid "Test report ready to review"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_test_report_prepared
+msgid "The PDF of a test report you sign was prepared and waits for your review"
 msgstr ""
 
 #. module: sol_laboratory
