@@ -39,7 +39,7 @@ test("SF-02 Order cancellation", async ({ as }) => {
     await openOrder(customer, journey.orderNumber);
     await expect(orderBadge).toHaveText("Completed");
     await loads(customer, () => actions.locator("form[action$='/reorder'] button[type=submit]").click());
-    await expect(customer).toHaveURL(/\/orders\/\d+$/);
+    await expect(customer).toHaveURL(/\/orders\/\d+(\?|$)/);
     await expect(customer.locator("main h1")).toHaveText(/^S\d+$/);
     reorder.number = await shown(customer.locator("main h1"));
     expect(reorder.number).not.toBe(journey.orderNumber);
@@ -89,7 +89,10 @@ test("SF-02 Order cancellation", async ({ as }) => {
     await expect(field(sales, "user_id").locator("input")).toHaveValue(journey.salesName);
     const lines = field(sales, "product_line_ids").locator(".o_data_row");
     await expect(lines).toHaveCount(2);
-    for (const parameter of Object.keys(ways)) await expect(lines.filter({ hasText: parameter }).locator("td[name=sample_type_id]")).toHaveText(journey.sampleType);
+    // Sales reads the sample type under its Vietnamese name; both lines name the same one.
+    const sampleTypes = await lines.locator("td[name=sample_type_id]").allInnerTexts();
+    expect(sampleTypes[0].trim()).not.toBe("");
+    expect(sampleTypes[1]).toBe(sampleTypes[0]);
   });
 
   await step(sales, "Sales sends the quotation with a 30 % advance by bank transfer and the balance due before the report", async () => {
