@@ -103,17 +103,15 @@ describe("WF-01 Order to confirmed test request", () => {
       cy.intercept("POST", "**/web/dataset/call_button/sale.order/action_confirm_order*").as("confirmOrder");
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
       cy.wait("@confirmOrder").its("response.body").should("not.have.property", "error");
-      // A portal order owes its balance before its samples are collected.
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
+      // The verified advance pays the test request; the balance requested now holds back no step of it.
       currentRequest(paid).its("kind").should("eq", "balance");
-      payAdvance(paid);
-      cy.openRecord(paid);
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
       cy.readRecord(paid, ["order_status", "test_request_id", "sample_ids"]).then((read) => {
         expect(read.order_status).to.equal("confirmed");
-        call("medilab.test.request", "read", [[read.test_request_id[0]], ["status", "sample_ids"]]).then(([request]) =>
-          expect(request.sample_ids).to.have.length(read.sample_ids.length),
-        );
+        call("medilab.test.request", "read", [[read.test_request_id[0]], ["status", "sample_ids"]]).then(([request]) => {
+          expect(request.status).to.equal("paid");
+          expect(request.sample_ids).to.have.length(read.sample_ids.length);
+        });
       });
       callRefused("sale.order", "write", [[paid.id], { validity_date: "2099-12-31" }]).should("eq", "Không thể thay đổi đơn hàng đã xác nhận.");
     });

@@ -38,17 +38,14 @@ describe("WF-01 order confirmation and test request (F-10)", () => {
     });
   });
 
-  it("TC-F10-02 holds the sample collection of a portal order until its balance is paid", () => {
+  it("TC-F10-02 collects the samples of a portal order before its balance is paid", () => {
     orderAt("confirmed", { advance: false }).then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.readRecord(order, ["payment_status", "balance_due"]).should((read) => {
         expect(read.payment_status).not.to.equal("paid");
-        expect(read.balance_due).to.equal("before_collection");
+        expect(read.balance_due).to.equal("before_report");
       });
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
-      payAdvance(order);
-      cy.openRecord(order);
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
     });
   });
