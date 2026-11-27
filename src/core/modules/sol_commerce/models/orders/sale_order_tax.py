@@ -10,13 +10,14 @@ else:
     SaleOrderTaxBase = object
 
 
-# Đơn Hàng: the lines not yet quoted take the tax rate in force on the quotation date.
+# Đơn Hàng: the lines not yet quoted take the price and the tax rate in force on the quotation date.
 class SaleOrderTax(models.Model, SaleOrderTaxBase):
     _inherit = MODEL_SALE_ORDER
 
     def write(self, vals):
         result = super().write(vals)
         if "date_order" in vals:
+            self.order_line._lock_catalog_price()
             self.order_line._refresh_catalog_taxes()
         return result
 

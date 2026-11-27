@@ -22,17 +22,25 @@ class PricingCase(MasterDataCase):
                 ],
             }
         )
-        cls.lead_price = cls.env[MODEL_PARAMETER_PRICE].create(
-            {"parameter_id": cls.parameter.id, "list_price": 150000, "tax_id": cls.vat.id}
+        cls.lead_price = cls.create_price(cls.parameter, 150000)
+
+    @classmethod
+    def create_price(cls, parameter, price, tax=None):
+        """A price of the parameter that has applied since 2020."""
+        return cls.env[MODEL_PARAMETER_PRICE].create(
+            {
+                "parameter_id": parameter.id,
+                "tax_id": (tax or cls.vat).id,
+                "period_ids": [Command.create({"list_price": price, "valid_from": date(2020, 1, 1)})],
+            }
         )
 
     @classmethod
-    def create_package(cls, list_price, *lines):
+    def create_package(cls, *lines, code="PKG-1"):
         return cls.env[MODEL_SERVICE_PACKAGE].create(
             {
-                "code": f"PKG-{list_price}",
+                "code": code,
                 "name": "Heavy metals basic",
-                "list_price": list_price,
                 "tax_id": cls.vat.id,
                 "line_ids": [
                     Command.create({"parameter_id": parameter.id, "quantity": quantity})

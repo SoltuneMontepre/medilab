@@ -50,8 +50,6 @@ class TestOrderCart(OrderCase):
 
         self.assertEqual(order.catalog_total, self.lead_product.list_price * 2 + self.package.list_price)
         self.assertEqual(package_line.price_unit, self.package.list_price)
-        self.assertGreater(self.package.parts_price, self.package.list_price)
-        self.assertNotEqual(package_line.price_unit, self.package.parts_price)
 
     def test_draft_cart_price_follows_a_catalog_price_change(self):
         order = self.make_order([(self.lead_product, 1)])

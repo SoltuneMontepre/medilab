@@ -7,8 +7,7 @@ from .portal_case import PortalCase
 
 @tagged("post_install", "-at_install")
 class TestCartPage(PortalCase):
-    """A cart line is removed or its quantity stepped in one click, takes the sample type and ways chosen, and a saved
-    draft is confirmed."""
+    """A cart line is removed or its quantity stepped in one click, and a saved draft is confirmed."""
 
     def setUp(self):
         super().setUp()
@@ -33,12 +32,14 @@ class TestCartPage(PortalCase):
         self.assertIn("Remove", buttons["0"].text_content())
 
     def test_removing_a_line_updates_the_total(self):
-        response = self.post("/cart/line", "/cart", line_id=self.line.id, quantity="0")
+        line_id = self.line.id
+
+        response = self.post("/cart/line", "/cart", line_id=line_id, quantity="0")
 
         self.assertEqual(response.status_code, 303)
         self.assertFalse(self.line.exists())
-        self.assertEqual(self.cart.catalog_total, 100000)
-        self.assertNotIn(self.lead_product.name, self.page("/cart"))
+        self.assertEqual(self.cart.catalog_total, self.package.list_price)
+        self.assertNotIn(f'name="line_id" value="{line_id}"', self.page("/cart"))
 
     def test_saving_a_draft_confirms_it_and_leads_to_the_order_history(self):
         response = self.post("/cart/save", "/cart")
@@ -50,9 +51,8 @@ class TestCartPage(PortalCase):
         self.assertIn("Your draft is saved", text)
         self.assertIn(self.cart.name, text)
 
-    def test_a_line_takes_the_sample_type_and_way_chosen(self):
-        self.post("/cart/selection", "/cart", line_id=self.line.id, sample_type_id=self.sample_type.id)
+    def test_the_cart_asks_for_no_sample_type_or_way_of_testing(self):
+        text = self.page("/cart")
 
-        self.assertEqual(self.line.sample_type_id, self.sample_type)
-        self.assertEqual(self.line.parameter_method_id, self.pair)
-        self.assertIn(self.pair.display_name, self.page("/cart"))
+        self.assertNotIn("Sample type", text)
+        self.assertNotIn(self.pair.display_name, text)

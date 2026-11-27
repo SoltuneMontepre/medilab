@@ -61,9 +61,9 @@ class TestQuotationTaxes(OrderCase):
         order = self.sales_order([(self.lead_product, 2), (self.package_product, 1)])
 
         self.assertEqual(order._catalog_lines().tax_ids, self.vat10)
-        self.assertEqual(order.amount_untaxed, 400000)
-        self.assertEqual(order.amount_tax, 40000)
-        self.assertEqual(order.amount_total, 440000)
+        self.assertEqual(order.amount_untaxed, 2 * 150000 + 230000)
+        self.assertEqual(order.amount_tax, 53000)
+        self.assertEqual(order.amount_total, 583000)
 
     def test_portal_cart_lines_carry_the_vat(self):
         order = self.make_order([(self.lead_product, 3)])

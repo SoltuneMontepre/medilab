@@ -21,11 +21,25 @@
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
                     <group>
-                        <field name="parameter_id" />
-                        <field name="currency_id" invisible="1" />
-                        <field name="list_price" />
-                        <field name="tax_id" />
+                        <group>
+                            <field name="parameter_id" />
+                            <field name="tax_id" />
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1" />
+                            <field name="list_price" readonly="1" />
+                        </group>
                     </group>
+                    <separator string="Price Periods" />
+                    <field name="period_ids">
+                        <list editable="bottom" default_order="valid_from desc" decoration-success="is_current">
+                            <field name="currency_id" column_invisible="1" />
+                            <field name="valid_from" />
+                            <field name="valid_until" placeholder="Until further notice" />
+                            <field name="list_price" />
+                            <field name="is_current" />
+                        </list>
+                    </field>
                 </sheet>
             </form>
         </field>

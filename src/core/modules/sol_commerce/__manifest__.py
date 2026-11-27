@@ -1,6 +1,6 @@
 {
     "name": "Medilab - E-commerce",
-    "version": "20.0.1.23.0",
+    "version": "20.0.1.24.0",
     "summary": "Adds e-commerce features into the exising core laboratory module.",
     "category": "Services/Laboratory",
     "icon": "/sol_commerce/static/description/icon.svg",
@@ -87,6 +87,9 @@
             "sol_commerce/static/src/views/open_tab_widget.js",
             "sol_commerce/static/src/views/open_tab_widget.xml",
             "sol_commerce/static/src/views/return_timeline.css",
+        ],
+        "web.assets_frontend": [
+            "sol_commerce/static/src/orders/package_page/package_page.js",
         ],
     },
     "post_init_hook": "use_vietnamese_accounting",

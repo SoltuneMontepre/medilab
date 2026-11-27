@@ -3,10 +3,8 @@ from odoo.tests import Form, tagged
 from odoo.tests.form import O2MProxy
 
 from .common import PricingCase
-from odoo.addons.sol_commerce.constants.models import MODEL_PARAMETER_PRICE
+from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
-
-ONCHANGE_LOGGER = "odoo.tests.form.onchange"
 
 
 @tagged("post_install", "-at_install")
@@ -15,50 +13,50 @@ class TestServicePackage(PricingCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.cadmium = cls.create_parameter("Cadmium (Cd)", cls.group)
-        cls.env[MODEL_PARAMETER_PRICE].create(
-            {"parameter_id": cls.cadmium.id, "list_price": 100000, "tax_id": cls.vat.id}
-        )
+        cls.cadmium_price = cls.create_price(cls.cadmium, 100000)
+
+    def product_of(self, package):
+        return self.env[MODEL_PRODUCT_TEMPLATE].search([("service_package_id", "=", package.id)])
 
     def test_same_parameter_raises_the_quantity(self):
-        package = self.create_package(400000, (self.parameter, 1), (self.parameter, 2))
+        package = self.create_package((self.parameter, 1), (self.parameter, 2))
 
         package.line_ids = [Command.create({"parameter_id": self.parameter.id})]
 
         self.assertEqual(package.line_ids.mapped("quantity"), [4])
 
     def test_same_parameter_added_in_the_form_raises_the_quantity(self):
-        package = self.create_package(400000, (self.parameter, 1))
+        package = self.create_package((self.parameter, 1))
 
         with Form(package) as form, assert_instance(form.line_ids, O2MProxy).new() as line:
             line.parameter_id = self.parameter
 
         self.assertEqual(package.line_ids.mapped("quantity"), [2])
 
-    def test_package_below_its_parts_is_not_overpriced(self):
-        package = self.create_package(350000, (self.parameter, 2), (self.cadmium, 1))
+    def test_package_costs_the_sum_of_its_parameters(self):
+        package = self.create_package((self.parameter, 2), (self.cadmium, 1))
 
-        self.assertEqual(package.parts_price, 400000)
-        self.assertFalse(package.is_overpriced)
+        self.assertEqual(package.list_price, 2 * 150000 + 100000)
+        self.assertEqual(self.product_of(package).list_price, 400000)
 
-    def test_lowering_a_parameter_price_warns_on_the_package_and_the_price(self):
-        package = self.create_package(350000, (self.parameter, 2), (self.cadmium, 1))
+    def test_package_price_follows_a_parameter_price_change(self):
+        package = self.create_package((self.parameter, 2), (self.cadmium, 1))
 
-        with self.assertLogs(ONCHANGE_LOGGER, "WARNING") as warnings, Form(self.lead_price) as form:
-            form.list_price = 100000
+        self.cadmium_price.list_price = 120000
 
-        self.assertIn(package.name, warnings.output[0])
-        self.assertTrue(package.is_overpriced)
+        self.assertEqual(package.list_price, 420000)
+        self.assertEqual(self.product_of(package).list_price, 420000)
 
-    def test_lowering_a_price_within_the_package_margin_or_for_an_archived_package_does_not_warn(self):
-        self.create_package(350000, (self.parameter, 2), (self.cadmium, 1))
-        self.create_package(140000, (self.parameter, 1)).action_archive()
+    def test_package_price_follows_its_parameters_changing(self):
+        package = self.create_package((self.parameter, 1))
 
-        with self.assertNoLogs(ONCHANGE_LOGGER, "WARNING"), Form(self.lead_price) as form:
-            form.list_price = 130000
+        package.line_ids = [Command.create({"parameter_id": self.cadmium.id})]
 
-    def test_new_prices_are_rounded_to_the_dong(self):
-        package = self.create_package(350000.4, (self.parameter, 1))
+        self.assertEqual(self.product_of(package).list_price, 250000)
 
-        package.invalidate_recordset()
+    def test_package_with_an_unpriced_parameter_is_not_sold(self):
+        unpriced = self.create_parameter("Arsenic (As)", self.group)
 
-        self.assertEqual(package.list_price, 350000)
+        package = self.create_package((self.parameter, 1), (unpriced, 1))
+
+        self.assertFalse(self.product_of(package).sale_ok)

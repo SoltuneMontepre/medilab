@@ -93,27 +93,15 @@ describe("F-38 Outsourcing suggestions, urgent outsourcing and dispatches", () =
     });
   });
 
-  it("TC-F38-02 offers the customer each method once in the cart, never naming the subcontractor", () => {
+  it("TC-F38-02 never shows the customer a way of testing or the subcontractor in the cart", () => {
     clearCarts(CUSTOMERS.nuocSach);
-    step("The customer chooses bottled water for lead, which Chemistry and Northern both test by ICP-MS");
+    step("The customer adds lead, which Chemistry and Northern both test by ICP-MS");
     cy.signInAs("customer");
     cy.get(`${PORTAL_MENU} a[href='/catalog']`).click();
-    cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
+    cy.contains(".card h3", "Lead (Pb)").closest(".card").find("button[type=submit]").click();
     cy.location("pathname").should("eq", "/cart");
-    cy.get("select[name=sample_type_id]")
-      .first()
-      .find("option")
-      .contains(/Nước đóng chai|Bottled water/)
-      .invoke("val")
-      .then((value) => cy.get("select[name=sample_type_id]").first().select(String(value)));
-    step("Each method is offered once, and no way names who tests it");
-    cy.get("select[name=parameter_method_id]")
-      .first()
-      .find("option[value!='']")
-      .then((options) => {
-        const names = [...options].map((option) => option.textContent.trim());
-        expect(names).to.have.members(["Lead (Pb) – TCVN 7602:2007", "Lead (Pb) – ISO 17294-2:2016"]);
-      });
+    step("The cart names no way of testing and no subcontractor");
+    cy.get("select[name=parameter_method_id]").should("not.exist");
     cy.get("main").should("not.contain", "Northern");
   });
 

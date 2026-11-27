@@ -19963,3 +19963,23 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "No machine can finish this test before its due date, and no subcontractor offers a way of testing for it."
 msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_price_period_create_all
+msgid "Permission: price.period.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_price_period_delete_all
+msgid "Permission: price.period.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_price_period_edit_all
+msgid "Permission: price.period.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_price_period_read_all
+msgid "Permission: price.period.read.all"
+msgstr ""

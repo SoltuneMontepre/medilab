@@ -318,8 +318,9 @@ class SaleOrder(models.Model, SaleOrderBase):
         if others:
             raise AccessError(self.env._("This order is not yours."))
 
-    def add_catalog_product(self, product, quantity: float = 1):
-        """Add a parameter or package to the cart, or raise its quantity."""
+    def add_catalog_product(self, product, quantity: float = 1, parameters=None):
+        """Add a parameter or package to the cart, or raise the quantity of the same line. Parameters, for a package,
+        are the ones the customer chose to test instead of the package's own."""
         self.ensure_one()
         if self.order_status != STATUS_DRAFT:
             raise UserError(self.env._("Only a draft order can be changed."))
@@ -329,7 +330,15 @@ class SaleOrder(models.Model, SaleOrderBase):
         if quantity < 1:
             raise UserError(self.env._("A catalog line needs a quantity of at least 1."))
         variant = product.product_variant_ids[:1]
-        line = self._catalog_lines().filtered(lambda item: item.product_id == variant)[:1]
+        if parameters is None and product.service_package_id:
+            parameters = product.service_package_id.line_ids.parameter_id
+        elif parameters is not None:
+            product.service_package_id._check_chosen_parameters(parameters)
+        line = self._catalog_lines().filtered(
+            lambda item: (
+                item.product_id == variant and (parameters is None or item._package_parameter_ids() == parameters)
+            )
+        )[:1]
         if line:
             line.product_uom_qty += quantity
         else:
@@ -339,6 +348,8 @@ class SaleOrder(models.Model, SaleOrderBase):
                 .create({"order_id": self.id, "product_id": variant.id, "product_uom_qty": quantity})
             )
             line._preselect_sample_type()
+            if parameters is not None:
+                line._set_package_parameters(parameters.sudo())
         self._catalog_lines()._lock_catalog_price()
         return self
 
@@ -349,6 +360,7 @@ class SaleOrder(models.Model, SaleOrderBase):
                 raise UserError(self.env._("Only a draft order can be submitted."))
             if not order._catalog_lines():
                 raise UserError(self.env._("Add at least one parameter or service package."))
+            order.sudo()._catalog_lines()._lock_catalog_price()
             if not order.customer_id:
                 order.sudo()._attach_visitor(visitor or {})
         self.sudo()._set_status(STATUS_SUBMITTED, {"submitted_at": fields.Datetime.now(), "user_id": False})

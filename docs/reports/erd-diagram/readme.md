@@ -244,7 +244,7 @@ connected entities.
 | OrderLine | Dòng Đơn Hàng | Sales | Weak | SaleOrder | 6 | [Conceptual model](../../functional/conceptual-model.md#commerce-and-inventory) |
 | OrderLineSelection | Lựa Chọn Cách Thử Trên Dòng Đơn | Sales | Composite | OrderLine + TestParameter | 6 | [Conceptual model](../../functional/conceptual-model.md#commerce-and-inventory) |
 | Quotation | Báo Giá | Sales | Strong | — | 7 | [Conceptual model](../../functional/conceptual-model.md#commerce-and-inventory) |
-| ServicePackage | Nhóm Dịch Vụ | Sales | Strong | — | 7 | [Conceptual model](../../functional/conceptual-model.md#commerce-and-inventory) |
+| ServicePackage | Gói Dịch Vụ | Sales | Strong | — | 7 | [Conceptual model](../../functional/conceptual-model.md#commerce-and-inventory) |
 | OrderTemplate | Đơn Thường Dùng | Sales | Strong | — | 7 | [Conceptual model](../../functional/conceptual-model.md#commerce-and-inventory) |
 | OrderTemplateLine | Dòng Đơn Thường Dùng | Sales | Weak | OrderTemplate | 6 | [Glossary](../../glossaries.md), [Sales](../../functional/ecommerce_module/features/sales.md) |
 | CancellationRequest | Yêu Cầu Hủy | Sales | Strong | — | 7 | [Glossary](../../glossaries.md), [Sales](../../functional/ecommerce_module/features/sales.md) |
