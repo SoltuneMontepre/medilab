@@ -93,6 +93,7 @@
         ],
         "web.assets_frontend": [
             "sol_commerce/static/src/orders/package_page/package_page.js",
+            "sol_commerce/static/src/orders/portal_filters.js",
             "sol_commerce/static/src/orders/requested_date.js",
         ],
     },

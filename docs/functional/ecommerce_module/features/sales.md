@@ -202,7 +202,7 @@ stateDiagram-v2
 | Online payments | A payment the customer makes online is verified by PayOS, so it needs no confirmation; the order's salesperson is told on the order. |
 | Credit gate    | Confirming the order has the system confirm its test request as paid; nobody confirms it by hand. No sample is collected or received before. The balance payment request holds back neither sample collection nor testing: it is collected in [SF-01 Invoicing and payment collection](../../business-flows.md#sf-01-invoicing-and-payment-collection), in one or several payments, while the samples are collected and tested, and the issued report reaches the customer, in the portal or sent by staff, only once the order is paid in full. A customer marked as allowed to order on credit gets no payment request: the system confirms the test request On credit, not paid, and the final invoice follows testing. A payment sales records counts once the accountant confirms it. Only the Head of Sales sets that flag. |
 | Frozen content | From confirmation, the order's customer, prices, validity date, parameters and methods change only through a revised quotation the customer accepts. Once the order is completed, a [change request](../../shared.md#sh-07-signed-documents-are-locked) is needed. |
-| Collection     | **Start sample collection** is available once the order is confirmed and its test request is paid or On credit, and while it has no open collection task. Sales enters the appointment agreed with the customer and the place, which starts as the customer's address. An appointment in the past is refused, and so is one from which the turnaround cannot meet the expected return date: Sales agrees an earlier appointment or changes the expected return date with the customer first. It queues one sample collection task of the order's test request for sample delivery staff, due at the appointment, with the place on its calendar event and, for a balance due at collection, the amount still due in its note; they claim it. A collection nobody has claimed a day before its appointment is raised with the order's salesperson. The task is done once none of the request's samples is still expected. |
+| Collection     | **Start sample collection** is available once the order is confirmed and its test request is paid or On credit, while it has no open collection task and while a sample of the order is still expected. Sales enters the appointment agreed with the customer and the place, which starts as the customer's address. An appointment in the past is refused, and so is one from which the turnaround cannot meet the expected return date: Sales agrees an earlier appointment or changes the expected return date with the customer first. It queues one sample collection task of the order's test request for sample delivery staff, due at the appointment, with the place on its calendar event and, for a balance due at collection, the amount still due in its note; they claim it. A collection nobody has claimed a day before its appointment is raised with the order's salesperson. The task is done once none of the request's samples is still expected. |
 
 Acceptance criteria:
 
@@ -222,7 +222,7 @@ Acceptance criteria:
 
 ### 6. Follow-up and analytics (US-S18, US-S19)
 
-- **Progress.** Each order shows the same four labels the customer sees (Waiting, Testing, Completed, Cancelled) plus the detail for internal use: the order status and the status of its test request. Issuing the test request's report completes the order.
+- **Progress.** Each order shows the same four labels the customer sees (Waiting, Testing, Completed, Cancelled) plus the detail for internal use: the order status and the status of its test request. Issuing the test request's report completes the order. The order's **Result** says where its test result stands: Awaiting sample payment, Awaiting samples, Samples received once the test request has received its samples, Processing while testing and approval run, Waiting for full payment or Ready once the results are approved, and Sent once the report is issued.
 - **Pipeline.** Counts by stage: unclaimed, draft, sent and unpaid, accepted, confirmed.
 - **Performance.** Per salesperson and period: quotations sent, accepted, declined, revenue, and the time between each step (claim, send, payment, confirmation).
 - **Visibility.** A salesperson sees their own statistics; the Head of Sales sees everyone's. Odoo's own sales analyses and sales dashboard follow the same rule.
@@ -250,7 +250,7 @@ Every figure falls in the period of the order's date, which Odoo moves to the co
 
 Acceptance criteria:
 
-- An order shows Waiting once confirmed, Testing once analysis starts, Completed when all samples are completed, Cancelled when cancelled.
+- An order shows Waiting once confirmed, Testing once analysis starts and until its report is issued, Completed once its report is issued, Cancelled when cancelled.
 - A salesperson sees only their own pipeline and performance, and the unclaimed queue; the Head of Sales sees everyone's.
 
 ### 7. Support (US-S20, US-S23)

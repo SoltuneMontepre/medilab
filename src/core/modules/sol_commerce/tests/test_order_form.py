@@ -301,10 +301,19 @@ class TestOrderForm(OrderCase):
     def test_vietnamese_form_translates_its_headings_and_labels(self):
         arch = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").get_view(view_type="form")["arch"]
 
-        for text in ("Các khoản tạm ứng", "Khách hàng thấy", "Thêm chỉ tiêu hoặc gói dịch vụ"):
+        for text in ("Các khoản tạm ứng", "Chưa có thanh toán", "Khách hàng thấy", "Thêm chỉ tiêu hoặc gói dịch vụ"):
             with self.subTest(text=text):
                 self.assertIn(text, arch)
         self.assertNotIn("Advance payments", arch)
+
+    def test_payment_tab_shows_an_empty_state_before_payments(self):
+        empty = self._nodes("//page[@name='payment']//div[hasclass('o_medilab_payment_empty')]")[0]
+        invisible = empty.get("invisible") or ""
+        for field in ("payment_request_ids", "recorded_payments_html", "downpayment_line_ids", "pending_amount"):
+            with self.subTest(field=field):
+                self.assertIn(field, invisible)
+        recorded_empty = self._nodes("//page[@name='payment']//div[hasclass('o_medilab_recorded_payments_empty')]")[0]
+        self.assertIn("recorded_payments_html", recorded_empty.get("invisible") or "")
 
     def test_customer_is_required_and_locked_after_confirmation(self):
         customer = self._nodes("//sheet//field[@name='customer_id']")[0]

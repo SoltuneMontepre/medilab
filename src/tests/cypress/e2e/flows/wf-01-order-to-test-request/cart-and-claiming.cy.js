@@ -136,17 +136,22 @@ describe("WF-01 portal cart and order claiming (F-04, F-05)", () => {
         const advanceChoices = () => {
           openOrder();
           cy.get(".o_statusbar_buttons button[name=action_send_quotation]:visible").click();
+          cy.get(".modal:visible .o_field_widget[name=advance_mode] input").click();
           return cy
-            .get(".modal:visible .o_field_widget[name=advance_mode] select option")
-            .then(($options) => [...$options].map((option) => option.value));
+            .get(".o_select_menu_item")
+            .then(($items) => [...$items].map((item) => item.textContent.trim()));
         };
 
         cy.signInAs("sales");
-        advanceChoices().should("not.include", '"none"');
+        advanceChoices().should((items) => {
+          expect(items.join(" ")).not.to.match(/No advance|Không tạm ứng/);
+        });
 
         for (const role of ["head_of_sales", "administrator"]) {
           cy.signInAs(role);
-          advanceChoices().should("include", '"none"');
+          advanceChoices().should((items) => {
+            expect(items.join(" ")).to.match(/No advance|Không tạm ứng/);
+          });
         }
       });
     });

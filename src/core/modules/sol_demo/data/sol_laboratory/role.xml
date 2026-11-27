@@ -1,239 +1,256 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo noupdate="1">
-    <record id="demo_role_sales" model="medilab.role">
-        <field name="code">sales</field>
-        <field name="name">Sales</field>
-        <field
-            name="permission_ids"
-            eval="[Command.set([
-                ref('sol_laboratory.permission_customer_read_all'),
-                ref('sol_laboratory.permission_customer_create_all'),
-                ref('sol_laboratory.permission_customer_edit_all'),
-                ref('sol_laboratory.permission_test_request_read_all'),
-                ref('sol_laboratory.permission_test_request_create_all'),
-                ref('sol_laboratory.permission_test_request_edit_all'),
-                ref('sol_laboratory.permission_sample_read_all'),
-                ref('sol_laboratory.permission_expected_sampling_read_all'),
-                ref('sol_laboratory.permission_sample_create_all'),
-                ref('sol_laboratory.permission_sample_edit_all'),
-                ref('sol_laboratory.permission_sample_test_read_all'),
-                ref('sol_laboratory.permission_sample_test_create_all'),
-                ref('sol_laboratory.permission_sample_test_edit_all'),
-                ref('sol_laboratory.permission_plan_revision_read_all'),
-                ref('sol_laboratory.permission_plan_revision_move_read_all'),
-                ref('sol_commerce.permission_order_read_all'),
-                ref('sol_commerce.permission_order_create_all'),
-                ref('sol_commerce.permission_order_edit_own'),
-                ref('sol_commerce.permission_cancellation_request_read_all'),
-                ref('sol_commerce.permission_cancellation_request_edit_all'),
-                ref('sol_commerce.permission_order_invoice_all'),
-                ref('sol_commerce.permission_order_sample_read_all'),
-                ref('sol_laboratory.permission_committed_date_change_read_all'),
-                ref('sol_laboratory.permission_committed_date_change_create_all'),
-                ref('sol_commerce.permission_order_sample_create_all'),
-                ref('sol_commerce.permission_order_sample_edit_all'),
-                ref('sol_commerce.permission_order_sample_delete_all'),
-                ref('sol_commerce.permission_quotation_read_all'),
-                ref('sol_commerce.permission_quotation_sampling_read_all'),
-                ref('sol_commerce.permission_support_request_read_all'),
-                ref('sol_commerce.permission_support_request_create_all'),
-                ref('sol_commerce.permission_support_request_edit_all'),
-            ])]"
-        />
-    </record>
-    <record id="demo_role_head_of_sales" model="medilab.role">
-        <field name="code">head_of_sales</field>
-        <field name="name">Head of sales</field>
-        <field
-            name="permission_ids"
-            eval="[Command.set([
-                ref('sol_laboratory.permission_customer_read_all'),
-                ref('sol_laboratory.permission_customer_create_all'),
-                ref('sol_laboratory.permission_customer_edit_all'),
-                ref('sol_laboratory.permission_test_request_read_all'),
-                ref('sol_laboratory.permission_test_request_create_all'),
-                ref('sol_laboratory.permission_test_request_edit_all'),
-                ref('sol_laboratory.permission_sample_read_all'),
-                ref('sol_laboratory.permission_expected_sampling_read_all'),
-                ref('sol_laboratory.permission_sample_create_all'),
-                ref('sol_laboratory.permission_sample_edit_all'),
-                ref('sol_laboratory.permission_sample_test_read_all'),
-                ref('sol_laboratory.permission_sample_test_create_all'),
-                ref('sol_laboratory.permission_sample_test_edit_all'),
-                ref('sol_commerce.permission_order_read_all'),
-                ref('sol_commerce.permission_order_create_all'),
-                ref('sol_commerce.permission_order_edit_all'),
-                ref('sol_commerce.permission_cancellation_request_read_all'),
-                ref('sol_commerce.permission_cancellation_request_edit_all'),
-                ref('sol_commerce.permission_order_invoice_all'),
-                ref('sol_commerce.permission_order_sample_read_all'),
-                ref('sol_laboratory.permission_committed_date_change_read_all'),
-                ref('sol_laboratory.permission_committed_date_change_create_all'),
-                ref('sol_commerce.permission_order_sample_create_all'),
-                ref('sol_commerce.permission_order_sample_edit_all'),
-                ref('sol_commerce.permission_order_sample_delete_all'),
-                ref('sol_commerce.permission_quotation_read_all'),
-                ref('sol_commerce.permission_quotation_sampling_read_all'),
-                ref('sol_commerce.permission_customer_sales_terms_read_all'),
-                ref('sol_commerce.permission_customer_sales_terms_create_all'),
-                ref('sol_commerce.permission_customer_sales_terms_edit_all'),
-                ref('sol_commerce.permission_support_request_read_all'),
-                ref('sol_commerce.permission_support_request_create_all'),
-                ref('sol_commerce.permission_support_request_edit_all'),
-                ref('sol_commerce.permission_support_request_delete_all'),
-            ])]"
-        />
-    </record>
-    <record id="demo_role_accountant" model="medilab.role">
-        <field name="code">accountant</field>
-        <field name="name">Accountant</field>
-        <field
-            name="permission_ids"
-            eval="[Command.set([
-                ref('sol_commerce.permission_revenue_report_read_all'),
-                ref('sol_commerce.permission_receivable_report_read_all'),
-                ref('sol_commerce.permission_cash_flow_report_read_all'),
-                ref('sol_commerce.permission_order_read_all'),
-                ref('sol_commerce.permission_order_sample_read_all'),
-                ref('sol_commerce.permission_invoice_adjustment_read_all'),
-                ref('sol_commerce.permission_invoice_adjustment_create_all'),
-                ref('sol_commerce.permission_invoice_adjustment_edit_all'),
-                ref('sol_commerce.permission_invoice_adjustment_delete_all'),
-                ref('sol_commerce.permission_reconciliation_day_read_all'),
-                ref('sol_commerce.permission_reconciliation_day_create_all'),
-                ref('sol_commerce.permission_reconciliation_day_edit_all'),
-            ])]"
-        />
-    </record>
-    <record id="demo_role_sample_delivery_staff" model="medilab.role">
-        <field name="code">sample_delivery_staff</field>
-        <field name="name">Sample delivery staff</field>
-        <field
-            name="permission_ids"
-            eval="[Command.set([
-                ref('sol_laboratory.permission_person_read_own_department'),
-                ref('sol_laboratory.permission_customer_read_all'),
-                ref('sol_laboratory.permission_test_request_read_all'),
-                ref('sol_laboratory.permission_test_request_create_all'),
-                ref('sol_laboratory.permission_test_request_edit_all'),
-                ref('sol_laboratory.permission_sample_read_all'),
-                ref('sol_laboratory.permission_expected_sampling_read_all'),
-                ref('sol_laboratory.permission_sample_create_all'),
-                ref('sol_laboratory.permission_sample_test_read_all'),
-                ref('sol_laboratory.permission_sample_test_create_all'),
-                ref('sol_laboratory.permission_sample_test_edit_all'),
-                ref('sol_laboratory.permission_sample_handover_read_all'),
-                ref('sol_laboratory.permission_sample_handover_create_all'),
-                ref('sol_laboratory.permission_sample_handover_edit_all'),
-                ref('sol_laboratory.permission_handover_record_read_all'),
-                ref('sol_laboratory.permission_handover_record_create_all'),
-                ref('sol_laboratory.permission_handover_record_edit_all'),
-                ref('sol_laboratory.permission_handover_record_sample_read_all'),
-                ref('sol_laboratory.permission_handover_record_sample_create_all'),
-                ref('sol_laboratory.permission_handover_record_sample_edit_all'),
-                ref('sol_laboratory.permission_handover_record_sample_delete_all'),
-                ref('sol_laboratory.permission_sample_return_read_all'),
-                ref('sol_laboratory.permission_sample_return_create_all'),
-                ref('sol_laboratory.permission_test_report_read_all'),
-                ref('sol_laboratory.permission_test_report_deliver_all'),
-                ref('sol_laboratory.permission_test_report_draft_read_all'),
-                ref('sol_laboratory.permission_test_report_candidate_read_all'),
-                ref('sol_laboratory.permission_report_template_version_read_all'),
-            ])]"
-        />
-    </record>
-    <record id="demo_role_tester" model="medilab.role">
-        <field name="code">tester</field>
-        <field name="name">Tester</field>
-        <field
-            name="permission_ids"
-            eval="[Command.set([
-                ref('sol_laboratory.permission_sample_read_all'),
-                ref('sol_laboratory.permission_expected_sampling_read_all'),
-                ref('sol_laboratory.permission_sample_edit_all'),
-                ref('sol_laboratory.permission_sample_test_read_all'),
-                ref('sol_laboratory.permission_sample_handover_read_own_department'),
-                ref('sol_laboratory.permission_sample_handover_edit_own_department'),
-                ref('sol_laboratory.permission_test_result_read_all'),
-                ref('sol_laboratory.permission_test_result_create_all'),
-                ref('sol_laboratory.permission_test_result_edit_all'),
-                ref('sol_laboratory.permission_test_result_sign_all'),
-                ref('sol_laboratory.permission_laboratory_folder_create_all'),
-            ])]"
-        />
-    </record>
-    <record id="demo_role_head_of_department" model="medilab.role">
-        <field name="code">head_of_department</field>
-        <field name="name">Head of department</field>
-        <field
-            name="permission_ids"
-            eval="[Command.set([
-                ref('sol_laboratory.permission_person_read_all'),
-                ref('sol_laboratory.permission_department_read_all'),
-                ref('sol_laboratory.permission_sample_read_all'),
-                ref('sol_laboratory.permission_expected_sampling_read_all'),
-                ref('sol_laboratory.permission_sample_edit_all'),
-                ref('sol_laboratory.permission_sample_test_read_all'),
-                ref('sol_laboratory.permission_sample_test_edit_all'),
-                ref('sol_laboratory.permission_sample_handover_read_own_department'),
-                ref('sol_laboratory.permission_sample_handover_edit_own_department'),
-                ref('sol_laboratory.permission_test_result_read_all'),
-                ref('sol_laboratory.permission_test_result_create_all'),
-                ref('sol_laboratory.permission_test_result_edit_all'),
-                ref('sol_laboratory.permission_test_result_sign_all'),
-                ref('sol_laboratory.permission_task_read_own_department'),
-                ref('sol_laboratory.permission_task_create_own_department'),
-                ref('sol_laboratory.permission_task_edit_own_department'),
-                ref('sol_laboratory.permission_machine_booking_read_own_department'),
-                ref('sol_laboratory.permission_machine_booking_create_own_department'),
-                ref('sol_laboratory.permission_machine_booking_edit_own_department'),
-                ref('sol_laboratory.permission_overtime_read_own_department'),
-                ref('sol_laboratory.permission_overtime_create_own_department'),
-                ref('sol_laboratory.permission_overtime_edit_own_department'),
-                ref('sol_laboratory.permission_overtime_delete_own_department'),
-                ref('sol_laboratory.permission_plan_revision_read_own_department'),
-                ref('sol_laboratory.permission_plan_revision_move_read_own_department'),
-                ref('sol_laboratory.permission_subcontract_dispatch_read_all'),
-                ref('sol_laboratory.permission_subcontract_dispatch_create_all'),
-                ref('sol_laboratory.permission_subcontract_dispatch_edit_all'),
-                ref('sol_laboratory.permission_laboratory_file_version_sign_all'),
-                ref('sol_laboratory.permission_signature_read_all'),
-                ref('sol_laboratory.permission_testing_statistic_read_own_department'),
-            ])]"
-        />
-    </record>
-    <record id="demo_role_lab_head" model="medilab.role">
-        <field name="code">lab_head</field>
-        <field name="name">Lab head</field>
-        <field
-            name="permission_ids"
-            eval="[Command.set([
-                ref('sol_laboratory.permission_person_read_all'),
-                ref('sol_laboratory.permission_department_read_all'),
-                ref('sol_laboratory.permission_customer_read_all'),
-                ref('sol_laboratory.permission_test_request_read_all'),
-                ref('sol_laboratory.permission_sample_read_all'),
-                ref('sol_laboratory.permission_expected_sampling_read_all'),
-                ref('sol_laboratory.permission_sample_return_read_all'),
-                ref('sol_laboratory.permission_sample_test_read_all'),
-                ref('sol_laboratory.permission_test_result_read_all'),
-                ref('sol_laboratory.permission_test_report_read_all'),
-                ref('sol_laboratory.permission_test_report_sign_all'),
-                ref('sol_laboratory.permission_test_report_draft_read_all'),
-                ref('sol_laboratory.permission_test_report_candidate_read_all'),
-                ref('sol_laboratory.permission_report_template_version_read_all'),
-                ref('sol_laboratory.permission_change_request_read_all'),
-                ref('sol_laboratory.permission_change_request_sign_all'),
-                ref('sol_laboratory.permission_testing_statistic_read_all'),
-                ref('sol_laboratory.permission_parameter_authorization_create_all'),
-                ref('sol_laboratory.permission_parameter_authorization_edit_all'),
-                ref('sol_laboratory.permission_parameter_authorization_delete_all'),
-            ])]"
-        />
-    </record>
-    <record id="demo_role_auditor" model="medilab.role">
-        <field name="code">auditor</field>
-        <field name="name">Auditor</field>
-        <field name="permission_ids" eval="[Command.set([ref('sol_laboratory.permission_audit_entry_read_all')])]" />
-    </record>
+<odoo>
+    <data noupdate="1">
+        <record id="demo_role_sales" model="medilab.role">
+            <field name="code">sales</field>
+            <field name="name">Sales</field>
+        </record>
+        <record id="demo_role_head_of_sales" model="medilab.role">
+            <field name="code">head_of_sales</field>
+            <field name="name">Head of sales</field>
+        </record>
+        <record id="demo_role_accountant" model="medilab.role">
+            <field name="code">accountant</field>
+            <field name="name">Accountant</field>
+        </record>
+        <record id="demo_role_sample_delivery_staff" model="medilab.role">
+            <field name="code">sample_delivery_staff</field>
+            <field name="name">Sample delivery staff</field>
+        </record>
+        <record id="demo_role_tester" model="medilab.role">
+            <field name="code">tester</field>
+            <field name="name">Tester</field>
+        </record>
+        <record id="demo_role_head_of_department" model="medilab.role">
+            <field name="code">head_of_department</field>
+            <field name="name">Head of department</field>
+        </record>
+        <record id="demo_role_lab_head" model="medilab.role">
+            <field name="code">lab_head</field>
+            <field name="name">Lab head</field>
+        </record>
+        <record id="demo_role_auditor" model="medilab.role">
+            <field name="code">auditor</field>
+            <field name="name">Auditor</field>
+        </record>
+    </data>
+    <!-- Each upgrade links the permissions a demo role lists and unlinks none, so a role created before a permission
+         was added gets it, and permissions given by hand stay. -->
+    <function
+        model="medilab.role"
+        name="write"
+        eval="[[ref('demo_role_sales')], {'permission_ids': [
+                Command.link(ref('sol_laboratory.permission_customer_read_all')),
+                Command.link(ref('sol_laboratory.permission_customer_create_all')),
+                Command.link(ref('sol_laboratory.permission_customer_edit_all')),
+                Command.link(ref('sol_laboratory.permission_test_request_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_request_create_all')),
+                Command.link(ref('sol_laboratory.permission_test_request_edit_all')),
+                Command.link(ref('sol_laboratory.permission_sample_read_all')),
+                Command.link(ref('sol_laboratory.permission_expected_sampling_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_create_all')),
+                Command.link(ref('sol_laboratory.permission_sample_edit_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_create_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_edit_all')),
+                Command.link(ref('sol_laboratory.permission_plan_revision_read_all')),
+                Command.link(ref('sol_laboratory.permission_plan_revision_move_read_all')),
+                Command.link(ref('sol_commerce.permission_order_read_all')),
+                Command.link(ref('sol_commerce.permission_order_create_all')),
+                Command.link(ref('sol_commerce.permission_order_edit_own')),
+                Command.link(ref('sol_commerce.permission_cancellation_request_read_all')),
+                Command.link(ref('sol_commerce.permission_cancellation_request_edit_all')),
+                Command.link(ref('sol_commerce.permission_order_invoice_all')),
+                Command.link(ref('sol_commerce.permission_order_sample_read_all')),
+                Command.link(ref('sol_laboratory.permission_committed_date_change_read_all')),
+                Command.link(ref('sol_laboratory.permission_committed_date_change_create_all')),
+                Command.link(ref('sol_commerce.permission_order_sample_create_all')),
+                Command.link(ref('sol_commerce.permission_order_sample_edit_all')),
+                Command.link(ref('sol_commerce.permission_order_sample_delete_all')),
+                Command.link(ref('sol_commerce.permission_quotation_read_all')),
+                Command.link(ref('sol_commerce.permission_quotation_sampling_read_all')),
+                Command.link(ref('sol_commerce.permission_support_request_read_all')),
+                Command.link(ref('sol_commerce.permission_support_request_create_all')),
+                Command.link(ref('sol_commerce.permission_support_request_edit_all')),
+            ]}]"
+    />
+    <function
+        model="medilab.role"
+        name="write"
+        eval="[[ref('demo_role_head_of_sales')], {'permission_ids': [
+                Command.link(ref('sol_laboratory.permission_customer_read_all')),
+                Command.link(ref('sol_laboratory.permission_customer_create_all')),
+                Command.link(ref('sol_laboratory.permission_customer_edit_all')),
+                Command.link(ref('sol_laboratory.permission_test_request_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_request_create_all')),
+                Command.link(ref('sol_laboratory.permission_test_request_edit_all')),
+                Command.link(ref('sol_laboratory.permission_sample_read_all')),
+                Command.link(ref('sol_laboratory.permission_expected_sampling_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_create_all')),
+                Command.link(ref('sol_laboratory.permission_sample_edit_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_create_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_edit_all')),
+                Command.link(ref('sol_commerce.permission_order_read_all')),
+                Command.link(ref('sol_commerce.permission_order_create_all')),
+                Command.link(ref('sol_commerce.permission_order_edit_all')),
+                Command.link(ref('sol_commerce.permission_cancellation_request_read_all')),
+                Command.link(ref('sol_commerce.permission_cancellation_request_edit_all')),
+                Command.link(ref('sol_commerce.permission_order_invoice_all')),
+                Command.link(ref('sol_commerce.permission_order_sample_read_all')),
+                Command.link(ref('sol_laboratory.permission_committed_date_change_read_all')),
+                Command.link(ref('sol_laboratory.permission_committed_date_change_create_all')),
+                Command.link(ref('sol_commerce.permission_order_sample_create_all')),
+                Command.link(ref('sol_commerce.permission_order_sample_edit_all')),
+                Command.link(ref('sol_commerce.permission_order_sample_delete_all')),
+                Command.link(ref('sol_commerce.permission_quotation_read_all')),
+                Command.link(ref('sol_commerce.permission_quotation_sampling_read_all')),
+                Command.link(ref('sol_commerce.permission_customer_sales_terms_read_all')),
+                Command.link(ref('sol_commerce.permission_customer_sales_terms_create_all')),
+                Command.link(ref('sol_commerce.permission_customer_sales_terms_edit_all')),
+                Command.link(ref('sol_commerce.permission_support_request_read_all')),
+                Command.link(ref('sol_commerce.permission_support_request_create_all')),
+                Command.link(ref('sol_commerce.permission_support_request_edit_all')),
+                Command.link(ref('sol_commerce.permission_support_request_delete_all')),
+            ]}]"
+    />
+    <function
+        model="medilab.role"
+        name="write"
+        eval="[[ref('demo_role_accountant')], {'permission_ids': [
+                Command.link(ref('sol_commerce.permission_revenue_report_read_all')),
+                Command.link(ref('sol_commerce.permission_receivable_report_read_all')),
+                Command.link(ref('sol_commerce.permission_cash_flow_report_read_all')),
+                Command.link(ref('sol_commerce.permission_order_read_all')),
+                Command.link(ref('sol_commerce.permission_order_sample_read_all')),
+                Command.link(ref('sol_commerce.permission_invoice_adjustment_read_all')),
+                Command.link(ref('sol_commerce.permission_invoice_adjustment_create_all')),
+                Command.link(ref('sol_commerce.permission_invoice_adjustment_edit_all')),
+                Command.link(ref('sol_commerce.permission_invoice_adjustment_delete_all')),
+                Command.link(ref('sol_commerce.permission_reconciliation_day_read_all')),
+                Command.link(ref('sol_commerce.permission_reconciliation_day_create_all')),
+                Command.link(ref('sol_commerce.permission_reconciliation_day_edit_all')),
+            ]}]"
+    />
+    <function
+        model="medilab.role"
+        name="write"
+        eval="[[ref('demo_role_sample_delivery_staff')], {'permission_ids': [
+                Command.link(ref('sol_laboratory.permission_person_read_own_department')),
+                Command.link(ref('sol_laboratory.permission_customer_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_request_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_request_create_all')),
+                Command.link(ref('sol_laboratory.permission_test_request_edit_all')),
+                Command.link(ref('sol_laboratory.permission_sample_read_all')),
+                Command.link(ref('sol_laboratory.permission_expected_sampling_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_create_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_create_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_edit_all')),
+                Command.link(ref('sol_laboratory.permission_sample_handover_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_handover_create_all')),
+                Command.link(ref('sol_laboratory.permission_sample_handover_edit_all')),
+                Command.link(ref('sol_laboratory.permission_handover_record_read_all')),
+                Command.link(ref('sol_laboratory.permission_handover_record_create_all')),
+                Command.link(ref('sol_laboratory.permission_handover_record_edit_all')),
+                Command.link(ref('sol_laboratory.permission_handover_record_sample_read_all')),
+                Command.link(ref('sol_laboratory.permission_handover_record_sample_create_all')),
+                Command.link(ref('sol_laboratory.permission_handover_record_sample_edit_all')),
+                Command.link(ref('sol_laboratory.permission_handover_record_sample_delete_all')),
+                Command.link(ref('sol_laboratory.permission_sample_return_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_return_create_all')),
+                Command.link(ref('sol_laboratory.permission_test_report_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_report_deliver_all')),
+                Command.link(ref('sol_laboratory.permission_test_report_draft_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_report_candidate_read_all')),
+                Command.link(ref('sol_laboratory.permission_report_template_version_read_all')),
+            ]}]"
+    />
+    <function
+        model="medilab.role"
+        name="write"
+        eval="[[ref('demo_role_tester')], {'permission_ids': [
+                Command.link(ref('sol_laboratory.permission_sample_read_all')),
+                Command.link(ref('sol_laboratory.permission_expected_sampling_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_edit_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_handover_read_own_department')),
+                Command.link(ref('sol_laboratory.permission_sample_handover_edit_own_department')),
+                Command.link(ref('sol_laboratory.permission_test_result_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_result_create_all')),
+                Command.link(ref('sol_laboratory.permission_test_result_edit_all')),
+                Command.link(ref('sol_laboratory.permission_test_result_sign_all')),
+                Command.link(ref('sol_laboratory.permission_laboratory_folder_create_all')),
+            ]}]"
+    />
+    <function
+        model="medilab.role"
+        name="write"
+        eval="[[ref('demo_role_head_of_department')], {'permission_ids': [
+                Command.link(ref('sol_laboratory.permission_person_read_all')),
+                Command.link(ref('sol_laboratory.permission_department_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_read_all')),
+                Command.link(ref('sol_laboratory.permission_expected_sampling_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_edit_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_edit_all')),
+                Command.link(ref('sol_laboratory.permission_sample_handover_read_own_department')),
+                Command.link(ref('sol_laboratory.permission_sample_handover_edit_own_department')),
+                Command.link(ref('sol_laboratory.permission_test_result_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_result_create_all')),
+                Command.link(ref('sol_laboratory.permission_test_result_edit_all')),
+                Command.link(ref('sol_laboratory.permission_test_result_sign_all')),
+                Command.link(ref('sol_laboratory.permission_task_read_own_department')),
+                Command.link(ref('sol_laboratory.permission_task_create_own_department')),
+                Command.link(ref('sol_laboratory.permission_task_edit_own_department')),
+                Command.link(ref('sol_laboratory.permission_machine_booking_read_own_department')),
+                Command.link(ref('sol_laboratory.permission_machine_booking_create_own_department')),
+                Command.link(ref('sol_laboratory.permission_machine_booking_edit_own_department')),
+                Command.link(ref('sol_laboratory.permission_overtime_read_own_department')),
+                Command.link(ref('sol_laboratory.permission_overtime_create_own_department')),
+                Command.link(ref('sol_laboratory.permission_overtime_edit_own_department')),
+                Command.link(ref('sol_laboratory.permission_overtime_delete_own_department')),
+                Command.link(ref('sol_laboratory.permission_plan_revision_read_own_department')),
+                Command.link(ref('sol_laboratory.permission_plan_revision_move_read_own_department')),
+                Command.link(ref('sol_laboratory.permission_subcontract_dispatch_read_all')),
+                Command.link(ref('sol_laboratory.permission_subcontract_dispatch_create_all')),
+                Command.link(ref('sol_laboratory.permission_subcontract_dispatch_edit_all')),
+                Command.link(ref('sol_laboratory.permission_laboratory_file_version_sign_all')),
+                Command.link(ref('sol_laboratory.permission_signature_read_all')),
+                Command.link(ref('sol_laboratory.permission_testing_statistic_read_own_department')),
+            ]}]"
+    />
+    <function
+        model="medilab.role"
+        name="write"
+        eval="[[ref('demo_role_lab_head')], {'permission_ids': [
+                Command.link(ref('sol_laboratory.permission_person_read_all')),
+                Command.link(ref('sol_laboratory.permission_department_read_all')),
+                Command.link(ref('sol_laboratory.permission_customer_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_request_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_read_all')),
+                Command.link(ref('sol_laboratory.permission_expected_sampling_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_return_read_all')),
+                Command.link(ref('sol_laboratory.permission_sample_test_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_result_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_report_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_report_sign_all')),
+                Command.link(ref('sol_laboratory.permission_test_report_draft_read_all')),
+                Command.link(ref('sol_laboratory.permission_test_report_candidate_read_all')),
+                Command.link(ref('sol_laboratory.permission_report_template_version_read_all')),
+                Command.link(ref('sol_laboratory.permission_change_request_read_all')),
+                Command.link(ref('sol_laboratory.permission_change_request_sign_all')),
+                Command.link(ref('sol_laboratory.permission_testing_statistic_read_all')),
+                Command.link(ref('sol_laboratory.permission_parameter_authorization_create_all')),
+                Command.link(ref('sol_laboratory.permission_parameter_authorization_edit_all')),
+                Command.link(ref('sol_laboratory.permission_parameter_authorization_delete_all')),
+            ]}]"
+    />
+    <function
+        model="medilab.role"
+        name="write"
+        eval="[[ref('demo_role_auditor')], {'permission_ids': [
+                Command.link(ref('sol_laboratory.permission_audit_entry_read_all')),
+            ]}]"
+    />
 </odoo>

@@ -28,9 +28,9 @@ describe("WF-01 order confirmation and test request (F-10)", () => {
       callRefused("sale.order", "action_start_sample_collection", [[order.id]]).should("eq", "Đơn hàng phải được xác nhận trước khi thu mẫu.");
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").click();
-      // Sales enters when and where the samples are collected; the address starts as the customer's.
+      // Sales enters when and where the samples are collected; the address and appointment start from the order.
       cy.get(".modal .o_field_widget[name=address] textarea").invoke("val").should("not.be.empty");
-      cy.get(".modal .o_field_widget[name=appointment] input").type("31/12/2099 09:00").type("{enter}");
+      cy.get(".modal .o_field_widget[name=appointment]").invoke("text").should("not.be.empty");
       cy.get(".modal button[name=action_start]").click();
       cy.get(".modal").should("not.exist");
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");

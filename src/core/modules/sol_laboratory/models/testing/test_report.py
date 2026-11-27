@@ -24,6 +24,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TEST_REPORT_DELIVERED, EVENT_TEST_REPORT_ISSUED
+from odoo.addons.sol_laboratory.constants.report_templates import CANDIDATE_PRINT_CONTEXT
 from odoo.addons.sol_laboratory.constants.signing import VERIFY_PATH
 from odoo.addons.sol_laboratory.constants.tasks import REPORT_DRAFTED_TRIGGER
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REPORT_REPORT, TEST_RESULT_READER_GROUP
@@ -480,6 +481,15 @@ class TestReport(models.Model, TestReportBase):
             return ""
         unit = result.limit_unit_id
         return f"{limit} {unit.name}" if unit and unit != result.unit_id else limit
+
+    def _print_for_review(self):
+        """True while the report renders as the PDF prepared for the lab head's review."""
+        return bool(self.env.context.get(CANDIDATE_PRINT_CONTEXT))
+
+    def _print_draft_mark(self):
+        """True when the report prints marked as a draft: under approval, unless it renders as the PDF to review."""
+        self.ensure_one()
+        return self._digital_signing_draft() and not self._print_for_review()
 
     def _print_signers(self, report_signers=True):
         """Who approved the results, then who signed the report unless report_signers is false; testers who only sent

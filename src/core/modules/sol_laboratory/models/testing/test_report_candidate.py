@@ -17,6 +17,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.report_templates import (
+    CANDIDATE_BUILT_IN,
     CANDIDATE_ISSUED,
     CANDIDATE_MIGRATED,
     CANDIDATE_OBSOLETE,
@@ -49,9 +50,10 @@ class TestReportCandidate(models.Model, TestReportCandidateBase):
         report_id = fields.Many2one(
             MODEL_TEST_REPORT, string="Report", required=True, readonly=True, ondelete="restrict", index=True
         )
-        # prepared from a DOCX draft, or migrated from a report issued before report templates.
+        # prepared from a DOCX draft, built-in from Odoo's own report without ONLYOFFICE, or migrated from a report
+        # issued before report templates.
         origin = fields.Selection(
-            [(CANDIDATE_PREPARED, "Prepared"), (CANDIDATE_MIGRATED, "Migrated")],
+            [(CANDIDATE_PREPARED, "Prepared"), (CANDIDATE_BUILT_IN, "Built-in"), (CANDIDATE_MIGRATED, "Migrated")],
             required=True,
             default=CANDIDATE_PREPARED,
             readonly=True,
@@ -64,11 +66,11 @@ class TestReportCandidate(models.Model, TestReportCandidateBase):
             readonly=True,
             index=True,
         )
-        # The exact template version the PDF was prepared with; empty for a migrated report.
+        # The exact template version the PDF was prepared with; empty for a built-in or migrated PDF.
         template_version_id = fields.Many2one(
             MODEL_REPORT_TEMPLATE_VERSION, string="Template Version", readonly=True, ondelete="restrict"
         )
-        # The saved DOCX converted, holding the printed issue details; empty for a migrated report.
+        # The saved DOCX converted, holding the printed issue details; empty for a built-in or migrated PDF.
         docx_version_id = fields.Many2one(
             MODEL_LABORATORY_FILE_VERSION, string="DOCX", readonly=True, ondelete="restrict"
         )
@@ -100,7 +102,7 @@ class TestReportCandidate(models.Model, TestReportCandidateBase):
         f"(report_id) WHERE status = '{CANDIDATE_REVIEW}'", "The report already has a PDF waiting for review."
     )
     _prepared_sources = models.Constraint(
-        f"CHECK(origin = '{CANDIDATE_MIGRATED}' OR (template_version_id IS NOT NULL AND docx_version_id IS NOT NULL))",
+        f"CHECK(origin != '{CANDIDATE_PREPARED}' OR (template_version_id IS NOT NULL AND docx_version_id IS NOT NULL))",
         "A prepared PDF keeps the template version and the DOCX it was prepared from.",
     )
     _sha256_format = models.Constraint("CHECK(sha256 ~ '^[0-9a-f]{64}$')", "A SHA-256 is 64 hexadecimal digits.")
@@ -135,7 +137,7 @@ class TestReportCandidate(models.Model, TestReportCandidateBase):
 
     @api.model
     def _store(self, report, docx_version, pdf, snapshot, report_number, report_date):
-        """Store a PDF prepared from the saved DOCX for review."""
+        """Store a PDF prepared for review: from the saved DOCX, or built in when docx_version is empty."""
         attachment = (
             self.env[MODEL_IR_ATTACHMENT]
             .sudo()
@@ -146,7 +148,8 @@ class TestReportCandidate(models.Model, TestReportCandidateBase):
         candidate = self.sudo().create(
             {
                 "report_id": report.id,
-                "template_version_id": report.sudo().template_version_id.id,
+                "origin": CANDIDATE_PREPARED if docx_version else CANDIDATE_BUILT_IN,
+                "template_version_id": report.sudo().template_version_id.id if docx_version else False,
                 "docx_version_id": docx_version.id,
                 "attachment_id": attachment.id,
                 "sha256": hashlib.sha256(pdf).hexdigest(),
@@ -169,15 +172,19 @@ class TestReportCandidate(models.Model, TestReportCandidateBase):
         waiting.flush_recordset()
 
     def _is_current(self):
-        """True while the candidate still waits for review and matches its report: the same template version, its draft's
-        last save, the same results and the same printed business values. The signature of the report checks it."""
+        """True while the candidate still waits for review and matches its report: for a PDF prepared from a DOCX, the
+        same template version and its draft's last save; for any, the same results and the same printed business
+        values. The signature of the report checks it."""
         self.ensure_one()
         candidate = self.sudo()
         report = candidate.report_id
+        sources = candidate.origin != CANDIDATE_PREPARED or (
+            report.template_version_id == candidate.template_version_id
+            and report.draft_file_id.current_version_id == candidate.docx_version_id
+        )
         return bool(
             candidate.status == CANDIDATE_REVIEW
-            and report.template_version_id == candidate.template_version_id
-            and report.draft_file_id.current_version_id == candidate.docx_version_id
+            and sources
             and report.result_ids == candidate.result_ids
             and _jsonable(report._binding_values()) == candidate.snapshot
         )

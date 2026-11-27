@@ -251,8 +251,8 @@ The portal maps the internal states to four customer-facing labels:
 | Label     | Meaning                                 |
 | --------- | --------------------------------------- |
 | Waiting   | Order confirmed, testing not started    |
-| Testing   | The laboratory is analysing the samples |
-| Completed | All samples completed                   |
+| Testing   | Testing started, the report not issued  |
+| Completed | The report is issued                    |
 | Cancelled | Order cancelled                         |
 
 Each order shows its requested date and expected return date. Results are available for download only after the laboratory has released them (testing is completed and the results are approved). The customer gets the latest version of the result document.

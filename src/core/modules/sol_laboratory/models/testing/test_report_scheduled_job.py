@@ -9,6 +9,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SCHEDULED_JOB,
     MODEL_TEST_REPORT,
 )
+from odoo.addons.sol_laboratory.services.editing_service_health import is_editing_service_configured
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
 if TYPE_CHECKING:
@@ -36,7 +37,8 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         if not report or not report.exists() or not report._pdf_needed():
             return None
         try:
-            self.env[MODEL_LABORATORY_EDITING_SESSION]._check_editing_available()
+            if is_editing_service_configured():
+                self.env[MODEL_LABORATORY_EDITING_SESSION]._check_editing_available()
         except LaboratoryFileError:
             # An outage is no failed attempt: the report waits until ONLYOFFICE answers again.
             return fields.Datetime.now() + timedelta(minutes=OUTAGE_RETRY_MINUTES)

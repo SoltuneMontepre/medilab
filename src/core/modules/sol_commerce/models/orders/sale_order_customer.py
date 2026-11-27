@@ -32,11 +32,12 @@ CUSTOMER_STATUSES = [
     (STATUS_COMPLETED, "Completed"),
     (STATUS_CANCELLED, "Cancelled"),
 ]
-# Test request statuses the customer sees as Testing, Completed or Cancelled; any other is Waiting.
+# Test request statuses the customer sees as Testing, Completed or Cancelled; any other is Waiting. Approved results
+# stay Testing until the report is issued.
 REQUEST_STATUS_TO_CUSTOMER = {
     "testing": STATUS_TESTING,
     "awaiting_approval": STATUS_TESTING,
-    "completed": STATUS_COMPLETED,
+    "completed": STATUS_TESTING,
     "reported": STATUS_COMPLETED,
     "cancelled": STATUS_CANCELLED,
 }
@@ -155,9 +156,10 @@ class SaleOrderCustomer(models.Model, SaleOrderBase):
 
     @api.model
     def _portal_orders(self, user, limit: int | None = None, offset: int = 0, **filters) -> Self:
-        """The quotations and orders of the portal user's customer that match the filters, newest first."""
+        """The quotations and orders of the portal user's customer that match the filters, most recently updated
+        first."""
         domain = Domain(self._portal_orders_domain(user)) & self._portal_filter_domain(**filters)
-        return self.sudo().search(domain, order="id desc", limit=limit, offset=offset)
+        return self.sudo().search(domain, order="write_date desc, id desc", limit=limit, offset=offset)
 
     @api.model
     def _portal_order_count(self, user, **filters):

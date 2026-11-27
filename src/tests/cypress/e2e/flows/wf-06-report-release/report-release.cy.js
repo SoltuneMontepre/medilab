@@ -118,34 +118,38 @@ describe("WF-06 Report release", () => {
             expect(issued.withheld_for_payment).to.equal(false);
             readAs({ model: "medilab.test.request", id: issued.request_id[0] }, ["status"]).its("status").should("eq", "reported");
             callAs(ADMIN, "sale.order", "search_read", [[["test_request_id", "=", issued.request_id[0]]]], {
-              fields: ["amount_total", "payment_status"],
-            }).should(([order]) => {
+              fields: ["amount_total", "payment_status", "order_status", "customer_status"],
+            }).then(([order]) => {
               expect(order.amount_total).to.be.greaterThan(0);
               expect(order.payment_status).to.equal("paid");
-            });
-            step("The customer is told of the issue, and staff deliver the PDF by e-mail");
-            reportMessage(report, "issued", customer.id).its("0.subject").should("eq", issued.code);
-            personNames("sol_demo.demo_person_sample_delivery_staff").then(([staff]) => expect(issued.delivered_by_id[1]).to.equal(staff));
-            reportMessage(report, "delivered", hoa.id).should(([message]) => {
-              expect(message, "e-mail to the recipient").to.exist;
-              expect(message.attachment_ids, "PDF").to.include(issued.attachment_id[0]);
-            });
+              expect(order.order_status).to.equal("completed");
+              expect(order.customer_status).to.equal("completed");
+              step("The customer is told of the issue, and staff deliver the PDF by e-mail");
+              reportMessage(report, "issued", customer.id).its("0.subject").should("eq", issued.code);
+              personNames("sol_demo.demo_person_sample_delivery_staff").then(([staff]) => expect(issued.delivered_by_id[1]).to.equal(staff));
+              reportMessage(report, "delivered", hoa.id).should(([message]) => {
+                expect(message, "e-mail to the recipient").to.exist;
+                expect(message.attachment_ids, "PDF").to.include(issued.attachment_id[0]);
+              });
 
-            step("The customer opens Test reports on the portal and downloads the report");
-            cy.signInAs("customer");
-            cy.intercept("POST", "/my/counters", (request) => {
-              if (request.body.params?.counters?.test_report_count) {
-                request.alias = "portalTestReportCounters";
-              }
+              step("The customer sees the completed order status, opens Test reports on the portal and downloads the report");
+              cy.signInAs("customer");
+              cy.visit(`/orders/${order.id}`);
+              cy.contains(".badge", /Completed|Hoàn thành/).should("be.visible");
+              cy.intercept("POST", "/my/counters", (request) => {
+                if (request.body.params?.counters?.test_report_count) {
+                  request.alias = "portalTestReportCounters";
+                }
+              });
+              cy.visit("/my");
+              cy.wait("@portalTestReportCounters").then(({ response }) => {
+                expect(response.statusCode).to.equal(200);
+                expect(response.body.result.test_report_count).to.equal(1);
+              });
+              cy.get("main a[href='/my/test-reports']").first().should("be.visible").click();
+              cy.contains("main", issued.code).should("be.visible");
+              cy.request(`/my/test-reports/${report.id}/download`).its("headers.content-type").should("contain", "application/pdf");
             });
-            cy.visit("/my");
-            cy.wait("@portalTestReportCounters").then(({ response }) => {
-              expect(response.statusCode).to.equal(200);
-              expect(response.body.result.test_report_count).to.equal(1);
-            });
-            cy.get("main a[href='/my/test-reports']").first().should("be.visible").click();
-            cy.contains("main", issued.code).should("be.visible");
-            cy.request(`/my/test-reports/${report.id}/download`).its("headers.content-type").should("contain", "application/pdf");
           }),
         ),
       ),

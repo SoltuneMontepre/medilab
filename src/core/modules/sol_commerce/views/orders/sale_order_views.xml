@@ -127,13 +127,14 @@
                     invisible="order_status != 'claimed' or state == 'draft' or quotation_follow_up not in ('paid', 'accepted') and not (source == 'sales' and advance_method == 'none' and quotation_follow_up == 'unpaid')"
                 />
                 <field name="has_open_collection" invisible="1" />
+                <field name="expects_samples" invisible="1" />
                 <button
                     name="action_start_sample_collection"
                     type="object"
                     string="Start sample collection"
                     class="btn-primary o_start_sample_collection"
                     context="{'medilab_collection_dialog': True}"
-                    invisible="order_status != 'confirmed' or show_unpaid_warning or has_open_collection"
+                    invisible="order_status != 'confirmed' or show_unpaid_warning or has_open_collection or not expects_samples"
                 />
                 <button name="%(action_payment_collection)d" type="action" string="Record payment" class="btn-primary"
                     context="{'default_order_id': id}" invisible="not can_record_collection" groups="base.group_user" />
@@ -275,7 +276,7 @@
                             name="result_status"
                             widget="badge"
                             decoration-success="result_status in ('ready', 'reported')"
-                            decoration-info="result_status == 'in_progress'"
+                            decoration-info="result_status in ('samples_received', 'in_progress')"
                             decoration-warning="result_status in ('awaiting_samples', 'collection_hold', 'payment_hold')"
                         />
                     </div>
@@ -552,8 +553,18 @@
                 </page>
                 <page string="Payment" name="payment">
                     <!-- Sales sets the advance in the Send quotation dialog; the tab shows it once sent. -->
-                    <group invisible="state == 'draft' and not pending_amount">
-                        <group invisible="state == 'draft'">
+                    <div
+                        class="o_medilab_payment_empty border rounded-3 bg-white text-center py-5 px-3"
+                        invisible="(state != 'draft' and (state != 'cancel' or quotation_ids)) or pending_amount or payment_request_ids or recorded_payments_html or downpayment_line_ids"
+                    >
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-muted mb-2" style="width: 3rem; height: 3rem;">
+                            <i class="oi fs-4" data-icon="credit_card" aria-hidden="true" />
+                        </div>
+                        <p class="fw-semibold mb-1">No payments yet</p>
+                        <p class="text-muted small mb-0">Advance terms and payment requests appear here once the quotation is sent.</p>
+                    </div>
+                    <group invisible="(state == 'draft' or (state == 'cancel' and not quotation_ids)) and not pending_amount">
+                        <group invisible="state == 'draft' or (state == 'cancel' and not quotation_ids)">
                             <field name="payment_method" readonly="1" />
                             <field name="advance_mode" readonly="1" />
                         </group>
@@ -625,8 +636,14 @@
                             </group>
                         </form>
                     </field>
-                    <separator string="Recorded payments" invisible="not recorded_payments_html" />
+                    <separator string="Recorded payments" invisible="(state == 'draft' or (state == 'cancel' and not quotation_ids)) and not recorded_payments_html" />
                     <field name="recorded_payments_html" nolabel="1" invisible="not recorded_payments_html" />
+                    <div
+                        class="o_medilab_recorded_payments_empty border rounded-3 bg-white text-muted px-3 py-3"
+                        invisible="recorded_payments_html or state == 'draft' or (state == 'cancel' and not quotation_ids)"
+                    >
+                        No payments recorded yet.
+                    </div>
                     <separator string="Advance payments" invisible="not downpayment_line_ids" />
                     <field name="downpayment_line_ids" invisible="not downpayment_line_ids">
                         <list>
