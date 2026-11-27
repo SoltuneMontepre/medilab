@@ -46,8 +46,8 @@ class TestTestReportSigning(ReportCase):
         printed = self.html(report)
         self.assertIn("Parameter", printed)
         self.assertNotIn("Chỉ Tiêu", printed)
-        message = self.env["mail.message"].search([("model", "=", report._name), ("res_id", "=", report.id)])
-        self.assertEqual(message.subtype_id, self.env.ref("sol_laboratory.event_test_report_issued"))
+        message = self.issued_messages(report)
+        self.assertEqual(len(message), 1)
         self.assertEqual(message.notification_ids.res_partner_id, self.customer.partner_id)
 
     def test_a_bilingual_report_prints_vietnamese_and_english_side_by_side(self):
