@@ -7,7 +7,7 @@ const SALES = "sale.sale_menu_root";
 const RATING = 4;
 
 test("SF-09-A4 The customer rates a completed order", async ({ as }) => {
-  const journey = received("tag", "customerLogin", "customerPassword", "orderNumber", "orderStatusAfterReport", "salesLogin");
+  const journey = received("tag", "customerLogin", "customerPassword", "orderNumber", "salesOrderStatusAfterReport", "salesLogin");
   const comment = `Clear report and fast service ${journey.tag}`;
 
   const customer = await as(journey.customerLogin, journey.customerPassword);

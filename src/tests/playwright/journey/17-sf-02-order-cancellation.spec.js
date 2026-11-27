@@ -25,7 +25,7 @@ const SALES_DAY = "dd/mm/yyyy";
 const shown = async (locator) => (await locator.innerText()).trim();
 
 test("SF-02 Order cancellation", async ({ as }) => {
-  const journey = received("tag", "customerName", "customerLogin", "customerPassword", "orderNumber", "orderStatusAfterReport", "parameterName", "methodCode", "leadParameterName", "leadMethod", "sampleType", "salesLogin", "salesName");
+  const journey = received("tag", "customerName", "customerLogin", "customerPassword", "orderNumber", "salesOrderStatusAfterReport", "parameterName", "methodCode", "leadParameterName", "leadMethod", "sampleType", "salesLogin", "salesName");
   const reference = `Journey reorder advance ${journey.tag}`;
   const reason = `Journey cancel ${journey.tag}: samples no longer needed`;
   const ways = { [journey.parameterName]: `${journey.parameterName} – ${journey.methodCode}`, [journey.leadParameterName]: `${journey.leadParameterName} – ${journey.leadMethod}` };
