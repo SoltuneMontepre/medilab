@@ -59,11 +59,6 @@ export function cartChoices(page, name) {
   return cartLine(page, name).locator("xpath=following-sibling::tr[1]");
 }
 
-export async function removeFromCart(page, name) {
-  await loads(page, () => cartLine(page, name).locator("button[name=quantity][value='0']").click());
-  await expect(cartLine(page, name)).toHaveCount(0);
-}
-
 // Opens the customer's order from My orders, found by its number.
 export async function openOrder(page, number) {
   await openHeader(page, "/orders");
@@ -93,15 +88,4 @@ export async function openMyAccount(page) {
   }).toPass();
   await loads(page, () => entry.click());
   await expect(page).toHaveURL(/\/my\/home$/);
-}
-
-export async function signOut(page) {
-  const logout = page.locator("#o_logout");
-  // The header's menus answer once the page's scripts have started, which is after the page shows.
-  await expect(async () => {
-    if (!(await logout.isVisible())) await userMenu(page).click();
-    await expect(logout).toBeVisible({ timeout: 1000 });
-  }).toPass();
-  await loads(page, () => logout.click());
-  await expect(page).toHaveURL(/\/web\/login/);
 }

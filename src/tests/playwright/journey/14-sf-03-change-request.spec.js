@@ -1,5 +1,5 @@
 import { expect, handOver, outside, received, step, test } from "../support/journey";
-import { closeDialog, field, listed, openListed, openMenu, openTab, press, pressLabel, save, search, settled, status, type } from "../support/odoo";
+import { field, listed, openListed, openMenu, openTab, press, pressLabel, save, search, settled, status, type } from "../support/odoo";
 import { follow, openMyAccount } from "../support/portal";
 import { download, pdfText, printed, reviewPdf, waitForPdf } from "../support/report";
 
@@ -12,7 +12,6 @@ const REPORTS_TO_DELIVER = [...RESULTS, "sol_laboratory.menu_test_report_to_deli
 const CHANGE_REQUESTS = [LABORATORY, "sol_laboratory.menu_laboratory_requests", "sol_laboratory.menu_change_request"];
 const TASKS = "sol_laboratory.menu_tasks_root";
 const TASK_QUEUE = [TASKS, "sol_laboratory.menu_task_queue"];
-const MY_TASKS = [TASKS, "sol_laboratory.menu_task_mine"];
 
 const CORRECTED = "12.4";
 const UNIT = "mg/L";
@@ -86,8 +85,8 @@ test("SF-03 Change request on a signed document", async ({ as }) => {
     await expect(status(head)).toHaveAttribute("data-value", "approved");
   });
 
-  // The sample test lists the replaced signed version beside the new one.
-  const resultRow = (page) => field(page, "result_ids").locator(".o_data_row").filter({ hasNot: page.locator("td[name=status]", { hasText: /^Approved$/ }) });
+  // The results of the sample list the replaced signed version beside the new one.
+  const newVersion = (page) => listed(page, journey.parameterName).filter({ has: page.locator("td[name=status]", { hasText: /^Draft$/ }) });
 
   await step(tester, "The correction is queued in the department: the tester claims it and corrects the new version", async () => {
     await openMenu(tester, ...TASK_QUEUE);
@@ -95,16 +94,12 @@ test("SF-03 Change request on a signed document", async ({ as }) => {
     const task = listed(tester, journey.nitrateTaskName);
     await expect(task).toHaveCount(1);
     await press(tester, "action_claim", { within: task });
-    await openMenu(tester, ...MY_TASKS);
-    await search(tester, journey.parameterName);
-    await openListed(tester, journey.nitrateTaskName);
-    await expect(field(tester, "sample_id")).toHaveText(labCode);
-    await expect(status(tester)).toHaveAttribute("data-value", "testing");
-    await openTab(tester, "results");
-    await expect(resultRow(tester)).toHaveCount(1);
-    await resultRow(tester).locator("td[name=value_display]").click();
+    await expect(listed(tester, journey.nitrateTaskName)).toHaveCount(0);
+    await openMenu(tester, ...TEST_RESULTS);
+    await search(tester, labCode, { field: "Sample" });
+    await expect(newVersion(tester)).toHaveCount(1);
+    await newVersion(tester).locator(".o_data_cell").first().click();
     await settled(tester);
-    await expect(tester.locator(".modal:visible .o_form_view")).toBeVisible();
     await expect(field(tester, "version")).toHaveText("2");
     await expect(status(tester)).toHaveAttribute("data-value", "none");
     await type(tester, "value", CORRECTED);
@@ -116,8 +111,7 @@ test("SF-03 Change request on a signed document", async ({ as }) => {
   await step(tester, "The tester sends and signs the corrected result for Head of Department approval", async () => {
     await pressLabel(tester, "Send for Approval", { within: buttons(tester) });
     await expect(status(tester)).toHaveAttribute("data-value", "requested");
-    await closeDialog(tester);
-    await expect(resultRow(tester).locator("td[name=status]")).toHaveText("Awaiting Approval");
+    await expect(button(tester, "Send for Approval")).toHaveCount(0);
   });
 
   await outside("The head of department is notified that the corrected result waits for approval", "e-mail");

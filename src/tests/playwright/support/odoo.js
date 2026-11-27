@@ -271,13 +271,6 @@ export async function save(page) {
   await expect(buttons).toHaveCount(0);
 }
 
-// Leaves the form without saving what was changed on it.
-export async function discard(page) {
-  await page.locator(".o_form_button_cancel:visible").last().click();
-  await settled(page);
-  await expect(page.locator(".o_form_button_save:visible")).toHaveCount(0);
-}
-
 // Closes the dialog on top with its cross.
 export async function closeDialog(page) {
   const dialogs = page.locator(".modal:visible");
@@ -311,50 +304,4 @@ export async function showList(page) {
   await page.locator(".o_switch_view.o_list:visible").click();
   await expect(page.locator(".o_list_view:visible")).toBeVisible();
   await settled(page);
-}
-
-// Opens or closes the messaging menu of the menu bar.
-export async function toggleMessages(page) {
-  await page.locator(".o_menu_systray .o-mail-DiscussSystray-class").click();
-}
-
-// The messaging menu's tab of the notices a person receives in the application; people notified by e-mail have none.
-export function noticesTab(page) {
-  return page.locator(".o-mail-MessagingMenuInDropdown .o-mail-MessagingMenu-tab[data-id=notification]");
-}
-
-// Opens the messaging menu on the notices the signed-in person received in the application. The menu reads them
-// once: a notice sent after that shows when the page is loaded again.
-export async function openNotices(page) {
-  await toggleMessages(page);
-  await noticesTab(page).click();
-  await settled(page);
-  return page.locator(".o-mail-MessagingMenuInDropdown .o-mail-NotificationItem");
-}
-
-// Chooses, in the user's preferences, to be notified in the application instead of by e-mail.
-export async function receiveNoticesInApplication(page) {
-  await page.locator(".o_user_menu").click();
-  await page.locator(".o-dropdown--menu [data-menu=preferences]").click();
-  await settled(page);
-  const preferences = front(page);
-  const inApplication = field(page, "notification_type").locator(".o_radio_item", { hasText: "In Odoo" }).locator("input");
-  if (await inApplication.isChecked()) {
-    await pressLabel(page, "Discard", { within: preferences });
-  } else {
-    await inApplication.check();
-    // Saving the preferences loads the page again.
-    await Promise.all([page.waitForEvent("load"), preferences.locator("button[name=preference_save]").click()]);
-    await settled(page);
-  }
-  await toggleMessages(page);
-  await expect(noticesTab(page)).toBeVisible();
-  await toggleMessages(page);
-}
-
-// Opens the user menu and signs out.
-export async function signOut(page) {
-  await page.locator(".o_user_menu button").click();
-  await page.locator("[data-menu=logout]").click();
-  await expect(page).toHaveURL(/\/web\/login|\/$/);
 }

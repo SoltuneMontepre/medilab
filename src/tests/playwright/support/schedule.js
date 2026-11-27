@@ -28,18 +28,6 @@ export function later(iso, minutes) {
   return `${shifted.toISOString().slice(0, 19)}${LAB_OFFSET}`;
 }
 
-// The ISO moment as a date-and-time field takes it in English: 11/27/2026 10:00:00 AM.
-export function typedMoment(iso) {
-  const { year, month, day, hour, minute, half } = clock(iso);
-  return `${pad(month)}/${pad(day)}/${year} ${pad(hour)}:${pad(minute)}:00 ${half}`;
-}
-
-// The ISO moment as a field's tooltip writes it: 11/27/2026 10:00 AM.
-export function shownMoment(iso) {
-  const { year, month, day, hour, minute, half } = clock(iso);
-  return `${pad(month)}/${pad(day)}/${year} ${pad(hour)}:${pad(minute)} ${half}`;
-}
-
 // The ISO moment as a list writes it, Nov 27, 10:00 AM, with the year for a day of another year.
 export function listedMoment(iso) {
   const { year, month, day, hour, minute, half } = clock(iso);
@@ -58,17 +46,6 @@ export async function findBookings(page, sampleTest) {
 export async function bookingSlot(page) {
   const moment = async (name) => labMoment(await shownDay(page, name).getAttribute("data-tooltip"));
   return { start: await moment("starts_at"), end: await moment("ends_at") };
-}
-
-// Types an ISO moment into a date-and-time field of the form.
-export async function typeMoment(page, name, iso, within) {
-  const widget = field(page, name, within);
-  // A moment already set shows as a button until it is clicked.
-  await widget.locator("input, button").first().click();
-  const input = widget.locator("input").first();
-  await input.fill(typedMoment(iso));
-  await input.blur();
-  await settled(page);
 }
 
 // The machine the open booking names, with its code, which only the machine's own form shows: the booking links to
