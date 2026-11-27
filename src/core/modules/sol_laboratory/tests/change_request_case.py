@@ -26,7 +26,9 @@ class ChangeRequestCase(ReportCase):
             ._raise(document._name, document.id, change, reason)
         )
 
-    def messages(self, request, event):
-        return self.env["mail.message"].search(
-            [("model", "=", request._name), ("res_id", "=", request.id), ("subtype_id", "=", self.env.ref(event).id)]
-        )
+    def messages(self, request, event=None):
+        """The messages on the document, only those of the event when one is named."""
+        domain = [("model", "=", request._name), ("res_id", "=", request.id)]
+        if event:
+            domain.append(("subtype_id", "=", self.env.ref(event).id))
+        return self.env["mail.message"].search(domain)
