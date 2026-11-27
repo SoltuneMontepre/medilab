@@ -246,8 +246,8 @@ class TestRequest(models.Model, TestRequestBase):
         self.sudo().sample_ids._cancel()
 
     def action_print_labels(self):
-        # Labels do not use the company's document layout, so printing never asks to configure it.
-        return self.env.ref(SAMPLE_LABEL_REPORT).report_action(self.sample_ids, config=False)
+        samples = self.sample_ids._samples_for_labels(allow_partial=True)
+        return self.env.ref(SAMPLE_LABEL_REPORT).report_action(samples, config=False)
 
     def _next_statuses(self):
         self.ensure_one()

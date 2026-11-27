@@ -18,6 +18,7 @@ from odoo.addons.sol_commerce.constants.models import (
 from odoo.addons.sol_commerce.constants.notifications import EVENT_BALANCE_REQUESTED
 from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_NONE,
+    ADVANCE_PAID_STATES,
     BALANCE_AT_COLLECTION,
     BALANCE_BEFORE_COLLECTION,
     QUOTATION_ACCEPTED,
@@ -187,6 +188,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         "payment_status",
         "on_credit",
         "payment_request_ids.state",
+        "quotation_ids.advance_invoice_id.payment_state",
         "balance_due",
         "order_status",
         "test_request_id.status",
@@ -237,9 +239,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         return not self._collection_hold()
 
     def _collection_hold(self):
-        """Why the order's samples cannot be collected yet, or False: its advance is not verified, or Sales asked for
-        the balance before collection and it is not paid. Otherwise the balance is due at collection or before the
-        report, which waits until the order is paid. Nothing holds an order whose samples are in already."""
+        """A verified advance releases collection even when the balance falls due before the samples arrive."""
         self.ensure_one()
         if self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total):
             return False
@@ -249,9 +249,15 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         advance = self.sudo().payment_request_ids.filtered(
             lambda ask: ask.kind == "advance" and ask.quotation_id == quotation
         )
-        if not quotation or any(ask.state != "funded" for ask in advance):
+        legacy_invoice = quotation.sudo().advance_invoice_id
+        if (
+            not quotation
+            or any(ask.state != "funded" for ask in advance)
+            or (legacy_invoice and legacy_invoice.payment_state not in ADVANCE_PAID_STATES)
+        ):
             return self.env._("Verify the order's advance before collecting its samples.")
-        if self.balance_due == BALANCE_BEFORE_COLLECTION:
+        # An unpaid, non-credit order sent without an advance still owes its first payment on the agreed terms.
+        if not (advance or legacy_invoice) and self.balance_due == BALANCE_BEFORE_COLLECTION:
             return self.env._("Verify the order balance before collecting its samples.")
         return False
 
@@ -372,7 +378,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         self.sudo().payment_request_id = request
         order = self.with_context(lang=self._get_lang())
         values = {"amount": order.currency_id.format(amount), "order": order.name}
-        if self.balance_due == BALANCE_BEFORE_COLLECTION:
+        if self.balance_due == BALANCE_BEFORE_COLLECTION and self._collection_hold():
             body = order.env._(
                 "Pay the remaining %(amount)s for order %(order)s before its samples are collected.", **values
             )
@@ -393,8 +399,12 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         )
 
     def _release_test_request(self):
-        for request in self.sudo().test_request_id.filtered(lambda item: item.status == "confirmed"):
-            request._set_status("paid")
+        for order in self.sudo():
+            request = order.test_request_id
+            if order.order_status == STATUS_CONFIRMED and request.status == "confirmed":
+                status = request._status_after_confirmation()
+                if status:
+                    request._set_status(status)
 
     def _keep_order_numbers(self):
         """Write each order's number on its test request, which keeps it once uninstalling E-commerce drops the link."""

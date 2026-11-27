@@ -28,9 +28,9 @@ describe("WF-01 order confirmation and test request (F-10)", () => {
       callRefused("sale.order", "action_start_sample_collection", [[order.id]]).should("eq", "Đơn hàng phải được xác nhận trước khi thu mẫu.");
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").click();
-      // Sales enters when and where the samples are collected; the address and appointment start from the order.
+      // The dialog starts with the agreed pickup day and the customer's address.
       cy.get(".modal .o_field_widget[name=address] textarea").invoke("val").should("not.be.empty");
-      cy.get(".modal .o_field_widget[name=appointment]").invoke("text").should("not.be.empty");
+      cy.get(".modal .o_field_widget[name=appointment]").should("contain.text", "8:00");
       cy.get(".modal button[name=action_start]").click();
       cy.get(".modal").should("not.exist");
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
@@ -38,7 +38,7 @@ describe("WF-01 order confirmation and test request (F-10)", () => {
     });
   });
 
-  it("TC-F10-02 holds the sample collection of a portal order until its balance is paid", () => {
+  it("TC-F10-02 holds an unpaid portal order sent without an advance or credit when the balance is due before collection", () => {
     orderAt("confirmed", { advance: false }).then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);

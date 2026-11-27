@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from odoo import fields
 from odoo.exceptions import UserError
+from odoo.modules.module import load_script
 from odoo.tests import tagged
 
 from .order_case import OrderCase
@@ -21,20 +23,42 @@ class TestBalanceDue(OrderCase):
         order.with_user(self.sales).action_confirm_order()
         return order
 
-    def test_a_balance_due_before_collection_holds_the_collection_until_it_is_paid(self):
-        self.route_collection_to_delivery_staff()
+    def test_a_verified_advance_releases_collection_while_the_portal_balance_is_open(self):
+        staff = self.route_collection_to_delivery_staff()
         order = self.confirmed("before_collection")
+        request = order.test_request_id
+        balance = order.payment_request_id
 
-        self.assertTrue(order.show_unpaid_warning)
-        with self.assertRaisesRegex(UserError, "Verify the order balance"):
-            order.with_user(self.sales).action_start_sample_collection()
-
-        self.pay_advance(order)
-        order.invalidate_recordset(["payment_status", "show_unpaid_warning"])
-
+        self.assertEqual(request.status, "paid")
         self.assertFalse(order.show_unpaid_warning)
         order.with_user(self.sales).action_start_sample_collection()
         self.assertTrue(self.collection_tasks(order))
+        request.sample_ids.with_user(staff.user_id).sudo().action_receive("500 ml", "good")
+        self.assertEqual(request.status, "sample_received")
+        self.assertEqual((balance.kind, balance.state), ("balance", "open"))
+        self.assertAlmostEqual(balance.remaining_amount, order.amount_total * 0.7)
+        self.assertTrue(order._withholds_report())
+
+    def test_upgrade_releases_only_orders_whose_advance_is_verified(self):
+        funded = self.confirmed("before_collection")
+        unpaid = self.confirmed("before_collection")
+        funded.test_request_id.status = "confirmed"
+        unpaid.test_request_id.status = "confirmed"
+        unpaid.payment_request_ids.filtered(lambda ask: ask.kind == "advance").state = "open"
+        self.env.flush_all()
+
+        path = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.25.0" / "post-migrate.py"
+        migrate = load_script(str(path), "release_funded_advances").migrate
+        migrate(self.env.cr, "20.0.1.24.0")
+        migrate(self.env.cr, "20.0.1.24.0")
+        self.env.invalidate_all()
+
+        self.assertEqual(funded.test_request_id.status, "paid")
+        self.assertEqual(funded.payment_request_id.state, "open")
+        self.assertEqual(unpaid.test_request_id.status, "confirmed")
+        unpaid.payment_request_ids.filtered(lambda ask: ask.kind == "advance")._refresh_funding()
+        self.assertEqual(unpaid.test_request_id.status, "paid")
+        self.assertEqual(unpaid.payment_request_id.state, "open")
 
     def test_a_balance_due_at_collection_goes_on_the_collection_task(self):
         self.route_collection_to_delivery_staff()

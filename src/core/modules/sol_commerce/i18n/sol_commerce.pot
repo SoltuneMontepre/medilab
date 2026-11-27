@@ -8,6 +8,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-11-27 12:01+0000\n"
 "PO-Revision-Date: 2026-11-27 12:01+0000\n"
+"POT-Creation-Date: 2026-11-26 20:14+0000\n"
+"PO-Revision-Date: 2026-11-26 20:14+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -2747,6 +2749,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
 msgid "Give an expected pickup day that has not passed."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "Give the date you want the results to ask for priority."
 msgstr ""
 
 #. module: sol_commerce
@@ -5907,6 +5915,7 @@ msgstr ""
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_priority.py:0
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
 msgid "The priority request cannot be checked: %s"
 msgstr ""
 
@@ -6639,4 +6648,31 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "working days of receiving the samples"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "working days of receiving the samples."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Sample Received At"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__samples_received
+msgid "Samples received"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__expects_samples
+msgid "Expects Samples"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "The order's samples are all received; none is left to collect."
 msgstr ""

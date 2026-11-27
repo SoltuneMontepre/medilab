@@ -7,10 +7,11 @@ from odoo.addons.sol_commerce.constants.notifications import EVENT_INVOICE_SENT,
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE, MODEL_SCHEDULED_JOB
 
 # The notices in demo.registered's portal, by the end of their xml id: the event, the subject, the text and whether the
-# customer already opened it.
+# customer already opened it. As the notices the invoices and payments send, an invoice's is titled with its number and a
+# payment receipt has no subject, so it is titled with its event in the reader's language.
 NOTICES = (
-    ("invoice_sent", EVENT_INVOICE_SENT, "Invoice HD-0001", "Invoice HD-0001 is ready in your portal.", False),
-    ("payment_receipt", EVENT_PAYMENT_RECEIPT, "Payment receipt", "We received your payment of 1,000,000 VND.", True),
+    ("invoice_sent", EVENT_INVOICE_SENT, "HD-0001", "Invoice HD-0001 is ready in your portal.", False),
+    ("payment_receipt", EVENT_PAYMENT_RECEIPT, None, "We received your payment of 1,000,000 VND.", True),
 )
 
 
@@ -37,7 +38,7 @@ def seed_mandatory_notices(env):
         env.ref("sol_demo.demo_customer_nuoc_sach"),
         "demo:temporary-email-retry",
         "The invoice email is waiting for its next attempt.",
-        subject="Invoice email waiting to retry",
+        subject="HD-0002",
         partners=hoa,
     )
     notification = retry_message.notification_ids.filtered(lambda item: item.res_partner_id == hoa)

@@ -9,6 +9,7 @@ from odoo.tools import float_compare, formatLang
 from odoo.addons.sol_laboratory.constants.approvals import STATE_APPROVED, STATE_NONE
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS, MODEL_TEST_RESULT
 from odoo.addons.sol_laboratory.services.number_text import plain_digits, plain_number
+from odoo.addons.sol_laboratory.services.translations import in_every_language
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_test_result as TestResultCheckBase
@@ -31,9 +32,9 @@ class TestResultCheck(models.Model, TestResultCheckBase):
     _inherit = MODEL_TEST_RESULT
 
     if not TYPE_CHECKING:
-        # Why the sanity check found the value unusual when it was sent, shown to the approver; empty when nothing was
-        # found.
-        check_warning = fields.Text(string="Sent With Warning", readonly=True, copy=False)
+        # Why the sanity check found the value unusual when it was sent, in each language, shown to the approver; empty
+        # when nothing was found.
+        check_warning = fields.Text(string="Sent With Warning", readonly=True, copy=False, translate=True)
         # Why the sanity check finds the value unusual now, shown to the tester before sending; empty once it is sent.
         check_preview = fields.Text(string="Warning", compute="_compute_check_preview")
 
@@ -56,7 +57,10 @@ class TestResultCheck(models.Model, TestResultCheckBase):
                     )
                 )
             # The warnings found when the result is sent stay on it for the approver; sending it is the tester's call.
-            self.sudo().check_warning = "\n".join(self._check_warnings()) or False
+            warnings = in_every_language(
+                self.env, lambda lang: "\n".join(self.with_context(lang=lang)._check_warnings())
+            )
+            self.sudo().write({"check_warning": warnings if any(warnings.values()) else False})
         return super().action_sign()
 
     def _check_warnings(self) -> list[str]:

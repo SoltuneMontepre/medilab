@@ -45,6 +45,17 @@ class TestResultSanityCheck(SanityCheckCase):
         self.assertFalse(result.check_preview)
         self.assertEqual(self.as_person(result, self.head).check_warning, result.check_warning)
 
+    def test_the_warning_sent_reads_in_the_language_of_whoever_opens_the_result(self):
+        self.env["res.lang"]._activate_lang("vi_VN")
+        self.env["ir.module.module"]._load_module_terms(["sol_laboratory"], ["vi_VN"], overwrite=True)
+        self.approved_results()
+        result = self.enter(value=0.0062)
+
+        self.send(result)
+
+        self.assertIn("standard deviations", text(result.with_context(lang="en_US").check_warning))
+        self.assertIn("độ lệch chuẩn", text(result.with_context(lang="vi_VN").check_warning))
+
     def test_a_value_close_to_the_approved_results_does_not_warn(self):
         self.approved_results()
 

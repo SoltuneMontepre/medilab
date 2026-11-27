@@ -41,6 +41,12 @@ class TestLanguages(TransactionCase):
         self.assertEqual(security_card.with_context(lang=VIETNAMESE).name, "Kết nối & Bảo mật")
         self.assertEqual(security_card.with_context(lang=ENGLISH).name, "Connection & Security")
 
+    def test_reports_label_the_vietnamese_tax_id_in_the_readers_language(self):
+        vietnam = self.env.ref("base.vn")
+
+        self.assertEqual(vietnam.with_context(lang=ENGLISH).vat_label, "Tax ID")
+        self.assertEqual(vietnam.with_context(lang=VIETNAMESE).vat_label, "Mã số thuế")
+
     def test_user_language_choice_is_remembered(self):
         user = self.english_user.with_user(self.english_user)
 
