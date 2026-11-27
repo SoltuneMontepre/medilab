@@ -59,6 +59,26 @@ class TestRequestSimulation(SchedulingCase):
 
         self.assertEqual(simulated["finish"], MONDAY + timedelta(minutes=45))
 
+    def test_the_priority_check_waits_behind_urgent_proposed_work_only(self):
+        # With the slow machine under repair, the plan proposes the priority order's test at 08:00 and the normal test
+        # after it, on the fast machine.
+        self.slow.status = "under_repair"
+        normal_test = self.new_test()
+        self.testing_task(normal_test, self.tester)
+        urgent_test = self.new_test()
+        self.testing_task(urgent_test, self.other_tester)
+        urgent_test.sample_id.request_id.priority = True
+        self.assertEqual(
+            [(test.priority, test.booking_ids.starts_at) for test in (urgent_test, normal_test)],
+            [("urgent", MONDAY), ("normal", MONDAY + timedelta(minutes=45))],
+        )
+
+        checked = self.requests._check_priority([self.pair], date(2026, 10, 14))
+        simulated = self.requests._simulate_ways([self.pair], MONDAY, urgent=True)
+
+        self.assertEqual(checked, {"date": date(2026, 10, 14), "feasible": True, "reasons": []})
+        self.assertEqual(simulated["finish"], MONDAY + timedelta(minutes=90))
+
     def test_the_simulation_books_nothing(self):
         self.held_request()
         bookings = self.env["medilab.machine.booking"].search_count([])

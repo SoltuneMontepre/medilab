@@ -68,9 +68,9 @@ class TestRequestSimulation(models.Model, TestRequestSimulationBase):
         bookings = self.env[MODEL_MACHINE_BOOKING].sudo()
         proposed = Domain("status", "=", "proposed") & Domain("starts_at", "!=", False)
         proposed &= Domain("department_id", "in", departments.ids)
-        if urgent:
-            proposed &= Domain("sample_test_id.priority", "=", "urgent")
         planned = bookings.search(proposed)
+        if urgent:
+            planned = planned.filtered(lambda booking: booking.sample_test_id.priority == "urgent")
         tests = (
             self.env[MODEL_SAMPLE_TEST]
             .sudo()
