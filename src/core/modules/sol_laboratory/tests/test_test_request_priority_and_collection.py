@@ -8,7 +8,6 @@ from odoo.tools import html2plaintext
 
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.models import (
-    MODEL_PERMISSION,
     MODEL_PERSON,
     MODEL_TASK,
     MODEL_TASK_TYPE,
@@ -107,7 +106,7 @@ class TestTestRequestPriorityAndCollection(RequestCase):
             login="lab.request.only",
             groups=f"base.group_user,{TEST_REQUEST_READER_GROUP}",
         )
-        reader_perm = self.env[MODEL_PERMISSION].search([("code", "=", "test_request.read.all")], limit=1)
+        reader_perm = self.env.ref("sol_laboratory.permission_test_request_read_all")
         reader_person = self.env[MODEL_PERSON].create(
             {
                 "name": "Lab Reader",
@@ -120,7 +119,7 @@ class TestTestRequestPriorityAndCollection(RequestCase):
         self.assertEqual(request_as_reader.collection_task_count, 1)
         self.assertFalse(request_as_reader.can_open_collection_tasks)
 
-        task_perm = self.env[MODEL_PERMISSION].search([("code", "=", "task.read.all")], limit=1)
+        task_perm = self.env.ref("sol_laboratory.permission_task_read_all")
         reader_person.permission_ids = [Command.link(persisted_id(task_perm))]
         request_as_reader.invalidate_recordset(["can_open_collection_tasks"])
         self.assertTrue(request_as_reader.can_open_collection_tasks)
