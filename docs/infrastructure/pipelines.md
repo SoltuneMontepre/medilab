@@ -4,20 +4,20 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 
 ## Workflows
 
-| Workflow        | Runs on                                                                                 | Does                                                                                                               |
-| --------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, then SonarQube Cloud.                                                    |
-| `ci-infra`      | every pull request                                                                      | Checks Terraform, Ansible, origin isolation, ONLYOFFICE contracts and CloudBeaver when their paths change.         |
-| `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                         |
-| `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                           |
-| `ci-mobile-app` | every pull request, and every night for the Maestro flows                               | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                   |
-| `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails. |
-| `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                            |
-| `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                               |
-| `cd-reset`      | a manual run on `main`                                                                  | Recreates the production database and installs it again with the demo data.                                        |
-| `cd-sync-app`   | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                    |
-| `cd-mobile-app` | a `mobile-v*` tag                                                                       | Builds the signed Android APK and code update of the mobile app and publishes them to the release bucket.          |
-| `cd-cleanup`    | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                            |
+| Workflow        | Runs on                                                                                 | Does                                                                                                                                   |
+| --------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, then SonarQube Cloud.                                                                        |
+| `ci-infra`      | every pull request                                                                      | Checks Terraform, Ansible, origin isolation, ONLYOFFICE contracts and CloudBeaver when their paths change.                             |
+| `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                                             |
+| `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                                               |
+| `ci-mobile-app` | every pull request, and every night for the Maestro flows                               | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                                       |
+| `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails.                     |
+| `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                                                |
+| `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                                                   |
+| `cd-reset`      | a manual run on `main`                                                                  | Recreates the production database and installs it again with the demo data.                                                            |
+| `cd-sync-app`   | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                                        |
+| `cd-mobile-app` | a `mobile-v*` tag                                                                       | Builds the signed Android APK and code update of the mobile app, publishes them to the release bucket and the APK as a GitHub release. |
+| `cd-cleanup`    | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                                                |
 
 Every workflow can also be started by hand.
 
@@ -153,7 +153,7 @@ flowchart LR
 
 ## cd-mobile-app
 
-A release starts by pushing a tag `mobile-v<version>`, such as `mobile-v1.2.3`. One `release` job in the `mobile-release` environment, which only `mobile-v*` tags may use, builds both artifacts and publishes them to the `medilab-release` bucket:
+A release starts by pushing a tag `mobile-v<version>`, such as `mobile-v1.2.3`. The `release` job in the `mobile-release` environment, which only `mobile-v*` tags may use, builds both artifacts and publishes them to the `medilab-release` bucket; the `github-release` job then publishes the APK on GitHub:
 
 ```mermaid
 flowchart LR
@@ -170,7 +170,8 @@ flowchart LR
 - The catalog is read from the bucket and the new code and install releases are added to it before anything is uploaded, so a version that is already released fails without changing the bucket. Only the first release finds no catalog; any other read error stops the run.
 - The artifacts go to `mobile/android/<version>/` in the bucket: `medilab-<version>.apk` and `update/`. The catalog, `mobile/catalog.json`, is published last, so it never names a file that is not there yet. Its format is in [Medilab Mobile](../specs/medilab-mobile.md#updates).
 - The last step prints the APK's address in the log and the run's summary. An administrator sends it to staff for their first install; MediLab shows no download link.
-- A manual run must be started on a `mobile-v*` tag, such as to retry a failed release; on another reference it fails at its first step.
+- The job keeps the signed APK as an artifact, and the `github-release` job, which alone may write to the repository, publishes it as the GitHub release `MediLab Mobile <version>` of the tag, with notes generated from the pull requests merged since the previous `mobile-v*` tag. The release is never marked latest, since MediLab links to the latest release for the Sync installers.
+- A manual run must be started on a `mobile-v*` tag, such as to retry a failed release; on another reference it fails at its first step. A tag on a commit whose message has `[skip ci]`, such as a `[chore] Release` commit, starts no run, so it is started by hand on the tag.
 - **Rolling back.** An administrator first stops the bad version in MediLab's settings, so no phone downloads it any more. Phones never launch an older code update than the one they run, so the release owner then tags the commit of the last good release with the next version, such as `mobile-v1.2.4` on the commit of `mobile-v1.2.2`, and the job publishes that code again as a newer release, which phones take at their next check.
 
 ## cd-core
