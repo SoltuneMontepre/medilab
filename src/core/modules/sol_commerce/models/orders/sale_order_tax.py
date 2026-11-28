@@ -43,7 +43,7 @@ class SaleOrderTax(models.Model, SaleOrderTaxBase):
         for order in self:
             # A sent quotation keeps the tax it was sent with.
             if order.order_tax_id and order in order._frozen_by_quotation():
-                order.order_tax_id = order.order_tax_id
+                order.order_tax_id = order.order_tax_id.id
                 continue
             if order.chosen_tax_id:
                 order.order_tax_id = order.chosen_tax_id

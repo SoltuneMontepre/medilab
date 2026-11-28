@@ -6,7 +6,7 @@ let pending = null;
 function saveDetails(form) {
   clearTimeout(pending);
   pending = setTimeout(() => {
-    fetch(form.dataset.save, { method: "POST", body: new FormData(form), credentials: "same-origin" });
+    void fetch(form.dataset.save, { method: "POST", body: new FormData(form), credentials: "same-origin" });
   }, SAVE_DELAY);
 }
 
