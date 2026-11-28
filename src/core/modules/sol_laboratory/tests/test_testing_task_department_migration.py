@@ -59,9 +59,27 @@ class TestTestingTaskDepartmentMigration(SchedulingCase):
             (task.department_id, task.assignee_id, task.status), (self.department, self.tester, "assigned")
         )
 
-    def test_a_testing_task_in_progress_stays_where_it_is(self):
+    def test_a_testing_task_in_progress_with_a_tester_of_its_department_returns_and_goes_on(self):
         task = self.misplaced(self.tester, "in_progress")
 
         self.migrate()
 
-        self.assertEqual((task.department_id, task.status), (self.microbiology, "in_progress"))
+        self.assertEqual(
+            (task.department_id, task.assignee_id, task.status), (self.department, self.tester, "in_progress")
+        )
+
+    def test_a_testing_task_in_progress_outside_the_department_of_its_way_returns_to_its_queue(self):
+        self.authorize(self.microbiologist, self.parameter)
+        task = self.misplaced(self.microbiologist, "in_progress")
+
+        self.migrate()
+
+        self.assertEqual((task.department_id, task.status), (self.department, "open"))
+        self.assertFalse(task.assignee_id)
+
+    def test_a_finished_testing_task_stays_where_it_is(self):
+        task = self.misplaced(self.microbiologist, "done")
+
+        self.migrate()
+
+        self.assertEqual((task.department_id, task.status), (self.microbiology, "done"))
