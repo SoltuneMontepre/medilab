@@ -4,6 +4,7 @@ from lxml import etree
 
 from odoo.fields import Command
 from odoo.tests import new_test_user, tagged
+from odoo.tools import html2plaintext
 
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.models import (
@@ -21,6 +22,12 @@ from odoo.addons.sol_laboratory.services.record_id import persisted_id
 @tagged("post_install", "-at_install")
 class TestTestRequestPriorityAndCollection(RequestCase):
     """Test requests stay decoupled from Sales, compute turnaround and priority automatically, and show their collection."""
+
+    def standalone_request(self):
+        """A request without an order whose test has the way of testing offered on its sample's type."""
+        request = self.create_request()
+        request.sample_ids.test_ids.parameter_method_id = self.applicability.parameter_method_id
+        return request
 
     def test_request_has_no_sales_statuses_and_hides_order_number(self):
         statuses = dict(self.env[MODEL_TEST_REQUEST]._fields["status"]._description_selection(self.env))
@@ -40,13 +47,13 @@ class TestTestRequestPriorityAndCollection(RequestCase):
     def test_standalone_request_auto_computes_turnaround_priority_and_sorts_first(self):
         self.parameter.method_ids.turnaround_days = 5
         requests = self.env[MODEL_TEST_REQUEST]
-        standard = self.create_request()
+        standard = self.standalone_request()
         expected_standard_date = requests._date_after_working_days(standard.request_date, 5)
         self.assertEqual(standard.turnaround_days, 5)
         self.assertFalse(standard.priority)
         self.assertEqual(standard.priority_badge, "standard")
 
-        urgent = self.create_request()
+        urgent = self.standalone_request()
         urgent.requested_date = requests._date_after_working_days(urgent.request_date, 2)
         self.assertTrue(urgent.priority)
         self.assertEqual(urgent.priority_badge, "priority")
@@ -85,7 +92,8 @@ class TestTestRequestPriorityAndCollection(RequestCase):
 
         self.assertEqual(task.location_display, "Gate 2, 12 Le Loi")
         event = self.env["calendar.event"].search([("medilab_task_id", "=", task.id)])
-        self.assertEqual(event.description, note)
+        for line in note.splitlines():
+            self.assertIn(line, html2plaintext(event.description or ""))
 
         self.request.invalidate_recordset()
         self.assertEqual(self.request.collection_task_count, 1)

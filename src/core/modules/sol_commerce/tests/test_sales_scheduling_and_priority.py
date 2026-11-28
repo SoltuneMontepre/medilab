@@ -246,7 +246,7 @@ class TestSalesSchedulingAndPriority(OrderCase):
         # Claiming creates the collector's calendar event carrying the note, place and link to the test request.
         created_task.with_user(staff.user_id).action_claim()
         event = self.env["calendar.event"].sudo().search([("medilab_task_id", "=", created_task.id)])
-        for line in created_task.note.splitlines():
+        for line in (created_task.note or "").splitlines():
             self.assertIn(line, html2plaintext(event.description))
         self.assertEqual(event.location, "Gate B, 99 Pasteur")
         self.assertEqual(event.res_model, MODEL_TEST_REQUEST)

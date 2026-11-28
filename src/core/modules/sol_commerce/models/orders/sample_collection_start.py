@@ -68,7 +68,7 @@ class SampleCollectionStart(models.TransientModel, SampleCollectionStartBase):
             values["appointment"] = self._pickup_appointment(order.expected_collection_date, part)
         return values
 
-    def _pickup_appointment(self, day, part=False):
+    def _pickup_appointment(self, day, part: str | bool = False):
         """The start of the first working time in the company's working calendar from the pickup day agreed when
         sending the quotation, in the afternoon when the customer prefers it, or from now when that time has passed;
         False when none is found within a month."""

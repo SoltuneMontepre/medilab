@@ -34,6 +34,7 @@ class TestTestRequestPaidStepMigration(RequestCase):
                 "name": "Collect legacy sample",
                 "document_model": self.request._name,
                 "document_id": self.request.id,
+                "department_id": self.department.id,
                 "status": "open",
                 "planned_start": start,
                 "deadline": start + timedelta(days=1),

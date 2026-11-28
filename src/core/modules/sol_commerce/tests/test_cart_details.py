@@ -28,7 +28,7 @@ class TestCartDetails(OrderCase):
         first._prefill_collection()
 
         self.assertEqual((first.collection_method, first.collection_time), ("pickup", "any"))
-        self.assertIn("12 Le Loi", first.collection_address)
+        self.assertIn("12 Le Loi", first.collection_address or "")
 
         self.make_order(
             [(self.lead_product, 1)],
@@ -90,7 +90,8 @@ class TestCartDetails(OrderCase):
         order = self.make_order([(self.lead_product, 1)])
 
         order.expected_collection_date = date(2026, 12, 12)
-        self.assertIn("company day off", order._onchange_pickup_on_working_day()["warning"]["message"])
+        warning = order._onchange_pickup_on_working_day()
+        self.assertIn("company day off", (warning or {}).get("warning", {}).get("message", ""))
         order.expected_collection_date = date(2026, 12, 14)
         self.assertIsNone(order._onchange_pickup_on_working_day())
 
@@ -124,7 +125,7 @@ class TestCartDetails(OrderCase):
         task = self.collection_tasks(order)
         self.assertEqual(task.place, "Gate 2, 45 Le Loi")
         for line in order._collection_preference_lines(staff_env(self.env)):
-            self.assertIn(line, task.note)
+            self.assertIn(line, task.note or "")
         english = order._collection_preference_lines(self.env(context=dict(self.env.context, lang="en_US")))
         self.assertEqual(english, ["Preferred time: Afternoon", "Customer note: Call Ms Lan"])
 
@@ -139,4 +140,4 @@ class TestCartDetails(OrderCase):
             .create({"appointment": datetime(2026, 12, 9, 2, 0)})
         )
 
-        self.assertIn("bring the samples to the laboratory", wizard.schedule_warning)
+        self.assertIn("bring the samples to the laboratory", wizard.schedule_warning or "")

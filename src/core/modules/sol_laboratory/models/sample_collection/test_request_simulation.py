@@ -1,6 +1,6 @@
 from collections import defaultdict
 from datetime import date, datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from odoo import api, fields, models
 from odoo.fields import Domain
@@ -262,7 +262,7 @@ class TestRequestSimulation(models.Model, TestRequestSimulationBase):
         way_resources, capacities, all_people, all_machines, room_steps = self._preload_way_resources(ways_rs)
         all_machines.fetch(["status", "active", "next_calibration_date", "next_maintenance_date"])
         all_machines.service_ids.fetch(["machine_id", "kind", "service_date", "downtime_start", "downtime_end"])
-        usable_until = {machine.id: machine._usable_until() for machine in all_machines}
+        usable_until = cast(dict[int, datetime], {machine.id: machine._usable_until() for machine in all_machines})
         held_bookings = (
             bookings.search_fetch(
                 [("machine_id", "in", all_machines.ids), ("status", "=", "in_progress"), ("ends_at", "<=", now)],
@@ -272,7 +272,10 @@ class TestRequestSimulation(models.Model, TestRequestSimulationBase):
             else bookings.browse()
         )
         all_people.employee_id.fetch(["resource_calendar_id", "resource_id"])
-        working = {person.id: bookings._working_time(person, window_start, window_end) for person in all_people}
+        working = cast(
+            dict[int, list[tuple[datetime, datetime]]],
+            {person.id: bookings._working_time(person, window_start, window_end) for person in all_people},
+        )
         busy = self._preload_busy_bookings(all_machines, all_people, initial_planned, window_start, window_end)
         room_events, planned_room_uses, closures = self._preload_room_state(
             room_steps, initial_planned, window_start, window_end, now

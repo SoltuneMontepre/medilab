@@ -54,7 +54,7 @@ class SaleOrderTax(models.Model, SaleOrderTaxBase):
                 if tax:
                     value = line.product_uom_qty * line.price_unit * (1 - (line.discount or 0) / 100)
                     values[tax] = values.get(tax, 0) + value
-            order.order_tax_id = max(values, key=values.get) if values else False
+            order.order_tax_id = max(values, key=lambda tax: values[tax]) if values else False
 
     def _inverse_order_tax_id(self):
         for order in self:
