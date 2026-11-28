@@ -344,7 +344,8 @@ class TestNotifications(TransactionCase):
         self.assertEqual(len(deliveries), 2)
         self.assertEqual(len(lookups), 1)
         self.assertEqual(set(deliveries.mapped("status")), {"pending"})
-        self.assertEqual(jobs._by_key(PUSH_JOB).last_run_id.log.count("deferred"), 2)
+        log = assert_instance(jobs._by_key(PUSH_JOB).last_run_id.log, str)
+        self.assertEqual(log.count("deferred"), 2)
 
     def test_a_pass_of_the_push_cron_that_spent_its_time_leaves_the_pushes_for_the_next(self):
         push_token(self.env, self.user, "token-1")
@@ -372,7 +373,7 @@ class TestNotifications(TransactionCase):
             "odoo.addons.sol_laboratory.models.notifications.scheduled_job.firebase_client_from_env",
             side_effect=AssertionError("A spent pass looks up no credentials."),
         ):
-            deferred_to = in_cron(late)._handle_notifications_push(item)
+            deferred_to = assert_instance(in_cron(late)._handle_notifications_push(item), datetime)
         self.assertLessEqual(deferred_to, fields.Datetime.now())
 
     def client_from_env(self):
