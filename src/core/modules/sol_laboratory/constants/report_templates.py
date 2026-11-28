@@ -28,9 +28,14 @@ ISSUE_BINDINGS = ("report_number", "report_date")
 CANDIDATE_REVIEW = "review"
 CANDIDATE_OBSOLETE = "obsolete"
 CANDIDATE_ISSUED = "issued"
-# How a candidate was made: prepared from a DOCX draft, or kept from a report issued before report templates existed.
+# How a candidate was made: prepared from a DOCX draft, rendered by Odoo's own report on an installation without
+# ONLYOFFICE, or kept from a report issued before report templates existed.
 CANDIDATE_PREPARED = "prepared"
+CANDIDATE_BUILT_IN = "built_in"
 CANDIDATE_MIGRATED = "migrated"
+# Context key of the rendering of a report's PDF for review: it prints without the draft mark and the report's own
+# signatures, as the issued PDF does.
+CANDIDATE_PRINT_CONTEXT = "medilab_candidate_print"
 # Context key of the sign button of a report: the id of the prepared PDF its signer reviewed, which the signature signs.
 REVIEWED_CANDIDATE_CONTEXT = "medilab_reviewed_candidate_id"
 # Context key of the code that generates a report's DOCX draft or fills its issue details, the only code that adds

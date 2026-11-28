@@ -15,6 +15,7 @@ class TestAuditDownloads(AuditLookup, RequestCase, HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.report = cls.env.ref(SAMPLE_LABEL_REPORT)
+        cls.handover_for(cls.sample).action_sign(b"signature-bytes")
         new_test_user(cls.env, login=LOGIN, password=LOGIN, groups="sol_laboratory.group_role_administrator")
 
     def setUp(self):

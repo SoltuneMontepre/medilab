@@ -94,8 +94,8 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 
 - It starts only by hand, from the Actions page, and does nothing unless its `confirm` input is `RESET`.
 - It runs in the `database-reset` environment: `main` only, and approval by a reviewer from the `ansible_apply_reviewers` variable in `infra/`. It builds the same Ansible image and reads the same `infra` config as `cd-ansible`, then runs `reset.yml` on a k3s server.
-- The `reset` role, `infra/ansible/roles/reset/files/reset.sh`, runs in order:
-  1. Takes the `medilab-db-reset` on-demand backup of the `medilab-db` cluster, replacing the previous one, and waits until it completes.
+- The `reset` role (`infra/ansible/roles/reset/`) runs one task per step with periodic wait retries, streamed unbuffered to the Actions log, in order:
+  1. Checks SSH reachability, then takes the `medilab-db-reset` on-demand backup of the `medilab-db` cluster, replacing the previous one, and waits until it completes.
   2. Drops the `medilab` database, closing Odoo's connections, and creates it again empty, owned by the `medilab` user.
   3. Has Argo CD sync the `odoo` application from `main`, so its upgrade Job installs every module and the demo data on the empty database, and waits until the sync succeeds; see [Cluster](cluster.md#odoo).
   4. Restarts Odoo, so no worker keeps the registry of the dropped database.

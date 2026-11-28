@@ -5566,10 +5566,8 @@ msgid "Receipt time (Vietnam)"
 msgstr "Thời điểm nhận tiền (giờ Việt Nam)"
 
 #. module: sol_commerce
-#. odoo-python
 #: model:ir.model.fields,field_description:sol_commerce.field_account_payment__received_at
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__received_at
-#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "Received At"
 msgstr "Thời Điểm Nhận Tiền"
 
@@ -6727,3 +6725,25 @@ msgstr "chỉ tiêu đã chọn. Bỏ chọn chỉ tiêu bạn không cần ho�
 #: code:addons/sol_commerce/models/pricing/service_package.py:0
 msgid "These parameters are not for sale today: %s"
 msgstr "Các chỉ tiêu này hôm nay không được bán: %s"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Sample Received At"
+msgstr "Thời Điểm Nhận Mẫu"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__samples_received
+msgid "Samples received"
+msgstr "Đã nhận mẫu"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__expects_samples
+msgid "Expects Samples"
+msgstr "Còn chờ mẫu"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "The order's samples are all received; none is left to collect."
+msgstr "Đã nhận đủ mẫu của đơn hàng; không còn mẫu nào cần thu."

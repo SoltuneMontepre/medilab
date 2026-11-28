@@ -330,3 +330,20 @@ class TestOrderConfirmation(OrderCase):
 
         self.assertEqual(self.collection_tasks(order).status, "done")
         self.assertFalse(order.has_open_collection)
+
+    def test_received_samples_are_no_longer_awaited_or_collected_again(self):
+        self.route_collection_to_delivery_staff()
+        order = self.make_confirmed_order()
+        self.assertEqual((order.result_status, order.expects_samples), ("awaiting_samples", True))
+        order.with_user(self.sales).action_start_sample_collection()
+        samples = order.test_request_id.sample_ids
+        samples.physical_state = "liquid"
+
+        samples.with_user(self.sales).sudo().action_receive("1 bottle of 1 L", "good")
+
+        order.invalidate_recordset(["result_status", "expects_samples"])
+        self.assertEqual(order.test_request_id.status, "sample_received")
+        self.assertEqual((order.result_status, order.expects_samples), ("samples_received", False))
+        with self.assertRaisesRegex(UserError, "all received"):
+            order.with_user(self.sales).action_start_sample_collection()
+        self.assertEqual(len(self.collection_tasks(order)), 1)
