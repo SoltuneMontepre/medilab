@@ -16,10 +16,11 @@ else:
 _logger = logging.getLogger(__name__)
 
 
-# Dòng Đơn Hàng: a catalog line takes the tax of its parameter or package at the rate in force on the quotation date.
+# Dòng Đơn Hàng: a catalog line takes the tax of its order at the rate in force on the quotation date.
 class SaleOrderLineTax(models.Model, SaleOrderLineTaxBase):
     _inherit = MODEL_SALE_ORDER_LINE
 
+    @api.depends("product_id", "company_id", "order_id.order_tax_id")
     def _compute_tax_ids(self):
         parts = self.filtered(lambda line: line._is_package_part())
         for part in parts:
@@ -27,8 +28,7 @@ class SaleOrderLineTax(models.Model, SaleOrderLineTaxBase):
         open_lines = self - self._frozen_lines() - parts
         catalog = open_lines.filtered(lambda line: not line.display_type and bool(line._catalog_tax()))
         result = super(SaleOrderLineTax, open_lines - catalog)._compute_tax_ids()
-        # Odoo gives a line without a product the company's default tax; a MediLab line takes the tax of its parameter
-        # or package.
+        # Odoo gives a line without a product the company's default tax; a MediLab line takes the tax of its order.
         for line in (open_lines - catalog).filtered(lambda line: not line.product_id):
             line.tax_ids = False
         catalog._set_catalog_taxes()
@@ -61,6 +61,14 @@ class SaleOrderLineTax(models.Model, SaleOrderLineTaxBase):
         return (self._catalog_tax(), self._quotation_date(), self._tax_company(), order.fiscal_position_id)
 
     def _catalog_tax(self):
+        """The tax of the line's order, which every line of it takes but its down payments; without one, the tax of
+        the line's parameter or package, empty for a line outside the catalog."""
+        self.ensure_one()
+        if self.display_type or self.is_downpayment:
+            return self._own_catalog_tax()
+        return self.order_id.sudo().order_tax_id or self._own_catalog_tax()
+
+    def _own_catalog_tax(self):
         """The tax of the line's parameter price or package; empty for a line outside the catalog."""
         self.ensure_one()
         template = (self.product_id.product_tmpl_id or self.product_template_id).sudo()
@@ -86,8 +94,8 @@ class SaleOrderLineTax(models.Model, SaleOrderLineTaxBase):
 
     @api.model
     def _tax_untaxed_drafts(self):
-        """Give the catalog lines without a tax of orders not yet quoted, confirmed or invoiced the tax of their
-        parameter or package; the other orders keep the taxes they were quoted with."""
+        """Give the catalog lines without a tax of orders not yet quoted, confirmed or invoiced the tax of their order;
+        the other orders keep the taxes they were quoted with."""
         lines = (
             self.sudo()
             .search(

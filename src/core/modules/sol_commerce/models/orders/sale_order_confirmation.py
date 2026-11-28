@@ -1,6 +1,6 @@
 from contextvars import ContextVar
-from datetime import datetime
-from typing import TYPE_CHECKING
+from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Literal
 from zoneinfo import ZoneInfo
 
 from markupsafe import Markup, escape
@@ -50,7 +50,7 @@ CONFIRMING_ORDER_IDS = ContextVar("medilab_confirming_order_ids", default=frozen
 # Set by the Start sample collection button, which opens the dialog for the appointment and the place.
 COLLECTION_DIALOG = "medilab_collection_dialog"
 # Statuses of a test request whose samples have not arrived yet, while payment can still hold their collection.
-AWAITING_SAMPLE_STATUSES = ("draft", "confirmed", "paid", "on_credit")
+AWAITING_SAMPLE_STATUSES = ("draft", "confirmed")
 # Badge color of each sample status in the collected samples table; any other status is grey.
 SAMPLE_STATUS_BADGES = {
     "received": "text-bg-info",
@@ -119,13 +119,12 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         "test_request_id.sample_ids.received_quantity",
         "test_request_id.sample_ids.condition",
         "test_request_id.sample_ids.physical_state",
+        "test_request_id.sample_ids.expected_sampling_ids",
     )
     def _compute_collected_samples_html(self):
         _ = self.env._
         for order in self:
-            samples = order.sudo().test_request_id.sample_ids.filtered(
-                lambda s: bool(s.status != "expected" or s.received_at or s.condition)
-            )
+            samples = order.sudo().test_request_id.sample_ids
             if not samples:
                 order.has_collected_samples = False
                 order.collected_samples_html = False
@@ -145,15 +144,27 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 escape(_("Sample")),
                 escape(_("Sample Type")),
                 escape(_("Physical State")),
-                escape(_("Amount Received")),
+                escape(_("Quantity")),
                 escape(_("Condition")),
                 escape(_("Sample Received At")),
                 escape(_("Status")),
                 rows,
             )
 
+    def _sample_expected_quantity_summary(self, sample):
+        """Concise expected amount and container summary for a sample before handover is recorded."""
+        rows = sample.expected_sampling_ids.filtered(lambda row: row.group_number > 0)
+        parts = []
+        for row in rows:
+            amount = f"{row.amount:g} {row.unit_id.name}" if row.unit_id else f"{row.amount:g}"
+            detail = f"{amount} ({row.container_type})" if row.container_type else amount
+            parts.append(f"{row.objects} x {detail}" if row.objects > 1 else detail)
+        if parts:
+            return ", ".join(parts)
+        return ", ".join(test.parameter_id.name for test in sample.test_ids if test.status != "cancelled")
+
     def _collected_sample_rows(self, samples):
-        """Table rows of the collected samples, in the order they were logged."""
+        """Table rows of the order's expected and collected samples, in creation order."""
         states = dict(samples._fields["physical_state"]._description_selection(self.env))
         conditions = dict(samples._fields["condition"]._description_selection(self.env))
         statuses = dict(samples._fields["status"]._description_selection(self.env))
@@ -175,7 +186,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 escape(sample.customer_sample_name or ""),
                 escape(sample.sample_type_id.display_name or ""),
                 escape(states.get(sample.physical_state, "") if sample.physical_state else ""),
-                escape(sample.received_quantity or ""),
+                escape(sample.received_quantity or self._sample_expected_quantity_summary(sample)),
                 escape(conditions.get(sample.condition or "", "")),
                 escape(format_datetime(self.env, sample.received_at) if sample.received_at else ""),
                 SAMPLE_STATUS_BADGES.get(sample.status or "", "text-bg-secondary"),
@@ -243,7 +254,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         self.ensure_one()
         if self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total):
             return False
-        if self.order_status != STATUS_CONFIRMED or self.test_request_id.status not in AWAITING_SAMPLE_STATUSES:
+        if self.order_status != STATUS_CONFIRMED or self.sudo().test_request_id.status not in AWAITING_SAMPLE_STATUSES:
             return False
         quotation = self._latest_quotation()
         advance = self.sudo().payment_request_ids.filtered(
@@ -398,14 +409,6 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             EVENT_BALANCE_REQUESTED, order.sudo(), f"payment-request:{request.id}:sent", body, partners=order.partner_id
         )
 
-    def _release_test_request(self):
-        for order in self.sudo():
-            request = order.test_request_id
-            if order.order_status == STATUS_CONFIRMED and request.status == "confirmed":
-                status = request._status_after_confirmation()
-                if status:
-                    request._set_status(status)
-
     def _keep_order_numbers(self):
         """Write each order's number on its test request, which keeps it once uninstalling E-commerce drops the link."""
         for order in self.sudo().search([("test_request_id", "!=", False)]):
@@ -430,25 +433,27 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             order.has_open_collection = bool(task)
             summary = False
             if task:
-                appointment = task.deadline
+                appointment = task._appointment_display()
                 summary = self.env._(
                     "%(appointment)s, %(who)s",
-                    appointment=format_datetime(self.env, appointment, dt_format="short")
-                    if appointment
-                    else self.env._("no appointment"),
+                    appointment=appointment or self.env._("no appointment"),
                     who=task.assignee_id.name or self.env._("not claimed yet"),
                 )
+                if task.place:
+                    summary = f"{summary} — {task.place}"
             order.collection_summary = summary
 
     def _collection_place(self, address):
-        """The address Sales entered, or else the customer's, on one line."""
+        """The address Sales entered, or else the one the customer gave or the customer's, on one line."""
         self.ensure_one()
-        text = address if isinstance(address, str) and address else self.customer_id._display_address()
+        given = address if isinstance(address, str) and address else self.sudo().collection_address
+        text = given or self.customer_id._display_address()
         return ", ".join(line.strip() for line in text.splitlines() if line.strip())
 
     def _collection_note(self):
-        """What collection staff need beyond the time and the place, in the staff language: whom to contact and, when
-        Sales asked for the balance at collection, the amount still due."""
+        """What collection staff need beyond the time and the place, in the staff language: whom to contact, expected
+        samples and containers, when Sales asked for the balance at collection, the amount still due, and what the
+        customer asked for the collection."""
         self.ensure_one()
         order = self.sudo()
         env = staff_env(self.env)
@@ -460,22 +465,36 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 phone=contact.phone or contact.parent_id.phone or "-",
             )
         ]
+        sample_parts = [
+            f"{sample.code} ({sample.sample_type_id.with_env(env).name}: "
+            f"{order.with_env(env)._sample_expected_quantity_summary(sample)})"
+            for sample in order.test_request_id.sample_ids.sorted("id")
+        ]
+        if sample_parts:
+            lines.append(env._("Samples: %s", "; ".join(sample_parts)))
         balance = order._collection_balance_line(env)
         if balance:
             lines.append(balance)
+        lines += order._collection_preference_lines(env)
         return "\n".join(lines)
 
-    def _collection_balance_line(self, env):
+    def _collection_balance_line(self, env) -> str | Literal[False]:
         self.ensure_one()
         order = self.sudo()
         due = order.payment_request_id
         if (
             order.on_credit
-            or order.balance_due != BALANCE_AT_COLLECTION
+            or order.balance_due not in (BALANCE_BEFORE_COLLECTION, BALANCE_AT_COLLECTION)
             or due.kind != "balance"
             or not due.remaining_amount
         ):
             return False
+        if order.balance_due == BALANCE_BEFORE_COLLECTION:
+            return env._(
+                "Balance due before collection: %(amount)s is still unpaid. The customer pays it online from the link "
+                "we sent them, or Sales records a cash payment.",
+                amount=order.currency_id.format(due.remaining_amount),
+            )
         return env._(
             "Balance due at collection: %(amount)s. The customer pays it online from the link we sent them, or Sales "
             "records a cash payment.",
@@ -494,7 +513,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             return
         zone = ZoneInfo(self.env.company.tz or "UTC")
         day = appointment.replace(tzinfo=ZoneInfo("UTC")).astimezone(zone).date()
-        ready = self.env[MODEL_TEST_REQUEST]._date_after_working_days(day, self.turnaround_days)
+        ready = self.env[MODEL_TEST_REQUEST]._date_after_working_days(appointment, self.turnaround_days)
         if ready > committed:
             raise UserError(
                 self.env._(
@@ -506,11 +525,15 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 )
             )
 
-    def action_start_sample_collection(self, appointment: datetime | bool = False, address: str | bool = False):
+    def action_start_sample_collection(
+        self, appointment: datetime | bool = False, address: str | bool = False, duration_minutes: int = 60
+    ):
         """Queue one unassigned sample collection task of the confirmed order's test request for sample delivery
         staff, due at the appointment Sales agreed with the customer, at the address given or else the customer's."""
         self.check_access("write")
         appointment = fields.Datetime.to_datetime(appointment) or False
+        if appointment and duration_minutes <= 0:
+            raise UserError(self.env._("Give a collection duration above 0 minutes."))
         for order in self:
             if order.order_status != STATUS_CONFIRMED:
                 raise UserError(self.env._("The order must be confirmed before the samples are collected."))
@@ -535,6 +558,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 self.env._("Route the %s task type to the role of sample delivery staff first.", task_type.name)
             )
         tasks = self.env[MODEL_TASK].sudo()
+        planned_end = appointment + timedelta(minutes=duration_minutes) if appointment else False
         for order in self:
             request = order.sudo().test_request_id
             document = Domain("document_model", "=", request._name) & Domain("document_id", "=", request.id)
@@ -550,6 +574,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                     "note": order._collection_note(),
                     "deadline": appointment,
                     "planned_start": appointment,
+                    "planned_end": planned_end,
                 }
             )
         return {

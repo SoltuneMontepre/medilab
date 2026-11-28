@@ -58,10 +58,7 @@ Each document keeps its own status. Tasks keep their own generic lifecycle ([SH-
 stateDiagram-v2
     [*] --> draft
     draft --> confirmed: its order is confirmed; without E-commerce, staff confirm it
-    confirmed --> paid: at once, unless the customer is allowed credit
-    confirmed --> on_credit: at once for a customer allowed credit
-    paid --> sample_received: first sample received
-    on_credit --> sample_received: first sample received
+    confirmed --> sample_received: first sample received
     sample_received --> testing: first sample test started
     testing --> awaiting_approval: every remaining test has its reported result sent for approval
     awaiting_approval --> testing: a reported result is rejected or withdrawn
@@ -71,15 +68,14 @@ stateDiagram-v2
     completed --> awaiting_approval: the lab head sends results back
     draft --> cancelled
     confirmed --> cancelled
-    paid --> cancelled
-    on_credit --> cancelled
     sample_received --> cancelled
     testing --> cancelled
 ```
 
-- With E-commerce, every test request comes from an order Sales confirmed; creating one without an order is refused for every role, and the list of test requests offers no way to create one. An order is confirmed only once any requested advance is verified in full, and confirming it has the system confirm the request and mark it Paid; nobody confirms it by hand. The order's balance payment request holds back neither its sample collection nor its testing; its issued report reaches the customer only once the order is paid in full. For a customer allowed to order on credit who was sent a quotation without an advance, the request goes straight to On credit and the customer pays the final invoice after testing.
-- Without E-commerce, staff holding the permission `test_request.create.all` create a test request directly with its samples and selected ways, and confirm it, which makes it paid at once.
-- The samples of a test request are received only once it is paid or On credit.
+- With E-commerce, every test request comes from an order Sales confirmed; creating one without an order is refused for every role, and the list of test requests offers no way to create one. An order is confirmed only once any requested advance is verified in full (or accepted on credit by a customer allowed credit), and confirming it has the system confirm the request; nobody confirms it by hand. The order keeps its own payment and credit status (`on_credit`, `payment_badge_status`), while the test request tracks only laboratory work (`draft`, `confirmed`, `sample_received`, `testing`, `awaiting_approval`, `completed`, `reported`, `cancelled`). Sample intake enforces any payment hold from the order; the order's balance payment request holds back neither sample collection nor testing once the advance is verified, and its issued report reaches the customer only once the order is paid in full (or immediately for a customer on credit).
+- Without E-commerce, staff holding the permission `test_request.create.all` create a test request directly with its samples and selected ways, and confirm it.
+- Standalone test requests compute their `Priority Order` flag automatically from `requested_date < standard_return_date` (`turnaround_days` from their testing ways), and requests created from an order carry the order's accepted priority decision. Both orders and test requests display a distinct priority badge and sort priority work first.
+- The samples of a confirmed test request can be received once any order payment hold is cleared; receiving a sample of a draft request is refused.
 
 ### Sample
 

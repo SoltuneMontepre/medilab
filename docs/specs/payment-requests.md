@@ -74,13 +74,13 @@ The amounts use VAT 8% or 10% only as illustration.
 | Service 10,000,000 VND, VAT 800,000, total 10,800,000; advance 50% | Sending requests 5,400,000 and posts no invoice, receivable or revenue. |
 | The customer transfers 2,000,000 and the accountant confirms it | One payment of 2,000,000 and one advance invoice of 2,000,000 are posted; 3,400,000 of the advance is still needed. The quotation is not accepted. |
 | The rest of the advance, 3,400,000, arrives through PayOS | A second advance invoice of 3,400,000 is posted at verification and the quotation is accepted. |
-| Sales confirms the order of a customer not on credit | A balance request of 5,400,000 is created. The test request is already paid, and sample collection does not wait for the balance; the issued report waits until the full balance is verified. |
+| Sales confirms the order of a customer not on credit | A balance request of 5,400,000 is created. Sample collection does not wait for the balance once the advance is verified; the issued report waits until the full balance is verified. |
 | The customer pays the balance in installments of 2,000,000 and 3,400,000 | Verification posts an invoice for each installment. The closing invoice deducts the advance invoices and the first balance installment. |
 | A partly paid quotation expires | No further payment is taken; 2,000,000 stays on the order and nothing is refunded for expiry alone. |
 | Full advance received at 16:55, deadline 17:00, verified at 18:00 | The unchanged quotation is accepted at verification. |
 | Sales revises while a transfer awaits verification | Drafting is allowed; sending, declining and cancelling are refused until the accountant confirms or rejects it. |
 | Revision with service 8,000,000, VAT 640,000, total 8,640,000, advance 50%; 5,400,000 verified earlier | The advance needed is 4,320,000, so nothing more is requested; acceptance waits for the customer's agreement to the new version. |
-| A customer allowed to order on credit | No payment request is created; the test request is On credit and the final invoice is posted after testing. |
+| A customer allowed to order on credit | No payment request is created; the order is `On credit` and the final invoice is posted after testing. |
 
 ## Related documents
 

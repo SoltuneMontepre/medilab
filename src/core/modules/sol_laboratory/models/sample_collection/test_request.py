@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CUSTOMER,
     MODEL_EXPECTED_SAMPLING,
     MODEL_LOCK_MIXIN,
+    MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE,
     MODEL_SAMPLE_TEST,
@@ -30,9 +31,7 @@ else:
 # The statuses each status can move to.
 TRANSITIONS = {
     "draft": ("confirmed", "cancelled"),
-    "confirmed": ("paid", "on_credit", "cancelled"),
-    "on_credit": ("sample_received", "cancelled"),
-    "paid": ("sample_received", "cancelled"),
+    "confirmed": ("sample_received", "cancelled"),
     "sample_received": ("testing", "cancelled"),
     "testing": ("awaiting_approval", "completed", "cancelled"),
     "awaiting_approval": ("testing", "completed"),
@@ -48,12 +47,12 @@ class TestRequest(models.Model, TestRequestBase):
     _name = MODEL_TEST_REQUEST
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Test Request"
-    _order = "request_date desc, id desc"
+    _order = "priority desc, request_date desc, id desc"
     _rec_name = "code"
     # A test request is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
     _audit_children = ("sample_ids", "committed_date_change_ids")
-    _lock_free_buttons = ("action_print_labels",)
+    _lock_free_buttons = ("action_print_labels", "action_open_collection_tasks")
 
     if not TYPE_CHECKING:
         # Unique code of the request, such as YC.26.11.0001; filled from a sequence when left empty.
@@ -69,10 +68,18 @@ class TestRequest(models.Model, TestRequestBase):
         committed_date = fields.Date(string="Expected Return Date")
         # True for an accepted priority request: the laboratory's check said it can meet the requested date, so the
         # request's tests are urgent.
-        priority = fields.Boolean(string="Priority Order")
+        priority = fields.Boolean(string="Priority Order", compute="_compute_priority", store=True, readonly=True)
+        # Badge label showing whether the request is priority or standard.
+        priority_badge = fields.Selection(
+            [("priority", "Priority"), ("standard", "Standard")],
+            string="Priority",
+            compute="_compute_priority_badge",
+        )
         # Working days results take from sample receipt, the longest standard turnaround of the accepted ways; it fixes
         # the expected return date at receipt when none was agreed before.
-        turnaround_days = fields.Integer(string="Turnaround (working days)")
+        turnaround_days = fields.Integer(
+            string="Turnaround (working days)", compute="_compute_turnaround_days", store=True, readonly=False
+        )
         # Language the customer wants the report in.
         report_language = fields.Selection(
             [("vi", "Vietnamese"), ("en", "English"), ("bilingual", "Bilingual")], required=True, default="bilingual"
@@ -92,8 +99,6 @@ class TestRequest(models.Model, TestRequestBase):
             [
                 ("draft", "Draft"),
                 ("confirmed", "Confirmed"),
-                ("paid", "Paid"),
-                ("on_credit", "On credit"),
                 ("sample_received", "Sample Received"),
                 ("testing", "Testing"),
                 ("awaiting_approval", "Awaiting Approval"),
@@ -138,6 +143,48 @@ class TestRequest(models.Model, TestRequestBase):
         for request in self:
             request.cancelled_test_ids = request.sample_ids.test_ids.filtered("cancel_reason")
 
+    @api.depends(
+        "from_order",
+        "sample_ids.test_ids.accepted_method_id",
+        "sample_ids.test_ids.parameter_method_id",
+        "sample_ids.test_ids.status",
+    )
+    def _compute_turnaround_days(self):
+        methods = self.env[MODEL_PARAMETER_METHOD]
+        for request in self:
+            if request.from_order:
+                request.turnaround_days = request.turnaround_days
+                continue
+            ways = methods.concat(
+                *[
+                    test.accepted_method_id or test.parameter_method_id
+                    for test in request.sample_ids.test_ids
+                    if test.status != "cancelled" and (test.accepted_method_id or test.parameter_method_id)
+                ]
+            )
+            request.turnaround_days = request._turnaround(ways)["days"] if ways else 0
+
+    @api.depends("from_order", "requested_date", "request_date", "turnaround_days")
+    def _compute_priority(self):
+        for request in self:
+            if request.from_order:
+                if "_medilab_order_priority" in self.env.context:
+                    request.priority = self.env.context["_medilab_order_priority"]
+                else:
+                    request.priority = request.priority
+                continue
+            if not (request.requested_date and request.turnaround_days):
+                request.priority = False
+                continue
+            base_day = request.request_date or fields.Date.context_today(request)
+            standard = request._date_after_working_days(base_day, request.turnaround_days)
+            request.priority = bool(standard and request.requested_date < standard)
+
+    @api.depends("priority")
+    def _compute_priority_badge(self):
+        for request in self:
+            request.priority_badge = "priority" if request.priority else "standard"
+
     def action_confirm(self):
         self._set_status("confirmed")
 
@@ -158,7 +205,7 @@ class TestRequest(models.Model, TestRequestBase):
         # E-commerce calls this when an order is confirmed, with one entry per sample on the quotation. The samples keep
         # the regulations the customer accepted; an entry's sampling is the sampling snapshot it keeps, copied onto the
         # sample.
-        accepted = self.with_context(**{REGULATIONS_ACCEPTED: ACCEPTED})
+        accepted = self.with_context(**{REGULATIONS_ACCEPTED: ACCEPTED, "_medilab_order_priority": bool(priority)})
         request = accepted.create(
             {
                 "customer_id": customer.id,
@@ -207,12 +254,6 @@ class TestRequest(models.Model, TestRequestBase):
             tests.append(test)
         return tests
 
-    def _credit_blocks_confirmation(self):
-        # E-commerce refuses when the request's order has no payment and the customer may not order on credit.
-        # A request without an order is never refused.
-        self.ensure_one()
-        return False
-
     def _check_ready_to_confirm(self):
         for request in self:
             if not request.sample_ids:
@@ -228,14 +269,6 @@ class TestRequest(models.Model, TestRequestBase):
                     self.env._(
                         "Add at least one parameter to %(samples)s before confirming test request %(code)s.",
                         samples=format_list(self.env, empty.mapped("code")),
-                        code=request.code,
-                    )
-                )
-            if request._credit_blocks_confirmation():
-                raise UserError(
-                    self.env._(
-                        "Test request %(code)s cannot be confirmed until its order is paid "
-                        "or the customer is allowed credit.",
                         code=request.code,
                     )
                 )
@@ -268,19 +301,8 @@ class TestRequest(models.Model, TestRequestBase):
                     )
                 )
         self.status = status
-        if status == "confirmed":
-            for request in self:
-                next_status = request._status_after_confirmation()
-                if next_status:
-                    request._set_status(next_status)
         if status == "completed":
             self.env[MODEL_TEST_REPORT]._draft_for(self)
-
-    def _status_after_confirmation(self):
-        return "paid"
-
-    def _check_sample_intake(self):
-        """Commerce can defer collection until the balance has been verified."""
 
     def _in_use_domain(self):
         return Domain("status", "not in", FINISHED_STATUSES)
