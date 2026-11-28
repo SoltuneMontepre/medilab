@@ -631,6 +631,32 @@ class TestDeployment(unittest.TestCase):
                 not re.search(pattern, path) or re.search(excluded, path), path
             )
 
+    def test_editors_load_their_analytics_module_under_a_name_ad_blockers_allow(self):
+        script = (ROOT / "infra/cluster/onlyoffice/start.sh").read_text()
+        apps = "/var/www/onlyoffice/documentserver/web-apps/apps"
+        self.assertIn(f"apps={apps}", script)
+        self.assertIn(
+            'cp -p "$apps/common/Analytics.js" "$apps/common/Relay.js"', script
+        )
+        self.assertIn(
+            '"$apps"/{documenteditor,pdfeditor,presentationeditor,spreadsheeteditor,visioeditor}/main/app.js',
+            script,
+        )
+        self.assertIn('"$apps/documenteditor/forms/app.js"', script)
+        self.assertIn("s@'common/Analytics'@'common/Relay'@", script)
+        self.assertIn('rm -f "$app.gz"', script)
+        self.assertIn(
+            'if grep -rlF "common/Analytics" "$apps" --include=app.js; then', script
+        )
+        self.assertNotRegex(
+            "common/Relay",
+            re.compile(r"analytic|track|metric|stat|telemetry", re.IGNORECASE),
+        )
+        self.assertLess(
+            script.index("common/Relay"),
+            script.index("exec /app/ds/run-document-server.sh"),
+        )
+
     def test_browser_service_worker_does_not_intercept_assets(self):
         config_map = next(
             resource for resource in self.server if resource["kind"] == "ConfigMap"
