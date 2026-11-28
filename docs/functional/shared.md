@@ -219,7 +219,7 @@ Work waiting for someone is a task with a deadline, and every person sees their 
 - **Linked documents.** Only the system links a task to the document it opens and sets its type. Nobody changes a task's type or document afterwards. A task acts on its document, such as a testing task showing its method's steps or moving its test along as it is assigned, only while the system linked it. A task stored before this rule is trusted only when its audit trail shows it was created that way and never changed; an administrator reviews the others.
 - **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person or a person of the department claims it. When two people claim the same task at once, the second is told it is already claimed. A task routed to a role waits the same way until one of the role's holders claims it.
 - **Access.** Every person sees the tasks assigned to them and the queues they can claim from without any permission. Creating tasks by hand, assigning, reassigning and cancelling them, and seeing other tasks need the task permissions, such as those of the person's department for a head of department.
-- **Reassigning.** Moving a task to another department, or an assigned task to another person, needs a reason, which is kept on the task and in the audit trail.
+- **Reassigning.** Moving a task to another department, or an assigned task to another person, needs a reason, which is kept on the task and in the audit trail. A testing task stays in the department of its test's way of testing and cannot move to another department.
 - **Assignment notice.** Assigning a task to a person, when creating it or when moving it, sends the `task.assigned` notification to them, unless they assigned it to themselves. Claiming a task notifies nobody.
 - **To-do list.** A person's to-do list shows their open tasks, soonest deadline first. Clicking a task opens its document at the action to take, such as entering a result or signing.
 - **Dashboard.** The Tasks app opens on the person's day: today's planned tasks against the hours of the day, the next tasks to do with the action each needs, the tasks waiting in their queues to claim, what they finished, and what waits for their approval or signature: results to approve, laboratory file versions to sign and bookings to approve, each opening the list of those records. From it, their tasks, their finished tasks and all the tasks they can see open as a list, a calendar or a timeline.
@@ -233,6 +233,7 @@ Acceptance criteria:
 - Each step a module document lists as waiting on a person appears as a task in someone's to-do list or queue.
 - A person can claim an unassigned task of their own department, not of another; a task already claimed cannot be claimed again.
 - Reassigning a task without a reason is refused.
+- Moving a testing task out of the department of its way of testing is refused.
 - A task created by hand that names a document, or a change to a task's type or document, is refused; a task changed that way before the rule never acts on its document.
 - Clicking a task opens its document at its action.
 - A testing task is done when its result is submitted, without anyone marking it.
@@ -352,6 +353,7 @@ Pushes reach the phones staff sign in on with Medilab Mobile. [Medilab Mobile](.
 - A push names the event and the document's code, never the customer or the customer's name for a sample.
 - A push sent to a token Firebase reports as permanently invalid (`UNREGISTERED`, `SENDER_ID_MISMATCH`, or `INVALID_ARGUMENT` about the token) turns that token off. A timeout or a temporary error leaves the token on and the delivery is retried.
 - The access token is an OAuth token from Google Application Default Credentials or a service-account JSON in the environment, refreshed by `google-auth`. The credential value is not stored on a record and is not written to the log.
+- The push job shares one cron worker with every other job, so it never holds it long. A run of the job looks for the credentials once, not for each push: off Google Cloud, looking for Application Default Credentials takes seconds. Without credentials, every push waits 5 minutes. Refreshing the token waits as long as a push, 30 seconds, and a refresh that fails is a temporary error. A pass of the job's cron stops taking pushes after 5 minutes and leaves the rest to the next pass.
 - The Firebase credentials are configuration, not data (SH-03). SMTP and FCM do not provide exactly-once delivery. The records and the jobs are created once; a retry sends again only while the earlier attempt did not succeed.
 
 ### 5. Trusted sources (master data)

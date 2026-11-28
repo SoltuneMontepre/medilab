@@ -126,3 +126,15 @@ PORTAL_LOCKED_LINE_FIELDS = frozenset(
         "technical_price_unit",
     }
 )
+
+# How the customer wants the samples to reach the laboratory.
+COLLECTION_PICKUP = "pickup"
+COLLECTION_DROP_OFF = "drop_off"
+COLLECTION_METHODS = [
+    (COLLECTION_PICKUP, "Pickup by the laboratory"),
+    (COLLECTION_DROP_OFF, "Drop-off at the laboratory"),
+]
+# The part of the day the customer prefers for the pickup or the drop-off.
+COLLECTION_TIMES = [("morning", "Morning"), ("afternoon", "Afternoon"), ("any", "Any time")]
+# Days ahead of today the customer can choose for the pickup or the drop-off.
+COLLECTION_DAYS = 31

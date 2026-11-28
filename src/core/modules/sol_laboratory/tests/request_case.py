@@ -29,7 +29,8 @@ class RequestCase(MasterDataCase):
         cls.sample = cls.request.sample_ids
 
     @classmethod
-    def create_request(cls):
+    def create_request(cls, **test_values):
+        """A request for a lead test on one sample, with the values given for the test."""
         return cls.env[MODEL_TEST_REQUEST].create(
             {
                 "customer_id": cls.customer.id,
@@ -40,7 +41,7 @@ class RequestCase(MasterDataCase):
                             "customer_sample_name": "Lavie bottled water 1 L",
                             "sample_type_id": cls.sample_type.id,
                             "physical_state": "liquid",
-                            "test_ids": [Command.create({"parameter_id": cls.parameter.id})],
+                            "test_ids": [Command.create({"parameter_id": cls.parameter.id, **test_values})],
                         }
                     )
                 ],

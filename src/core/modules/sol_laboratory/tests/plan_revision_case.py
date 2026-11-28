@@ -46,9 +46,9 @@ class PlanRevisionCase(CrossDepartmentCase):
         cls.z, cls.y = cls.booked(cls.z_test), cls.booked(cls.y_test)
 
     @classmethod
-    def committed(cls):
-        """A lead test whose results are promised on the Friday."""
-        test = cls.new_test()
+    def committed(cls, way=None):
+        """A lead test whose results are promised on the Friday, accepted on the way of testing when one is given."""
+        test = cls.new_test(way=way)
         test.sample_id.request_id.committed_date = FRIDAY
         return test
 

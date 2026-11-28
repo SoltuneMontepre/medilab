@@ -1,6 +1,7 @@
 from datetime import timedelta
 from unittest.mock import patch
 
+from lxml import etree
 from psycopg2 import IntegrityError
 
 from odoo import api, fields
@@ -19,6 +20,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_REGULATION,
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_SCHEDULED_JOB,
+    MODEL_TEST_REPORT,
 )
 from odoo.addons.sol_laboratory.constants.settings import DEFAULT_LOCK_TIMEOUT_MINUTES, LOCK_TIMEOUT_PARAMETER
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
@@ -235,6 +237,16 @@ class TestDocumentLocking(PeopleCase):
 
         self.assertIn('name="lock_message"', arch)
         self.assertIn('name="action_lock_watch"', arch)
+
+    def test_a_locked_form_offers_only_the_buttons_that_change_nothing(self):
+        arch = etree.fromstring(self.env[MODEL_TEST_REPORT].get_view(view_type="form")["arch"])
+        header = arch.find("header")
+        assert header is not None
+        buttons = {button.get("name"): button.get("invisible") or "" for button in header.iter("button")}
+
+        self.assertNotIn("lock_message", buttons["action_download"])
+        self.assertNotIn("lock_message", buttons["action_print_draft"])
+        self.assertTrue(buttons["action_sign"].endswith(" or lock_message"))
 
     def test_every_editable_laboratory_document_is_lockable(self):
         permission_mixin = type(self.env[MODEL_PERMISSION_MIXIN])

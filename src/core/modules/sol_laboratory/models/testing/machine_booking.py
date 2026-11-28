@@ -44,6 +44,7 @@ SHARING_STATUSES = (*ACTIVE_STATUSES, "done")
 OPEN_STATUSES = ("proposed", *ACTIVE_STATUSES)
 # ponytail: a test without a due date is fitted within this many days; give it a due date to plan further ahead.
 HORIZON_DAYS = 30
+SIMULATION_PRELOAD_CONTEXT = "_medilab_simulation_preload"
 
 
 class RoomUse(NamedTuple):
@@ -53,6 +54,21 @@ class RoomUse(NamedTuple):
     start: datetime
     stop: datetime
     machine_booking_id: Any
+
+
+class SimulationPreload(NamedTuple):
+    """Preloaded read-only scheduling state shared across one simulation run to avoid repeated queries."""
+
+    window: tuple[datetime, datetime]
+    usable_until: dict[int, datetime]
+    held_machines: set[int]
+    closures: Any
+    working: dict[int, list[tuple[datetime, datetime]]]
+    busy: Any
+    unsaved_planned: list[tuple[Any, datetime, datetime]]
+    capacities: dict[tuple[int, int], int]
+    room_events: Any
+    planned_room_uses: list[RoomUse]
 
 
 class SlotConflict(NamedTuple):
@@ -97,6 +113,26 @@ def _room_clash(start, rooms, room_busy):
         and event.stop > start + offset
     ]
     return max(ends, default=None)
+
+
+def _matching_holder(booking, machine, person):
+    return bool((machine and booking.machine_id == machine) or (person and booking.person_id == person))
+
+
+def _unsaved_planned_spans(planned, machine, person, start_from, limit):
+    spans = []
+    for booking in planned.filtered(lambda item: not item.id):
+        start = booking.starts_at
+        end = booking.ends_at
+        if (
+            isinstance(start, datetime)
+            and isinstance(end, datetime)
+            and start < limit
+            and end > start_from
+            and _matching_holder(booking, machine, person)
+        ):
+            spans.append((booking, start, end))
+    return spans
 
 
 # Lịch Đặt Máy
@@ -658,6 +694,116 @@ class MachineBooking(models.Model, MachineBookingBase):
         return best
 
     @api.model
+    def _get_simulation_preload(self) -> SimulationPreload | None:
+        preload = self.env.context.get(SIMULATION_PRELOAD_CONTEXT)
+        return preload if isinstance(preload, SimulationPreload) else None
+
+    @api.model
+    def _slot_limit(self, machine, not_after, preload: SimulationPreload | None):
+        if not machine:
+            return not_after
+        usable = preload.usable_until.get(machine.id) if preload is not None else None
+        if usable is None:
+            usable = machine._usable_until()
+        return min(not_after, usable)
+
+    @api.model
+    def _preloaded_spans(self, machine, person, start_from, limit, ignore, preload: SimulationPreload):
+        ignore_ids = set(ignore.ids) if ignore else set()
+        spans = [
+            (booking, booking.starts_at, booking.ends_at)
+            for booking in preload.busy
+            if (not ignore_ids or booking.id not in ignore_ids)
+            and booking.starts_at
+            and booking.ends_at
+            and booking.starts_at < limit
+            and booking.ends_at > start_from
+            and _matching_holder(booking, machine, person)
+        ]
+        spans.extend(
+            (booking, start, end)
+            for booking, start, end in preload.unsaved_planned
+            if start < limit and end > start_from and _matching_holder(booking, machine, person)
+        )
+        return spans
+
+    @api.model
+    def _slot_spans_and_capacity(
+        self, machine, person, start_from, limit, way, planned, ignore, preload: SimulationPreload | None
+    ):
+        if preload is not None:
+            spans = self._preloaded_spans(machine, person, start_from, limit, ignore, preload)
+            if not way:
+                capacity = 0
+            elif not machine:
+                capacity = way.capacity
+            else:
+                capacity = preload.capacities.get((machine.id, way.method_id.id), 1)
+            return spans, capacity
+        holders = Domain.FALSE
+        if machine:
+            holders |= Domain("machine_id", "=", machine.id)
+        if person:
+            holders |= Domain("person_id", "=", person.id)
+        busy = self.sudo().search_fetch(
+            holders
+            & (Domain("status", "in", ACTIVE_STATUSES) | Domain("id", "in", [id_ for id_ in planned.ids if id_]))
+            & Domain("starts_at", "<", limit)
+            & Domain("ends_at", ">", start_from)
+            & Domain("id", "not in", ignore.ids if ignore else []),
+            ["starts_at", "ends_at", "status", "machine_id", "method_id", "person_id", "sample_test_id"],
+            order="starts_at",
+        )
+        spans = [
+            (booking, booking.starts_at, booking.ends_at) for booking in busy if booking.starts_at and booking.ends_at
+        ]
+        # An unsaved planned booking has no id to search by.
+        spans.extend(_unsaved_planned_spans(planned, machine, person, start_from, limit))
+        return spans, (self._capacity(machine, way) if way else 0)
+
+    @api.model
+    def _slot_room_busy(self, rooms, start_from, not_after, planned, ignore, preload: SimulationPreload | None):
+        if not rooms:
+            return []
+        if preload is None:
+            return [*self._room_bookings(rooms, start_from, not_after, ignore), *planned._room_uses()]
+        loc_ids = {step.location_id.id for step, _offset, _length in rooms}
+        ignore_ids = set(ignore.ids) if ignore else set()
+        events = [
+            event
+            for event in preload.room_events
+            if event.location_id.id in loc_ids
+            and event.start
+            and event.stop
+            and event.start < not_after
+            and event.stop > start_from
+            and (not ignore_ids or event.machine_booking_id.id not in ignore_ids)
+        ]
+        uses = [
+            use
+            for use in preload.planned_room_uses
+            if use.location_id.id in loc_ids and use.start < not_after and use.stop > start_from
+        ]
+        return [*events, *uses]
+
+    @api.model
+    def _slot_working(self, person, start_from, limit, working, preload: SimulationPreload | None):
+        if working is not None:
+            return working
+        if (
+            preload is not None
+            and person.id in preload.working
+            and preload.window[0] <= start_from
+            and limit <= preload.window[1]
+        ):
+            return [
+                (max(begin, start_from), min(finish, limit))
+                for begin, finish in preload.working[person.id]
+                if finish > start_from and begin < limit
+            ]
+        return self._working_time(person, start_from, limit)
+
+    @api.model
     def _free_slot(
         self,
         machine,
@@ -684,41 +830,15 @@ class MachineBooking(models.Model, MachineBookingBase):
         there is no such slot.
         """
         planned = planned or self.browse()
+        preload = self._get_simulation_preload()
         now = fields.Datetime.now()
         start_from = _round_up(max(not_before or now, now))
-        limit = min(not_after, machine._usable_until()) if machine else not_after
+        limit = self._slot_limit(machine, not_after, preload)
         if start_from + length > limit:
             return None
-        holders = Domain.FALSE
-        if machine:
-            holders |= Domain("machine_id", "=", machine.id)
-        if person:
-            holders |= Domain("person_id", "=", person.id)
-        busy = self.sudo().search_fetch(
-            holders
-            & (Domain("status", "in", ACTIVE_STATUSES) | Domain("id", "in", [id_ for id_ in planned.ids if id_]))
-            & Domain("starts_at", "<", limit)
-            & Domain("ends_at", ">", start_from)
-            & Domain("id", "not in", ignore.ids if ignore else []),
-            ["starts_at", "ends_at", "status", "machine_id", "method_id", "person_id", "sample_test_id"],
-            order="starts_at",
+        spans, capacity = self._slot_spans_and_capacity(
+            machine, person, start_from, limit, way, planned, ignore, preload
         )
-        spans = [
-            (booking, booking.starts_at, booking.ends_at) for booking in busy if booking.starts_at and booking.ends_at
-        ]
-        # An unsaved planned booking has no id to search by.
-        for booking in planned.filtered(lambda booking: not booking.id):
-            start = booking.starts_at
-            end = booking.ends_at
-            if (
-                isinstance(start, datetime)
-                and isinstance(end, datetime)
-                and start < limit
-                and end > start_from
-                and ((machine and booking.machine_id == machine) or (person and booking.person_id == person))
-            ):
-                spans.append((booking, start, end))
-        capacity = self._capacity(machine, way) if way else 0
 
         def shares(booking, booking_start, booking_end, start):
             # The new booking can join the booking's interval when it starts at start.
@@ -738,9 +858,9 @@ class MachineBooking(models.Model, MachineBookingBase):
             )
 
         rooms_end = _rooms_end(rooms)
-        room_busy = [*self._room_bookings(rooms, start_from, not_after, ignore), *planned._room_uses()] if rooms else []
-        if working is None:
-            working = self._working_time(person, start_from, limit)
+        room_busy = self._slot_room_busy(rooms, start_from, not_after, planned, ignore, preload)
+        working = self._slot_working(person, start_from, limit, working, preload)
+        bookings_env = self.sudo()
         for work_start, work_end in working:
             start = _round_up(max(work_start, start_from))
             while start + length <= min(work_end, limit):
@@ -748,7 +868,7 @@ class MachineBooking(models.Model, MachineBookingBase):
                     return None
                 end = start + length
                 overlapping = [span for span in spans if span[1] < end and span[2] > start]
-                joined = busy.browse([span[0].id for span in overlapping if shares(*span, start)])
+                joined = bookings_env.browse([span[0].id for span in overlapping if shares(*span, start)])
                 blocking = [span for span in overlapping if span[0] not in joined]
                 if joined and len(joined.sample_test_id.sample_id | sample) > capacity:
                     blocking = overlapping

@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command, Domain
+from odoo.tools.misc import format_datetime
 
 from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
@@ -120,6 +121,8 @@ class Task(models.Model, TaskBase):
         )
         # Where the work is done outside the laboratory, such as the address samples are collected at.
         place = fields.Char()
+        # Display location of the task: the collection address when set, otherwise the sample's sampling location.
+        location_display = fields.Char(string="Location", compute="_compute_location_display")
         # True when the system closes the task once its work is done, rather than the assignee.
         closed_by_system = fields.Boolean(compute="_compute_closed_by_system")
         # True when the current user is the assignee.
@@ -161,6 +164,32 @@ class Task(models.Model, TaskBase):
             test_id = task.document_id if task in testing else 0
             task.method_step_ids = steps.browse(steps_by_test.get(test_id, []))
             task.sampling_location_id = locations.browse(location_by_test.get(test_id) or [])
+
+    @api.depends("place", "sampling_location_id")
+    def _compute_location_display(self):
+        for task in self:
+            task.location_display = task.place or task.sampling_location_id.display_name or False
+
+    def _appointment_display(self):
+        """Short localized interval string from planned_start/planned_end or deadline; empty when unscheduled."""
+        self.ensure_one()
+        start = self.planned_start or self.deadline
+        if not start:
+            return False
+        start_text = format_datetime(self.env, start, dt_format="short")
+        if self.planned_start and self.planned_end and self.planned_end > self.planned_start:
+            zone = ZoneInfo(self.env.company.tz or "UTC")
+            same_day = (
+                self.planned_start.replace(tzinfo=UTC).astimezone(zone).date()
+                == self.planned_end.replace(tzinfo=UTC).astimezone(zone).date()
+            )
+            end_text = (
+                format_datetime(self.env, self.planned_end, dt_format="HH:mm")
+                if same_day
+                else format_datetime(self.env, self.planned_end, dt_format="short")
+            )
+            return f"{start_text} – {end_text}"
+        return start_text
 
     @api.model
     def _testing_domain(self):
@@ -326,6 +355,7 @@ class Task(models.Model, TaskBase):
             "assignee_id",
             "name",
             "place",
+            "note",
             "status",
         } & set(vals):
             self._sync_calendar_event()
@@ -434,12 +464,15 @@ class Task(models.Model, TaskBase):
             stop = task.planned_end or task.planned_start + timedelta(hours=1)
             values = {
                 "name": task.name,
+                "description": task.note or False,
                 "start": task.planned_start,
                 "stop": stop,
                 "user_id": user.id,
                 "partner_ids": [Command.set([persisted_id(user.partner_id)])],
                 "alarm_ids": [Command.clear()],
-                "location": task.place or task.sampling_location_id.display_name or False,
+                "location": task.location_display,
+                "res_model_id": self.env["ir.model"]._get_id(task.document_model) if task.document_model else False,
+                "res_id": task.document_id or False,
             }
             if event:
                 event.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN}).write(values)

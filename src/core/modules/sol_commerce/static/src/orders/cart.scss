@@ -1,0 +1,211 @@
+// The cart and its details page: the summary panel, the steps, the date picker of the results and the choice cards.
+@include media-breakpoint-up(lg) {
+    .o_medilab_cart_summary {
+        position: sticky;
+        top: 1rem;
+    }
+}
+
+.o_medilab_cart_quantity {
+    width: auto;
+
+    .input-group-text {
+        min-width: 2.5rem;
+    }
+}
+
+// A month of days: the laboratory's days off and the days out of reach are shown but cannot be picked.
+.o_medilab_date_grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+}
+
+.o_medilab_date_weekday {
+    padding-bottom: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    color: $text-muted;
+}
+
+.o_medilab_date_day {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    margin: 0;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    background: $white;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+
+    &:hover {
+        border-color: $primary;
+        background: tint-color($primary, 90%);
+    }
+}
+
+.btn-check:focus-visible + .o_medilab_date_day {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+}
+
+.btn-check:checked + .o_medilab_date_day {
+    border-color: $primary;
+    background: $primary;
+    color: $white;
+    font-weight: 600;
+}
+
+// A priority day carries a dot under its number.
+.o_medilab_date_priority::after {
+    content: "";
+    position: absolute;
+    bottom: 0.25rem;
+    width: 0.3rem;
+    height: 0.3rem;
+    border-radius: 50%;
+    background: $warning;
+}
+
+.o_medilab_date_closed {
+    border-color: transparent;
+    background: transparent;
+    color: $gray-400;
+    cursor: default;
+
+    &:hover {
+        border-color: transparent;
+        background: transparent;
+    }
+}
+
+.o_medilab_date_today {
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
+}
+
+.o_medilab_date_legend {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.25rem;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+.o_medilab_date_legend_priority {
+    background: $warning;
+}
+
+.o_medilab_date_legend_closed {
+    border: 1px solid $border-color;
+    background: $gray-100;
+}
+
+.o_medilab_review_address {
+    white-space: pre-line;
+}
+
+// The steps of ordering above the cart and the details page.
+.o_medilab_cart_steps {
+    .o_medilab_cart_step_number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        border: 1px solid $border-color;
+        border-radius: 50%;
+        font-weight: 600;
+    }
+
+    .o_medilab_cart_step_current {
+        font-weight: 600;
+
+        .o_medilab_cart_step_number {
+            border-color: $primary;
+            background: $primary;
+            color: $white;
+        }
+    }
+
+    .o_medilab_cart_step_done .o_medilab_cart_step_number {
+        border-color: $primary;
+        color: $primary;
+    }
+}
+
+// A choice shown as a card the customer picks, such as how the samples reach the laboratory.
+.o_medilab_choice_card {
+    display: block;
+    padding: 1rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    text-align: center;
+    cursor: pointer;
+
+    &:hover {
+        border-color: $primary;
+    }
+}
+
+.btn-check:checked + .o_medilab_choice_card {
+    border-color: $primary;
+    background: tint-color($primary, 90%);
+    box-shadow: inset 0 0 0 1px $primary;
+}
+
+.btn-check:focus-visible + .o_medilab_choice_card {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+}
+
+// The preferred day: a row of the coming working days, scrolled sideways on a narrow screen.
+.o_medilab_day_chips {
+    display: flex;
+    gap: 0.5rem;
+    padding-bottom: 0.25rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+}
+
+.o_medilab_day_chip {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 4.25rem;
+    min-height: 3.5rem;
+    margin: 0;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    background: $white;
+    line-height: 1.2;
+    cursor: pointer;
+    scroll-snap-align: start;
+
+    &:hover {
+        border-color: $primary;
+    }
+}
+
+.btn-check:checked + .o_medilab_day_chip {
+    border-color: $primary;
+    background: $primary;
+    color: $white;
+}
+
+.btn-check:focus-visible + .o_medilab_day_chip {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+}

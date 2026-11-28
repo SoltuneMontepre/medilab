@@ -25,23 +25,17 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
     orderAt("claimed").then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);
-      openTab("order_lines");
-      cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=discount]").first().click();
-      cy.get(".o_selected_row .o_field_widget[name=discount] input").clear().type("10");
-      save();
-      cy.get("button[name=action_open_discount_wizard]:visible").click();
-      cy.get(".modal:visible").within(() => {
-        cy.get(".o_field_widget[name=discount_type] input[data-value=so_discount]").check();
-        cy.get(".o_field_widget[name=discount_percentage] input").clear().type("5");
-        cy.get("button[name=action_apply_discount]").click();
+      cy.sendQuotation(() => {
+        cy.get(".modal:visible .o_field_widget[name=discount_percentage] input").clear().type("5{enter}");
+        cy.get(".modal:visible button[name=action_apply_discount]").click();
+        cy.get(".modal:visible .o_field_widget[name=line_ids] .o_data_row").should("have.length", 2);
+        cy.get(".modal:visible .o_field_widget[name=line_ids] .o_data_row td[name=discount]").first().click();
+        cy.get(".modal:visible .o_selected_row .o_field_widget[name=discount] input").clear().type("10{enter}");
+        cy.get(".modal:visible .o_field_widget[name=tax_totals]").click();
+        cy.get(".modal:visible .o_field_widget[name=line_ids] .o_data_row").first().should("contain", "252.000");
       });
-      cy.get(".modal").should("not.exist");
-      cy.get(".o_field_widget[name=product_line_ids] .o_data_row").should("have.length", 2);
-      call("sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
-      cy.reload();
-      cy.sendQuotation();
+      cy.get(".modal", { timeout: 20000 }).should("not.exist");
       cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
-      cy.get("button[name=action_open_discount_wizard]:visible").should("not.exist");
       cy.signInAs("customer");
       cy.visit(`/orders/${order.id}/quotation`);
       cy.contains("td", /^10(\.0+)?%$/).should("be.visible");
@@ -56,6 +50,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
       callAs("demo.sales", "sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
       cy.reload();
       cy.sendQuotation();
+      cy.get(".modal", { timeout: 20000 }).should("not.exist");
       cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
 
       cy.signInAs("customer");
@@ -71,7 +66,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
       cy.expectRefusal({
         read: () => call("sale.order.line", "search_read", [[["order_id", "=", order.id]]], { fields: ["product_uom_qty", "discount", "tax_ids"] }),
         action: () => {
-          cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=product_uom_qty]").first().click();
+          cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=sol_qty]").first().click();
           cy.get(".o_selected_row .o_field_widget[name=product_uom_qty] input").clear().type("2");
           cy.get(".o_form_button_save").click();
         },
@@ -107,6 +102,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
   });
 
   it("TC-F06-03 refuses to send a quotation without lines", () => {
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
     cy.signInAs("sales");
     refAs("demo.sales", CUSTOMERS.nuocSach.company)
       .then(({ id }) =>
@@ -114,7 +110,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
           "demo.sales",
           "sale.order",
           "create",
-          [{ customer_id: id, partner_id: id, advance_method: "bank_transfer" }],
+          [{ customer_id: id, partner_id: id, payment_method: "bank_transfer", advance_mode: "percentage", advance_value: 30, expected_collection_date: tomorrow }],
           { context: { medilab_sales_order: true } },
         ),
       )
@@ -122,7 +118,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
         const order = { model: "sale.order", id };
         cy.openRecord(order);
         cy.expectRefusal({
-          read: readOrder(order),
+          read: readOrder(order, ["order_status", "quotation_follow_up"]),
           action: () => cy.sendQuotation(),
           message: "Thêm ít nhất một chỉ tiêu hoặc gói dịch vụ trước khi gửi báo giá.",
         });
@@ -134,7 +130,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.expectRefusal({
-        read: readOrder(order),
+        read: readOrder(order, ["order_status", "quotation_follow_up"]),
         action: () => cy.sendQuotation(),
         message: "Chọn loại mẫu cho các mục sau trước khi gửi báo giá:",
       });

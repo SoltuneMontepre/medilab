@@ -1,4 +1,4 @@
-import { onWillUnmount, usePlugin } from "@odoo/owl";
+import { onWillUnmount, untrack, useEffect, usePlugin } from "@odoo/owl";
 import { BusPlugin } from "@bus/services/bus_plugin";
 import { useService } from "@web/core/utils/hooks";
 import { patch } from "@web/core/utils/patch";
@@ -11,15 +11,24 @@ const BUS_TYPE = "medilab.document_lock";
 const TOUCH_INTERVAL_MS = 60000;
 
 // Takes the document's lock when the user starts editing, keeps it while they edit, releases it when they cancel or
-// leave, and reloads the form when another user takes or releases a lock on it.
+// leave, shows the document read-only while another user holds its lock, and reloads the form when another user
+// takes or releases a lock on it.
 patch(FormController.prototype, {
   setup() {
     super.setup(...arguments);
     if (!(LOCK_FIELD in this.props.fields)) {
       return;
     }
-    this.documentLock = { held: false, taking: false, touchedAt: 0 };
+    this.documentLock = { held: false, taking: false, touchedAt: 0, lockedOut: false };
     this.lockNotification = useService("notification");
+    useEffect(() => {
+      const root = this.model.root;
+      if (!root?.data) {
+        return;
+      }
+      const lockedByOther = Boolean(root.data[LOCK_FIELD]);
+      untrack(() => this.applyLockedOut(root, lockedByOther));
+    });
     const unsubscribe = usePlugin(BusPlugin).subscribe(BUS_TYPE, (payload) => this.onDocumentLockChanged(payload));
     onWillUnmount(() => {
       unsubscribe();
@@ -29,7 +38,7 @@ patch(FormController.prototype, {
 
   onRecordChanged() {
     super.onRecordChanged(...arguments);
-    if (this.documentLock && this.model.root.resId) {
+    if (this.documentLock && this.model.root?.resId) {
       // Not awaited: the change still holds the model's mutex, which discarding a refused change waits for.
       this.takeDocumentLock();
     }
@@ -76,6 +85,17 @@ patch(FormController.prototype, {
     }
   },
 
+  // The record's mode outlives a reload, so the form returns to editing only when the lock put it in read-only.
+  applyLockedOut(root, lockedByOther) {
+    if (lockedByOther && root.resId && root.isInEdition) {
+      this.documentLock.lockedOut = true;
+      root.switchMode("readonly");
+    } else if (!lockedByOther && this.documentLock.lockedOut) {
+      this.documentLock.lockedOut = false;
+      root.switchMode("edit");
+    }
+  },
+
   releaseDocumentLock(reason) {
     if (!this.documentLock?.held) {
       return;
@@ -87,7 +107,7 @@ patch(FormController.prototype, {
 
   async onDocumentLockChanged({ model, id }) {
     const root = this.model.root;
-    if (model !== root.resModel || id !== root.resId || this.documentLock.held || this.isUnderDialog() || (await root.isDirty())) {
+    if (!root || model !== root.resModel || id !== root.resId || this.documentLock.held || this.isUnderDialog() || (await root.isDirty())) {
       return;
     }
     await root.load();

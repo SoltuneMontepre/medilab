@@ -81,6 +81,12 @@ msgstr "%(person)s không thuộc %(department)s."
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_testing_department.py:0
+msgid "%(task)s is tested by %(department)s and cannot move to another department."
+msgstr "%(task)s do %(department)s thử nghiệm và không thể chuyển sang phòng ban khác."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_lock.py:0
 msgid "%(user)s has locked %(file)s until %(until)s."
 msgstr "%(user)s đã khóa %(file)s đến %(until)s."
@@ -1157,6 +1163,12 @@ msgid "Assign Tasks"
 msgstr "Giao nhiệm vụ"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
+msgid "Assign testing tasks of different departments separately."
+msgstr "Giao riêng các nhiệm vụ thử nghiệm của từng phòng ban."
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__assigned
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__assigned
 msgid "Assigned"
@@ -1357,22 +1369,6 @@ msgid "Blacklisted Phone is Phone"
 msgstr "Số bị chặn là số điện thoại bàn"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_book_machine_form
-msgid "Book"
-msgstr "Đặt"
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_test_result_book_machine
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "Book a Machine"
-msgstr "Đặt Máy"
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_test_result_book_machine
-msgid "Book a Machine for a Test Result"
-msgstr "Đặt Máy Cho Kết Quả Thử Nghiệm"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__is_bookable
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Bookable"
@@ -1435,11 +1431,6 @@ msgstr "Quá hạn hiệu chuẩn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__callback_token
 msgid "Callback Token"
 msgstr "Mã gọi lại"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__can_book_machine
-msgid "Can Book Machine"
-msgstr "Có Thể Đặt Máy"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_change_due_date
@@ -2626,6 +2617,11 @@ msgid "Department Color"
 msgstr "Màu phòng ban"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__department_fixed
+msgid "Department Fixed"
+msgstr "Khóa Phòng Ban"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__department
 msgid "Department queue"
 msgstr "Hàng đợi phòng ban"
@@ -2951,8 +2947,8 @@ msgstr "Số nhà"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_url,name:sol_laboratory.action_medilab_sync_download
-#: model:ir.ui.menu,name:sol_laboratory.menu_medilab_sync_download
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form_laboratory_files
+#: model:ir.ui.menu,name:sol_laboratory.menu_medilab_sync_download
 msgid "Download Medilab Sync"
 msgstr "Tải Medilab Sync"
 
@@ -3619,6 +3615,11 @@ msgstr "Mã nhóm quốc gia tài chính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_position_id
 msgid "Fiscal Position"
 msgstr "Vị trí tài chính"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__fixed_department_id
+msgid "Fixed Department"
+msgstr "Phòng Ban Thử Nghiệm"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__fixed_term
@@ -5911,11 +5912,6 @@ msgstr ""
 "(nếu bật trong Cấu hình) và để thay đổi thu ngân trong ứng dụng POS."
 
 #. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__paid
-msgid "Paid"
-msgstr "Đã thanh toán"
-
-#. module: sol_laboratory
 #. odoo-python
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__parameter_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__parameter_id
@@ -7719,6 +7715,12 @@ msgid "Approve Content Removal"
 msgstr "Duyệt xóa nội dung"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
+msgid "These testing tasks stay in %s, which tests them."
+msgstr "Các nhiệm vụ thử nghiệm này phải ở lại %s, phòng ban thử nghiệm chúng."
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
 msgid "This removes eligible unsigned file content from storage while preserving version history. Signed and shared content stays available. Approve removal?"
 msgstr "Thao tác này xóa nội dung tệp chưa ký đủ điều kiện khỏi nơi lưu trữ nhưng vẫn giữ lịch sử phiên bản. Nội dung đã ký và nội dung được chia sẻ vẫn khả dụng. Bạn có duyệt xóa không?"
@@ -8629,16 +8631,6 @@ msgstr "Yêu Cầu Thử Nghiệm"
 #: model:ir.ui.menu,name:sol_laboratory.menu_test_request
 msgid "Test Requests"
 msgstr "Yêu Cầu Thử Nghiệm"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
-msgid ""
-"Test request %(code)s cannot be confirmed until its order is paid or the "
-"customer is allowed credit."
-msgstr ""
-"Yêu cầu thử nghiệm %(code)s không thể xác nhận khi đơn hàng chưa thanh toán "
-"và khách hàng không được phép nợ."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -12691,12 +12683,6 @@ msgid "Approved By"
 msgstr "Người phê duyệt"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__available_machine_ids
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__available_machine_ids
-msgid "Available Machines"
-msgstr "Máy Còn Trống"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__available_result_ids
 msgid "Available Result"
 msgstr "Kết quả có thể chọn"
@@ -16190,13 +16176,6 @@ msgid "Edit sample types of ways of testing"
 msgstr "Sửa cấu hình áp dụng theo loại mẫu"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_book_machine_form
-msgid ""
-"No machine linked to the testing method is fit to use and free from the "
-"result's start."
-msgstr "Không có máy nào liên kết với phương pháp thử nghiệm đủ điều kiện sử dụng và còn trống từ thời điểm bắt đầu của kết quả."
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
 msgid "No machine that runs it is in use with a valid calibration."
@@ -17597,14 +17576,6 @@ msgstr "Máy đã được gắn với phương pháp thử này."
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result_machine.py:0
-msgid ""
-"Only the tester who entered a draft result without a machine books a machine"
-" for it."
-msgstr "Chỉ người thử nghiệm đã nhập kết quả nháp chưa có máy mới được đặt máy cho kết quả đó."
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 msgid ""
 "Only the unassigned testing tasks of your department on %s can be claimed "
@@ -18464,12 +18435,6 @@ msgstr "%(location)s không thể sử dụng từ %(start)s đến %(end)s: %(r
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result_machine.py:0
-msgid "%(machine)s is not free for the measurement of %(result)s."
-msgstr "%(machine)s không còn trống cho phép đo của %(result)s."
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
 msgid ""
 "%(machine)s stopped during %(booking)s, so its measurement ended. Record the "
@@ -18746,11 +18711,6 @@ msgstr "Thời Gian Ngưng Sử Dụng"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
 msgid "Usable"
 msgstr "Dùng Được"
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__on_credit
-msgid "On credit"
-msgstr "Mua chịu"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_payment_request_read_all
@@ -20298,6 +20258,94 @@ msgstr "Dùng Mẫu Phiếu"
 #: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "Template versions apply only on an installation with ONLYOFFICE."
 msgstr "Phiên bản mẫu phiếu chỉ áp dụng khi hệ thống có ONLYOFFICE."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__can_open_collection_tasks
+msgid "Can Open Collection Tasks"
+msgstr "Có Thể Mở Nhiệm Vụ Lấy Mẫu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Collection"
+msgstr "Lấy Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__collection_place
+msgid "Collection Address"
+msgstr "Địa Chỉ Lấy Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__collection_appointment_display
+msgid "Collection Appointment"
+msgstr "Lịch Hẹn Lấy Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__collection_task_count
+msgid "Collection Task Count"
+msgstr "Số Nhiệm Vụ Lấy Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__collection_assignee_id
+msgid "Collector"
+msgstr "Nhân Viên Lấy Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__customer_contact_display
+msgid "Customer Contact"
+msgstr "Liên Hệ Khách Hàng"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__priority_badge__standard
+msgid "Standard"
+msgstr "Tiêu chuẩn"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_book_machine_form
+msgid "Book"
+msgstr "Đặt"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_test_result_book_machine
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Book a Machine"
+msgstr "Đặt Máy"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_test_result_book_machine
+msgid "Book a Machine for a Test Result"
+msgstr "Đặt Máy Cho Kết Quả Thử Nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__can_book_machine
+msgid "Can Book Machine"
+msgstr "Có Thể Đặt Máy"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__available_machine_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__available_machine_ids
+msgid "Available Machines"
+msgstr "Máy Còn Trống"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_book_machine_form
+msgid ""
+"No machine linked to the testing method is fit to use and free from the "
+"result's start."
+msgstr "Không có máy nào liên kết với phương pháp thử nghiệm đủ điều kiện sử dụng và còn trống từ thời điểm bắt đầu của kết quả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_machine.py:0
+msgid ""
+"Only the tester who entered a draft result without a machine books a machine"
+" for it."
+msgstr "Chỉ người thử nghiệm đã nhập kết quả nháp chưa có máy mới được đặt máy cho kết quả đó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_machine.py:0
+msgid "%(machine)s is not free for the measurement of %(result)s."
+msgstr "%(machine)s không còn trống cho phép đo của %(result)s."
 
 #. module: sol_laboratory
 #. odoo-python

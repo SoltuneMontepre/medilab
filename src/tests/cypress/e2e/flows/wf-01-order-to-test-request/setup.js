@@ -68,20 +68,22 @@ export const clearCarts = helper("clearCarts", function clearCarts(customer) {
 });
 
 function addSample(order) {
+  let sampleTypeId;
   return refAs(SALES, "sol_demo.demo_sample_type_bottled_water")
-    .then(({ id }) =>
-      callAs(SALES, "medilab.order.sample", "create", [
+    .then(({ id }) => {
+      sampleTypeId = id;
+      return callAs(SALES, "medilab.order.sample", "create", [
         {
           order_id: order.id,
           customer_sample_name: `Bottled water ${order.id}`,
           sample_type_id: id,
           physical_state: "liquid",
         },
-      ]),
-    )
+      ]);
+    })
     .then((sampleId) =>
       callAs(SALES, "sale.order", "read", [[order.id], ["order_line"]]).then(([read]) =>
-        callAs(SALES, "sale.order.line", "write", [read.order_line, { sample_id: sampleId }]),
+        callAs(SALES, "sale.order.line", "write", [read.order_line, { sample_id: sampleId, sample_type_id: sampleTypeId }]),
       ),
     );
 }
@@ -135,7 +137,11 @@ export const reviseQuotation = helper("reviseQuotation", function reviseQuotatio
 // Sales asks for a bank-transfer advance with the given terms; without an advance the Head of Sales waives it.
 function chooseAdvance(step, advance, terms = {}) {
   const login = advance ? SALES : HEAD_OF_SALES;
-  step(login, "write", [advance ? { advance_method: "bank_transfer", ...terms } : { advance_method: "none" }]);
+  step(login, "write", [
+    advance
+      ? { payment_method: "bank_transfer", advance_mode: "percentage", advance_value: 30, ...terms }
+      : { advance_method: "none" },
+  ]);
   return login;
 }
 

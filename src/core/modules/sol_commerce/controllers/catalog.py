@@ -12,10 +12,11 @@ from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 CART_SESSION = "medilab_cart_id"
-CART_FORM_SESSION = "medilab_cart_form"
+CART_DETAILS_SESSION = "medilab_cart_details"
 CART_PATH = "/cart"
 CATALOG_PATH = "/catalog"
 ORDERS_PATH = "/orders"
+DETAILS_PATH = "/cart/details"
 
 
 class Catalog(http.Controller):
@@ -82,26 +83,12 @@ class Catalog(http.Controller):
     @http.route(CART_PATH, type="http", auth="public", **FRONTEND_PAGE)
     def cart(self, error=None, **kwargs):
         order = self._cart()
-        contacts = order._contact_choices() if order else request_env()["res.partner"]
-        form_state = request.session.pop(CART_FORM_SESSION, None)
-        submitted = form_state.get("values", {}) if form_state and form_state.get("order_id") == order.id else {}
-        # The order's contact stays chosen; otherwise the customer's default contact is preselected.
-        submitted_contact = contacts.filtered(lambda contact: str(contact.id) == submitted.get("contact_id"))
-        chosen = (
-            submitted_contact
-            or (order.partner_id & contacts)
-            or (order._customer_record().default_contact_id if contacts else contacts)
-        )
         return request.render(
             "sol_commerce.cart_page",
             {
                 "order": order,
                 "lines": order._catalog_lines(),
                 "error": error,
-                "public": request_env().user._is_public(),
-                "contacts": contacts,
-                "chosen_contact": chosen,
-                "submitted": submitted,
             },
         )
 
@@ -123,44 +110,92 @@ class Catalog(http.Controller):
         return request.redirect(CART_PATH)
 
     @http.route("/cart/save", type="http", auth="public", methods=["POST"])
-    def save(self, contact_id=None, requested_date=None, priority=None, **kwargs):
+    def save(self, requested_date=None, **kwargs):
         order = self._cart()
         if not order:
             return request.redirect("/catalog")
         try:
-            self._choose_contact(order, contact_id)
-            order._set_portal_dates(requested_date, bool(priority))
+            order._set_portal_dates(requested_date)
         except UserError as error:
-            return request.redirect(self._cart_error(error, requested_date, priority))
+            return request.redirect(self._cart_error(error, requested_date))
         return request.redirect(f"{ORDERS_PATH}?saved=1")
 
-    @http.route("/cart/submit", type="http", auth="public", methods=["POST"])
-    def submit(self, name=None, email=None, phone=None, contact_id=None, requested_date=None, priority=None, **kwargs):
-        order = self._get_or_create_cart()
+    @http.route("/cart/check", type="http", auth="public", methods=["POST"])
+    def check(self, requested_date=None, **kwargs):
+        """Keep the date the customer wants the results, then ask for the order's details."""
+        order = self._cart()
+        if not order:
+            return request.redirect(CATALOG_PATH)
         try:
-            self._choose_contact(order, contact_id)
-            order._set_portal_dates(requested_date, bool(priority))
-            order.action_submit({"name": name, "email": email, "phone": phone})
+            order._set_portal_dates(requested_date)
         except UserError as error:
-            request.session[CART_FORM_SESSION] = {
-                "order_id": order.id,
-                "values": {
-                    "name": name or "",
-                    "email": email or "",
-                    "phone": phone or "",
-                    "contact_id": contact_id or "",
-                    "requested_date": requested_date or "",
-                    "priority": bool(priority),
-                },
-            }
-            return request.redirect(f"/cart?error={quote(str(error))}")
+            return request.redirect(self._cart_error(error, requested_date))
+        return request.redirect(DETAILS_PATH)
+
+    @http.route(DETAILS_PATH, type="http", auth="public", methods=["GET"], **FRONTEND_PAGE)
+    def details(self, error=None, **kwargs):
+        """The order's contact and sample collection, filled with what the customer chose before, beside the order."""
+        order = self._cart()
+        if not order._catalog_lines():
+            return request.redirect(CART_PATH)
+        order._prefill_collection()
+        dated = order.sudo()
+        contacts = order._contact_choices()
+        stored = request.session.get(CART_DETAILS_SESSION) or {}
+        return request.render(
+            "sol_commerce.cart_details_page",
+            {
+                "order": dated,
+                "lines": dated._catalog_lines(),
+                "error": error,
+                "public": request_env().user._is_public(),
+                "visitor": stored.get("visitor", {}) if stored.get("order_id") == order.id else {},
+                "contacts": contacts,
+                "chosen_contact": (dated.partner_id & contacts) or dated.partner_id,
+                "collection_days": dated._collection_days(),
+            },
+        )
+
+    @http.route(f"{DETAILS_PATH}/save", type="http", auth="public", methods=["POST"])
+    def save_details(self, **values):
+        """Keep the details as the customer gives them, so they stay when the customer leaves and comes back."""
+        order = self._cart()
+        if not order:
+            return request.make_response("", status=404)
+        self._keep_details(order, values)
+        return request.make_response("", status=204)
+
+    @http.route("/cart/submit", type="http", auth="public", methods=["POST"])
+    def submit(self, **values):
+        order = self._cart()
+        if not order._catalog_lines():
+            return request.redirect(CART_PATH)
+        visitor = self._keep_details(order, values)
+        try:
+            order._check_portal_collection()
+            order.action_submit(visitor)
+        except UserError as error:
+            return request.redirect(f"{DETAILS_PATH}?error={quote(str(error))}")
         request.session.pop(CART_SESSION, None)
-        request.session.pop(CART_FORM_SESSION, None)
+        request.session.pop(CART_DETAILS_SESSION, None)
         return request.render("sol_commerce.order_submitted", {"order": order.sudo()})
 
-    def _choose_contact(self, order, contact_id):
+    def _keep_details(self, order, values):
+        """Keep the contact and the collection on the order, and a visitor's own details in the session."""
+        contact_id = values.get("contact_id")
         if contact_id and contact_id.isdigit():
-            order.set_portal_contact(int(contact_id))
+            try:
+                order.set_portal_contact(int(contact_id))
+            except UserError:
+                pass
+        order._save_portal_collection(values)
+        visitor = {key: (values.get(key) or "").strip() for key in ("name", "email", "phone")}
+        if request_env().user._is_public():
+            stored = request.session.get(CART_DETAILS_SESSION) or {}
+            kept = stored.get("visitor", {}) if stored.get("order_id") == order.id else {}
+            visitor = {key: value or kept.get(key, "") for key, value in visitor.items()}
+            request.session[CART_DETAILS_SESSION] = {"order_id": order.id, "visitor": visitor}
+        return visitor
 
     def _groups(self, products):
         grouped = []
@@ -237,10 +272,9 @@ class Catalog(http.Controller):
             return records.browse()
         return records.browse(record_id).exists()
 
-    def _cart_error(self, error, requested_date, priority):
-        # Back to the cart with the error, keeping the date and the priority request the customer entered.
-        kept = f"&requested_date={quote(requested_date or '')}" + ("&priority=1" if priority else "")
-        return f"{CART_PATH}?error={quote(str(error))}{kept}"
+    def _cart_error(self, error, requested_date):
+        # Back to the cart with the error, keeping the date the customer entered.
+        return f"{CART_PATH}?error={quote(str(error))}&requested_date={quote(requested_date or '')}"
 
     def _id(self, value):
         # A posted record id, or None when the field was not posted or is not a number.

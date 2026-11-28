@@ -149,13 +149,17 @@ class TestOrderForm(OrderCase):
             "expected_sample_summary",
             "product_uom_qty",
             "price_unit",
-            "tax_ids",
             "price_subtotal",
         ):
             with self.subTest(field=name):
                 node = self._nodes(f"//list[@name='sol_list']//field[@name='{name}']")[0]
                 self.assertIn("linked_line_id", node.get("invisible") or "")
                 self.assertIn("linked_virtual_id", node.get("invisible") or "")
+
+    def test_the_tax_is_set_on_the_order_not_on_its_lines(self):
+        tax = self._nodes("//list[@name='sol_list']//field[@name='tax_ids']")[0]
+        self.assertTrue(tax.get("column_invisible"))
+        self.assertTrue(self._nodes("//field[@name='order_tax_id']"))
 
     def test_vietnamese_tells_customer_and_contact_apart(self):
         fields = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").fields_get(["customer_id", "partner_id"])
@@ -301,10 +305,19 @@ class TestOrderForm(OrderCase):
     def test_vietnamese_form_translates_its_headings_and_labels(self):
         arch = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").get_view(view_type="form")["arch"]
 
-        for text in ("Các khoản tạm ứng", "Khách hàng thấy", "Thêm chỉ tiêu hoặc gói dịch vụ"):
+        for text in ("Các khoản tạm ứng", "Chưa có thanh toán", "Khách hàng thấy", "Thêm chỉ tiêu hoặc gói dịch vụ"):
             with self.subTest(text=text):
                 self.assertIn(text, arch)
         self.assertNotIn("Advance payments", arch)
+
+    def test_payment_tab_shows_an_empty_state_before_payments(self):
+        empty = self._nodes("//page[@name='payment']//div[hasclass('o_medilab_payment_empty')]")[0]
+        invisible = empty.get("invisible") or ""
+        for field in ("payment_request_ids", "recorded_payments_html", "downpayment_line_ids", "pending_amount"):
+            with self.subTest(field=field):
+                self.assertIn(field, invisible)
+        recorded_empty = self._nodes("//page[@name='payment']//div[hasclass('o_medilab_recorded_payments_empty')]")[0]
+        self.assertIn("recorded_payments_html", recorded_empty.get("invisible") or "")
 
     def test_customer_is_required_and_locked_after_confirmation(self):
         customer = self._nodes("//sheet//field[@name='customer_id']")[0]
@@ -313,9 +326,7 @@ class TestOrderForm(OrderCase):
         self.assertIn("state in ['cancel', 'sale']", readonly)
         self.assertIn("not order_can_edit", readonly)
 
-    def test_committed_date_is_readonly_until_expected_pickup_is_set(self):
+    def test_sales_cannot_edit_the_expected_return_date(self):
         committed = self._nodes("//sheet//field[@name='committed_date']")[0]
         self.assertIsNone(committed.get("placeholder"))
-        readonly = committed.get("readonly") or ""
-        self.assertIn("not expected_collection_date", readonly)
-        self.assertIn("state != 'draft'", readonly)
+        self.assertIn(committed.get("readonly"), ("1", "True"))

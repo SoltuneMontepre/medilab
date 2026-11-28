@@ -30,6 +30,10 @@ class TaskReassign(models.TransientModel, TaskReassignBase):
         task_ids = fields.Many2many(MODEL_TASK, string="Tasks", required=True)
         # Department whose queue holds the tasks.
         department_id = fields.Many2one(MODEL_DEPARTMENT, domain=DEPARTMENT_DOMAIN)
+        # True when a task is a testing task, so the tasks stay in the department of its way of testing.
+        department_fixed = fields.Boolean(compute="_compute_fixed_department")
+        # The department of the way of testing of every testing task among the tasks; empty when they differ.
+        fixed_department_id = fields.Many2one(MODEL_DEPARTMENT, compute="_compute_fixed_department")
         # Person who does the tasks; empty to leave them in the department's queue.
         assignee_id = fields.Many2one(MODEL_PERSON, string="Assignee")
         # Why the tasks move to another person or department.
@@ -46,7 +50,10 @@ class TaskReassign(models.TransientModel, TaskReassignBase):
         values = super().default_get(fields_list)
         tasks = self.env[MODEL_TASK].browse(self.env.context.get("active_ids", []))
         values["task_ids"] = [fields.Command.set(persisted_ids(tasks))]
-        if len(tasks.department_id) == 1:
+        way_departments = tasks._way_departments()
+        if way_departments:
+            values["department_id"] = way_departments.id if len(way_departments) == 1 else False
+        elif len(tasks.department_id) == 1:
             values["department_id"] = tasks.department_id.id
         if len(tasks.assignee_id) == 1 and all(tasks.mapped("assignee_id")):
             values["assignee_id"] = tasks.assignee_id.id
@@ -73,13 +80,34 @@ class TaskReassign(models.TransientModel, TaskReassignBase):
                 lambda person, parameters=parameters: authorizations._authorized(person, parameters)
             )
 
+    @api.depends("task_ids")
+    def _compute_fixed_department(self):
+        for wizard in self:
+            departments = wizard.task_ids._way_departments()
+            wizard.department_fixed = bool(departments)
+            wizard.fixed_department_id = departments if len(departments) == 1 else False
+
     @api.onchange("department_id")
     def _onchange_department_id(self):
         if self.assignee_id and self.department_id and self.assignee_id.department_id != self.department_id:
             self.assignee_id = False
 
+    def _check_fixed_department(self):
+        if not self.department_fixed:
+            return
+        if not self.fixed_department_id:
+            raise ValidationError(self.env._("Assign testing tasks of different departments separately."))
+        if self.department_id != self.fixed_department_id:
+            raise ValidationError(
+                self.env._(
+                    "These testing tasks stay in %s, which tests them.",
+                    self.fixed_department_id.name,
+                )
+            )
+
     def action_confirm(self):
         self.ensure_one()
+        self._check_fixed_department()
         if self.assignee_id and self.department_id and self.assignee_id.department_id != self.department_id:
             raise ValidationError(
                 self.env._(

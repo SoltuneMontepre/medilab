@@ -35,7 +35,7 @@ The script stops without writing when the tables are inconsistent or Business fl
 | [F-05](#f-05-order-claiming-and-orders-on-behalf)                       | Order claiming and orders on behalf                        | Sales                                     | WF-01      | Yes       | Lê Sỹ Tuyền         |
 | [F-06](#f-06-quotation-and-revisions)                                   | Quotation and revisions                                    | Sales                                     | WF-01      | Yes       | Lê Sỹ Tuyền         |
 | [F-07](#f-07-order-templates)                                           | Order templates                                            | Sales                                     | WF-01      | No        |                     |
-| [F-08](#f-08-estimated-result-date-and-priority-check)                  | Estimated result date and priority check                   | Sales, Customer                           | SF-07      | No        |                     |
+| [F-08](#f-08-estimated-result-date-and-priority-check)                  | Estimated result date and priority check                   | Sales, Customer, Administrator            | SF-07      | No        |                     |
 | [F-09](#f-09-advance-invoice-and-online-payment)                        | Advance invoice and online payment                         | Customer                                  | WF-01      | Yes       | Lê Sỹ Tuyền         |
 | [F-10](#f-10-quotation-approval-and-order-confirmation)                 | Quotation approval and order confirmation                  | Sales, Head of Sales                      | WF-01      | Yes       | Lê Sỹ Tuyền         |
 | [F-11](#f-11-order-cancellation)                                        | Order cancellation                                         | Customer, Sales                           | SF-02      | No        |                     |
@@ -136,6 +136,7 @@ The script stops without writing when the tables are inconsistent or Business fl
 - TC-F08-01 Main: Adding a parameter to a quotation updates its estimated return date.
 - TC-F08-02 Rule: An accepted priority order makes its tests urgent when they are created.
 - TC-F08-03 Exception: An earlier date the laboratory cannot meet is not accepted; the check shows the earliest date it can.
+- TC-F08-04 Rule: A requested date earlier than the standard return date is a priority request; accepting it adds the priority surcharge line.
 
 ### F-09 Advance invoice and online payment
 

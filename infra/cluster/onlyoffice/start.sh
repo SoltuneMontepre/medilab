@@ -50,6 +50,20 @@ chmod 0600 /etc/onlyoffice/documentserver/local.json
 install -m 0755 /opt/medilab/onlyoffice/shutdown.sh /usr/bin/documentserver-prepare4shutdown.sh
 # Nginx otherwise serves the image's old compressed worker in place of the mounted one.
 rm -f /var/www/onlyoffice/documentserver/sdkjs/common/serviceworker/document_editor_service_worker.js.gz
+# Ad blockers refuse a file named Analytics.js, and no editor starts without that module, so it is served under a
+# neutral name. The cache tag the entrypoint makes at every start gives browsers the edited app.js at once.
+apps=/var/www/onlyoffice/documentserver/web-apps/apps
+cp -p "$apps/common/Analytics.js" "$apps/common/Relay.js"
+for app in "$apps"/{documenteditor,pdfeditor,presentationeditor,spreadsheeteditor,visioeditor}/main/app.js \
+  "$apps/documenteditor/forms/app.js"; do
+  sed -i "s@'common/Analytics'@'common/Relay'@" "$app"
+  grep -Fq "'common/Relay'" "$app"
+  rm -f "$app.gz"
+done
+if grep -rlF "common/Analytics" "$apps" --include=app.js; then
+  echo 'ONLYOFFICE startup refused: an editor still loads common/Analytics.' >&2
+  exit 1
+fi
 # Nginx errors can include the complete signed request URL. Patch templates as well as live includes.
 find /etc/nginx /etc/onlyoffice/documentserver/nginx -type f \
   \( -name '*.conf' -o -name '*.tmpl' \) -exec sed -i -E \

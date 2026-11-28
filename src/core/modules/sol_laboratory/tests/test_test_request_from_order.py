@@ -1,6 +1,3 @@
-from unittest.mock import patch
-
-from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .request_case import RequestCase
@@ -57,24 +54,12 @@ class TestTestRequestFromOrder(RequestCase):
         cabbage = request.sample_ids.filtered(lambda sample: sample.customer_sample_name == "Cabbage")
         self.assertEqual(cabbage.test_ids.parameter_id, self.parameter)
 
-    def test_an_unpaid_order_without_credit_cannot_be_confirmed(self):
-        request = self.env[MODEL_TEST_REQUEST].create_from_order(
-            self.customer,
-            self._order_samples([{"parameter_id": self.parameter.id}]),
-        )
-
-        with (
-            patch.object(type(request), "_credit_blocks_confirmation", return_value=True),
-            self.assertRaises(UserError),
-        ):
-            request.action_confirm()
-        self.assertEqual(request.status, "draft")
-
-    def test_credit_lets_an_order_request_be_confirmed(self):
+    def test_an_order_request_confirms_without_sales_blocking_it(self):
         request = self.env[MODEL_TEST_REQUEST].create_from_order(
             self.customer,
             self._order_samples([{"parameter_id": self.parameter.id}]),
         )
 
         request.action_confirm()
-        self.assertEqual(request.status, "paid")
+
+        self.assertEqual(request.status, "confirmed")

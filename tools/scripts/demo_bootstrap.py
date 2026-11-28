@@ -78,6 +78,7 @@ DEFAULT_PORTS = {
     "MEDILAB_GARAGE_PORT": "3900",
     "MEDILAB_GARAGE_ADMIN_PORT": "3903",
     "MEDILAB_CLOUDBEAVER_PORT": "8978",
+    "MEDILAB_MAILPIT_PORT": "8025",
 }
 PORT_KEYS = tuple(DEFAULT_PORTS)
 # Below the dynamic ranges that Linux (32768+) and Windows (49152+) hand out and reserve.
@@ -933,6 +934,7 @@ def _compose_environment(project, owner=None, config=None):
             "MEDILAB_CLOUDBEAVER_PORT": os.environ.get(
                 "MEDILAB_CLOUDBEAVER_PORT", "8978"
             ),
+            "MEDILAB_MAILPIT_PORT": os.environ.get("MEDILAB_MAILPIT_PORT", "8025"),
             "MEDILAB_ODOO_IMAGE": "medilab-odoo:local",
         }
     )

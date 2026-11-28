@@ -98,6 +98,7 @@ const messages = {
   "status.pending": { vi: "Đang chờ", en: "Waiting" },
   "status.running": { vi: "Đang tải lên", en: "Uploading" },
   "status.retry_wait": { vi: "Đang chờ thử lại", en: "Waiting to retry" },
+  "status.verifying": { vi: "Máy chủ đang xác minh", en: "Server verifying" },
   "status.completed": { vi: "Đã đồng bộ", en: "Synced" },
   "status.failed": { vi: "Lỗi", en: "Error" },
   "status.conflict": { vi: "Xung đột", en: "Conflict" },

@@ -5,9 +5,7 @@
         <field name="model">medilab.task.type</field>
         <field name="arch" type="xml">
             <list create="0" delete="0" duplicate="0">
-                <field name="code" />
                 <field name="name" />
-                <field name="trigger" />
                 <field name="route" />
                 <field name="role_id" optional="show" />
                 <field name="deadline_hours" optional="show" />
@@ -26,17 +24,9 @@
                         <h1><field name="name" /></h1>
                     </div>
                     <group>
-                        <group>
-                            <field name="code" />
-                            <field name="trigger" />
-                            <field name="document_model" />
-                            <field name="action" />
-                        </group>
-                        <group>
-                            <field name="route" />
-                            <field name="role_id" invisible="route != 'role'" required="route == 'role'" />
-                            <field name="deadline_hours" />
-                        </group>
+                        <field name="route" />
+                        <field name="role_id" invisible="route != 'role'" required="route == 'role'" />
+                        <field name="deadline_hours" />
                     </group>
                 </sheet>
             </form>

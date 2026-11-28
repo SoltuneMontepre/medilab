@@ -39,6 +39,7 @@ export type JobRow = {
   remote_file_id: number | null;
   remote_version_id: number | null;
   target_version_number?: number | null;
+  wait_reason?: string | null;
 };
 
 /** Delta tiến độ truyền dữ liệu của một job đồng bộ (upload hoặc download). */

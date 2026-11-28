@@ -11,4 +11,15 @@
         <field name="taxes_id" eval="[Command.clear()]" />
         <field name="categ_id" ref="product.product_category_services" />
     </record>
+    <!-- The line of the surcharge an accepted priority order adds; it is not sold on its own. -->
+    <record id="product_priority_surcharge" model="product.product">
+        <field name="name">Priority surcharge</field>
+        <field name="type">service</field>
+        <field name="invoice_policy">order</field>
+        <field name="list_price">0</field>
+        <field name="sale_ok" eval="False" />
+        <field name="purchase_ok" eval="False" />
+        <field name="taxes_id" eval="[Command.clear()]" />
+        <field name="categ_id" ref="product.product_category_services" />
+    </record>
 </odoo>

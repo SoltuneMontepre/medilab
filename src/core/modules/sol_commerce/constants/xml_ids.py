@@ -10,6 +10,8 @@ EXPECTED_SAMPLING_TEMPLATE = "sol_commerce.expected_sampling"
 # Odoo's group that shows the discount of order lines and the whole-order discount.
 LINE_DISCOUNT_GROUP = "sale.group_discount_per_so_line"
 MAIN_COMPANY = "base.main_company"
+# The service product of the surcharge line an accepted priority order adds.
+PRIORITY_SURCHARGE_PRODUCT = "sol_commerce.product_priority_surcharge"
 PAYMENT_RECEIPT_REPORT = "account.action_report_payment_receipt"
 PUBLIC_PARTNER = "base.public_partner"
 QUOTATION_REPORT = "sale.action_report_saleorder"

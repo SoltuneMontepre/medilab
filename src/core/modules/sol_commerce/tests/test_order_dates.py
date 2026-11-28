@@ -66,6 +66,8 @@ class TestOrderDates(OrderCase):
         requests = self.env[MODEL_TEST_REQUEST]
         order.requested_date = requests._date_after_working_days(self.today(), order.turnaround_days)
         order.payment_deadline = fields.Datetime.now() + timedelta(days=10)
+        # Counted from the deadline, that date is earlier than the standard return date: Sales declines priority.
+        order.with_user(self.sales).action_decline_priority()
 
         order.with_user(self.sales).action_send_quotation()
 
@@ -108,7 +110,8 @@ class TestOrderDates(OrderCase):
 
     def test_a_priority_request_must_be_decided_before_sending(self):
         order = self.make_quotable_order()
-        order._set_portal_dates((self.today() + timedelta(days=2)).isoformat(), True)
+        order._set_portal_dates(order._min_requested_date().isoformat())
+        self.assertEqual(order.priority_request, "requested")
 
         with self.assertRaisesRegex(UserError, "Accept or decline"):
             order.with_user(self.sales).action_send_quotation()
@@ -116,12 +119,6 @@ class TestOrderDates(OrderCase):
         order.with_user(self.sales).action_decline_priority()
         order.with_user(self.sales).action_send_quotation()
         self.assertFalse(order.priority)
-
-    def test_priority_needs_a_requested_date(self):
-        order = self.make_order([(self.lead_product, 1)])
-
-        with self.assertRaisesRegex(UserError, "Give the date"):
-            order._set_portal_dates(False, True)
 
     def test_an_infeasible_priority_request_is_refused_with_the_earliest_date(self):
         order = self.make_quotable_order()
@@ -140,8 +137,14 @@ class TestOrderDates(OrderCase):
             order.with_user(self.sales).action_accept_priority()
         self.assertEqual(order.priority_request, "requested")
 
+    def pick_up_later(self, order):
+        """Pick the samples up 3 working days from now, so the standard return date is 8 working days away."""
+        order.expected_collection_date = self.env[MODEL_TEST_REQUEST]._date_after_working_days(self.today(), 3)
+
     def accept_priority(self, order, requested):
-        order.write({"requested_date": requested, "priority_request": "requested"})
+        self.pick_up_later(order)
+        order.write({"requested_date": requested})
+        self.assertEqual(order.priority_request, "requested")
         with patch.object(
             TestRequestEstimate,
             "_check_priority",
@@ -153,14 +156,7 @@ class TestOrderDates(OrderCase):
         order = self.make_quotable_order()
         # The turnaround starts tomorrow at the latest, so the advance can still be paid in time.
         requested = self.env[MODEL_TEST_REQUEST]._date_after_working_days(self.today(), 6)
-        order.write({"requested_date": requested, "priority_request": "requested"})
-
-        with patch.object(
-            TestRequestEstimate,
-            "_check_priority",
-            return_value={"date": requested, "feasible": True, "reasons": []},
-        ):
-            order.with_user(self.sales).action_accept_priority()
+        self.accept_priority(order, requested)
         order.with_user(self.sales).action_send_quotation()
         self.pay_advance(order)
         order.with_user(self.sales).action_confirm_order()
@@ -248,6 +244,7 @@ class TestOrderDates(OrderCase):
                 self.assertIn(step, timeline)
         self.assertIn("text-warning", timeline)
 
+        order.with_user(self.sales).action_decline_priority()
         order.with_user(self.sales).action_send_quotation()
         order.invalidate_recordset(["return_timeline"])
         self.assertIn("Expected return", str(order.return_timeline))

@@ -16,11 +16,11 @@ class TestOrderCart(OrderCase):
         with self.assertRaises(UserError):
             order.action_submit()
 
-    def test_priority_without_a_date_leaves_the_draft_unsubmitted(self):
+    def test_a_past_requested_date_leaves_the_draft_unchanged(self):
         order = self.make_order([(self.lead_product, 1)])
 
-        with self.assertRaisesRegex(UserError, "Give the date"):
-            order._set_portal_dates(False, True)
+        with self.assertRaisesRegex(UserError, "Choose a date on or after"):
+            order._set_portal_dates("2020-01-01")
 
         self.assertEqual(order.order_status, "draft")
         self.assertFalse(order.requested_date)

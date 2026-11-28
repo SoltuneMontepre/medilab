@@ -29,7 +29,7 @@ class TestBalanceDue(OrderCase):
         request = order.test_request_id
         balance = order.payment_request_id
 
-        self.assertEqual(request.status, "paid")
+        self.assertEqual(request.status, "confirmed")
         self.assertFalse(order.show_unpaid_warning)
         order.with_user(self.sales).action_start_sample_collection()
         self.assertTrue(self.collection_tasks(order))
@@ -39,25 +39,25 @@ class TestBalanceDue(OrderCase):
         self.assertAlmostEqual(balance.remaining_amount, order.amount_total * 0.7)
         self.assertTrue(order._withholds_report())
 
-    def test_upgrade_releases_only_orders_whose_advance_is_verified(self):
+    def test_upgrade_migration_keeps_confirmed_request_and_advance_releases_hold(self):
         funded = self.confirmed("before_collection")
         unpaid = self.confirmed("before_collection")
-        funded.test_request_id.status = "confirmed"
-        unpaid.test_request_id.status = "confirmed"
         unpaid.payment_request_ids.filtered(lambda ask: ask.kind == "advance").state = "open"
         self.env.flush_all()
 
         path = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.25.0" / "post-migrate.py"
         migrate = load_script(str(path), "release_funded_advances").migrate
         migrate(self.env.cr, "20.0.1.24.0")
-        migrate(self.env.cr, "20.0.1.24.0")
         self.env.invalidate_all()
 
-        self.assertEqual(funded.test_request_id.status, "paid")
+        self.assertEqual(funded.test_request_id.status, "confirmed")
         self.assertEqual(funded.payment_request_id.state, "open")
         self.assertEqual(unpaid.test_request_id.status, "confirmed")
+        self.assertTrue(unpaid.show_unpaid_warning)
         unpaid.payment_request_ids.filtered(lambda ask: ask.kind == "advance")._refresh_funding()
-        self.assertEqual(unpaid.test_request_id.status, "paid")
+        unpaid.invalidate_recordset(["show_unpaid_warning"])
+        self.assertEqual(unpaid.test_request_id.status, "confirmed")
+        self.assertFalse(unpaid.show_unpaid_warning)
         self.assertEqual(unpaid.payment_request_id.state, "open")
 
     def test_a_balance_due_at_collection_goes_on_the_collection_task(self):
@@ -84,7 +84,7 @@ class TestBalanceDue(OrderCase):
     def test_a_verified_advance_lets_the_request_receive_samples_before_the_balance(self):
         order = self.confirmed("before_report")
         request = order.test_request_id
-        self.assertEqual(request.status, "paid")
+        self.assertEqual(request.status, "confirmed")
 
         request.sample_ids[:1].with_user(self.sales).sudo().action_receive(1, "good")
 

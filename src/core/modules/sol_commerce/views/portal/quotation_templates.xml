@@ -75,7 +75,7 @@
                                     <td />
                                 </tr>
                             </t>
-                            <tr t-foreach="discount_lines" t-as="line">
+                            <tr t-foreach="order_wide_lines" t-as="line">
                                 <td t-att-colspan="4 if show_discount else 3" t-out="line.name" />
                                 <td class="text-end" t-out="line.price_subtotal" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
                             </tr>

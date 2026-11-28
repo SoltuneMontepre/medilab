@@ -7,12 +7,18 @@
             <form>
                 <group>
                     <field name="task_ids" widget="many2many_tags" readonly="1" />
-                    <field name="department_id" />
+                    <field
+                        name="department_id"
+                        readonly="department_fixed"
+                        required="department_fixed"
+                        force_save="1"
+                    />
                     <field
                         name="assignee_id"
                         domain="([('department_id', '=', department_id)] if department_id else []) + ([('id', 'in', authorized_person_ids)] if authorization_required else [])"
                         options="{'no_create': True}"
                     />
+                    <field name="department_fixed" invisible="1" />
                     <field name="reason_required" invisible="1" />
                     <field name="authorization_required" invisible="1" />
                     <field name="authorized_person_ids" invisible="1" />

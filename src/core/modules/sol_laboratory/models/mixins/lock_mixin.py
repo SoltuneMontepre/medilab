@@ -18,6 +18,8 @@ else:
 class LockMixin(models.AbstractModel, LockMixinBase):
     _name = MODEL_LOCK_MIXIN
     _description = "Editing Lock"
+    # Header buttons that change nothing, such as printing, and stay offered while another user holds the lock.
+    _lock_free_buttons: tuple[str, ...] = ()
 
     if not TYPE_CHECKING:
         # Who else is editing the document and since when; empty while nobody else holds a lock on it.
@@ -82,7 +84,19 @@ class LockMixin(models.AbstractModel, LockMixinBase):
         arch, view = super()._get_view(view_id, view_type, **options)
         if view_type == "form":
             self._add_lock_banner(arch)
+            self._hide_locked_buttons(arch)
         return arch, view
+
+    @api.model
+    def _hide_locked_buttons(self, arch):
+        header = arch.find("header")
+        if header is None:
+            return
+        for button in header.iter("button"):
+            if button.get("name") in self._lock_free_buttons:
+                continue
+            invisible = button.get("invisible")
+            button.set("invisible", f"({invisible}) or lock_message" if invisible else "lock_message")
 
     @api.model
     def _add_lock_banner(self, arch):

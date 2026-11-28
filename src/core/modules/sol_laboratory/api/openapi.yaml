@@ -4658,8 +4658,8 @@ components:
           enum: [prepared, verifying, completed, conflict, unchanged, refused, failed, expired]
         failure_code:
           description: |
-            Why the upload failed, `size_mismatch`, `sha256_mismatch` or `missing_object`, or the code of the refusal of
-            a refused upload.
+            Why the upload failed, `size_mismatch`, `sha256_mismatch`, `missing_object`, `verification_failed` or
+            `storing_failed`, or the code of the refusal of a refused upload.
           type: [string, "null"]
         size:
           type: integer

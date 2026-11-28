@@ -58,10 +58,7 @@ Each document keeps its own status. Tasks keep their own generic lifecycle ([SH-
 stateDiagram-v2
     [*] --> draft
     draft --> confirmed: its order is confirmed; without E-commerce, staff confirm it
-    confirmed --> paid: at once, unless the customer is allowed credit
-    confirmed --> on_credit: at once for a customer allowed credit
-    paid --> sample_received: first sample received
-    on_credit --> sample_received: first sample received
+    confirmed --> sample_received: first sample received
     sample_received --> testing: first sample test started
     testing --> awaiting_approval: every remaining test has its reported result sent for approval
     awaiting_approval --> testing: a reported result is rejected or withdrawn
@@ -71,15 +68,14 @@ stateDiagram-v2
     completed --> awaiting_approval: the lab head sends results back
     draft --> cancelled
     confirmed --> cancelled
-    paid --> cancelled
-    on_credit --> cancelled
     sample_received --> cancelled
     testing --> cancelled
 ```
 
-- With E-commerce, every test request comes from an order Sales confirmed; creating one without an order is refused for every role, and the list of test requests offers no way to create one. An order is confirmed only once any requested advance is verified in full, and confirming it has the system confirm the request and mark it Paid; nobody confirms it by hand. The order's balance payment request holds back neither its sample collection nor its testing; its issued report reaches the customer only once the order is paid in full. For a customer allowed to order on credit who was sent a quotation without an advance, the request goes straight to On credit and the customer pays the final invoice after testing.
-- Without E-commerce, staff holding the permission `test_request.create.all` create a test request directly with its samples and selected ways, and confirm it, which makes it paid at once.
-- The samples of a test request are received only once it is paid or On credit.
+- With E-commerce, every test request comes from an order Sales confirmed; creating one without an order is refused for every role, and the list of test requests offers no way to create one. An order is confirmed only once any requested advance is verified in full (or accepted on credit by a customer allowed credit), and confirming it has the system confirm the request; nobody confirms it by hand. The order keeps its own payment and credit status (`on_credit`, `payment_badge_status`), while the test request tracks only laboratory work (`draft`, `confirmed`, `sample_received`, `testing`, `awaiting_approval`, `completed`, `reported`, `cancelled`). Sample intake enforces any payment hold from the order; the order's balance payment request holds back neither sample collection nor testing once the advance is verified, and its issued report reaches the customer only once the order is paid in full (or immediately for a customer on credit).
+- Without E-commerce, staff holding the permission `test_request.create.all` create a test request directly with its samples and selected ways, and confirm it.
+- Standalone test requests compute their `Priority Order` flag automatically from `requested_date < standard_return_date` (`turnaround_days` from their testing ways), and requests created from an order carry the order's accepted priority decision. Both orders and test requests display a distinct priority badge and sort priority work first.
+- The samples of a confirmed test request can be received once any order payment hold is cleared; receiving a sample of a draft request is refused.
 
 ### Sample
 
@@ -248,7 +244,7 @@ flowchart LR
 | Rule               | Description                                                                                                                                     |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Testing tasks      | When a sample is received, the system creates a testing task for each sample test and puts it in the queue of the department that does the work. A test the customer accepted on a subcontracted way goes to the department of its parameter's default in-house way, which outsources it. Outsourcing a test ends its open testing task, as cancelling does, and the test stays in that department; a testing task of an outsourced test cannot be started. |
-| Assignment | Testing tasks queue by department, not by team. The Head of Department assigns a single task or all of a sample's tasks in that department to an authorized tester; authorized testers may claim unassigned tasks. Lab Head maintains the person-to-parameter authorization list, without start or end dates. Reassignment needs a reason. Scheduling checks membership of this list. |
+| Assignment | Testing tasks queue by department, not by team. The Head of Department assigns a single task or all of a sample's tasks in that department to an authorized tester; authorized testers may claim unassigned tasks. A testing task stays in the department of its way of testing. Lab Head maintains the person-to-parameter authorization list, without start or end dates. Reassignment needs a reason. Scheduling checks membership of this list. |
 | Due date | The test request carries the customer's requested date and the expected return date; only Sales changes it, with the customer's agreement. The customer never sees an internal due date. Each sample test's internal due date is that date minus a configurable safety margin (2 days by default), at the end of the company-local day, and is met when its result is submitted. A margin change does not rewrite existing due dates. |
 | Method steps       | The person running a test sees the steps of the testing method of its way of testing, each with its number, how long it takes, what to do and its note. The steps are the same for the whole laboratory. |
 | Booking | A booking schedules one sample test, its sample, parameter and agreed way of testing, for one authorized tester and one interval, on a machine only when the way needs one, and reserves every bookable location its steps name. Scheduling does not choose another way. A sample test can be booked only once its sample is received by its department, is not held for the customer's agreement and is not cancelled. |
