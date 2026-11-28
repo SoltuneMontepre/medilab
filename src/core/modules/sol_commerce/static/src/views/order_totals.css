@@ -1,0 +1,24 @@
+/* The order's tax reads as a line of the totals below it, editable in place. */
+.o_medilab_order_tax {
+    padding-right: 1rem;
+}
+
+.o_medilab_order_tax_value {
+    width: 11rem;
+}
+
+.o_form_view .o_medilab_order_tax .o_field_widget .o_input {
+    border-color: transparent;
+    background: transparent;
+    text-align: right;
+}
+
+.o_form_view .o_medilab_order_tax .o_field_widget .o_input:hover,
+.o_form_view .o_medilab_order_tax .o_field_widget .o_input:focus {
+    border-color: var(--o-input-border-color, #dee2e6);
+}
+
+/* Odoo's extra totals box stays hidden while it has nothing to show. */
+.oe_subtotal_footer .o_cell:has(> .o_field_sale-extra-totals tbody:empty) {
+    display: none;
+}

@@ -82,8 +82,8 @@ describe("WF-02 Sample reception and handover", () => {
       const [sample] = request.samples;
       step("Sample delivery staff open the sample the customer brings");
       cy.signInAs("sample_delivery_staff");
-      // Only the request of an order goes through the paid step.
-      cy.readRecord(request, ["status"]).its("status").should("eq", "paid");
+      // Test requests stay decoupled from payment and wait in Confirmed until samples arrive.
+      cy.readRecord(request, ["status"]).its("status").should("eq", "confirmed");
       openMenu(MENU.laboratory, MENU.samples, MENU.sampleList);
       openRow(sample.code);
       cy.get(".o_field_widget[name=sample_type_id]").find("input").should("not.exist");
@@ -223,7 +223,7 @@ describe("WF-02 Sample reception and handover", () => {
       receive(sample, "insufficient", "Chỉ có 50 ml.");
       // An insufficient sample is held before any receipt.
       callAs(STAFF, "medilab.sample", "read", [[sample.id], ["status", "received_at"]]).its("0").should("deep.include", { status: "on_hold", received_at: false });
-      callAs(STAFF, "medilab.test.request", "read", [[request.id], ["status"]]).its("0.status").should("eq", "paid");
+      callAs(STAFF, "medilab.test.request", "read", [[request.id], ["status"]]).its("0.status").should("eq", "confirmed");
       step("The head of department is told");
       callAs("demo.administrator", "mail.message", "search_count", [
         [
@@ -296,7 +296,7 @@ describe("WF-02 Sample reception and handover", () => {
         expect(read.condition_note).to.equal(note);
         expect(read.received_at, "received").to.equal(false);
       });
-      cy.readRecord(request, ["status"]).its("status").should("eq", "paid");
+      cy.readRecord(request, ["status"]).its("status").should("eq", "confirmed");
       testingTasks(sample).should("be.empty");
     });
   });

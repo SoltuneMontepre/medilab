@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.notifications import (
     EVENT_MACHINE_BOOKING_RETURNED,
     EVENT_TEST_RESULT_INTERRUPTED,
 )
+from odoo.addons.sol_laboratory.models.testing.machine_booking import SIMULATION_PRELOAD_CONTEXT, SimulationPreload
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_machine_booking as MachineBookingInterruptionsBase
@@ -47,6 +48,18 @@ class MachineBookingInterruptions(models.Model, MachineBookingInterruptionsBase)
                 )
 
     @api.model
+    def _room_closures(self, rooms):
+        loc_ids = {step.location_id.id for step, _offset, _length in rooms}
+        raw_preload = self.env.context.get(SIMULATION_PRELOAD_CONTEXT)
+        if isinstance(raw_preload, SimulationPreload):
+            return [closure for closure in raw_preload.closures if closure.location_id.id in loc_ids]
+        return (
+            self.env[MODEL_LOCATION_UNAVAILABILITY]
+            .sudo()
+            .search([("location_id", "in", list(loc_ids)), ("ends_at", ">", fields.Datetime.now())])
+        )
+
+    @api.model
     def _free_slot(
         self,
         machine,
@@ -62,16 +75,11 @@ class MachineBookingInterruptions(models.Model, MachineBookingInterruptionsBase)
         planned=None,
     ):
         """The free slot, with the room of each step usable for the step's time."""
-        closures = (
-            self.env[MODEL_LOCATION_UNAVAILABILITY]
-            .sudo()
-            .search(
-                [
-                    ("location_id", "in", [step.location_id.id for step, _offset, _length in rooms]),
-                    ("ends_at", ">", fields.Datetime.now()),
-                ]
+        if not rooms:
+            return super()._free_slot(
+                machine, length, person, not_after, not_before, ignore, working, rooms, way, sample, planned
             )
-        )
+        closures = self._room_closures(rooms)
         while True:
             start = super()._free_slot(
                 machine, length, person, not_after, not_before, ignore, working, rooms, way, sample, planned

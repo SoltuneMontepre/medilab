@@ -189,101 +189,265 @@
 
     <template id="cart_page" name="Cart">
         <t t-call="portal.frontend_layout">
-            <div class="container py-4">
-                <h1>Cart</h1>
-                <p t-if="error" class="text-danger" t-out="error" />
-                <t t-if="not lines">
-                    <p>The cart is empty. <a href="/catalog">Browse the catalog</a>.</p>
-                </t>
-                <div class="table-responsive" t-if="lines">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th class="text-end">Price</th>
-                                <th class="text-end">Quantity</th>
-                                <th class="text-end">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="lines" t-as="line">
-                                <t t-set="quantity" t-value="int(line.product_uom_qty)" />
-                                <tr>
-                                    <td>
-                                        <t t-out="line.product_id.display_name" />
-                                        <div t-if="line.linked_line_ids" class="small text-muted" t-out="', '.join(line.linked_line_ids.product_id.mapped('name'))" />
-                                    </td>
-                                    <td class="text-end" t-out="line.price_unit" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
-                                    <td>
-                                        <form action="/cart/line" method="post" class="d-flex flex-wrap justify-content-end gap-2">
+            <div class="container py-4 o_medilab_cart">
+                <t t-set="step" t-value="1" />
+                <t t-if="lines" t-call="sol_commerce.cart_steps" />
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <h1 class="mb-0">Cart</h1>
+                    <a t-if="lines" class="btn btn-link px-0" href="/catalog"><i class="oi me-1" data-icon="arrow_back" aria-hidden="true" />Continue shopping</a>
+                </div>
+                <div t-if="error" class="alert alert-danger" role="alert" t-out="error" />
+                <div t-if="not lines" class="card card-body text-center py-5">
+                    <p class="mb-3">The cart is empty.</p>
+                    <div><a class="btn btn-primary" href="/catalog"><i class="oi me-1" data-icon="science" aria-hidden="true" />Browse the catalog</a></div>
+                </div>
+                <form t-if="lines" id="o_medilab_cart_form" t-att-action="url_for('/cart/check')" method="post">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                </form>
+                <div t-if="lines" class="row g-4 align-items-start">
+                    <div class="col-lg-7">
+                        <div class="card">
+                            <ul class="list-group list-group-flush">
+                                <t t-foreach="lines" t-as="line">
+                                    <t t-set="quantity" t-value="int(line.product_uom_qty)" />
+                                    <li class="list-group-item py-3">
+                                        <div class="d-flex justify-content-between gap-3">
+                                            <div>
+                                                <div class="fw-semibold" t-out="line.product_id.display_name" />
+                                                <div t-if="line.linked_line_ids" class="small text-muted" t-out="', '.join(line.linked_line_ids.product_id.mapped('name'))" />
+                                                <div t-if="line.expected_sample_summary" class="small mt-1"><span class="text-muted">Samples:</span> <t t-out="line.expected_sample_count" /> × <t t-out="line.expected_sample_summary" /></div>
+                                                <div class="small text-muted mt-1"><t t-out="line.price_unit" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" /> each</div>
+                                            </div>
+                                            <div class="fw-semibold text-nowrap" t-out="line.price_unit * line.product_uom_qty" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
+                                        </div>
+                                        <form action="/cart/line" method="post" class="d-flex align-items-center gap-3 mt-2">
                                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                                             <input type="hidden" name="line_id" t-att-value="line.id" />
-                                            <div class="btn-group" role="group">
-                                                <button type="submit" name="quantity" t-att-value="quantity - 1" class="btn btn-secondary" t-att-disabled="quantity &lt;= 1" title="Decrease the quantity" aria-label="Decrease the quantity">−</button>
-                                                <span class="btn btn-light disabled text-body" t-out="quantity" />
-                                                <button type="submit" name="quantity" t-att-value="quantity + 1" class="btn btn-secondary" title="Increase the quantity" aria-label="Increase the quantity">+</button>
+                                            <div class="input-group input-group-sm o_medilab_cart_quantity">
+                                                <button type="submit" name="quantity" t-att-value="quantity - 1" class="btn btn-outline-secondary" t-att-disabled="quantity &lt;= 1" title="Decrease the quantity" aria-label="Decrease the quantity">−</button>
+                                                <span class="input-group-text bg-body justify-content-center" t-out="quantity" />
+                                                <button type="submit" name="quantity" t-att-value="quantity + 1" class="btn btn-outline-secondary" title="Increase the quantity" aria-label="Increase the quantity">+</button>
                                             </div>
-                                            <button type="submit" name="quantity" value="0" class="btn btn-danger"><i class="oi me-1" data-icon="delete" aria-hidden="true" />Remove</button>
+                                            <button type="submit" name="quantity" value="0" class="btn btn-link btn-sm text-danger px-0"><i class="oi me-1" data-icon="delete" aria-hidden="true" />Remove</button>
                                         </form>
-                                    </td>
-                                    <td class="text-end text-nowrap" t-out="line.price_unit * line.product_uom_qty" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
-                                </tr>
-                            </t>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th colspan="3">Total excluding VAT</th>
-                                <th class="text-end text-nowrap" t-out="order.catalog_total" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
-                            </tr>
-                        </tfoot>
-                    </table>
+                                    </li>
+                                </t>
+                            </ul>
+                            <div class="card-footer d-flex justify-content-between align-items-baseline py-3">
+                                <span>Total excluding VAT</span>
+                                <span class="fs-5 fw-semibold text-nowrap" t-out="order.catalog_total" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
+                            </div>
+                        </div>
+                        <p class="small text-muted mt-2 mb-0">VAT is added on the quotation. Sales confirms the samples and prices before you pay.</p>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="card o_medilab_cart_summary">
+                            <div class="card-body">
+                                <t t-set="dated" t-value="order.sudo()" />
+                                <t t-set="requested_date_value" t-value="request.params.get('requested_date') or (dated.requested_date and dated.requested_date.isoformat())" />
+                                <t t-set="window" t-value="dated._cart_priority_window(requested_date_value)" />
+                                <t t-set="calendar" t-value="window['calendar']" />
+                                <fieldset class="o_medilab_requested_date" t-att-data-standard="window['standard'] and window['offered'] and window['standard'].isoformat()">
+                                    <legend class="h6 mb-1">Date you want the results</legend>
+                                    <p t-if="window['standard']" class="small text-muted mb-3" t-out="window['standard_text']" />
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-semibold" t-out="calendar['heading']" />
+                                        <span>
+                                            <input type="radio" form="o_medilab_cart_form" class="btn-check" name="requested_date" id="requested_date_none" value="" t-att-checked="not requested_date_value" />
+                                            <label class="btn btn-sm btn-outline-secondary" for="requested_date_none">No particular date</label>
+                                        </span>
+                                    </div>
+                                    <div class="o_medilab_date_grid" role="radiogroup" aria-label="Date you want the results">
+                                        <t t-foreach="calendar['weekdays']" t-as="weekday">
+                                            <span class="o_medilab_date_weekday" t-out="weekday" />
+                                        </t>
+                                        <t t-foreach="calendar['weeks']" t-as="week">
+                                            <t t-foreach="week" t-as="day">
+                                                <t t-if="day['open']">
+                                                    <input type="radio" form="o_medilab_cart_form" class="btn-check" name="requested_date" t-att-id="'requested_date_' + day['value']" t-att-value="day['value']" t-att-checked="day['chosen']" />
+                                                    <label t-att-for="'requested_date_' + day['value']" t-att-title="day['title']" t-att-class="'o_medilab_date_day' + (' o_medilab_date_priority' if day['priority'] else '') + (' o_medilab_date_today' if day['today'] else '')" t-out="day['label']" />
+                                                </t>
+                                                <span t-else="" t-att-class="'o_medilab_date_day o_medilab_date_closed' + (' o_medilab_date_today' if day['today'] else '')" t-att-title="day['title']" aria-hidden="true" t-out="day['label']" />
+                                            </t>
+                                        </t>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-3 small text-muted mt-2">
+                                        <span t-if="window['offered'] and window['standard']"><span class="o_medilab_date_legend o_medilab_date_legend_priority" /> Priority, sooner than the standard turnaround</span>
+                                        <span><span class="o_medilab_date_legend o_medilab_date_legend_closed" /> Not available</span>
+                                    </div>
+                                    <div t-if="window['standard'] and window['offered']" t-att-class="'alert alert-warning small mt-3 mb-0 o_medilab_priority_notice' + ('' if window['priority'] else ' d-none')" role="status" t-out="window['notice']" />
+                                </fieldset>
+                                <div class="d-grid gap-2 mt-4">
+                                    <button type="submit" form="o_medilab_cart_form" class="btn btn-primary btn-lg">Continue<i class="oi ms-1" data-icon="arrow_forward" aria-hidden="true" /></button>
+                                    <button type="submit" form="o_medilab_cart_form" class="btn btn-outline-secondary" t-att-formaction="url_for('/cart/save')"><i class="oi me-1" data-icon="save" aria-hidden="true" />Save as draft</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <form t-if="lines" action="/cart/submit" method="post" class="mt-3">
+            </div>
+        </t>
+    </template>
+
+    <template id="cart_steps" name="Cart steps">
+        <ol class="o_medilab_cart_steps list-unstyled d-flex gap-2 gap-md-4 mb-4 small">
+            <li t-att-class="'d-flex align-items-center gap-2 ' + ('o_medilab_cart_step_current' if step == 1 else 'o_medilab_cart_step_done')">
+                <span class="o_medilab_cart_step_number" t-out="1" />
+                <div>Cart</div>
+            </li>
+            <li t-att-class="'d-flex align-items-center gap-2 ' + ('o_medilab_cart_step_current' if step == 2 else 'text-muted')">
+                <span class="o_medilab_cart_step_number" t-out="2" />
+                <div>Details</div>
+            </li>
+            <li class="d-flex align-items-center gap-2 text-muted">
+                <span class="o_medilab_cart_step_number" t-out="3" />
+                <div>Quotation</div>
+            </li>
+        </ol>
+    </template>
+
+    <template id="cart_details_page" name="Order details">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4 o_medilab_cart">
+                <t t-set="step" t-value="2" />
+                <t t-call="sol_commerce.cart_steps" />
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
+                    <h1 class="mb-0">Your details</h1>
+                    <a class="btn btn-link px-0" t-att-href="url_for('/cart')"><i class="oi me-1" data-icon="arrow_back" aria-hidden="true" />Back to cart</a>
+                </div>
+                <p class="text-muted">We keep what you enter as you go, and fill it in next time.</p>
+                <div t-if="error" class="alert alert-danger" role="alert" t-out="error" />
+                <form id="o_medilab_details_form" class="o_medilab_details_form" t-att-action="url_for('/cart/submit')" method="post" t-att-data-save="url_for('/cart/details/save')">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                    <div t-if="public" class="row g-2 mb-3">
-                        <div class="col-md-4">
-                            <input type="text" name="name" class="form-control" placeholder="Name" required="required" t-att-value="submitted.get('name', '')" />
+                    <div class="row g-4 align-items-start">
+                        <div class="col-lg-7">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h2 class="h5 mb-3">Contact for this order</h2>
+                                    <t t-if="public">
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <label for="visitor_name" class="form-label">Name</label>
+                                                <input type="text" id="visitor_name" name="name" class="form-control" required="required" autocomplete="name" t-att-value="visitor.get('name', '')" />
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="visitor_phone" class="form-label">Phone</label>
+                                                <input type="tel" id="visitor_phone" name="phone" class="form-control" autocomplete="tel" t-att-value="visitor.get('phone', '')" />
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="visitor_email" class="form-label">E-mail address</label>
+                                                <input type="email" id="visitor_email" name="email" class="form-control" required="required" autocomplete="email" t-att-value="visitor.get('email', '')" />
+                                            </div>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <select t-if="contacts" name="contact_id" id="contact_id" class="form-select mb-3 o_medilab_contact_choice" aria-label="Contact for this order">
+                                            <t t-foreach="contacts" t-as="contact">
+                                                <option t-att-value="contact.id" t-att-selected="contact == chosen_contact" t-att-data-email="contact.email or ''" t-att-data-phone="contact.phone or contact.parent_id.phone or ''" t-out="contact.name" />
+                                            </t>
+                                        </select>
+                                        <div class="row g-2 o_medilab_contact_card">
+                                            <div class="col-md-6">
+                                                <div class="small text-muted">Phone</div>
+                                                <div class="o_medilab_contact_phone" t-out="chosen_contact.phone or chosen_contact.parent_id.phone or '-'" />
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="small text-muted">E-mail address</div>
+                                                <div class="o_medilab_contact_email text-break" t-out="chosen_contact.email or '-'" />
+                                            </div>
+                                        </div>
+                                        <p class="small text-muted mt-2 mb-0">Wrong phone or e-mail? <a href="/my/account">Update your account</a>.</p>
+                                    </t>
+                                </div>
+                            </div>
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h2 class="h5 mb-3">Sample collection</h2>
+                                    <div class="row g-2 mb-3">
+                                        <t t-foreach="order._fields['collection_method']._description_selection(request.env)" t-as="method">
+                                            <div class="col-sm-6">
+                                                <input type="radio" class="btn-check o_medilab_collection_method" name="collection_method" t-att-id="'collection_method_' + method[0]" t-att-value="method[0]" t-att-checked="order.collection_method == method[0]" required="required" />
+                                                <label class="o_medilab_choice_card w-100 h-100" t-att-for="'collection_method_' + method[0]">
+                                                    <i class="oi fs-4 mb-1 d-block" t-att-data-icon="'local_shipping' if method[0] == 'pickup' else 'storefront'" aria-hidden="true" />
+                                                    <span class="d-block fw-semibold" t-out="method[1]" />
+                                                </label>
+                                            </div>
+                                        </t>
+                                    </div>
+                                    <div class="mb-3 o_medilab_pickup_only" t-att-hidden="order.collection_method != 'pickup' or None">
+                                        <label for="collection_address" class="form-label">Pickup address</label>
+                                        <textarea id="collection_address" name="collection_address" class="form-control" rows="3" t-out="order.collection_address or ''" />
+                                    </div>
+                                    <fieldset class="mb-3">
+                                        <legend class="form-label fs-6 mb-1">Preferred day</legend>
+                                        <div class="o_medilab_day_chips" role="radiogroup" aria-label="Preferred day">
+                                            <input type="radio" class="btn-check" name="collection_date" id="collection_date_any" value="" t-att-checked="not order.expected_collection_date" />
+                                            <label class="o_medilab_day_chip" for="collection_date_any">
+                                                <i class="oi" data-icon="event_available" aria-hidden="true" />
+                                                <div class="fw-semibold">Flexible</div>
+                                            </label>
+                                            <t t-foreach="collection_days" t-as="day">
+                                                <input type="radio" class="btn-check" name="collection_date" t-att-id="'collection_date_' + day.isoformat()" t-att-value="day.isoformat()" t-att-checked="order.expected_collection_date == day" />
+                                                <label class="o_medilab_day_chip" t-att-for="'collection_date_' + day.isoformat()">
+                                                    <span class="small" t-out="day" t-options="{'widget': 'date', 'format': 'EEE'}" />
+                                                    <span class="fw-semibold" t-out="day" t-options="{'widget': 'date', 'format': 'd/M'}" />
+                                                </label>
+                                            </t>
+                                        </div>
+                                        <div class="form-text">Flexible: Sales agrees the day with you.</div>
+                                    </fieldset>
+                                    <fieldset class="mb-3">
+                                        <legend class="form-label fs-6 mb-1">Preferred time</legend>
+                                        <div class="btn-group w-100" role="radiogroup" aria-label="Preferred time">
+                                            <t t-foreach="order._fields['collection_time']._description_selection(request.env)" t-as="part">
+                                                <input type="radio" class="btn-check" name="collection_time" t-att-id="'collection_time_' + part[0]" t-att-value="part[0]" t-att-checked="order.collection_time == part[0]" />
+                                                <label class="btn btn-outline-primary" t-att-for="'collection_time_' + part[0]" t-out="part[1]" />
+                                            </t>
+                                        </div>
+                                    </fieldset>
+                                    <div>
+                                        <label for="collection_note" class="form-label">Note for the collection <span class="text-muted">(optional)</span></label>
+                                        <textarea id="collection_note" name="collection_note" class="form-control" rows="2" placeholder="Such as whom to call at the gate" t-out="order.collection_note or ''" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <input type="email" name="email" class="form-control" placeholder="E-mail address" required="required" t-att-value="submitted.get('email', '')" />
+                        <div class="col-lg-5">
+                            <div class="card o_medilab_cart_summary">
+                                <div class="card-body">
+                                    <h2 class="h5 mb-3">Your order</h2>
+                                    <ul class="list-unstyled mb-3">
+                                        <t t-foreach="lines" t-as="line">
+                                            <li class="d-flex justify-content-between gap-3 py-2 border-bottom">
+                                                <div>
+                                                    <div class="fw-semibold"><t t-out="line.product_id.display_name" /><span t-if="line.product_uom_qty &gt; 1" class="text-muted"> × <t t-out="int(line.product_uom_qty)" /></span></div>
+                                                    <div t-if="line.expected_sample_summary" class="small"><span class="text-muted">Samples:</span> <t t-out="line.expected_sample_count" /> × <t t-out="line.expected_sample_summary" /></div>
+                                                </div>
+                                                <span class="text-nowrap" t-out="line.price_unit * line.product_uom_qty" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
+                                            </li>
+                                        </t>
+                                    </ul>
+                                    <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                        <span>Total excluding VAT</span>
+                                        <span class="fs-5 fw-semibold text-nowrap" t-out="order.catalog_total" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
+                                    </div>
+                                    <p class="small text-muted">VAT is added on the quotation.</p>
+                                    <div class="d-flex justify-content-between small border-top pt-3">
+                                        <span class="text-muted">Results wanted by</span>
+                                        <span>
+                                            <t t-if="order.requested_date" t-out="order.requested_date" t-options="{'widget': 'date'}" />
+                                            <t t-else="">No particular date</t>
+                                            <a href="/cart" class="ms-1">Change</a>
+                                        </span>
+                                    </div>
+                                    <div t-if="order.priority_request == 'requested'" class="small text-warning-emphasis mt-1">This is a priority request. Sales confirms whether the laboratory can meet it.</div>
+                                    <div class="d-grid mt-4">
+                                        <button type="submit" class="btn btn-primary btn-lg"><i class="oi me-1" data-icon="send" aria-hidden="true" />Submit order</button>
+                                    </div>
+                                    <p class="small text-muted text-center mt-2 mb-0">Nothing is charged now. Sales sends you a quotation to accept and pay.</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <input type="text" name="phone" class="form-control" placeholder="Phone" t-att-value="submitted.get('phone', '')" />
-                        </div>
-                    </div>
-                    <div t-if="contacts" class="mb-3">
-                        <label for="contact_id" class="form-label">Contact for this order</label>
-                        <select name="contact_id" id="contact_id" class="form-select">
-                            <t t-foreach="contacts" t-as="contact">
-                                <option t-att-value="contact.id" t-att-selected="contact == chosen_contact" t-out="contact.name" />
-                            </t>
-                        </select>
-                    </div>
-                    <t t-set="dated" t-value="order.sudo()" />
-                    <t t-set="requested_date_value" t-value="submitted.get('requested_date') if 'requested_date' in submitted else request.params.get('requested_date') or (dated.requested_date and dated.requested_date.isoformat())" />
-                    <t t-set="window" t-value="dated._cart_priority_window(requested_date_value)" />
-                    <div class="row g-2 mb-3 align-items-end">
-                        <div class="col-md-4">
-                            <label for="requested_date" class="form-label">Date you want the results</label>
-                            <input
-                                type="date"
-                                name="requested_date"
-                                id="requested_date"
-                                class="form-control o_medilab_requested_date"
-                                t-att-value="requested_date_value"
-                                t-att-min="window['earliest'].isoformat()"
-                                t-att-data-standard="window['standard'] and window['standard'].isoformat()"
-                            />
-                        </div>
-                        <div class="col-md-8">
-                            <p t-if="window['standard']" class="text-muted mb-0" t-out="window['standard_text']" />
-                        </div>
-                        <div t-if="window['standard'] and window['offered']" t-att-class="'alert alert-warning mb-0 o_medilab_priority_notice' + ('' if window['priority'] else ' d-none')" role="status" t-out="window['notice']" />
-                    </div>
-                    <div class="d-flex flex-wrap gap-2">
-                        <button type="submit" class="btn btn-primary"><i class="oi me-1" data-icon="send" aria-hidden="true" />Submit</button>
-                        <button type="submit" class="btn btn-secondary" formaction="/cart/save"><i class="oi me-1" data-icon="save" aria-hidden="true" />Save as draft</button>
-                        <a class="btn btn-secondary" href="/catalog"><i class="oi me-1" data-icon="science" aria-hidden="true" />Continue</a>
                     </div>
                 </form>
             </div>

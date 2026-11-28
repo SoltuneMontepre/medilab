@@ -101,8 +101,8 @@ class TestQuotationAdvance(OrderCase):
 
         first = order.currency_id.round(balance.amount / 3)
         payments._create_request_payment(balance, first, "cash").action_post()
-        # The verified advance released the request to the laboratory; the balance waits for the report.
-        self.assertEqual(order.test_request_id.status, "paid")
+        # The verified advance released collection; the test request stays confirmed until sample receipt.
+        self.assertEqual(order.test_request_id.status, "confirmed")
         balance._expire_requests()
         self.assertEqual(balance.state, "open")
         self.assertEqual(balance.verified_amount, first)
@@ -110,7 +110,7 @@ class TestQuotationAdvance(OrderCase):
 
         final_invoices = order.invoice_ids.filtered(lambda invoice: invoice.invoice_kind == "final")
         self.assertCountEqual(final_invoices.mapped("amount_total"), (first, balance.amount - first))
-        self.assertEqual(order.test_request_id.status, "paid")
+        self.assertEqual(order.test_request_id.status, "confirmed")
         self.assertEqual(order.payment_status, "paid")
 
     def test_the_closing_balance_invoice_keeps_the_quoted_tax(self):

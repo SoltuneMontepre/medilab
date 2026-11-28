@@ -22,6 +22,7 @@ from . import (
     subcontract_dispatch_handover,
     subcontract_dispatch_scheduled_job,
     test_request,
+    test_request_collection,
     test_request_estimate,
     test_request_plan,
     test_request_simulation,

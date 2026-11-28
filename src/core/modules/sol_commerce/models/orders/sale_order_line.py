@@ -54,6 +54,8 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         expected_sample_summary = fields.Char(string="Sample Volume", compute="_compute_expected_sample_summary")
         # Sample preservation condition shown when opening the order line form.
         sampling_preservation = fields.Char(string="Preservation", compute="_compute_expected_sample_summary")
+        # Standard turnaround in working days of the line's chosen way(s) of testing.
+        turnaround_days = fields.Integer(string="Turnaround (working days)", compute="_compute_line_turnaround_days")
         # The sample type the line is tested on: chosen, or the type of its sample; a package's parameter takes its
         # package's.
         sample_type_id = fields.Many2one(
@@ -172,6 +174,23 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
             line.expected_sample_count = max(int(line.product_uom_qty), 1) * len(groups) if groups else 0
             line.expected_sample_summary, line.sampling_preservation = _sampling_summary(rows)
 
+    @api.depends(
+        "product_id",
+        "product_template_id",
+        "sample_type_id",
+        "parameter_method_id",
+        "parameter_method_id.turnaround_days",
+        "linked_line_ids.parameter_method_id",
+        "linked_line_ids.parameter_method_id.turnaround_days",
+    )
+    def _compute_line_turnaround_days(self):
+        for line in self:
+            if line.display_type or line.is_downpayment:
+                line.turnaround_days = 0
+                continue
+            ways = (line._package_parts() | line)._resolved_ways() if line._package_of() else line._resolved_ways()
+            line.turnaround_days = max((way.sudo().turnaround_days for way in ways), default=0)
+
     @api.onchange("product_template_id")
     def _onchange_product_template_id(self):
         super()._onchange_product_template_id()
@@ -183,10 +202,13 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         if self._is_package_part() or self.sample_id or not self._parameters():
             return
         choices = self._sample_type_choices()
-        if self.sample_type_id not in choices:
-            self.sample_type_id = choices if len(choices) == 1 else False
-        elif not self.sample_type_id and len(choices) == 1:
+        if self.sample_type_id in choices:
+            return
+        if len(choices) == 1:
             self.sample_type_id = choices
+            return
+        existing = (self.order_id.product_line_ids - self)._catalog_lines().sample_type_id
+        self.sample_type_id = existing if len(existing) == 1 and existing in choices else False
 
     @api.onchange("sample_type_id")
     def _onchange_sample_type_detach_sample(self):
