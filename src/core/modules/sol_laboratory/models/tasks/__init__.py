@@ -11,5 +11,6 @@ from . import (
     task_mobile,
     task_mobile_collection,
     task_reassign,
+    task_testing_department,
     task_type,
 )

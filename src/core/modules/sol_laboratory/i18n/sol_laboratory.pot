@@ -275,6 +275,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_testing_department.py:0
+msgid "%(task)s is tested by %(department)s and cannot move to another department."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/hr_department.py:0
 msgid "%(team)s cannot belong to %(parent)s, which is a team itself."
 msgstr ""
@@ -2931,6 +2937,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_task_reassign
 msgid "Assign Tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
+msgid "Assign testing tasks of different departments separately."
 msgstr ""
 
 #. module: sol_laboratory
@@ -5613,6 +5625,11 @@ msgid "Department Color"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__department_fixed
+msgid "Department Fixed"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_queue
 #: model:ir.ui.menu,name:sol_laboratory.menu_task_queue
 msgid "Department Queue"
@@ -7471,6 +7488,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_account_position_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_position_id
 msgid "Fiscal Position"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__fixed_department_id
+msgid "Fixed Department"
 msgstr ""
 
 #. module: sol_laboratory
@@ -18467,6 +18489,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid "These permissions come with a module and cannot be deleted: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
+msgid "These testing tasks stay in %s, which tests them."
 msgstr ""
 
 #. module: sol_laboratory

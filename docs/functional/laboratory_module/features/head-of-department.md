@@ -50,7 +50,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Rule                | Description                                                                                                             |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Queue | Testing tasks queue by department. The head assigns them or an authorized tester claims them; team membership does not create a separate testing queue. |
-| Assignment | The head assigns a sample's department tasks or one task to a person authorized by the Lab Head for each parameter. The department's plan proposes a booking for the agreed way. Reassignment to another person or department requires a reason. A head who moves a task to another department still reads it, but no longer changes it, so its form stays open, read-only. |
+| Assignment | The head assigns a sample's department tasks or one task to a person authorized by the Lab Head for each parameter. The department's plan proposes a booking for the agreed way. Reassignment to another person requires a reason. A testing task stays in the department of its way of testing; the assign dialog shows only that department. Another task moved to another department also requires a reason, and a head who moves one still reads it, but no longer changes it, so its form stays open, read-only. |
 | Adjusting | The head moves or cancels not-started bookings of the department. Changes synchronize its tester, machine when needed and required location reservations; cancelling returns its sample test to the plan without cancelling it. A booking the head places or moves by hand is pinned: plan revisions do not move it and report a conflict instead. |
 | Booking approval | The department's plan proposes a booking for each assigned or claimed task. When it is feasible before the due date, the head approves it; approving reserves its tester, machine when needed and required locations together and notifies the tester. Neither the tester nor the head reserves a proposed booking without this approval. |
 | Marking urgent      | The head can mark any test of the department urgent, stating why, or remove the mark, as the tester does ([US-T19](tester.md#1-planning-us-t01-to-us-t04-us-t19-to-us-t21)). |
@@ -70,6 +70,7 @@ Acceptance criteria:
 - An infeasible proposed booking cannot be approved: it stays proposed for the head's review, with its sample test flagged at risk.
 - A tester cannot approve their own booking, and nobody but the head reserves a proposed booking.
 - Reassigning a task to another person or department without a reason is refused; the reason is kept on the task.
+- Moving a testing task out of the department of its way of testing is refused, in the assign dialog, on the phone and by any other write.
 - A head of department sees the bookings of their department's people and machines, not those of other departments.
 - A test whose required in-house resources cannot meet its due date shows viable outsourcing alternatives; a way that needs no machine is checked against its tester and required locations.
 - A plan revision for urgent work proposes it in the earliest feasible slot and lists the bookings it moves with their new slots; their people are notified once it is applied.
