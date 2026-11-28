@@ -65,8 +65,8 @@ class SaleOrderPriority(models.Model, SaleOrderPriorityBase):
         frozen = self._frozen_by_quotation()
         for order in self:
             if order.state != "draft" or order in frozen:
-                order.priority_request = order.priority_request
-            elif order._is_priority_date():
+                continue
+            if order._is_priority_date():
                 order.priority_request = order.priority_request or "requested"
             else:
                 order.priority_request = False
