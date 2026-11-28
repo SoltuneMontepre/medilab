@@ -138,6 +138,7 @@ describe("WF-01 Order to confirmed test request", () => {
     pick("partner_id", "Phạm Thị Hoa");
     cy.get(".o_field_widget[name=expected_collection_date] input").type(`${pickupDay("vi-VN")}{enter}`);
     step("Sales adds Lead (Pb), whose price fills in, and saves the order");
+    cy.get(".o_field_widget[name=expected_collection_date] input").clear().type("31/12/2099{enter}");
     cy.get(".o_field_widget[name=product_line_ids] .o_field_x2many_list_row_add button").first().click();
     pick("product_template_id", "Chì (Pb)");
     cy.get(".o_field_widget[name=product_line_ids] .o_data_row").should("contain", "280.000");
