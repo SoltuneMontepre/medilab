@@ -30,8 +30,8 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
         cy.get(".modal:visible button[name=action_apply_discount]").click();
         cy.get(".modal:visible .o_field_widget[name=line_ids] .o_data_row").should("have.length", 2);
         cy.get(".modal:visible .o_field_widget[name=line_ids] .o_data_row td[name=discount]").first().click();
-        cy.get(".modal:visible .o_selected_row .o_field_widget[name=discount] input").clear().type("10{enter}");
-        cy.get(".modal:visible .o_field_widget[name=tax_totals]").click();
+        cy.get(".modal:visible .o_selected_row .o_field_widget[name=discount] input").clear().type("10");
+        cy.get(".modal:visible .o_field_widget[name=payment_deadline] input").click();
         cy.get(".modal:visible .o_field_widget[name=line_ids] .o_data_row").first().should("contain", "252.000");
       });
       cy.get(".modal", { timeout: 20000 }).should("not.exist");

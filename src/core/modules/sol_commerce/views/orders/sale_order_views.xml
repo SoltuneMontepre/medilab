@@ -5,24 +5,12 @@
         <field name="model">sale.order</field>
         <field name="arch" type="xml">
             <list
-                default_order="is_priority_attention desc, id desc"
-                decoration-bf="is_priority_attention"
                 decoration-danger="order_status == 'cancelled'"
                 decoration-success="order_status == 'completed'"
                 decoration-warning="order_status == 'submitted'"
                 decoration-info="order_status in ('claimed', 'confirmed')"
             >
-                <field name="is_priority_attention" column_invisible="1" />
                 <field name="name" />
-                <field
-                    name="priority_badge"
-                    widget="badge"
-                    class="o_medilab_priority_badge"
-                    decoration-danger="priority_badge == 'priority'"
-                    decoration-warning="priority_badge == 'requested'"
-                    decoration-muted="priority_badge in ('standard', 'declined')"
-                    optional="show"
-                />
                 <field name="customer_id" />
                 <field name="partner_id" string="Contact" context="{'partner_display_name_hide_company': True}" />
                 <field name="user_id" />
@@ -56,22 +44,8 @@
         <field name="model">sale.order</field>
         <field name="priority">20</field>
         <field name="arch" type="xml">
-            <list
-                create="false"
-                default_order="is_priority_attention desc, submitted_at asc, id"
-                decoration-bf="is_priority_attention"
-                decoration-warning="order_status == 'submitted'"
-            >
-                <field name="is_priority_attention" column_invisible="1" />
+            <list create="false" default_order="submitted_at asc, id" decoration-warning="order_status == 'submitted'">
                 <field name="name" />
-                <field
-                    name="priority_badge"
-                    widget="badge"
-                    class="o_medilab_priority_badge"
-                    decoration-danger="priority_badge == 'priority'"
-                    decoration-warning="priority_badge == 'requested'"
-                    decoration-muted="priority_badge in ('standard', 'declined')"
-                />
                 <field name="customer_id" />
                 <field name="partner_id" string="Contact" context="{'partner_display_name_hide_company': True}" />
                 <field name="submitted_at" />
@@ -306,17 +280,6 @@
                             decoration-warning="result_status in ('awaiting_samples', 'collection_hold', 'payment_hold')"
                         />
                     </div>
-                    <div class="d-flex align-items-center gap-2" invisible="priority_badge in ('standard', 'declined')">
-                        <span class="text-muted">Priority</span>
-                        <field
-                            name="priority_badge"
-                            widget="badge"
-                            class="o_medilab_priority_badge"
-                            decoration-danger="priority_badge == 'priority'"
-                            decoration-warning="priority_badge == 'requested'"
-                            decoration-muted="priority_badge in ('standard', 'declined')"
-                        />
-                    </div>
                 </div>
             </xpath>
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="before">
@@ -336,7 +299,9 @@
             <xpath expr="//group[@name='partner_details']" position="inside">
                 <field name="reordered_from_id" readonly="1" invisible="not reordered_from_id" />
                 <field name="min_requested_date" invisible="1" />
-                <field name="priority_request" invisible="1" />
+                <field name="requested_date" invisible="not requested_date and state != 'draft'" readonly="state != 'draft'" options="{'min_date': 'min_requested_date'}" />
+                <field name="standard_return_date" invisible="not standard_return_date or state != 'draft'" />
+                <field name="priority_request" invisible="not priority_request" decoration-warning="priority_request == 'requested'" widget="badge" />
                 <field name="test_request_id" readonly="1" invisible="not test_request_id" />
                 <field name="collection_summary" invisible="not collection_summary" />
                 <field name="show_unpaid_warning" invisible="1" />
@@ -355,24 +320,15 @@
                 <!-- Sales sets the payment deadline when sending the quotation, and can extend it until the order is
                      confirmed. -->
                 <field name="payment_deadline" invisible="state == 'draft' or order_status in ('confirmed', 'completed', 'cancelled')" />
-                <field name="requested_date" invisible="not requested_date and state != 'draft'" readonly="state != 'draft'" options="{'min_date': 'min_requested_date'}" />
                 <field name="expected_collection_date" required="1" readonly="state != 'draft'" options="{'min_date': 'today'}" />
-                <field name="collection_method" readonly="state != 'draft'" invisible="not collection_method" />
-                <field name="collection_time" readonly="state != 'draft'" invisible="not collection_method" />
-                <field name="collection_address" readonly="state != 'draft'" invisible="collection_method != 'pickup'" />
-                <field name="collection_note" readonly="state != 'draft'" invisible="not collection_note" />
+                <field name="min_committed_date" invisible="1" />
                 <div class="text-warning" colspan="2" invisible="not turnaround_missing">
                     No standard turnaround yet: <field name="turnaround_missing" class="d-inline" />
                 </div>
-                <field name="committed_date" readonly="1" />
-            </xpath>
-            <!-- The order's one tax is chosen above the totals it decides. -->
-            <xpath expr="//group[@name='sale_total']/field[@name='tax_totals']" position="before">
-                <div class="o_medilab_order_tax d-flex align-items-center justify-content-end gap-2">
-                    <label for="order_tax_id" class="o_tax_total_label mb-0" />
-                    <div class="o_medilab_order_tax_value">
-                        <field name="order_tax_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}" />
-                    </div>
+                <label for="committed_date" />
+                <div class="d-flex align-items-center gap-2">
+                    <field name="committed_date" readonly="state != 'draft' or not expected_collection_date" options="{'min_date': 'min_committed_date'}" class="flex-grow-1" />
+                    <widget name="medilab_open_tab" tab="timeline" icon="mdi:clock-outline" string="Timeline" invisible="not return_timeline" />
                 </div>
             </xpath>
             <xpath expr="//group[@name='sales_person']/field[@name='user_id']" position="replace" />
@@ -399,9 +355,10 @@
             <xpath expr="//group[@name='sale_reporting']" position="after">
                 <group name="medilab_order_details" string="Order Details">
                     <field name="source" readonly="1" />
+                    <field name="turnaround_days" readonly="1" invisible="not turnaround_days" />
                     <field name="test_request_status" readonly="1" invisible="not test_request_id" />
                 </group>
-                <group name="medilab_timeline" string="History">
+                <group name="medilab_timeline" string="Timeline">
                     <field name="submitted_at" readonly="1" invisible="not submitted_at" />
                     <field name="claimed_at" readonly="1" invisible="not claimed_at" />
                     <field name="quoted_at" invisible="not quoted_at" />
@@ -472,12 +429,8 @@
             <xpath expr="//list[@name='sol_list']/column[@name='sol_uom']/field[@name='product_uom_id']" position="attributes">
                 <attribute name="invisible">display_type or linked_line_id or linked_virtual_id</attribute>
             </xpath>
-            <!-- The tax is set once on the order and every line takes it. -->
             <xpath expr="//list[@name='sol_list']/field[@name='tax_ids']" position="attributes">
-                <attribute name="column_invisible">1</attribute>
-            </xpath>
-            <xpath expr="//field[@name='order_line']/form//field[@name='tax_ids']" position="attributes">
-                <attribute name="invisible">1</attribute>
+                <attribute name="invisible">display_type or linked_line_id or linked_virtual_id</attribute>
             </xpath>
             <xpath expr="//list[@name='sol_list']//field[@name='price_subtotal']" position="attributes">
                 <attribute name="invisible">display_type or is_downpayment or linked_line_id or linked_virtual_id</attribute>
@@ -527,12 +480,10 @@
             <xpath expr="//list[@name='sol_list']/field[@name='qty_invoiced']" position="attributes">
                 <attribute name="column_invisible">1</attribute>
             </xpath>
-            <!-- Orders sell testing services with turnaround in working days, not shipped-goods lead times. -->
-            <xpath expr="//list[@name='sol_list']//field[@name='customer_lead']" position="replace" />
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="after">
                 <field name="sample_id" readonly="1" optional="hide" options="{'no_open': True}" invisible="linked_line_id or linked_virtual_id" />
                 <field name="offered_sample_type_ids" column_invisible="1" />
-                <field name="sample_type_id" force_save="1" placeholder="Select sample type..." readonly="linked_line_id or linked_virtual_id or not offered_sample_type_ids" invisible="display_type or linked_line_id or linked_virtual_id" options="{'no_create': True}" optional="show" />
+                <field name="sample_type_id" force_save="1" readonly="linked_line_id or linked_virtual_id or not offered_sample_type_ids" invisible="display_type or linked_line_id or linked_virtual_id" options="{'no_create': True}" optional="show" />
                 <field name="offered_method_ids" column_invisible="1" />
                 <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" context="{'medilab_way_by_method': True}" />
                 <field name="expected_sample_count" readonly="1" optional="show" invisible="display_type or linked_line_id or linked_virtual_id" />
@@ -564,8 +515,6 @@
                 <field name="expected_sample_summary" readonly="1" invisible="not expected_sample_summary or linked_line_id or linked_virtual_id" />
                 <field name="sampling_preservation" readonly="1" invisible="not sampling_preservation or linked_line_id or linked_virtual_id" />
             </xpath>
-            <xpath expr="//field[@name='order_line']/form//label[@for='customer_lead']" position="replace" />
-            <xpath expr="//field[@name='order_line']/form//div[@name='lead']" position="replace" />
             <xpath expr="//field[@name='order_line']/form//label[@for='product_uom_qty']" position="attributes">
                 <attribute name="string">Order Quantity</attribute>
             </xpath>
@@ -806,7 +755,6 @@
                 <field name="partner_id" />
                 <field name="user_id" />
                 <filter name="unclaimed" string="Unclaimed" domain="[('order_status', '=', 'submitted'), ('user_id', '=', False)]" />
-                <filter name="priority_orders" string="Priority" domain="['|', ('priority', '=', True), ('priority_request', '=', 'requested')]" />
                 <filter name="draft" string="Draft" domain="[('order_status', '=', 'draft')]" />
                 <filter name="confirmed" string="Confirmed" domain="[('order_status', '=', 'confirmed')]" />
                 <filter name="cancelled" string="Cancelled" domain="[('order_status', '=', 'cancelled')]" />

@@ -10,7 +10,7 @@
                 <field name="type_id" optional="show" />
                 <field name="deadline" widget="remaining_days" invisible="status in ('done', 'cancelled')" />
                 <field name="planned_start" optional="hide" />
-                <field name="location_display" optional="show" />
+                <field name="sampling_location_id" optional="show" />
                 <field name="department_id" optional="show" groups="sol_laboratory.group_permission_task_read_all" />
                 <field name="assignee_id" optional="show" />
                 <field name="done_at" optional="hide" />
@@ -45,7 +45,6 @@
                 <field name="name" />
                 <field name="type_id" optional="show" />
                 <field name="deadline" widget="remaining_days" />
-                <field name="location_display" optional="show" />
                 <field name="department_id" optional="show" groups="sol_laboratory.group_permission_task_read_all" />
                 <button name="action_claim" type="object" string="Claim" class="btn-primary btn-sm" />
             </list>
@@ -203,7 +202,7 @@
                 date_deadline="deadline"
                 status_field="status"
                 row_field="assignee_id"
-                subtitle_field="location_display"
+                subtitle_field="sampling_location_id"
                 open_action="action_open_document"
                 scale="week"
             >
@@ -212,7 +211,6 @@
                 <field name="assignee_id" />
                 <field name="type_id" />
                 <field name="department_id" />
-                <field name="location_display" />
             </timeline>
         </field>
     </record>

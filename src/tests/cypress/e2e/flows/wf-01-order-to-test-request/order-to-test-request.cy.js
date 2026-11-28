@@ -122,7 +122,7 @@ describe("WF-01 Order to confirmed test request", () => {
         cy.readRecord(order, ["order_status", "test_request_id", "sample_ids"]).then((read) => {
           expect(read.order_status).to.equal("confirmed");
           call("medilab.test.request", "read", [[read.test_request_id[0]], ["status", "sample_ids"]]).then(([request]) => {
-            expect(request.status).to.equal("confirmed");
+            expect(request.status).to.equal("paid");
             expect(request.sample_ids).to.have.length(read.sample_ids.length);
           });
         });
@@ -292,10 +292,10 @@ describe("WF-01 Order to confirmed test request", () => {
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
       cy.readRecord(order, ["payment_status", "test_request_id"]).then(({ payment_status, test_request_id: [id] }) => {
         expect(payment_status).to.equal("not_paid");
-        step("Sample delivery staff confirm its test request stays confirmed without coupling payment status");
+        step("Sample delivery staff confirm its test request without payment");
         cy.signInAs("sample_delivery_staff");
         cy.openRecord({ model: "medilab.test.request", id });
-        cy.readRecord({ model: "medilab.test.request", id }, ["status"]).its("status").should("eq", "confirmed");
+        cy.readRecord({ model: "medilab.test.request", id }, ["status"]).its("status").should("eq", "on_credit");
       });
     });
   });

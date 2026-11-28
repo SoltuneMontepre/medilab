@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-27 17:12+0000\n"
-"PO-Revision-Date: 2026-11-27 17:12+0000\n"
+"POT-Creation-Date: 2026-11-20 10:34+0000\n"
+"PO-Revision-Date: 2026-11-20 10:34+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -45,14 +45,6 @@ msgstr ""
 msgid ""
 "%(booking)s on %(machine)s ended at %(end)s without its result or a finished"
 " measurement, so it still holds the machine."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
-msgid ""
-"%(booking)s was due to start at %(start)s and has not started: start it or "
-"reschedule it."
 msgstr ""
 
 #. module: sol_laboratory
@@ -103,6 +95,18 @@ msgstr ""
 #: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
 msgid ""
 "%(location)s is already booked from %(start)s to %(stop)s: %(booking)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "%(resource)s is not free for %(booking)s at that time."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "The resources for %(booking)s are not free at that time."
 msgstr ""
 
 #. module: sol_laboratory
@@ -243,12 +247,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
-msgid "%(resource)s is not free for %(booking)s at that time."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task_assignment_notice.py:0
 msgid "%(role)s has no active holders for %(task)s."
 msgstr ""
@@ -346,30 +344,10 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result_check.py:0
-msgid "%(value)s is above the regulation limit %(limit)s."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
-msgid "%(value)s is below the regulation limit %(limit)s."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
 msgid ""
 "%(value)s is more than %(deviations)s standard deviations from %(mean)s, the"
 " mean of the %(count)s approved results of this way of testing on this "
 "sample type."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
-msgid ""
-"%(value)s is outside the regulation limit, so it cannot pass; assess it as "
-"fail or insufficient basis."
 msgstr ""
 
 #. module: sol_laboratory
@@ -380,14 +358,14 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
-msgid "%(version)s in %(folder)s was rejected: %(reason)s"
+#: code:addons/sol_laboratory/models/system/mobile_release_settings.py:0
+msgid "%(version)s is not a version such as 1.2.3."
 msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/system/mobile_release_settings.py:0
-msgid "%(version)s is not a version such as 1.2.3."
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
+msgid "%(version)s in %(folder)s was rejected: %(reason)s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -806,12 +784,6 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "%s to approve"
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "%s waits for more sample: its sample is on hold."
@@ -904,13 +876,6 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
-msgid ""
-"<span class=\"badge text-bg-warning ms-2\" invisible=\"not "
-"is_missed\">Missed</span>"
-msgstr ""
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 msgid ""
 "<span class=\"me-auto\">Confirm that the samples of this dispatch arrived "
@@ -926,39 +891,12 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid ""
-"<span class=\"o_test_result_chip o_chip_success\" invisible=\"not is_reported\">\n"
-"                                    Reported Result\n"
-"                                </span>"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
-msgid ""
-"<span class=\"o_test_result_chip o_chip_warning\" invisible=\"not "
-"is_interrupted\">Interrupted</span>"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid ""
-"<span class=\"o_test_result_chip\" invisible=\"not "
-"is_replaced\">Replaced</span>"
-msgstr ""
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
 msgid ""
 "<span invisible=\"interruption_assessment\">\n"
 "                        The machine stopped during this measurement. Record the data measured so far; the head of\n"
 "                        department assesses it before it is sent.\n"
 "                    </span>"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "<span>Below the detection or quantification limit, report it as</span>"
 msgstr ""
 
 #. module: sol_laboratory
@@ -975,11 +913,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 msgid "<span>Sent with a warning:</span>"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "<span>Version</span>"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1105,11 +1038,6 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
-#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_missed
-msgid "A booking's start passed before the tester started it"
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/customer.py:0
 msgid "A business is identified by its tax code, not a citizen ID."
@@ -1148,12 +1076,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.message.subtype,description:sol_laboratory.event_change_request_rejected
 msgid "A change request you raised was rejected"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
-msgid "A completed or cancelled sample's folders are read-only."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2060,6 +1982,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chatter_mixin__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_needaction
@@ -2992,6 +2915,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chatter_mixin__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_attachment_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_attachment_count
@@ -3018,14 +2942,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_audit_entry
 msgid "Audit Entry"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
-msgid "Audit Log"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3336,12 +3252,6 @@ msgid "Bookings"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Bookings to approve"
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "Bottled drinking water"
@@ -3380,11 +3290,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/controllers/brevo.py:0
 msgid "Brevo webhook refused: the token does not match"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report_candidate__origin__built_in
-msgid "Built-in"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3501,11 +3406,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_move_subcontractor
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__moving
 msgid "Can Move Subcontractor"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__can_open_collection_tasks
-msgid "Can Open Collection Tasks"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4115,33 +4015,8 @@ msgid "Collecting %s again is already asked for."
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
-msgid "Collection"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__collection_place
-msgid "Collection Address"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__collection_appointment_display
-msgid "Collection Appointment"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__collection_task_count
-msgid "Collection Task Count"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__collection_travel_minutes
 msgid "Collection Travel Buffer (minutes)"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__collection_assignee_id
-msgid "Collector"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5077,11 +4952,6 @@ msgid "Customer"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__customer_contact_display
-msgid "Customer Contact"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_stock_customer
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_stock_customer
 msgid "Customer Location"
@@ -5948,8 +5818,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_portal_wizard_user__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_sample_label__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_sample_label__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_currency__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_groups__display_name
@@ -7383,12 +7253,6 @@ msgid "File streaming helper model for controllers"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "File versions to sign"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_file
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__file_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_file
@@ -7488,7 +7352,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__folder_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__folder_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__folder_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__folder_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__folder_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__folder_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__folder_id
@@ -7496,6 +7359,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_member_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__folder_id
 msgid "Folder"
 msgstr ""
 
@@ -7521,6 +7385,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chatter_mixin__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_follower_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_follower_ids
@@ -7532,6 +7397,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chatter_mixin__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_partner_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_partner_ids
@@ -7822,6 +7688,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chatter_mixin__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__has_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__has_message
@@ -8094,8 +7961,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_portal_wizard_user__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_sample_label__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_sample_label__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_currency__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_groups__id
@@ -8166,6 +8033,7 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_chatter_mixin__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_needaction
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_needaction
@@ -8180,6 +8048,8 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_has_sms_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_has_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_has_sms_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_has_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_has_sms_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_sms_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_error
@@ -8471,6 +8341,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chatter_mixin__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_is_follower
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_is_follower
@@ -8497,11 +8368,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__is_mine
 msgid "Is Mine"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__is_missed
-msgid "Is Missed"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8734,11 +8600,6 @@ msgid "Laboratory File Change"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__laboratory_file_count
-msgid "Laboratory File Count"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_laboratory_file_lock
 msgid "Laboratory File Lock"
 msgstr ""
@@ -8756,6 +8617,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_laboratory_folder
 msgid "Laboratory Folder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__laboratory_file_count
+msgid "Laboratory File Count"
 msgstr ""
 
 #. module: sol_laboratory
@@ -9284,7 +9150,6 @@ msgstr ""
 #: model:ir.model,name:sol_laboratory.model_medilab_location
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__location_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__location_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__location_display
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__location_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Location"
@@ -9370,6 +9235,8 @@ msgid "Locks"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__log
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__log_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__log_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__log_ids
@@ -9391,7 +9258,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__log_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__log_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__log_ids
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__log
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__log_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__log_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__log_ids
@@ -9452,7 +9318,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_product_document__log_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__log_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_resource_calendar_leaves__log_ids
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Log"
 msgstr ""
 
@@ -9511,11 +9377,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_approved
 msgid "Machine booking approved"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_missed
-msgid "Machine booking missed"
 msgstr ""
 
 #. module: sol_laboratory
@@ -9730,11 +9591,6 @@ msgid "Maximum"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "Measurement"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_measurement_unit
 msgid "Measurement Unit"
 msgstr ""
@@ -9830,6 +9686,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chatter_mixin__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_has_error
@@ -9863,6 +9720,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chatter_mixin__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_ids
@@ -9885,11 +9743,11 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__method_step_ids
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__method_step_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__method_step_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__method_step_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Method Steps"
 msgstr ""
 
@@ -9954,11 +9812,6 @@ msgstr ""
 msgid ""
 "Minutes without activity after which a document locked for editing is free "
 "again, so a closed browser does not block it."
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
-msgid "Missed"
 msgstr ""
 
 #. module: sol_laboratory
@@ -10348,13 +10201,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid ""
-"No machine can finish this test before its due date, and no subcontractor "
-"offers a way of testing for it."
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
-msgid ""
 "No machine can finish this test before its due date. Outsource it through a "
 "subcontracted way of testing."
 msgstr ""
@@ -10401,14 +10247,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
 msgid "No sample has the lab code %s."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking_missed.py:0
-msgid ""
-"No slot is free for %(booking)s in the next %(days)s days; ask the head of "
-"the department."
 msgstr ""
 
 #. module: sol_laboratory
@@ -10590,12 +10428,6 @@ msgid "Notify me when free"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.actions.server,name:sol_laboratory.ir_cron_machine_bookings_missed_ir_actions_server
-#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_machine_bookings_missed
-msgid "Notify missed machine bookings"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.actions.server,name:sol_laboratory.ir_cron_machine_bookings_overrun_ir_actions_server
 #: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_machine_bookings_overrun
 msgid "Notify overrunning machine bookings"
@@ -10612,6 +10444,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chatter_mixin__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_needaction_counter
@@ -10629,6 +10462,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chatter_mixin__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_error_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_has_error_counter
@@ -10640,6 +10474,7 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_chatter_mixin__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_needaction_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_needaction_counter
@@ -10651,6 +10486,7 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_chatter_mixin__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_has_error_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_has_error_counter
@@ -10714,6 +10550,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__on_time
 msgid "On Time (%)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__on_credit
+msgid "On credit"
 msgstr ""
 
 #. module: sol_laboratory
@@ -10885,7 +10726,6 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking.py:0
-#: code:addons/sol_laboratory/models/testing/machine_booking_missed.py:0
 msgid "Only a scheduled booking can be moved."
 msgstr ""
 
@@ -10893,12 +10733,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking.py:0
 msgid "Only a scheduled booking can be started."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking_missed.py:0
-msgid "Only a scheduled booking whose start has passed can be rescheduled."
 msgstr ""
 
 #. module: sol_laboratory
@@ -11411,8 +11245,8 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
-msgid "PTN.26.01.0001"
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__paid
+msgid "Paid"
 msgstr ""
 
 #. module: sol_laboratory
@@ -12832,26 +12666,6 @@ msgid "Permission: plan.revision.read.own_department"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_price_period_create_all
-msgid "Permission: price.period.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_price_period_delete_all
-msgid "Permission: price.period.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_price_period_edit_all
-msgid "Permission: price.period.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_price_period_read_all
-msgid "Permission: price.period.read.all"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_purchase_order_create_all
 msgid "Permission: purchase_order.create.all"
 msgstr ""
@@ -14014,9 +13828,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__priority
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__priority
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__priority_badge
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__priority_badge__priority
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 msgid "Priority"
 msgstr ""
 
@@ -14215,6 +14026,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chatter_mixin__rating_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__rating_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__rating_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__rating_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__rating_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__rating_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__rating_ids
@@ -15204,11 +15016,6 @@ msgid "Requests"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
-msgid "Reschedule"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__resource_id
 msgid "Resource"
 msgstr ""
@@ -15311,12 +15118,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__result_ids
 msgid "Results to Check Again"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Results to approve"
 msgstr ""
 
 #. module: sol_laboratory
@@ -15522,56 +15323,6 @@ msgid "Role Until a Date"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_role_accountant
-msgid "Role: accountant"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_role_administrator
-msgid "Role: administrator"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_role_auditor
-msgid "Role: auditor"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_role_head_of_department
-msgid "Role: head_of_department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_role_head_of_sales
-msgid "Role: head_of_sales"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_role_lab_head
-msgid "Role: lab_head"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_role_sales
-msgid "Role: sales"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_role_sample_delivery_staff
-msgid "Role: sample_delivery_staff"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_role_storekeeper
-msgid "Role: storekeeper"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_role_tester
-msgid "Role: tester"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_role
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__role_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__role_ids
@@ -15705,6 +15456,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chatter_mixin__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_sms_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_has_sms_error
@@ -15777,13 +15529,6 @@ msgstr ""
 #: code:addons/sol_laboratory/models/sample_collection/sample.py:0
 msgid ""
 "Sample %s needs a disposal method, on the sample or on its sample type."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/test_request_collection.py:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
-msgid "Sample Collection"
 msgstr ""
 
 #. module: sol_laboratory
@@ -16562,11 +16307,6 @@ msgid "Spouse Legal Name"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__priority_badge__standard
-msgid "Standard"
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__starts_at
@@ -17000,12 +16740,6 @@ msgid "Template Version"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "Template versions apply only on an installation with ONLYOFFICE."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_test_parameter
 msgid "Test Parameter"
 msgstr ""
@@ -17082,6 +16816,14 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.message.subtype,name:sol_laboratory.event_test_report_delivered
 msgid "Test report sent"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
+msgid ""
+"Test request %(code)s cannot be confirmed until its order is paid or the "
+"customer is allowed credit."
 msgstr ""
 
 #. module: sol_laboratory
@@ -17470,14 +17212,6 @@ msgstr ""
 msgid ""
 "The customer agreed this sample's type, regulation and tests on the order; "
 "change them with a revised quotation."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
-msgid ""
-"The customer must sign the handover record for each sample before printing "
-"its label."
 msgstr ""
 
 #. module: sol_laboratory
@@ -18258,12 +17992,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
-msgid "The resources for %(booking)s are not free at that time."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "The result of %s is already entered."
 msgstr ""
@@ -18700,6 +18428,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "A completed or cancelled sample's folders are read-only."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 msgid "This level cannot reject."
 msgstr ""
@@ -18972,12 +18706,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 msgid "To Review"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "To approve"
 msgstr ""
 
 #. module: sol_laboratory
@@ -19276,11 +19004,6 @@ msgid "Use Automatic Due Date"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "Use This Text"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__barcode
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__barcode
 msgid "Use a barcode to identify this contact."
@@ -19345,11 +19068,6 @@ msgstr ""
 #: code:addons/sol_laboratory/models/system/hr_employee.py:0
 msgid ""
 "Users are created from people: give the person a login in People instead."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__uses_templates
-msgid "Uses Templates"
 msgstr ""
 
 #. module: sol_laboratory
@@ -19751,11 +19469,6 @@ msgid "Withdraw"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
-msgid "Withdraw Rejection"
-msgstr ""
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
@@ -20081,4 +19794,217 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.template,subject:sol_laboratory.mail_template_task_reminder
 msgid "{{ object.name }}"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Audit Log"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
+msgid "PTN.26.01.0001"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Measurement"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_missed
+msgid "Machine booking missed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_missed
+msgid "A booking's start passed before the tester started it"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "Missed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_machine_bookings_missed_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_machine_bookings_missed
+msgid "Notify missed machine bookings"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
+msgid ""
+"%(booking)s was due to start at %(start)s and has not started: start it or "
+"reschedule it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_missed.py:0
+msgid ""
+"No slot is free for %(booking)s in the next %(days)s days; ask the head of "
+"the department."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_missed.py:0
+msgid "Only a scheduled booking whose start has passed can be rescheduled."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "Reschedule"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "%s to approve"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Results to approve"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "File versions to sign"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Bookings to approve"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "To approve"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid ""
+"<span class=\"badge text-bg-warning ms-2\" invisible=\"not is_missed\">Missed</span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid ""
+"<span class=\"o_test_result_chip o_chip_success\" invisible=\"not is_reported\">\n"
+"                                    Reported Result\n"
+"                                </span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid ""
+"<span class=\"o_test_result_chip o_chip_warning\" invisible=\"not is_interrupted\">Interrupted</span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid ""
+"<span class=\"o_test_result_chip\" invisible=\"not is_replaced\">Replaced</span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "<span>Version</span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__is_missed
+msgid "Is Missed"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
+msgid "%(value)s is above the regulation limit %(limit)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
+msgid "%(value)s is below the regulation limit %(limit)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
+msgid "%(value)s is outside the regulation limit, so it cannot pass; assess it as fail or insufficient basis."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "<span>Below the detection or quantification limit, report it as</span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Use This Text"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+msgid "Withdraw Rejection"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "No machine can finish this test before its due date, and no subcontractor offers a way of testing for it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_price_period_create_all
+msgid "Permission: price.period.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_price_period_delete_all
+msgid "Permission: price.period.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_price_period_edit_all
+msgid "Permission: price.period.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_price_period_read_all
+msgid "Permission: price.period.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "The customer must sign the handover record for each sample before printing its label."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report_candidate__origin__built_in
+msgid "Built-in"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__uses_templates
+msgid "Uses Templates"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "Template versions apply only on an installation with ONLYOFFICE."
 msgstr ""

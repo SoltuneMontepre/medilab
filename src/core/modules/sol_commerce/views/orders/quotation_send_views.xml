@@ -26,6 +26,7 @@
                         <field name="product_uom_qty" string="Order Quantity" readonly="1" digits="[16, 0]" />
                         <field name="price_unit" widget="monetary" options="{'currency_field': 'currency_id'}" />
                         <field name="discount" string="Discount (%)" digits="[16, 0]" />
+                        <field name="tax_ids" widget="many2many_tags" readonly="1" />
                         <field name="currency_id" column_invisible="1" />
                         <field name="price_subtotal" />
                     </list>

@@ -291,7 +291,6 @@ from . import (
     test_test_request_from_order,
     test_test_request_lifecycle,
     test_test_request_paid_step_migration,
-    test_test_request_priority_and_collection,
     test_test_result_approval,
     test_test_result_entry,
     test_test_result_sent,

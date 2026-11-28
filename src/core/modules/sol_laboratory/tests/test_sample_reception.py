@@ -225,7 +225,7 @@ class TestSampleReception(RequestCase):
                 self.assertEqual(sample.status, "rejected" if condition == "unusable" else "on_hold")
                 self.assertFalse(sample.received_at)
                 self.assertFalse(sample.received_by_id)
-                self.assertEqual(self.request.status, "confirmed")
+                self.assertEqual(self.request.status, "paid")
 
     def test_rejecting_a_sample_without_its_reason_is_refused(self):
         with self.assertRaises(UserError):

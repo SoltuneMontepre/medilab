@@ -31,7 +31,6 @@ class TestSubcontractDispatch(DispatchCase):
         self.assertEqual(dispatch.sample_test_ids, self.test)
         other_way = self.northern_way.copy({"parameter_id": other.parameter_id.id})
         self.offer(other.parameter_id, self.sample_type, other_way)
-        other.invalidate_recordset(["subcontracted_method_ids", "outsourcing_method_ids"])
         # The department's plan finds a slot for it in-house, so the suggestion is set here.
         other.outsourcing_suggested = True
         self.assertEqual(self.outsource(other, other_way), dispatch)

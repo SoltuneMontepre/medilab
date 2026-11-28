@@ -12,13 +12,13 @@
         <field name="report_language">vi</field>
         <field name="delivery_method">post</field>
         <field name="delivery_note">48 Lê Văn Sỹ, Phường 13, Quận 3, Hồ Chí Minh</field>
-        <field name="status">confirmed</field>
+        <field name="status">paid</field>
     </record>
     <record id="demo_test_request_paid" model="medilab.test.request">
         <field name="customer_id" ref="demo_customer_an_phu" />
         <field name="request_date" eval="(DateTime.today() - relativedelta(days=3)).strftime('%Y-%m-%d')" />
         <field name="committed_date" eval="(DateTime.today() + relativedelta(days=11)).strftime('%Y-%m-%d')" />
-        <field name="status">confirmed</field>
+        <field name="status">paid</field>
     </record>
     <record id="demo_test_request_sample_received" model="medilab.test.request">
         <field name="customer_id" ref="demo_customer_green_farm" />

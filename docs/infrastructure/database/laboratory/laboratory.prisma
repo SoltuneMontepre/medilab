@@ -980,7 +980,7 @@ model TestRequest {
   requested_date DateTime? @db.Date
   /// Expected return date: the date Sales promised the customer the results. Only Sales changes it, with the customer's agreement; each change is a CommittedDateChange.
   committed_date DateTime? @db.Date
-  /// True for a priority request, computed from requested_date < standard return date on standalone requests or kept from an accepted order priority.
+  /// True for an accepted priority request: the feasibility check said the requested date can be met, so its tests are urgent.
   priority      Boolean  @default(false)
   /// Working days results take from sample receipt, the longest standard turnaround of the accepted ways; receiving the first sample fixes the expected return date with it when none was agreed.
   turnaround_days Int?
@@ -992,12 +992,10 @@ model TestRequest {
   delivery_note String? @db.Text
   /// The contact who receives the report; the customer's own contact when empty.
   report_recipient_id Int?
-  /// draft, confirmed, sample_received, testing, awaiting_approval, completed, reported or cancelled.
+  /// draft, confirmed, paid, on_credit, sample_received, testing, awaiting_approval, completed, reported or cancelled.
   status       String   @db.VarChar
   /// Free notes about the request.
   note         String?  @db.Text
-  /// True for a request created from a confirmed order, whose samples keep what the customer agreed.
-  from_order   Boolean  @default(false)
   /// Number of the order the request was created from, kept as text when uninstalling E-commerce drops the link. A trigram index serves search.
   order_number String?  @db.VarChar
   /// The customer who asks for the tests.

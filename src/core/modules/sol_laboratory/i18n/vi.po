@@ -5881,6 +5881,11 @@ msgstr ""
 "(nếu bật trong Cấu hình) và để thay đổi thu ngân trong ứng dụng POS."
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__paid
+msgid "Paid"
+msgstr "Đã thanh toán"
+
+#. module: sol_laboratory
 #. odoo-python
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__parameter_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__parameter_id
@@ -8594,6 +8599,16 @@ msgstr "Yêu Cầu Thử Nghiệm"
 #: model:ir.ui.menu,name:sol_laboratory.menu_test_request
 msgid "Test Requests"
 msgstr "Yêu Cầu Thử Nghiệm"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
+msgid ""
+"Test request %(code)s cannot be confirmed until its order is paid or the "
+"customer is allowed credit."
+msgstr ""
+"Yêu cầu thử nghiệm %(code)s không thể xác nhận khi đơn hàng chưa thanh toán "
+"và khách hàng không được phép nợ."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -18675,6 +18690,11 @@ msgid "Usable"
 msgstr "Dùng Được"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__on_credit
+msgid "On credit"
+msgstr "Mua chịu"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_payment_request_read_all
 msgid "Permission: payment.request.read.all"
 msgstr "Quyền: xem mọi yêu cầu thanh toán"
@@ -20220,43 +20240,3 @@ msgstr "Dùng Mẫu Phiếu"
 #: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "Template versions apply only on an installation with ONLYOFFICE."
 msgstr "Phiên bản mẫu phiếu chỉ áp dụng khi hệ thống có ONLYOFFICE."
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__can_open_collection_tasks
-msgid "Can Open Collection Tasks"
-msgstr "Có Thể Mở Nhiệm Vụ Lấy Mẫu"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
-msgid "Collection"
-msgstr "Lấy Mẫu"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__collection_place
-msgid "Collection Address"
-msgstr "Địa Chỉ Lấy Mẫu"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__collection_appointment_display
-msgid "Collection Appointment"
-msgstr "Lịch Hẹn Lấy Mẫu"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__collection_task_count
-msgid "Collection Task Count"
-msgstr "Số Nhiệm Vụ Lấy Mẫu"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__collection_assignee_id
-msgid "Collector"
-msgstr "Nhân Viên Lấy Mẫu"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__customer_contact_display
-msgid "Customer Contact"
-msgstr "Liên Hệ Khách Hàng"
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__priority_badge__standard
-msgid "Standard"
-msgstr "Tiêu chuẩn"

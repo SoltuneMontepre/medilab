@@ -6,7 +6,6 @@ from odoo.exceptions import ValidationError
 from odoo.tools import format_date
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE_BOOKING, MODEL_RES_CONFIG_SETTINGS
-from odoo.addons.sol_laboratory.models.testing.machine_booking import SIMULATION_PRELOAD_CONTEXT, SimulationPreload
 from odoo.addons.sol_laboratory.services.type_values import value_as
 
 if TYPE_CHECKING:
@@ -121,23 +120,6 @@ class MachineBookingConditions(models.Model, MachineBookingConditionsBase):
         return False
 
     @api.model
-    def _machine_held_before_slot(self, machine, now, ignore, preload: SimulationPreload | None):
-        """Whether an overdue measurement in progress currently holds the machine from new bookings."""
-        if preload is not None and not ignore:
-            return machine.id in preload.held_machines
-        return bool(
-            self.sudo().search_count(
-                [
-                    ("machine_id", "=", machine.id),
-                    ("status", "=", "in_progress"),
-                    ("ends_at", "<=", now),
-                    ("id", "not in", ignore.ids if ignore else []),
-                ],
-                limit=1,
-            )
-        )
-
-    @api.model
     def _free_slot(
         self,
         machine,
@@ -154,15 +136,22 @@ class MachineBookingConditions(models.Model, MachineBookingConditionsBase):
     ):
         """The free slot, on a machine not overdue for maintenance, not held by a measurement past its end and after the
         downtime of its services."""
-        raw_preload = self.env.context.get(SIMULATION_PRELOAD_CONTEXT)
-        preload = raw_preload if isinstance(raw_preload, SimulationPreload) else None
         if machine:
             now = fields.Datetime.now()
             due = machine.sudo()._maintenance_due_end()
             if due and due <= now:
                 return None
             # A measurement whose end passed holds its machine until its result is entered or it is marked finished.
-            if self._machine_held_before_slot(machine, now, ignore, preload):
+            held = self.sudo().search_count(
+                [
+                    ("machine_id", "=", machine.id),
+                    ("status", "=", "in_progress"),
+                    ("ends_at", "<=", now),
+                    ("id", "not in", ignore.ids if ignore else []),
+                ],
+                limit=1,
+            )
+            if held:
                 return None
         while True:
             start = super()._free_slot(

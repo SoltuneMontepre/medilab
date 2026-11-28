@@ -6,28 +6,13 @@
         <field name="arch" type="xml">
             <form>
                 <p class="text-muted">Sample delivery staff collect the samples at the time and place agreed with the customer.</p>
-                <div class="alert alert-warning" role="alert" invisible="not schedule_warning">
-                    <field name="schedule_warning" nolabel="1" />
-                </div>
-                <div class="alert alert-info" role="alert" invisible="not balance_notice">
-                    <field name="balance_notice" nolabel="1" />
-                </div>
                 <group>
-                    <group>
-                        <field name="order_id" readonly="1" force_save="1" />
-                        <field name="contact_summary" readonly="1" invisible="not contact_summary" />
-                        <field name="address" />
-                    </group>
-                    <group>
-                        <field name="appointment" />
-                        <field name="duration_minutes" />
-                        <field name="appointment_end" readonly="1" invisible="not appointment_end" />
-                        <field name="staff_availability" readonly="1" invisible="not staff_availability" />
-                    </group>
+                    <field name="order_id" readonly="1" force_save="1" />
+                    <field name="appointment" />
+                    <field name="address" />
                 </group>
-                <field name="samples_summary_html" nolabel="1" invisible="not samples_summary_html" />
                 <footer>
-                    <button name="action_start" type="object" string="Start sample collection" class="btn-success" />
+                    <button name="action_start" type="object" string="Start sample collection" class="btn-primary" />
                     <button special="cancel" string="Discard" class="btn-secondary" />
                 </footer>
             </form>

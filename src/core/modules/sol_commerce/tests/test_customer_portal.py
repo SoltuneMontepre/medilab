@@ -151,12 +151,8 @@ class TestCustomerPortal(HttpCase, OrderCase):
         self.assertEqual(self.customer_record.default_contact_id, lan)
 
         self.post("/catalog/add", {"product_tmpl_id": self.lead_product.id}, page="/catalog")
-        self.assertRegex(self.url_open("/cart/details").text, rf'<option value="{lan.id}" selected')
-        self.post(
-            "/cart/submit",
-            {"contact_id": self.contact.id, "collection_method": "pickup", "collection_address": "12 Le Loi"},
-            page="/cart/details",
-        )
+        self.assertRegex(self.url_open("/cart").text, rf'<option value="{lan.id}" selected')
+        self.post("/cart/submit", {"contact_id": self.contact.id}, page="/cart")
         order = self.env["sale.order"].search([("customer_id", "=", self.customer.id)], order="id desc", limit=1)
         self.assertEqual((order.order_status, order.partner_id), ("submitted", self.contact))
 

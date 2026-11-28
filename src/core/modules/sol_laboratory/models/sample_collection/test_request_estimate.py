@@ -41,16 +41,12 @@ class TestRequestEstimate(models.Model, TestRequestEstimateBase):
 
     @api.model
     def _date_after_working_days(self, day, days):
-        """The day the company's working calendar reaches the given working days after the date or UTC datetime."""
+        """The day the company's working calendar reaches the given working days after the day."""
         calendar = self.env.company.resource_calendar_id
         zone = ZoneInfo(self.env.company.tz or "UTC")
-        start = (
-            day.replace(tzinfo=UTC).astimezone(zone)
-            if isinstance(day, datetime)
-            else datetime.combine(day, time(23, 59), tzinfo=zone)
-        )
+        start = datetime.combine(day, time(23, 59), tzinfo=zone)
         planned = calendar.plan_days(days, start, compute_leaves=True)
-        return planned.astimezone(zone).date() if isinstance(planned, datetime) else start.date() + timedelta(days=days)
+        return planned.astimezone(zone).date() if isinstance(planned, datetime) else day + timedelta(days=days)
 
     @api.model
     def _working_days_before(self, day, days):

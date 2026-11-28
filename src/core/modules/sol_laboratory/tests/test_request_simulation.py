@@ -20,9 +20,9 @@ class TestRequestSimulation(SchedulingCase):
         self.requests = self.env[MODEL_TEST_REQUEST]
 
     def held_request(self):
-        """A confirmed request whose lead sample has not arrived yet."""
+        """A paid request whose lead sample has not arrived yet."""
         request = self.create_request()
-        request.sudo().status = "confirmed"
+        request.sudo().status = "paid"
         return request
 
     def test_the_whole_order_competes_for_the_same_machines(self):

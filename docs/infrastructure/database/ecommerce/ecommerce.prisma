@@ -464,28 +464,14 @@ model SaleOrder {
   requested_date    DateTime?             @db.Date
   /// The day Sales agreed with the customer for the samples to be picked up, which return dates count from.
   expected_collection_date DateTime?      @db.Date
-  /// pickup when the laboratory picks the samples up, drop_off when the customer brings them; empty until the customer or Sales chooses.
-  collection_method String?               @db.VarChar
-  /// Where the customer wants the samples picked up.
-  collection_address String?
-  /// The part of the day the customer prefers for the pickup or the drop-off: morning, afternoon or any.
-  collection_time   String?               @db.VarChar
-  /// What the customer tells collection staff, such as whom to call at the gate.
-  collection_note   String?
-  /// Expected return date promised on the quotation: the earliest the laboratory can return results from the expected pickup, or the date of an accepted priority request or of a change agreed with the customer. Sales cannot edit it. The confirmed order gives it to its test request.
+  /// Expected return date Sales promises on the quotation: the requested date when the standard turnaround meets it, or the date of an accepted priority request; empty when it is fixed at sample receipt. The confirmed order gives it to its test request.
   committed_date    DateTime?             @db.Date
   /// Working days results take from sample receipt: the longest standard turnaround of the order's ways of testing, kept as it was when the quotation was sent.
   turnaround_days   Int?
-  /// The tax Sales chose for the order; empty while the order takes the usual tax of its lines.
-  chosen_tax_id     Int?
-  /// The tax of the whole order, which every line takes: the one Sales chose, or else the tax of the parameters and packages that make up most of the order's value before tax.
-  order_tax_id      Int?
   /// The customer's priority request and Sales's decision after the feasibility check: requested, accepted or declined; empty without one.
   priority_request  String?               @db.VarChar
   /// True for an accepted priority request, which makes the test request's tests urgent.
   priority          Boolean               @default(false)
-  /// True when the order is an accepted priority order or still awaits a priority decision, so lists sort it first.
-  is_priority_attention Boolean           @default(false)
   /// When the advance must be paid; 3 days after sending by default, set by sales when sending.
   payment_deadline  DateTime?
   /// online, bank_transfer, cash, or none when the Head of Sales sends without an advance.
