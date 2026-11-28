@@ -2,7 +2,7 @@ from psycopg2 import IntegrityError
 
 from odoo.exceptions import UserError
 from odoo.fields import Command
-from odoo.tests import new_test_user, tagged
+from odoo.tests import Form, new_test_user, tagged
 from odoo.tools import mute_logger
 
 from .request_case import RequestCase
@@ -115,6 +115,21 @@ class TestHandoverRecord(RequestCase):
         )
         later.action_sign(b"signature-bytes")
         self.assertEqual(self.sample.handover_line_ids.mapped("actual_count"), [1, 1])
+
+    def test_choosing_the_request_lists_its_samples_still_to_be_handed_over(self):
+        form = Form(self.env[MODEL_HANDOVER_RECORD])
+        form.request_id = self.request
+        self.assertEqual(len(form.sample_ids), 0)
+
+        self.env[MODEL_EXPECTED_SAMPLING].create({"sample_id": self.sample.id, "objects": 2, "group_number": 1})
+        self.record.sample_ids.actual_count = 1
+        form = Form(self.env[MODEL_HANDOVER_RECORD])
+        form.request_id = self.request
+        self.assertEqual(len(form.sample_ids), 1)
+        with form.sample_ids.edit(0) as line:
+            self.assertEqual(line.sample_id, self.sample)
+            line.quantity = "1 bottle"
+            line.condition = "good"
 
     def test_the_files_of_a_signed_record_cannot_be_replaced(self):
         self.record.action_sign(b"signature-bytes")

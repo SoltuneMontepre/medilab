@@ -54,7 +54,11 @@
                                  confirms it by signing. Extras add no test and stay with the sample. -->
                             <field name="sample_ids" readonly="status == 'signed'">
                                 <list editable="bottom">
-                                    <field name="sample_id" domain="[('request_id', '=', parent.request_id)]" />
+                                    <field
+                                        name="sample_id"
+                                        domain="[('request_id', '=', parent.request_id)]"
+                                        options="{'no_create': True}"
+                                    />
                                     <field name="expected_count" width="[120]" />
                                     <field name="actual_count" width="[120]" />
                                     <field name="extra_count" width="[120]" />

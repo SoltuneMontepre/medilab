@@ -13,6 +13,7 @@ The tester, also called lab QA, runs assigned tests with a machine when the way 
 - **US-T19** As a tester, I want to mark one of my tests urgent with a reason, so that a sample I know must come first is scheduled first even when its due date is not close.
 - **US-T20** As a tester, I want to be warned when one of my tests is at risk of missing its due date, so that I can ask for help in time.
 - **US-T21** As a tester, I want to be warned when the machine of my booking is due for calibration or maintenance soon or was repaired recently, so that I check it before I test.
+- **US-T31** As a tester, I want to propose the slot and machine of my booking for the head to approve, so that I test when and where suits the work.
 
 ### Results
 
@@ -49,7 +50,7 @@ The tester, also called lab QA, runs assigned tests with a machine when the way 
 
 ## II. Feature details
 
-### 1. Planning (US-T01 to US-T04, US-T19 to US-T21)
+### 1. Planning (US-T01 to US-T04, US-T19 to US-T21, US-T31)
 
 Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling), [Scheduling](../../../specs/scheduling.md), [SH-10](../../shared.md#sh-10-tasks-and-to-do-list) and [SH-11](../../shared.md#sh-11-schedules-and-reminders).
 
@@ -58,6 +59,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Claiming | A tester may claim an unassigned testing task of their department only when the Lab Head's authorization list includes its parameter. There are no team queues and no authorization validity dates. A task someone else claimed first cannot be claimed. |
 | Worklist | The sample tests list opens on the tester's open tests and those they may claim, soonest due date first, with the way of testing and where the sample is kept. A test is claimed, and its result entered, from its row there and in the sample's tests. |
 | Proposed booking | The department's plan proposes a booking of the already agreed way, with its explicit sample-type applicability; it does not select a different method or performing party. The head approves it, which notifies the tester and reserves the tester, the required locations and the machine together, or nothing when any is taken. |
+| Own proposal | The tester of a proposed booking may put it in another slot, on another machine linked to its testing method, where they, the machine and the required locations are free. The booking stays proposed and pinned there: recalculations plan the other bookings around it until the head approves it or returns it to the plan, or its task gets another tester. Approving it reserves it as any proposed booking and unpins it. |
 | Booking | A booking has one sample test, one person, one time interval and a machine only if needed. Bookings whose ways use the same method share a machine only for exactly the same interval, within the capacity of the machine-and-method link. The plan places work by priority class: urgent, due soon, then normal. |
 | Marking urgent | The tester marks a test of their own testing task urgent, stating why, or removes the mark. A marked test is urgent whatever its due date. |
 | Deadline risk | Notify the tester and Head of Department when risk first appears, then include unresolved risks in a daily summary. Show the flag on tasks and schedules. Sales contacts the customer only when the expected return date is affected or at risk. |
@@ -76,6 +78,8 @@ Acceptance criteria:
 - A reminder arrives before the booking starts.
 - Assigning a task to a tester notifies them; claiming a task notifies nobody.
 - Approving a booking checks that the tester, every required location and a machine when required are available; an unavailable room blocks a booking without a machine too.
+- A tester moves their proposed booking to a free slot or another linked machine; the plan keeps it there, and the head approves it.
+- A slot where the tester, the machine or a required location is taken is refused, and so is a machine not linked to the booking's testing method.
 - A sample test whose sample its department has not received, that is held for the customer's agreement or that is cancelled cannot be booked.
 - Moving a booking moves the room bookings of its steps with it.
 - Marking a test urgent without a reason is refused; once marked, the plan places it before tests of lower priority classes, and the reason shows on the test.
@@ -100,6 +104,7 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 | ----------- | ---------------------------------------------------------------------------------------------------- |
 | Limit copy | Creating a result copies its way of testing, sample type, unit, LOD and LOQ from its way and sample type. If comparison is requested, copy the exact regulation, parameter and sample-type limit and unit; missing configuration remains visible. Comparison is requested for a result when the sample's regulation sets a limit for its parameter on some sample type. Only the system writes the copy, and catalog edits never change it. |
 | Measurement | A result measured in the laboratory belongs to exactly one booking; an outsourced result belongs to its sample test, which a subcontract dispatch sends. Its booking supplies the performer, interval and machine when required; entering one result does not complete the other bookings sharing its machine interval. |
+| Booking a machine | A draft result measured in the laboratory without a machine, because no booking supplied one, offers its tester the machines linked to its way's testing method that are fit to use and have no other booking from the result's start for the method's duration on them. Choosing one records a done booking of the tester on it for that interval, without the head's approval, and takes its machine for the result. A result sent for approval keeps its machine as it is. |
 | Conclusion | No conclusion is needed without requested regulation comparison. For a requested comparison, the tester assesses pass, fail or insufficient basis. Text and below-LOD/LOQ values need professional assessment, never automatic passing or substitution with zero. A result without an exact-type limit can only be assessed as insufficient basis. A result outside the requested comparison takes no conclusion. A value below the LOD, or else below the LOQ, suggests a text such as "<0.05 mg/L (below LOQ)" with the copied threshold and unit, which the result form offers to use; using it writes the text in each installed language and keeps the measured value. Reports show the threshold and unit from the result's snapshot. A numeric value outside the copied limit, once converted to the result's unit, cannot be sent as a pass. |
 | Retest | A retest is a new result with a new booking; the rejected or interrupted result stays on record. Rejecting a result returns its sample test to the department's plan, which proposes the new booking for the head to approve. A booking an earlier result was measured in is never taken by a later one. The system does not count or limit retests. |
 | Sanity check | Before a numeric result is sent for approval, it is compared with past approved results and the regulation limit. An unusual value, a value within the margin of the limit or a value outside it shows a warning with the reason; the tester may still send it, and the warning stays on the result. Values are compared with the limit to 12 decimals, so a value exactly on the margin warns. |
@@ -118,6 +123,7 @@ Acceptance criteria:
 - A numeric result far from the approved results of the same parameter, way of testing and sample type shows a warning before it is sent; sending it anyway keeps the warning on the result.
 - A numeric result within the margin of the regulation limit shows a warning, also one exactly on the margin, such as 0.009 against a maximum of 0.01 with a 10% margin.
 - A numeric result outside the regulation limit shows that it is above or below the limit and cannot be sent as a pass.
+- The tester who entered a draft result without a machine books one of the free, fit machines linked to its method; a machine another booking holds at the result's start is not offered, and nobody else books one for the result.
 - A result saved with its start keeps its booking and machine; a retest takes a new booking, never the one an earlier result was measured in.
 - Rejecting a result proposes a new booking for its retest in the department's plan.
 - Using the suggested text of a value below the LOD or LOQ keeps the measured value.

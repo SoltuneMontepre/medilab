@@ -286,18 +286,27 @@ class MachineBooking(models.Model, MachineBookingBase):
         return bookings
 
     def write(self, vals):
-        if {"starts_at", "ends_at"} & set(vals) and self.env.context.get(SCHEDULING_CONTEXT) is not SCHEDULING_TOKEN:
+        scheduling = self.env.context.get(SCHEDULING_CONTEXT) is SCHEDULING_TOKEN
+        # A person chooses the machine only of a proposed booking, through _propose.
+        choosing = "machine_id" in vals and not self.env.su and not scheduling
+        if ({"starts_at", "ends_at"} & set(vals) or choosing) and not scheduling:
             # People move a booking only to a slot the scheduler finds free; its length stays the duration.
             vals = dict(vals)
             vals.pop("ends_at", None)
             # A move skips the lock mixin's write, so it checks and releases the edit lock itself.
             locks = self.env[MODEL_DOCUMENT_LOCK] if self.env.su else self._check_lock()
-            if "starts_at" in vals:
-                start = fields.Datetime.to_datetime(vals.pop("starts_at"))
-                if not start:
+            if "starts_at" in vals or choosing:
+                start = fields.Datetime.to_datetime(vals.pop("starts_at")) if "starts_at" in vals else None
+                machine = self.env[MODEL_MACHINE].browse(vals.pop("machine_id")) if choosing else None
+                if not start and not choosing:
                     raise UserError(self.env._("Cancel the booking instead of clearing its start."))
                 for booking in self:
-                    booking._move(start)
+                    if booking.status == "proposed":
+                        booking._propose(start or booking.starts_at, booking.machine_id if machine is None else machine)
+                    elif choosing:
+                        raise UserError(self.env._("Only a proposed booking changes machine."))
+                    else:
+                        booking._move(start)
             if not vals:
                 if locks:
                     locks._own_edits()._release("saved")
@@ -366,10 +375,11 @@ class MachineBooking(models.Model, MachineBookingBase):
         person = self.env[MODEL_PERSON]._current()
         self.filtered(lambda booking: not person or booking.person_id != person)._check_permission("edit")
 
-    def _slot_availability(self, start, length, not_after, rooms, way, sample):
-        """Find a move's next slot and identify the first independently unavailable resource."""
+    def _slot_availability(self, start, length, not_after, rooms, way, sample, machine=None, planned=None):
+        """Find a move's next slot on the booking's machine, or the given one, around the planned proposals, and
+        identify the first independently unavailable resource."""
         self.ensure_one()
-        machine = self.machine_id
+        machine = self.machine_id if machine is None else machine
         person = self.person_id
         working = self._working_time(person, start, not_after)
         starts_at = self._free_slot(
@@ -380,6 +390,7 @@ class MachineBooking(models.Model, MachineBookingBase):
             start,
             self,
             working=working,
+            planned=planned,
             rooms=rooms,
             way=way,
             sample=sample,
@@ -391,7 +402,7 @@ class MachineBooking(models.Model, MachineBookingBase):
             return SlotAvailability(starts_at, SlotConflict("tester", person.display_name))
 
         without_rooms = self._free_slot(
-            machine, length, person, not_after, start, self, working=working, way=way, sample=sample
+            machine, length, person, not_after, start, self, working=working, way=way, sample=sample, planned=planned
         )
         empty_machine = self.env[MODEL_MACHINE].browse()
         empty_person = self.env[MODEL_PERSON].browse()
@@ -405,6 +416,7 @@ class MachineBooking(models.Model, MachineBookingBase):
                     start,
                     self,
                     working=working,
+                    planned=planned,
                     rooms=(room,),
                 )
                 if room_slot != start:
@@ -418,17 +430,36 @@ class MachineBooking(models.Model, MachineBookingBase):
             start,
             self,
             working=working,
+            planned=planned,
             way=way,
             sample=sample,
         )
         if machine and machine_slot != start:
             return SlotAvailability(starts_at, SlotConflict("machine", machine.display_name))
 
-        person_slot = self._free_slot(empty_machine, length, person, not_after, start, self, working=working)
+        person_slot = self._free_slot(
+            empty_machine, length, person, not_after, start, self, working=working, planned=planned
+        )
         if person_slot != start:
             return SlotAvailability(starts_at, SlotConflict("tester", person.display_name))
 
         return SlotAvailability(starts_at, None)
+
+    def _check_free(self, start, availability):
+        """Refuse a slot that does not start at start, naming the resource that is not free."""
+        if availability.starts_at == start:
+            return
+        if not availability.conflict or not availability.conflict.display_name:
+            raise UserError(
+                self.env._("The resources for %(booking)s are not free at that time.", booking=self.display_name)
+            )
+        raise UserError(
+            self.env._(
+                "%(resource)s is not free for %(booking)s at that time.",
+                resource=availability.conflict.display_name,
+                booking=self.display_name,
+            )
+        )
 
     def _move(self, start):
         self.ensure_one()
@@ -441,19 +472,7 @@ class MachineBooking(models.Model, MachineBookingBase):
         rooms = self._room_steps(way)
         until = start + max(length, _rooms_end(rooms))
         sample = self.sample_test_id.sample_id
-        availability = self._slot_availability(start, length, until, rooms, way, sample)
-        if availability.starts_at != start:
-            if not availability.conflict or not availability.conflict.display_name:
-                raise UserError(
-                    self.env._("The resources for %(booking)s are not free at that time.", booking=self.display_name)
-                )
-            raise UserError(
-                self.env._(
-                    "%(resource)s is not free for %(booking)s at that time.",
-                    resource=availability.conflict.display_name,
-                    booking=self.display_name,
-                )
-            )
+        self._check_free(start, self._slot_availability(start, length, until, rooms, way, sample))
         # Whoever may edit the department's bookings, the head, pins the booking where they put it.
         pinned = not self.env.su and self._has_permission("edit")
         self._set({"starts_at": start, "ends_at": start + length, "is_pinned": pinned})

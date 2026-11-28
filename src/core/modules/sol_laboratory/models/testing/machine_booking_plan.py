@@ -43,8 +43,14 @@ class MachineBookingPlan(models.Model, MachineBookingPlanBase):
         tests = self.env[MODEL_SAMPLE_TEST].sudo()
         for department in departments.sudo():
             proposals = self._plan_proposals(department)
-            placed = self.browse()
-            for booking in proposals.sorted(lambda booking: booking.sample_test_id._plan_key(department)):
+            # A slot put in by hand stays, and the plan places the others around it.
+            placed = proposals.filtered(lambda booking: booking.is_pinned and booking.starts_at)
+            for booking in placed:
+                test = booking.sample_test_id
+                if test.outsourcing_suggested:
+                    test.outsourcing_suggested = False
+                tests |= test
+            for booking in (proposals - placed).sorted(lambda booking: booking.sample_test_id._plan_key(department)):
                 test = booking.sample_test_id
                 found = self._recommend(test, booking.person_id, department, planned=placed)
                 values = {"machine_id": False, "starts_at": False, "ends_at": False}
@@ -104,7 +110,9 @@ class MachineBookingPlan(models.Model, MachineBookingPlanBase):
             if not task or booking.sample_test_id in kept.sample_test_id:
                 booking._set({"status": "cancelled"})
                 continue
-            booking._set_changed({"task_id": task.id, "person_id": task.assignee_id.id})
+            # A slot chosen for one tester is not kept for another.
+            pinned = booking.is_pinned and booking.person_id == task.assignee_id
+            booking._set_changed({"task_id": task.id, "person_id": task.assignee_id.id, "is_pinned": pinned})
             kept |= booking
         missing = [test for test in planned if test not in kept.sample_test_id]
         return kept | bookings.create(

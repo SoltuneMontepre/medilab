@@ -72,6 +72,21 @@ class TestPlanRevisionApproval(PlanRevisionCase):
         self.assertEqual((revision.status, {move.status for move in revision.move_ids}), ("applied", {"applied"}))
         self.assertEqual((self.z.starts_at, self.m.starts_at), (THURSDAY, WEDNESDAY))
 
+    def test_a_person_who_edits_the_bookings_of_every_department_approves_every_move(self):
+        revision = self.two_department_revision()
+        self.grant(
+            self.chemist,
+            "plan_revision.read.all",
+            "plan_revision_move.read.all",
+            "machine_booking.read.all",
+            "machine_booking.edit.all",
+        )
+
+        revision.with_user(self.chemist.user_id).action_approve()
+
+        self.assertEqual(revision.move_ids.approved_by_id, self.chemist)
+        self.assertEqual((revision.status, self.z.starts_at, self.m.starts_at), ("applied", THURSDAY, WEDNESDAY))
+
     def test_a_person_who_may_not_edit_the_bookings_of_any_affected_department_decides_nothing(self):
         revision = self.two_department_revision()
 

@@ -2,7 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { renderToString } from "react-dom/server";
 import { LocaleProvider } from "../../locale";
 import type { FolderRow } from "../../types";
-import { FolderCard, HomeFolderCard } from "./FoldersTab";
+import { HomeFolderCard } from "./FoldersTab";
+import { FolderCard, FolderExplorer } from "./FolderExplorer";
 
 /** Render một thẻ thư mục bằng tiếng Anh để so chuỗi không dấu. */
 function renderCard(folder: FolderRow): string {
@@ -14,6 +15,24 @@ function renderCard(folder: FolderRow): string {
         onOpen={() => {}}
         onManageAccess={() => {}}
         onUnregister={() => {}}
+        onRebind={() => {}}
+      />
+    </LocaleProvider>,
+  );
+}
+
+/** Render bảng thư mục đã thêm bằng tiếng Anh. */
+function renderGroups(folders: FolderRow[], dropFolderId: number | null = null): string {
+  return renderToString(
+    <LocaleProvider locale="en">
+      <FolderExplorer
+        folders={folders}
+        dropFolderId={dropFolderId}
+        busy={false}
+        onOpen={() => {}}
+        onManageAccess={() => {}}
+        onUnregister={() => {}}
+        onRebind={() => {}}
       />
     </LocaleProvider>,
   );
@@ -73,5 +92,52 @@ describe("FolderCard", () => {
 
   test("offers to open the folder", () => {
     expect(renderCard(folder)).toContain("Open folder");
+  });
+
+  test("offers to reconnect only a folder that lost its server link", () => {
+    expect(renderCard(folder)).not.toContain("Reconnect");
+    expect(renderCard({ ...folder, remote_id: null, access_state: "unbound" })).toContain(">Reconnect</button>");
+  });
+});
+
+describe("FolderExplorer", () => {
+  const raw = { ...folder, id: 2, sample_code: "PTN.1", logical_root: "PTN.1-raw", local_path: "C:/lab/PTN.1/Raw Data" };
+  const result = { ...raw, id: 3, logical_root: "PTN.1-result", category: "result", local_path: "C:/lab/PTN.1/Results" };
+  const loose = { ...folder, id: 4, sample_code: null, logical_root: "Notes", local_path: "C:/notes" };
+
+  test("opens only samples that need attention, and lists their folders by name with loose folders last", () => {
+    const html = renderGroups([loose, raw, { ...result, access_state: "unbound" }]);
+    expect(html).toContain("2 folders");
+    expect(html).toContain("Raw Data");
+    expect(html).toContain("Results");
+    expect(html.indexOf("PTN.1")).toBeLessThan(html.indexOf("Other folders"));
+    expect(html).toContain('data-drop-folder-id="2"');
+    expect(html).not.toContain('data-drop-folder-id="4"');
+  });
+
+  test("starts a sample with every folder linked collapsed", () => {
+    const html = renderGroups([raw, result]);
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).not.toContain("Raw Data");
+  });
+
+  test("shows each folder's type, mode and link state in short words", () => {
+    const html = renderGroups([raw, { ...result, access_state: "unbound", sync_mode: "two_way" }]);
+    expect(html).toContain("Raw data");
+    expect(html).toContain("Upload only");
+    expect(html).toContain("Two-way");
+    expect(html).toContain("Linked");
+    expect(html).toContain("Not linked");
+  });
+
+  test("flags a group with a folder that needs attention", () => {
+    expect(renderGroups([raw, result])).not.toContain("Needs attention");
+    expect(renderGroups([raw, { ...result, access_state: "unbound" }])).toContain("Needs attention");
+  });
+
+  test("highlights the folder files are dragged over", () => {
+    const unbound = { ...result, access_state: "unbound" };
+    expect(renderGroups([raw, unbound], 3)).toMatch(/bg-blue-100[^>]*data-drop-folder-id="3"|data-drop-folder-id="3"[^>]*bg-blue-100/);
+    expect(renderGroups([raw, unbound])).not.toContain("bg-blue-100");
   });
 });

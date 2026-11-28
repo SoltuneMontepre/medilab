@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.fields import Command
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
@@ -94,6 +95,18 @@ class HandoverRecord(models.Model, HandoverRecordBase):
         if SIGNING_FIELDS & set(vals) and not self.env.su:
             raise UserError(self.env._("A handover record is signed only by the customer, on the mobile app."))
         return super().write(vals)
+
+    # Lists the request's samples still to be handed over, so staff only fill in what they received. A sample handed
+    # over short on another record stays listed for the next collection.
+    @api.onchange("request_id")
+    def _onchange_request_id(self):
+        samples = self.request_id.sample_ids.filtered(
+            lambda sample: sample.status == "expected"
+            and not sample.handover_line_ids.filtered(
+                lambda line: not line.missing_count and line.record_id != self._origin
+            )
+        )
+        self.sample_ids = [Command.clear()] + [Command.create({"sample_id": sample.id}) for sample in samples]
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_signed_records(self):

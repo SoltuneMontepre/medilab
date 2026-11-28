@@ -81,6 +81,17 @@ class TestDemoRolePermissions(TransactionCase):
             )
         )
 
+    def test_lab_head_assigns_tasks_of_every_department(self):
+        lab_head = self.env.ref("sol_demo.demo_res_users_lab_head")
+        self.assertTrue(lab_head.has_group("sol_laboratory.group_permission_task_read_all"))
+        self.assertTrue(lab_head.has_group("sol_laboratory.group_permission_task_edit_all"))
+        self.assertTrue(lab_head.has_group("sol_laboratory.group_permission_test_result_create_all"))
+
+    def test_lab_head_books_the_machines_of_every_department(self):
+        lab_head = self.env.ref("sol_demo.demo_res_users_lab_head")
+        self.assertTrue(lab_head.has_group("sol_laboratory.group_permission_machine_booking_edit_all"))
+        self.assertTrue(lab_head.has_group("sol_laboratory.group_permission_plan_revision_read_all"))
+
     def test_an_upgrade_gives_each_demo_role_the_permissions_it_lists_and_keeps_those_added_by_hand(self):
         role = self.env.ref("sol_demo.demo_role_lab_head")
         listed = self.env.ref("sol_laboratory.permission_report_template_version_read_all")

@@ -46,3 +46,17 @@ class TestSampleTestClaiming(SchedulingCase):
     def test_a_test_without_a_testing_task_cannot_be_claimed(self):
         with self.assertRaises(UserError):
             self.as_tester(self.tester).action_claim_testing_task()
+
+    def test_the_lab_head_claims_a_test_of_any_department_they_are_authorized_for(self):
+        lab_head = self.create_person(
+            "Nguyen Van Hai", login="hai.nguyen", permissions=("sample_test.read.all", "task.read.all", "task.edit.all")
+        )
+        lab_head.tz = "UTC"
+        task = self.testing_task(self.test)
+        tests = self.env[MODEL_SAMPLE_TEST].with_user(lab_head.user_id)
+        self.assertNotIn(self.test, tests.search([("can_claim", "=", True)]))
+
+        self.authorize(lab_head, self.test.parameter_id)
+        self.assertIn(self.test, tests.search([("can_claim", "=", True)]))
+        self.as_tester(lab_head).action_claim_testing_task()
+        self.assertEqual((task.assignee_id, task.status), (lab_head, "assigned"))

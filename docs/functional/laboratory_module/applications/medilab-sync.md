@@ -9,7 +9,7 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 | Platforms     | Linux as DEB and RPM packages, and Windows. It is built with Tauri 2, Rust and React. |
 | Background    | It runs in the system tray, can start with the operating system, and keeps syncing while its window is closed. |
 | Languages     | Vietnamese by default, or English, chosen at sign-in, in the header or in the settings, and kept for the next start. |
-| Installing    | A testing task offers Download Medilab Sync to a person with the laboratory files permission. It gives the latest release's Windows installer to a Windows computer and its DEB package to a Linux x86_64 one; any other computer gets the release page, which also has the RPM package. The installers are the same for every MediLab. |
+| Installing    | A testing task and the Documents menu offer Download Medilab Sync to a person with the laboratory files permission. It gives the latest release's Windows installer to a Windows computer and its DEB package to a Linux x86_64 one; any other computer gets the release page, which also has the RPM package. The installers are the same for every MediLab. |
 | Opening       | Open in Medilab Sync, next to it, opens the application with this MediLab's address. Both stay on the testing task, for setting up another computer, such as an instrument's. |
 
 ## Signing in
@@ -26,12 +26,16 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 
 | Rule              | Description |
 | ----------------- | ----------- |
-| Binding           | The person binds a local folder to a laboratory folder by choosing it, pasting its path or dragging it into the window. The local path stays on the computer and is never sent to MediLab. |
+| Binding           | The person binds a local folder to a laboratory folder by choosing it, pasting its path or dragging it into the window. Choosing a folder starts in the home folder. The local path stays on the computer and is never sent to MediLab. |
 | Own folders       | A new local folder creates a laboratory folder named after it, which the person can rename. |
-| Shared folders    | Folders others share with the person are listed under Shared with you and bound by choosing a local folder; no second laboratory folder is created. |
-| Not bound here    | Folders the person owns but has not bound on this computer are listed separately, ready to bind. |
+| Shared folders    | Folders others share with the person are listed on a Shared with you tab next to Added folders, with how many there are, and bound by choosing a local folder; no second laboratory folder is created. |
+| Not bound here    | Folders the person owns but has not bound on this computer are listed on their own tab, shown only when there are any, ready to bind. |
 | Home folder       | The home folder is `MediLab` in the person's Documents folder, or in their user folder on a computer without one, until the person chooses another. The sample folders the person is a member of are bound by themselves inside it, under the sample's lab code and the folder's category, such as `<lab code>/Raw Data` and `<lab code>/Results`, created when missing. A folder already bound stays where it is, a folder of a completed or cancelled sample is not bound, and a folder the person stopped syncing is not bound again until they bind it themselves. Signing in to another server or account unbinds every folder and keeps its files and queue; a sample folder the person is a member of there is bound again in the place it had. |
 | Raw and results   | Raw data and results are bound to separate local folders. |
+| Folder list       | Bound folders are listed like a file manager's details view: one row per sample lab code, folded unless one of its folders needs attention and opened or folded on click, with the sample's folders under it by their local name, type, mode and whether they are linked; folders of no sample come last. A sample with a folder that is unbound or has lost access is marked as needing attention. Selecting a folder shows its details and actions under the list; double-clicking opens it, and right-clicking lists its actions. |
+| Adding            | Add folder opens the binding form in a dialog. Dropping a folder anywhere but on a listed folder opens that dialog with the dropped folder filled in. |
+| Dropping files    | Files and folders dropped on a listed folder are copied into it and then synced like any file put there. A name already there gets a number, such as `run (2).csv`, so nothing is overwritten, and a folder is never copied into itself. |
+| Reconnecting      | An unbound folder offers Reconnect, which binds the same local folder to the laboratory folder of the same name, with its files and queue. When the person no longer has that laboratory folder, it says the sample is finished or no longer theirs and points to Stop syncing. |
 | Sync rules        | By default every file in the folder and its subfolders is synced. Under Advanced options, folded away until needed, the person can limit it by name prefix, name pattern with `*`, or extension, and can leave out subfolders. |
 | First start       | A person with no bound folder lands on the Folders tab after signing in, which opens with the home folder. |
 | Modes             | An upload-only folder sends local changes and never writes to the computer, for instrument computers. A two-way folder also downloads the new current versions others save. A bound folder says which mode it is in. |
@@ -50,6 +54,7 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 | Queue             | Each file shows its status: pending, running, completed, conflict, error and retrying, or paused. The person pauses and resumes the queue and retries a failed file; pausing keeps the queue. |
 | Synced files      | The synced files are listed under the folder they belong to, and the person finds one by typing part of its name. |
 | Lost access       | When the person loses a folder's membership or its sample, the folder stays listed with a line saying access was lost; its pending files are paused, not deleted or failed, and nothing on the computer is removed. They continue when access comes back, without binding again. |
+| Following the server | A sample folder that is unbound or has lost access, and whose sample MediLab no longer offers the person as a sample under test, is removed from the list by itself, as Stop syncing would, keeping its files on the computer. It is not marked as stopped, so it is bound again in its place when the sample is given back to the person. |
 | Turned off        | When an administrator turns a folder off, new files wait with a message and upload once it is turned on again. |
 | Deleting and renaming | Deleting or renaming a file on one computer is not passed to other computers or to MediLab. |
 
@@ -70,16 +75,20 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 - Binding a folder sends no local path to MediLab.
 - Binding a folder shared by someone else creates no second laboratory folder.
 - A testing task offers Download Medilab Sync and Open in Medilab Sync to a person with the laboratory files permission.
+- The Documents menu offers Download Medilab Sync to a person with the laboratory files permission.
 - Download Medilab Sync gives a Windows computer the Windows installer and a Linux x86_64 computer the DEB package of the latest release.
 - Open in Medilab Sync fills in this MediLab's address on the sign-in screen and names its host.
 - The folders of a sample the person was just given to test are bound inside the home folder without the person choosing a location, also on a new installation.
 - A sample folder the person stopped syncing is not bound again by itself.
 - A sample folder unbound by signing in to another server or account is bound again in its place, with its files and queue, once the person is a member of it there.
+- Reconnect on an unbound folder resumes its queue in the same local folder without choosing a folder.
+- Files dropped on a listed folder are copied into it, are uploaded, and overwrite nothing already there.
 - Saving a document several times within the waiting time adds one version.
 - A file changed while the application was closed is uploaded at the next start.
 - A downloaded file whose hash does not match is not put in place.
 - Uploading a file changed on two computers from the same version keeps both versions, and Use server version keeps a backup of the local file.
 - Losing access to a folder pauses its pending files and deletes nothing on the computer; getting access back resumes them.
+- A sample folder whose sample is finished or no longer the person's leaves the folder list once it is unbound or has lost access, and its files stay on the computer.
 - Stop syncing leaves the laboratory folder, its members and the local files unchanged.
 - An upload-only folder never writes to the computer.
 - A bound folder shows whether it is upload-only or two-way.

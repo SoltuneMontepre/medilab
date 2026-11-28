@@ -1,6 +1,6 @@
 # Features of: Lab head
 
-The lab head configures parameter authorizations, reviews laboratory-wide testing statistics, reviews approved results, including a Head of Department's self-approved entries, and signs reports.
+The lab head configures parameter authorizations, reviews laboratory-wide testing statistics, reviews approved results, including a Head of Department's self-approved entries, signs reports, and assigns and books the tasks of every department.
 
 ## I. User stories
 
@@ -11,6 +11,9 @@ The lab head configures parameter authorizations, reviews laboratory-wide testin
 - **US-LH04** As a lab head, I want to configure the parameters each tester is authorized to test, so that only competent people are scheduled.
 - **US-LH05** As a lab head, I want to review results self-approved by a Head of Department when signing their report, so that those results receive final review before issue.
 - **US-LH06** As a lab head, I want testing statistics for every department over a period, so that I can review the laboratory's workload and turnaround.
+- **US-LH07** As a lab head, I want to assign the tasks of any department to a person of that department, and reassign them with a reason, so that work is handed down when its head of department is away.
+- **US-LH08** As a lab head, I want to claim a waiting sample test of any department that I am authorized to test, and enter its result, so that I can take on testing work myself.
+- **US-LH09** As a lab head, I want to approve, move and cancel the machine bookings of any department, and approve its plan revisions, so that testing stays scheduled when its head of department is away.
 
 ## II. Feature details
 
@@ -86,6 +89,23 @@ Acceptance criteria:
 Acceptance criteria:
 
 - The Lab Head can view all departments together or filter a department for the same period.
+
+### 5. Task assignment, claiming and bookings (US-LH07 to US-LH09)
+
+| Rule | Description |
+| --- | --- |
+| Assignment | The Lab Head assigns and reassigns the tasks of every department under the same rules as a [head of department](head-of-department.md#1-work-and-schedule-us-hd01-to-us-hd05-us-hd12-us-hd14-us-hd19): the assignee belongs to the task's department and is authorized for its parameter, and a move needs a reason. |
+| Claiming | The Lab Head claims the waiting testing task of any department's sample test whose parameter they are authorized to test, and enters its result as its tester. The result goes to the department's head for approval as any other. |
+| Bookings | The Lab Head approves, moves and cancels the bookings of every department, and approves or rejects the moves of its plan revisions, under the same rules as a head of department. A booking the Lab Head places or moves by hand is pinned. |
+
+Acceptance criteria:
+
+- The Lab Head assigns a waiting task of any department to an authorized person of that department.
+- Assigning a person of another department is refused.
+- Sample tests of every department that the Lab Head is authorized to test show under To Claim, and the Lab Head claims them for themself.
+- A sample test whose parameter the Lab Head is not authorized for is not offered to them.
+- The Lab Head approves a feasible proposed booking of any department, which reserves it and notifies its tester.
+- The Lab Head approves every move of a plan revision, whichever departments it affects.
 
 ## III. Related documents
 

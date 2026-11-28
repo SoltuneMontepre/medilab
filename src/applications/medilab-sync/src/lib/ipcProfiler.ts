@@ -28,6 +28,7 @@ export type IpcCommandName =
   | "keep_local_conflict"
   | "open_office_editor"
   | "open_sync_folder"
+  | "copy_into_sync_folder"
   | "open_sync_file"
   | "get_client_migration"
   | "open_client_download"

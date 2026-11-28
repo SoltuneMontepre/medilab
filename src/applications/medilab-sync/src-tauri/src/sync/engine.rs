@@ -23,7 +23,7 @@ use crate::sync::part_budget::{PartBudget, PartPermit, DEFAULT_PART_BUDGET_MIB};
 use crate::sync::resume::{resume_transfers, RefreshTrigger};
 use crate::sync::retry::{is_connectivity_error, is_retryable, next_status};
 use crate::sync::rules::{matches_rules, relative_path, SyncRule};
-use crate::sync::sample_folders::bind_sample_folders;
+use crate::sync::sample_folders::{bind_sample_folders, drop_withdrawn_sample_folders};
 use crate::sync::status_events::{
     run_status_coalescer, StatusEventHub, DEFAULT_STATUS_COALESCE_INTERVAL,
 };
@@ -1026,7 +1026,14 @@ impl EngineHandle {
             Err(err) => return Err(err),
         };
         match self.refresh_folder_access(&client).await {
-            Ok(remotes) => self.bind_sample_folders(&remotes).await,
+            Ok(remotes) => {
+                match drop_withdrawn_sample_folders(&self.db, &remotes) {
+                    Ok(0) => {}
+                    Ok(_) => self.emit_status(),
+                    Err(err) => tracing::warn!("could not drop withdrawn sample folders: {err}"),
+                }
+                self.bind_sample_folders(&remotes).await
+            }
             Err(err) => tracing::warn!("folder access refresh failed: {err}"),
         }
         // Folder vừa gắn mà chưa hydrate xong (ví dụ lúc gắn đang mất mạng) được thử lại ở đây.

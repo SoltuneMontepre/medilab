@@ -46,7 +46,7 @@ The tester reschedules a missed booking, or the head does for the department: th
 
 Each department has a proposed plan: the system places every received, not-started sample test of the department in a proposed booking with its required resources, and a sample test whose interrupted result the head assessed as needing a retest, by the method of the interrupted measurement. While its testing task is unassigned, a proposed booking has no tester: the plan checks that an authorized tester of the department is free, without naming one, and the head can approve the booking only once its task is assigned or claimed. The plan is recalculated when work arrives, a booking changes, a resource becomes unavailable or a customer date changes. Assigning a testing task sends the `task.assigned` notification to the tester, which claiming does not. Heads approve feasible proposed bookings to schedule them; the tester is notified. Scheduled bookings move only through an approved plan revision.
 
-The plan places sample tests one at a time in priority order, each in the earliest interval where every required resource is free, so the same inputs always give the same plan and each placement can be explained. Pinned bookings are placed first, where the head put them.
+The plan places sample tests one at a time in priority order, each in the earliest interval where every required resource is free, so the same inputs always give the same plan and each placement can be explained. Pinned bookings are placed first, where the head put them. A proposed booking its tester or the head put in a slot by hand is pinned as well: it keeps that slot and machine until it is approved, returned to the plan or its task gets another tester. Approving a booking unpins it.
 
 ### Priority
 

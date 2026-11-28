@@ -55,6 +55,13 @@
                         invisible="status != 'requested' or not approval_can_reject"
                     />
                     <button
+                        name="%(action_medilab_test_result_book_machine)d"
+                        type="action"
+                        string="Book a Machine"
+                        context="{'default_result_id': id}"
+                        invisible="not can_book_machine"
+                    />
+                    <button
                         name="action_withdraw"
                         type="object"
                         string="Withdraw Signature"
@@ -197,6 +204,7 @@
                     <field name="approval_can_sign" invisible="1" />
                     <field name="approval_can_reject" invisible="1" />
                     <field name="approval_can_withdraw" invisible="1" />
+                    <field name="can_book_machine" invisible="1" />
                     <notebook groups="sol_laboratory.group_permission_signature_read_all" invisible="not id">
                         <page string="Signatures" name="signatures">
                             <field name="signature_ids" mode="list" />

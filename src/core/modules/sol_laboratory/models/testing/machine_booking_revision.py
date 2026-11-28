@@ -36,7 +36,7 @@ class MachineBookingRevision(models.Model, MachineBookingRevisionBase):
         bookings = self.sudo()
         urgent = bookings.search(
             [("status", "=", "proposed"), ("department_id", "=", department.id)], order="id"
-        ).filtered(lambda booking: booking.sample_test_id.priority == "urgent")
+        ).filtered(lambda booking: booking.sample_test_id.priority == "urgent" and not booking.is_pinned)
         movable = bookings.search(
             [
                 ("status", "=", "scheduled"),

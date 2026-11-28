@@ -24,7 +24,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.scheduling import CALENDAR_SYNC_CONTEXT, CALENDAR_SYNC_TOKEN
 from odoo.addons.sol_laboratory.constants.tasks import FINAL_STATUSES, MANUAL_TRIGGER, TESTING_ACTION
-from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_ROLE
+from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_ROLE, TASK_EDITOR_GROUP
 from odoo.addons.sol_laboratory.services.document_code import document_code
 from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
@@ -271,6 +271,8 @@ class Task(models.Model, TaskBase):
         department_queue = (
             Domain("department_id", "=", person.department_id.id) if person.department_id else Domain.FALSE
         )
+        if person.sudo().user_id.has_group(TASK_EDITOR_GROUP):
+            department_queue |= Domain("department_id", "!=", False) & self._testing_domain()
         role_queue = (
             Domain("department_id", "=", False)
             & Domain("type_id.route", "=", "role")
@@ -395,7 +397,10 @@ class Task(models.Model, TaskBase):
         if not person:
             return False
         if self.department_id:
-            return self.department_id == person.department_id
+            return self.department_id == person.department_id or (
+                bool(self.filtered_domain(self._testing_domain()))
+                and person.sudo().user_id.has_group(TASK_EDITOR_GROUP)
+            )
         if self.type_id.route == "role":
             return self.type_id.role_id in person.role_ids
         return self.type_id.route == "administrator" and self.env.ref(ADMINISTRATOR_ROLE) in person.role_ids

@@ -176,6 +176,20 @@ class TestBookingApproval(SchedulingCase, LocationCase):
 
         self.assertEqual(booking.status, "proposed")
 
+    def test_a_person_who_edits_the_bookings_of_every_department_approves_it(self):
+        booking = self.propose()
+        lab_head = self.create_person(
+            "Vo Thi Hanh",
+            self.microbiology,
+            "hanh.vo",
+            permissions=("machine_booking.read.all", "machine_booking.edit.all"),
+        )
+
+        booking.with_user(lab_head.user_id).action_approve()
+
+        self.assertEqual((booking.status, booking.machine_id, booking.starts_at), ("scheduled", self.fast, MONDAY))
+        self.assertEqual(self.notices(APPROVED_EVENT, booking)[1], self.tester.user_id.partner_id)
+
     def test_a_booking_the_plan_cannot_fit_before_the_due_date_goes_to_the_head_for_review_and_is_not_approved(self):
         test = self.new_test(MONDAY + timedelta(minutes=10))
         booking = self.propose(test)

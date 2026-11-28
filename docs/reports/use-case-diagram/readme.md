@@ -118,7 +118,7 @@ Each use case is a scheduled job (SH-09). A story that describes a job is drawn 
 
 | Use case | Part of | Stories | Source |
 | --- | --- | --- | --- |
-| Warn of Deadline Risk |  | US-T20 | [Tester §1](../../functional/laboratory_module/features/tester.md#1-planning-us-t01-to-us-t04-us-t19-to-us-t21) |
+| Warn of Deadline Risk |  | US-T20 | [Tester §1](../../functional/laboratory_module/features/tester.md#1-planning-us-t01-to-us-t04-us-t19-to-us-t21-us-t31) |
 | Remind of Retention End |  |  | [Tester §3](../../functional/laboratory_module/features/tester.md#3-samples-us-t10) |
 | Warn of Expiring Registrations |  |  | [Laboratory Administrator §1](../../functional/laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) |
 | Warn of Expiring Certificate |  |  | [3. Viettel Sign (digital signature)](../../functional/shared.md#3-viettel-sign-digital-signature) |
@@ -272,7 +272,7 @@ Notifications (US-C07, US-C18) repeats stories of Account and profile and of Tra
 | View Outsourcing Suggestions | Manage Work and Schedule | US-HD05 |  |
 | Approve Urgent Plan Revision | Manage Work and Schedule | US-HD12 |  |
 | View At-Risk Tests | Manage Work and Schedule | US-HD14 |  |
-| Approve Proposed Booking | Manage Work and Schedule | US-HD19 |  |
+| Approve Proposed Booking | Manage Work and Schedule | US-HD19, US-LH09 |  |
 | Manage Samples and Results |  |  | [Head of Department §2](../../functional/laboratory_module/features/head-of-department.md#2-samples-and-results-us-hd06-to-us-hd09) |
 | Receive Handed-Over Sample | Manage Samples and Results | US-HD06 |  |
 | Request Recollection | Manage Samples and Results | US-HD07 |  |
@@ -291,10 +291,10 @@ Notifications (US-C07, US-C18) repeats stories of Account and profile and of Tra
 
 | Use case | Part of | Stories | Source |
 | --- | --- | --- | --- |
-| Plan Testing Work |  |  | [Tester §1](../../functional/laboratory_module/features/tester.md#1-planning-us-t01-to-us-t04-us-t19-to-us-t21) |
+| Plan Testing Work |  |  | [Tester §1](../../functional/laboratory_module/features/tester.md#1-planning-us-t01-to-us-t04-us-t19-to-us-t21-us-t31) |
 | View and Claim Testing Tasks | Plan Testing Work | US-T01 |  |
 | Receive Booking Approval | Plan Testing Work | US-T02 |  |
-| Move or Cancel Booking | Plan Testing Work | US-T03 |  |
+| Move or Cancel Booking | Plan Testing Work | US-T03, US-T31 |  |
 | Mark Test Urgent | Plan Testing Work | US-T19 |  |
 | Check Machine Warnings | Plan Testing Work | US-T21 |  |
 | Record Results |  |  | [Tester §2](../../functional/laboratory_module/features/tester.md#2-results-us-t05-to-us-t09-us-t17-us-t18-us-t22) |

@@ -2144,6 +2144,7 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -2238,6 +2239,7 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2687,6 +2689,7 @@ msgstr "Cấp dưới trực tiếp"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_contact_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_book_machine_form
 msgid "Discard"
 msgstr "Hủy"
 
@@ -2836,6 +2839,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -2944,6 +2948,7 @@ msgstr "Số nhà"
 #. module: sol_laboratory
 #: model:ir.actions.act_url,name:sol_laboratory.action_medilab_sync_download
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form_laboratory_files
+#: model:ir.ui.menu,name:sol_laboratory.menu_medilab_sync_download
 msgid "Download Medilab Sync"
 msgstr "Tải Medilab Sync"
 
@@ -4013,6 +4018,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__id
 msgid "ID"
 msgstr "ID"
 
@@ -4749,6 +4755,7 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4843,6 +4850,7 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -5057,6 +5065,7 @@ msgstr "Kinh độ"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__machine_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__machine_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__machine_id
 msgid "Machine"
 msgstr "Máy"
 
@@ -12151,6 +12160,7 @@ msgstr "Kết quả báo cáo"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__result_id
 msgid "Result"
 msgstr "Kết quả"
 
@@ -20288,3 +20298,92 @@ msgstr "Liên Hệ Khách Hàng"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__priority_badge__standard
 msgid "Standard"
 msgstr "Tiêu chuẩn"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_book_machine_form
+msgid "Book"
+msgstr "Đặt"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_test_result_book_machine
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Book a Machine"
+msgstr "Đặt Máy"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_test_result_book_machine
+msgid "Book a Machine for a Test Result"
+msgstr "Đặt Máy Cho Kết Quả Thử Nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__can_book_machine
+msgid "Can Book Machine"
+msgstr "Có Thể Đặt Máy"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__available_machine_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__available_machine_ids
+msgid "Available Machines"
+msgstr "Máy Còn Trống"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_book_machine_form
+msgid ""
+"No machine linked to the testing method is fit to use and free from the "
+"result's start."
+msgstr "Không có máy nào liên kết với phương pháp thử nghiệm đủ điều kiện sử dụng và còn trống từ thời điểm bắt đầu của kết quả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_machine.py:0
+msgid ""
+"Only the tester who entered a draft result without a machine books a machine"
+" for it."
+msgstr "Chỉ người thử nghiệm đã nhập kết quả nháp chưa có máy mới được đặt máy cho kết quả đó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_machine.py:0
+msgid "%(machine)s is not free for the measurement of %(result)s."
+msgstr "%(machine)s không còn trống cho phép đo của %(result)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_proposal.py:0
+msgid "Only a proposed booking takes a slot of your choice."
+msgstr "Chỉ lịch đặt máy đề xuất mới nhận khung giờ bạn chọn."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_proposal.py:0
+msgid "Choose when %s starts."
+msgstr "Chọn thời điểm bắt đầu của %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_proposal.py:0
+msgid "%(machine)s is not linked to the testing method of %(booking)s."
+msgstr "%(machine)s không gắn với phương pháp thử của %(booking)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_proposal.py:0
+msgid "Choose a machine for %s."
+msgstr "Chọn máy cho %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_proposal.py:0
+msgid "Only a proposed booking returns to the plan."
+msgstr "Chỉ lịch đặt máy đề xuất mới có thể trả về kế hoạch."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a proposed booking changes machine."
+msgstr "Chỉ lịch đặt máy đề xuất mới có thể đổi máy."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "Return to Plan"
+msgstr "Trả Về Kế Hoạch"
