@@ -46,7 +46,7 @@ Sample collection tasks follow [SH-10](../../shared.md#sh-10-tasks-and-to-do-lis
 | Done by hand   | The task is marked done once the samples are collected.                                                           |
 | Photos | Attach sample photos through the web interface when collecting or receiving a sample. Testers never see them. |
 | Sampling location | When a sample is collected or received, the location it was taken from, such as sampling point RO-01, can be chosen from the locations. |
-| Handover record | Record the staff member, appointment and collection time, actual samples and amounts, conditions, differences from the order and the customer's signature. A request can have several collections. Email the signed PDF; correct a signed record by a new record, preserving the old one. |
+| Handover record | Record the staff member, appointment and collection time, actual samples and amounts, conditions, differences from the order and the customer's signature. Choosing the request lists its samples still to be handed over, including those handed over short; samples are not created from the record. A request can have several collections. Email the signed PDF; correct a signed record by a new record, preserving the old one. |
 | Actual samples | Adjust the expected samples calculated from method sampling requirements to what is actually handed over for customer confirmation, including extra samples and excess material. Fewer samples wait for another collection or Sales cancels the missing part. Testing stays within the agreed scope: extra samples and excess material add no test and stay with the sample until the customer asks for them back ([Returning samples](#5-returning-samples-us-sd15)). |
 
 Acceptance criteria:
