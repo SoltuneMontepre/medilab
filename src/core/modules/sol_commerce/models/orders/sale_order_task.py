@@ -20,7 +20,9 @@ class SaleOrder(models.Model, SaleOrderBase):
     @api.model_create_multi
     def create(self, vals_list):
         orders = super().create(vals_list)
-        orders.filtered(lambda order: order.order_status == STATUS_SUBMITTED and not order.user_id)._create_quotation_task()
+        orders.filtered(
+            lambda order: order.order_status == STATUS_SUBMITTED and not order.user_id
+        )._create_quotation_task()
         return orders
 
     def write(self, vals):

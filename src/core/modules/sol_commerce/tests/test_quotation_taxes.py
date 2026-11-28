@@ -83,7 +83,7 @@ class TestQuotationTaxes(OrderCase):
         self.assertEqual(line.tax_ids, self.vat10)
         self.assertEqual(order.amount_tax, 15000)
 
-    def test_a_new_quotation_date_leaves_the_whole_quotation_discount_taxes(self):
+    def test_a_new_quotation_date_moves_the_whole_quotation_discount_with_the_lines(self):
         order = self.sales_order([(self.lead_product, 2)])
         self.env[MODEL_SALE_ORDER_DISCOUNT].with_context(active_id=order.id).create(
             {"discount_type": "so_discount", "discount_percentage": 0.1}
@@ -94,7 +94,7 @@ class TestQuotationTaxes(OrderCase):
         order.date_order = datetime(2025, 3, 15, 9)
 
         self.assertEqual(order._catalog_lines().tax_ids, self.vat8)
-        self.assertEqual(discount.tax_ids, self.vat10)
+        self.assertEqual(discount.tax_ids, self.vat8)
 
     def test_a_date_without_a_rate_is_refused(self):
         with self.assertRaisesRegex(UserError, "has no rate on"):
@@ -179,14 +179,23 @@ class TestQuotationTaxes(OrderCase):
         with self.assertRaisesRegex(UserError, "Accounting has no sales tax"):
             self.sales_order([(self.lead_product, 1)])
 
-    def test_sales_can_change_the_tax_of_a_line(self):
-        order = self.sales_order([(self.lead_product, 1)])
-        line = order._catalog_lines()
+    def test_the_order_takes_the_tax_of_most_of_its_value(self):
+        self.package_product.service_package_id.tax_id = self.not_subject_tax()
 
-        line.with_user(self.sales).tax_ids = self.vat0
+        order = self.sales_order([(self.lead_product, 2), (self.package_product, 1)])
 
-        self.assertEqual(line.tax_ids, self.vat0)
-        self.assertEqual(order.amount_total, 150000)
+        self.assertEqual(order.order_tax_id, self.lead_price.tax_id)
+        self.assertEqual(order._catalog_lines().tax_ids, self.vat10)
+
+    def test_sales_can_change_the_tax_of_the_whole_order(self):
+        order = self.sales_order([(self.lead_product, 2), (self.package_product, 1)])
+
+        order.with_user(self.sales).order_tax_id = self.not_subject_tax()
+        added = Command.create({"product_id": self.lead_product.product_variant_ids.id})
+        order.with_user(self.sales).write({"order_line": [added]})
+
+        self.assertEqual(order._catalog_lines().tax_ids, self.exemption)
+        self.assertEqual(order.amount_tax, 0)
 
     def test_the_quotation_and_its_advance_invoice_carry_the_vat(self):
         order = self.sent_order()

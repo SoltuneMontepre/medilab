@@ -39,18 +39,18 @@ class TestCollectionAppointment(OrderCase):
         first, second = self.make_confirmed_order(), self.make_confirmed_order()
         appointment = fields.Datetime.now() + timedelta(days=1)
         first.with_user(self.sales).action_start_sample_collection(appointment=appointment)
-        second.with_user(self.sales).action_start_sample_collection(appointment=appointment + timedelta(minutes=30))
+        second.with_user(self.sales).action_start_sample_collection(appointment=appointment + timedelta(minutes=90))
         self.collection_tasks(first).with_user(staff.user_id).action_claim()
 
         with self.assertRaisesRegex(ValidationError, "too close"):
             self.collection_tasks(second).with_user(staff.user_id).action_claim()
 
-    def test_collections_the_travel_buffer_apart_can_both_be_taken(self):
+    def test_collections_the_travel_buffer_apart_after_duration_can_both_be_taken(self):
         staff = self.route_collection_to_delivery_staff()
         first, second = self.make_confirmed_order(), self.make_confirmed_order()
         appointment = fields.Datetime.now() + timedelta(days=1)
         first.with_user(self.sales).action_start_sample_collection(appointment=appointment)
-        second.with_user(self.sales).action_start_sample_collection(appointment=appointment + timedelta(minutes=60))
+        second.with_user(self.sales).action_start_sample_collection(appointment=appointment + timedelta(minutes=120))
         self.collection_tasks(first).with_user(staff.user_id).action_claim()
 
         self.collection_tasks(second).with_user(staff.user_id).action_claim()

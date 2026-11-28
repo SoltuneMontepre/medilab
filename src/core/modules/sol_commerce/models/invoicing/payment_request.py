@@ -109,7 +109,6 @@ class PaymentRequest(models.Model, PaymentRequestBase):
         self._close_payos_links()
         if self.kind == "advance" and self.amount:
             self.quotation_id._accept_payment()
-        self.order_id._release_test_request()
 
     def _close_payos_links(self):
         self.sudo().transaction_ids._payos_close_request_links()

@@ -18,7 +18,7 @@ class TestCartPage(PortalCase):
 
     def line_buttons(self):
         row = self.find(
-            self.tree("/cart"), f"//tr[.//form[@action='/cart/line']/input[@name='line_id'][@value='{self.line.id}']]"
+            self.tree("/cart"), f"//li[.//form[@action='/cart/line']/input[@name='line_id'][@value='{self.line.id}']]"
         )
         self.assertEqual(len(row), 1)
         forms = self.find(row[0], ".//form[@action='/cart/line']")

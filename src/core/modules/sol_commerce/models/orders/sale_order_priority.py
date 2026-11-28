@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from typing import TYPE_CHECKING, Literal
 
 from odoo import api, fields, models
@@ -19,6 +19,8 @@ else:
 
 # Set while the surcharge lines are brought in line, so writing them does not start it again.
 SYNCING_PRIORITY = "medilab_syncing_priority"
+# Days ahead of today the customer can ask for the results, unless the standard return date is later.
+REQUESTED_DATE_DAYS = 31
 # Order fields whose change can make an order a priority request or no longer one, or change its surcharge.
 PRIORITY_FIELDS = frozenset({"order_line", "product_line_ids", "requested_date", "expected_collection_date"})
 
@@ -26,6 +28,8 @@ PRIORITY_FIELDS = frozenset({"order_line", "product_line_ids", "requested_date",
 # Đơn Hàng: the priority request an early requested date makes, and the surcharge an accepted one adds.
 class SaleOrderPriority(models.Model, SaleOrderPriorityBase):
     _inherit = MODEL_SALE_ORDER
+    # Orders that need Sales's attention for priority come first.
+    _order = "is_priority_attention desc, date_order desc, id desc"
 
     if not TYPE_CHECKING:
         # requested while the requested date is earlier than the standard return date, until Sales accepts or declines
@@ -40,6 +44,19 @@ class SaleOrderPriority(models.Model, SaleOrderPriorityBase):
         )
         # True for an accepted priority request, which makes the test request's tests urgent.
         priority = fields.Boolean(string="Priority Order", compute="_compute_priority", store=True)
+        # True when the order is an accepted priority order or still awaits a priority decision, so lists sort it first.
+        is_priority_attention = fields.Boolean(compute="_compute_priority", store=True)
+        # Distinct priority badge shown in order lists and the order header.
+        priority_badge = fields.Selection(
+            [
+                ("priority", "Priority"),
+                ("requested", "Priority requested"),
+                ("declined", "Priority declined"),
+                ("standard", "Standard"),
+            ],
+            string="Priority",
+            compute="_compute_priority_badge",
+        )
         # The date the results come back by the standard turnaround, counted from the expected pickup.
         standard_return_date = fields.Date(compute="_compute_requested_window")
         # Earliest date the date picker allows for the requested date.
@@ -65,8 +82,8 @@ class SaleOrderPriority(models.Model, SaleOrderPriorityBase):
         frozen = self._frozen_by_quotation()
         for order in self:
             if order.state != "draft" or order in frozen:
-                continue
-            if order._is_priority_date():
+                order.priority_request = order.priority_request or False
+            elif order._is_priority_date():
                 order.priority_request = order.priority_request or "requested"
             else:
                 order.priority_request = False
@@ -75,6 +92,19 @@ class SaleOrderPriority(models.Model, SaleOrderPriorityBase):
     def _compute_priority(self):
         for order in self:
             order.priority = order.priority_request == "accepted"
+            order.is_priority_attention = order.priority_request in ("accepted", "requested")
+
+    @api.depends("priority", "priority_request")
+    def _compute_priority_badge(self):
+        for order in self:
+            if order.priority:
+                order.priority_badge = "priority"
+            elif order.priority_request == "requested":
+                order.priority_badge = "requested"
+            elif order.priority_request == "declined":
+                order.priority_badge = "declined"
+            else:
+                order.priority_badge = "standard"
 
     def _standard_return_date(self) -> date | Literal[False]:
         """The day results come back by the standard turnaround from the day the estimate starts; False without one."""
@@ -117,15 +147,14 @@ class SaleOrderPriority(models.Model, SaleOrderPriorityBase):
         surcharge = self.currency_id.round(self.catalog_total * rate / 100) if rate else 0
         if surcharge:
             notice = self.env._(
-                "A date before the standard return date is a priority request, which adds %(amount)s excluding VAT "
+                "A date sooner than that is a priority request, which adds %(amount)s excluding VAT "
                 "(%(rate)s%%). Sales confirms whether the laboratory can meet it.",
                 amount=formatLang(self.env, surcharge, currency_obj=self.currency_id),
                 rate=f"{rate:g}",
             )
         else:
             notice = self.env._(
-                "A date before the standard return date is a priority request. Sales confirms whether the laboratory "
-                "can meet it."
+                "A date sooner than that is a priority request. Sales confirms whether the laboratory can meet it."
             )
         return {
             "offered": settings["offered"],
@@ -133,23 +162,73 @@ class SaleOrderPriority(models.Model, SaleOrderPriorityBase):
             "standard": standard,
             "standard_text": standard
             and self.env._(
-                "Standard return date: %(date)s, %(days)s working days after the samples are picked up today.",
-                date=format_date(self.env, standard),
-                days=self.turnaround_days,
+                "Results within %s working days after the samples are picked up.",
+                self.turnaround_days,
             ),
+            "calendar": self._requested_date_calendar(requested, standard if settings["offered"] else False),
             "priority": bool(settings["offered"] and requested and standard and requested < standard),
             "surcharge": surcharge,
             "notice": notice,
         }
 
+    def _last_requested_date(self) -> date:
+        """The latest date the customer can ask for the results: a month ahead, or the standard return date when
+        later."""
+        self.ensure_one()
+        last = fields.Date.context_today(self) + timedelta(days=REQUESTED_DATE_DAYS)
+        standard = self._standard_return_date()
+        return max(last, standard) if standard else last
+
+    def _requested_date_calendar(self, requested, standard):
+        """The weeks of the cart's date picker, Monday first, from this week to the latest date the customer can ask
+        for. Each day says whether it can be picked, is picked, or would make a priority request."""
+        self.ensure_one()
+        today = fields.Date.context_today(self)
+        earliest, last = self._min_requested_date(), self._last_requested_date()
+        days_off = set(self._days_off(earliest, last)) if earliest <= last else set()
+        first = today - timedelta(days=today.weekday())
+        weeks = []
+        for start in range(0, (last - first).days + 1, 7):
+            week = []
+            for offset in range(7):
+                day = first + timedelta(days=start + offset)
+                # The first day shown and the first of a month name their month.
+                with_month = day.day == 1 or not (weeks or offset)
+                week.append(
+                    {
+                        "value": day.isoformat(),
+                        "label": format_date(self.env, day, date_format="d MMM" if with_month else "d"),
+                        "title": format_date(self.env, day, date_format="full"),
+                        "open": earliest <= day <= last and day not in days_off,
+                        "priority": bool(standard and day < standard),
+                        "chosen": day == requested,
+                        "today": day == today,
+                    }
+                )
+            weeks.append(week)
+        months = [format_date(self.env, day, date_format="MMMM yyyy") for day in (today, last)]
+        return {
+            "heading": " – ".join(dict.fromkeys(months)),
+            "weekdays": [
+                format_date(self.env, first + timedelta(days=offset), date_format="EEE") for offset in range(7)
+            ],
+            "weeks": weeks,
+        }
+
     def _check_requested_date(self, requested):
-        """Refuse a requested date before the earliest the priority settings allow."""
+        """Refuse a requested date before the earliest the priority settings allow, after the latest the customer can
+        ask for, or on a day the laboratory does not work."""
         self.ensure_one()
         earliest = self._min_requested_date()
         if requested and requested < earliest:
             raise UserError(
                 self.env._("Choose a date on or after %s for the results.", format_date(self.env, earliest))
             )
+        last = self._last_requested_date()
+        if requested and requested > last:
+            raise UserError(self.env._("Choose a date up to %s for the results.", format_date(self.env, last)))
+        if requested and self._days_off(requested, requested):
+            raise UserError(self.env._("The laboratory does not return results on this day. Choose a working day."))
 
     def _set_portal_dates(self, requested_date):
         """Keep the date the customer wants the results, from the cart."""
