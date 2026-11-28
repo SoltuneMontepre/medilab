@@ -154,7 +154,10 @@ fn verification_wait_preserves_retry_budget_and_manual_failed_upload_retry_chang
             .unwrap()
             .unwrap();
     assert_eq!(decision.status, "retry_wait");
-    assert_eq!(db.list_jobs().unwrap()[0].attempt_count, 0);
+    let waiting = &db.list_jobs().unwrap()[0];
+    assert_eq!(waiting.attempt_count, 0);
+    assert_eq!(waiting.last_error, None);
+    assert_eq!(waiting.wait_reason.as_deref(), Some("verifying"));
     db.mark_job(
         job.id,
         "failed",
@@ -165,6 +168,7 @@ fn verification_wait_preserves_retry_budget_and_manual_failed_upload_retry_chang
         None,
     )
     .unwrap();
+    assert_eq!(db.list_jobs().unwrap()[0].wait_reason, None);
     db.save_job_session(job.id, 7, "[]", "hash", Some(16))
         .unwrap();
     db.retry_job(job.id).unwrap();

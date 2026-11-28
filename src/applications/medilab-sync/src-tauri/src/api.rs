@@ -14,6 +14,9 @@ const STORAGE_READ_TIMEOUT: Duration = Duration::from_secs(60);
 const PART_UPLOAD_MIN_TIMEOUT: Duration = Duration::from_secs(120);
 /// Tốc độ thấp nhất còn chấp nhận khi tải lên một part; chậm hơn thì part bị coi là treo.
 const PART_UPLOAD_MIN_BYTES_PER_SEC: u64 = 16 * 1024;
+/// Số lần đọc lại (mỗi giây một lần) một upload đang `verifying` sau khi finalize, trước khi trả
+/// `UploadPending` để nhả slot transfer: tệp server xác minh ngay vẫn xong trong một lượt.
+const FINALIZE_POLLS: usize = 5;
 
 static ODOO_HTTP: OnceLock<reqwest::Client> = OnceLock::new();
 static STORAGE_UPLOAD_HTTP: OnceLock<reqwest::Client> = OnceLock::new();
@@ -730,7 +733,7 @@ impl ApiClient {
             .json::<crate::wire::OneUpload>()
             .await?
             .upload;
-        for _ in 0..30 {
+        for _ in 0..FINALIZE_POLLS {
             match upload.status.as_str() {
                 "completed" | "conflict" | "unchanged" => {
                     let file = self

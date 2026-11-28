@@ -18,10 +18,15 @@ FINALIZED_STATUSES = (PREPARED, REFUSED)
 SIZE_MISMATCH = "size_mismatch"
 SHA256_MISMATCH = "sha256_mismatch"
 MISSING_OBJECT = "missing_object"
+# Why an upload failed when its verification or its storing failed its job's last attempt.
+VERIFICATION_FAILED = "verification_failed"
+STORING_FAILED = "storing_failed"
 # The jobs that verify an upload's content by reading its object, store its version, and expire unfinished uploads.
 VERIFY_JOB = "laboratory_contents.verify"
 STORE_JOB = "laboratory_uploads.store"
 EXPIRE_JOB = "laboratory_uploads.expire"
+# The code an upload fails with when the item of the job that verifies or stores it failed its last attempt.
+UPLOAD_JOB_FAILURES = {VERIFY_JOB: VERIFICATION_FAILED, STORE_JOB: STORING_FAILED}
 # Codes of the refusals of finalizing an upload whose parts are not all uploaded, of an upload that takes no more parts
 # or finalizing, and of a call while the bucket cannot be reached.
 UPLOAD_INCOMPLETE = "upload_incomplete"

@@ -149,6 +149,7 @@ from . import (
     test_laboratory_sync_updates,
     test_laboratory_upload_concurrency,
     test_laboratory_upload_expiry,
+    test_laboratory_upload_job_failure,
     test_laboratory_upload_retrying,
     test_laboratory_upload_storing,
     test_laboratory_upload_verification,
