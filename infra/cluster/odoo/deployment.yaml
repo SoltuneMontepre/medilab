@@ -41,6 +41,10 @@ spec:
                 name: filestore-bucket
             - secretRef:
                 name: payos
+            # Optional: without the Firebase secret Odoo still starts, and the push job only defers pushes.
+            - secretRef:
+                name: firebase
+                optional: true
           env:
             - name: HOST
               value: medilab-db-rw

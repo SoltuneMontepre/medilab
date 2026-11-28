@@ -1,0 +1,22 @@
+# Odoo's Firebase service-account JSON and project id, read from Doppler, with which the push job sends pushes to
+# Medilab Mobile.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: firebase
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: doppler
+  target:
+    name: firebase
+  data:
+    - secretKey: FIREBASE_CREDENTIALS
+      remoteRef:
+        key: FIREBASE_CREDENTIALS
+    - secretKey: FIREBASE_PROJECT_ID
+      remoteRef:
+        key: FIREBASE_PROJECT_ID
