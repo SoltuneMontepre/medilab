@@ -12,6 +12,9 @@ services:
   garage-setup:
     labels:
       com.medilab.bootstrap.owner: ${MEDILAB_DEMO_BOOTSTRAP_OWNER:?A bootstrap owner id is required}
+  mailpit:
+    labels:
+      com.medilab.bootstrap.owner: ${MEDILAB_DEMO_BOOTSTRAP_OWNER:?A bootstrap owner id is required}
   cloudbeaver:
     labels:
       com.medilab.bootstrap.owner: ${MEDILAB_DEMO_BOOTSTRAP_OWNER:?A bootstrap owner id is required}
