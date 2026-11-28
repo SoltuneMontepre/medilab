@@ -115,6 +115,16 @@ class TestTaskReassigning(TaskCase):
         with self.assertRaises(AccessError):
             self.as_person(task, self.head).write({"assignee_id": self.microbiologist.id})
 
+    def test_lab_head_assigns_tasks_of_any_department(self):
+        lab_head = self.create_person(
+            "Nguyen Van Hai", login="hai.nguyen", permissions=["task.read.all", "task.edit.all", "person.read.all"]
+        )
+        for department, tester in ((self.chemistry, self.chemist), (self.microbiology, self.microbiologist)):
+            task = self.receive_sample(department)
+            wizard = self.as_person(self.env[MODEL_TASK_REASSIGN], lab_head).with_context(active_ids=task.ids)
+            wizard.create({"department_id": department.id, "assignee_id": tester.id}).action_confirm()
+            self.assertEqual((task.assignee_id, task.assigned_by_id), (tester, lab_head))
+
     def test_person_without_the_edit_permission_cannot_assign(self):
         task = self.receive_sample(self.chemistry)
 

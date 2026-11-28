@@ -31,6 +31,7 @@ from . import (
     test_blind_testing,
     test_booking_approval,
     test_booking_eligibility,
+    test_booking_proposal,
     test_booking_races,
     test_change_request_raising,
     test_change_request_report,

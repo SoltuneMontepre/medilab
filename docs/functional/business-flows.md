@@ -8,7 +8,7 @@ The core flows WF-01 to WF-06 carry a test request from order to report. The sup
 | ----- | -------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- |
 | WF-01 | Order to confirmed test request        | Customer, Sales, Accountant, Head of Sales                    | F-04, F-05, F-06, F-07, F-09, F-10                         |
 | WF-02 | Sample reception and handover          | Customer, Sample delivery staff, Head of department           | F-15, F-16, F-17, F-18                                     |
-| WF-03 | Testing assignment and scheduling      | Head of department, Tester                                    | F-23, F-24, F-25, F-26                                     |
+| WF-03 | Testing assignment and scheduling      | Head of department, Lab head, Tester                          | F-23, F-24, F-25, F-26                                     |
 | WF-04 | Result entry and approval              | Tester, Head of department                                    | F-30, F-32, F-34, F-35, F-36, F-53, F-54, F-55, F-56, F-57 |
 | WF-05 | Outsourced testing                     | Head of department, Sample delivery staff, Subcontractor      | F-38, F-39, F-40                                           |
 | WF-06 | Report signing, release and delivery   | Lab head, Head of department, Sample delivery staff, Customer | F-43, F-45, F-47, F-49                                     |
@@ -131,7 +131,7 @@ flowchart TD
 
 - **Trigger:** a testing task enters the queue of its department.
 - **Result:** the test is assigned to an authorized person and booked in its agreed way once the head approves the booking, reserving required locations and a fit machine only when needed.
-- **Stories:** US-HD01, US-HD02, US-HD03, US-HD05, US-HD19, US-T01, US-T02, US-T04, US-T21.
+- **Stories:** US-HD01, US-HD02, US-HD03, US-HD05, US-HD19, US-LH07, US-LH08, US-LH09, US-T01, US-T02, US-T04, US-T21, US-T31.
 - **Features:** [F-23](../reports/feature-list/readme.md#f-23-task-assignment-and-claiming), [F-24](../reports/feature-list/readme.md#f-24-booking-proposal-and-head-approval), [F-25](../reports/feature-list/readme.md#f-25-schedules-and-reminders), [F-26](../reports/feature-list/readme.md#f-26-room-booking-with-the-machine).
 - **States:** sample test waiting → assigned → testing; booking proposed → scheduled → in progress → done, with machine reservations only when needed.
 - **Starts from:** received samples with selected ways and department tasks, authorized people and available required resources.

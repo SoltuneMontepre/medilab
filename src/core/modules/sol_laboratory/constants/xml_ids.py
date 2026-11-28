@@ -24,6 +24,8 @@ LABORATORY_FILES_GROUP = "sol_laboratory.group_permission_laboratory_folder_crea
 FOLDER_ADMINISTRATION_GROUP = "sol_laboratory.group_permission_laboratory_folder_edit_all"
 # Only people who maintain customers read a customer's citizen ID.
 CUSTOMER_EDITOR_GROUP = "sol_laboratory.group_permission_customer_edit_all"
+# People who assign the tasks of every department also claim the testing tasks of every department.
+TASK_EDITOR_GROUP = "sol_laboratory.group_permission_task_edit_all"
 SAMPLE_LABEL_REPORT = "sol_laboratory.action_report_sample_label"
 HANDOVER_RECORD_REPORT = "sol_laboratory.action_report_handover_record"
 TEST_REPORT_REPORT = "sol_laboratory.action_report_test_report"

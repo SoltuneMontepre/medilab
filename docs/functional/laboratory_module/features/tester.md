@@ -13,6 +13,7 @@ The tester, also called lab QA, runs assigned tests with a machine when the way 
 - **US-T19** As a tester, I want to mark one of my tests urgent with a reason, so that a sample I know must come first is scheduled first even when its due date is not close.
 - **US-T20** As a tester, I want to be warned when one of my tests is at risk of missing its due date, so that I can ask for help in time.
 - **US-T21** As a tester, I want to be warned when the machine of my booking is due for calibration or maintenance soon or was repaired recently, so that I check it before I test.
+- **US-T31** As a tester, I want to propose the slot and machine of my booking for the head to approve, so that I test when and where suits the work.
 
 ### Results
 
@@ -49,7 +50,7 @@ The tester, also called lab QA, runs assigned tests with a machine when the way 
 
 ## II. Feature details
 
-### 1. Planning (US-T01 to US-T04, US-T19 to US-T21)
+### 1. Planning (US-T01 to US-T04, US-T19 to US-T21, US-T31)
 
 Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling), [Scheduling](../../../specs/scheduling.md), [SH-10](../../shared.md#sh-10-tasks-and-to-do-list) and [SH-11](../../shared.md#sh-11-schedules-and-reminders).
 
@@ -58,6 +59,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Claiming | A tester may claim an unassigned testing task of their department only when the Lab Head's authorization list includes its parameter. There are no team queues and no authorization validity dates. A task someone else claimed first cannot be claimed. |
 | Worklist | The sample tests list opens on the tester's open tests and those they may claim, soonest due date first, with the way of testing and where the sample is kept. A test is claimed, and its result entered, from its row there and in the sample's tests. |
 | Proposed booking | The department's plan proposes a booking of the already agreed way, with its explicit sample-type applicability; it does not select a different method or performing party. The head approves it, which notifies the tester and reserves the tester, the required locations and the machine together, or nothing when any is taken. |
+| Own proposal | The tester of a proposed booking may put it in another slot, on another machine linked to its testing method, where they, the machine and the required locations are free. The booking stays proposed and pinned there: recalculations plan the other bookings around it until the head approves it or returns it to the plan, or its task gets another tester. Approving it reserves it as any proposed booking and unpins it. |
 | Booking | A booking has one sample test, one person, one time interval and a machine only if needed. Bookings whose ways use the same method share a machine only for exactly the same interval, within the capacity of the machine-and-method link. The plan places work by priority class: urgent, due soon, then normal. |
 | Marking urgent | The tester marks a test of their own testing task urgent, stating why, or removes the mark. A marked test is urgent whatever its due date. |
 | Deadline risk | Notify the tester and Head of Department when risk first appears, then include unresolved risks in a daily summary. Show the flag on tasks and schedules. Sales contacts the customer only when the expected return date is affected or at risk. |
@@ -76,6 +78,8 @@ Acceptance criteria:
 - A reminder arrives before the booking starts.
 - Assigning a task to a tester notifies them; claiming a task notifies nobody.
 - Approving a booking checks that the tester, every required location and a machine when required are available; an unavailable room blocks a booking without a machine too.
+- A tester moves their proposed booking to a free slot or another linked machine; the plan keeps it there, and the head approves it.
+- A slot where the tester, the machine or a required location is taken is refused, and so is a machine not linked to the booking's testing method.
 - A sample test whose sample its department has not received, that is held for the customer's agreement or that is cancelled cannot be booked.
 - Moving a booking moves the room bookings of its steps with it.
 - Marking a test urgent without a reason is refused; once marked, the plan places it before tests of lower priority classes, and the reason shows on the test.

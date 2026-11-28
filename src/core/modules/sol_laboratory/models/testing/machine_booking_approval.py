@@ -94,7 +94,7 @@ class MachineBookingApproval(models.Model, MachineBookingApprovalBase):
                         booking.display_name,
                     )
                 )
-            booking._set({"status": "scheduled"})
+            booking._set({"status": "scheduled", "is_pinned": False})
         self._notify_approved()
 
     def _notify_approved(self):

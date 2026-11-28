@@ -20066,3 +20066,44 @@ msgstr ""
 #: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "Template versions apply only on an installation with ONLYOFFICE."
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_proposal.py:0
+msgid "Only a proposed booking takes a slot of your choice."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_proposal.py:0
+msgid "Choose when %s starts."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_proposal.py:0
+msgid "%(machine)s is not linked to the testing method of %(booking)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_proposal.py:0
+msgid "Choose a machine for %s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_proposal.py:0
+msgid "Only a proposed booking returns to the plan."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a proposed booking changes machine."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "Return to Plan"
+msgstr ""

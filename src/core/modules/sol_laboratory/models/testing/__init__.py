@@ -11,6 +11,7 @@ from . import (
     machine_booking_missed,
     machine_booking_overtime,
     machine_booking_plan,
+    machine_booking_proposal,
     machine_booking_revision,
     overtime,
     plan_revision,

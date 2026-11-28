@@ -21,6 +21,7 @@ REFUSALS = {
 }
 ALLOWED = {
     ("proposed", "approve"),
+    ("proposed", "move"),
     ("scheduled", "start"),
     ("scheduled", "cancel"),
     ("scheduled", "move"),
@@ -134,6 +135,11 @@ class TestScheduleStateMachine(ScheduleInvariantsCase):
         elif action == "start":
             self.assertEqual((booking.status, test.status), ("in_progress", "testing"))
             self.assertTrue(booking.calendar_event_id)
+        elif action == "move" and booking.status == "proposed":
+            # The tester's own proposal stays where they put it for the head to approve.
+            self.assertEqual(
+                (booking.starts_at, booking.ends_at, booking.is_pinned), (MOVED_TO, MOVED_TO + 3 * SLOT, True)
+            )
         elif action == "move":
             self.assertEqual(booking.status, "scheduled")
             self.assertEqual((booking.starts_at, booking.ends_at), (MOVED_TO, MOVED_TO + 3 * SLOT))
