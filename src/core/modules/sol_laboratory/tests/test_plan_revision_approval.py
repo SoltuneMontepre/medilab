@@ -20,7 +20,7 @@ class TestPlanRevisionApproval(PlanRevisionCase):
         super().setUpClass()
         cls.grant(cls.microbiology_head, "plan_revision.read.all", "plan_revision_move.read.all")
         cls.microbiologist.tz = "UTC"
-        cls.m_test = cls.committed()
+        cls.m_test = cls.committed(cls.microbiology_way)
         cls.m = cls.booked(cls.m_test, cls.microbiologist)
         # A booking that has started cannot move, so M waits for Wednesday afternoon.
         cls.m._set({"starts_at": AFTERNOON, "ends_at": AFTERNOON + timedelta(minutes=45)})
@@ -96,7 +96,7 @@ class TestPlanRevisionApproval(PlanRevisionCase):
         revision = self.two_department_revision()
         revision.with_user(self.head.user_id).action_approve()
         # Another booking takes the microbiology machine at the new time before its head approves.
-        other = self.committed()
+        other = self.committed(self.microbiology_way)
         taken = self.booked(other, self.microbiologist)
         taken._set({"starts_at": WEDNESDAY, "ends_at": WEDNESDAY + timedelta(minutes=45)})
 

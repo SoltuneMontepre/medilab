@@ -81,6 +81,12 @@ msgstr "%(person)s không thuộc %(department)s."
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_testing_department.py:0
+msgid "%(task)s is tested by %(department)s and cannot move to another department."
+msgstr "%(task)s do %(department)s thử nghiệm và không thể chuyển sang phòng ban khác."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_lock.py:0
 msgid "%(user)s has locked %(file)s until %(until)s."
 msgstr "%(user)s đã khóa %(file)s đến %(until)s."
@@ -1155,6 +1161,12 @@ msgstr "Giao việc"
 #: model:ir.model,name:sol_laboratory.model_medilab_task_reassign
 msgid "Assign Tasks"
 msgstr "Giao nhiệm vụ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
+msgid "Assign testing tasks of different departments separately."
+msgstr "Giao riêng các nhiệm vụ thử nghiệm của từng phòng ban."
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__assigned
@@ -2603,6 +2615,11 @@ msgid "Department Color"
 msgstr "Màu phòng ban"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__department_fixed
+msgid "Department Fixed"
+msgstr "Khóa Phòng Ban"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__department
 msgid "Department queue"
 msgstr "Hàng đợi phòng ban"
@@ -3593,6 +3610,11 @@ msgstr "Mã nhóm quốc gia tài chính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_position_id
 msgid "Fiscal Position"
 msgstr "Vị trí tài chính"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__fixed_department_id
+msgid "Fixed Department"
+msgstr "Phòng Ban Thử Nghiệm"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__fixed_term
@@ -7682,6 +7704,12 @@ msgstr "Đã xóa theo thời hạn lưu trữ"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
 msgid "Approve Content Removal"
 msgstr "Duyệt xóa nội dung"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
+msgid "These testing tasks stay in %s, which tests them."
+msgstr "Các nhiệm vụ thử nghiệm này phải ở lại %s, phòng ban thử nghiệm chúng."
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form

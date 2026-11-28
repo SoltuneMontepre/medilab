@@ -89,9 +89,10 @@ class SchedulingCase(RequestCase, PeopleCase):
             handover.received_at = fields.Datetime.now()
 
     @classmethod
-    def new_test(cls, due_date=None):
-        """A lead test on a new sample."""
-        test = cls.create_request().sample_ids.test_ids
+    def new_test(cls, due_date=None, way=None):
+        """A lead test on a new sample, accepted on the way of testing when one is given."""
+        accepted = {"parameter_method_id": way.id, "accepted_method_id": way.id} if way else {}
+        test = cls.create_request(**accepted).sample_ids.test_ids
         if due_date:
             test.due_date = due_date
         return test
