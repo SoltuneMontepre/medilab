@@ -5,6 +5,7 @@ from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .report_case import ReportCase
+from .signing_case import patch_report_pdf
 from odoo.addons.sol_laboratory.constants.laboratory_editing import INTERNAL_URL_VARIABLE
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REPORT_TEMPLATE_CHANGE
 from odoo.addons.sol_laboratory.constants.report_templates import (
@@ -24,6 +25,7 @@ class TestReportBuiltInPdf(ReportCase):
         super().setUp()
         self.enterContext(patch.dict(os.environ))
         os.environ.pop(INTERNAL_URL_VARIABLE, None)
+        patch_report_pdf(self)
         self.complete()
 
     def prepared(self):
