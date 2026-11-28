@@ -6011,6 +6011,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.actions.act_url,name:sol_laboratory.action_medilab_sync_download
+#: model:ir.ui.menu,name:sol_laboratory.menu_medilab_sync_download
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form_laboratory_files
 msgid "Download Medilab Sync"
 msgstr ""

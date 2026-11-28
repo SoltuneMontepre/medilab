@@ -9,7 +9,7 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 | Platforms     | Linux as DEB and RPM packages, and Windows. It is built with Tauri 2, Rust and React. |
 | Background    | It runs in the system tray, can start with the operating system, and keeps syncing while its window is closed. |
 | Languages     | Vietnamese by default, or English, chosen at sign-in, in the header or in the settings, and kept for the next start. |
-| Installing    | A testing task offers Download Medilab Sync to a person with the laboratory files permission. It gives the latest release's Windows installer to a Windows computer and its DEB package to a Linux x86_64 one; any other computer gets the release page, which also has the RPM package. The installers are the same for every MediLab. |
+| Installing    | A testing task and the Documents menu offer Download Medilab Sync to a person with the laboratory files permission. It gives the latest release's Windows installer to a Windows computer and its DEB package to a Linux x86_64 one; any other computer gets the release page, which also has the RPM package. The installers are the same for every MediLab. |
 | Opening       | Open in Medilab Sync, next to it, opens the application with this MediLab's address. Both stay on the testing task, for setting up another computer, such as an instrument's. |
 
 ## Signing in
@@ -70,6 +70,7 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 - Binding a folder sends no local path to MediLab.
 - Binding a folder shared by someone else creates no second laboratory folder.
 - A testing task offers Download Medilab Sync and Open in Medilab Sync to a person with the laboratory files permission.
+- The Documents menu offers Download Medilab Sync to a person with the laboratory files permission.
 - Download Medilab Sync gives a Windows computer the Windows installer and a Linux x86_64 computer the DEB package of the latest release.
 - Open in Medilab Sync fills in this MediLab's address on the sign-in screen and names its host.
 - The folders of a sample the person was just given to test are bound inside the home folder without the person choosing a location, also on a new installation.
