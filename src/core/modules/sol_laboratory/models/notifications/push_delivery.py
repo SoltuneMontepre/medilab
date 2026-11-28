@@ -18,7 +18,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PUSH_DELIVERY,
     MODEL_SCHEDULED_JOB,
 )
-from odoo.addons.sol_laboratory.constants.notifications import EVENT_MESSAGE_MENTION
+from odoo.addons.sol_laboratory.constants.notifications import EVENT_MESSAGE_MENTION, PUSH_JOB
 from odoo.addons.sol_laboratory.services.document_code import document_code
 from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 
@@ -82,12 +82,12 @@ class PushDelivery(models.Model, PushDeliveryBase):
                 delivery = self.search(domain, limit=1)
         if delivery.status != "pending":
             return self.browse()
-        self.env[MODEL_SCHEDULED_JOB].queue("notifications.push", f"delivery:{delivery.id}", document=delivery)
+        self.env[MODEL_SCHEDULED_JOB].queue(PUSH_JOB, f"delivery:{delivery.id}", document=delivery)
         return delivery
 
     def _run_now(self):
         """Run the push job at once instead of waiting for its next run."""
-        self.env[MODEL_SCHEDULED_JOB].sudo()._by_key("notifications.push").cron_id._trigger()
+        self.env[MODEL_SCHEDULED_JOB].sudo()._by_key(PUSH_JOB).cron_id._trigger()
 
     def _message(self):
         """The message pushed: the message itself, or the message of the notification."""
