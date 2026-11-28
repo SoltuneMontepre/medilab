@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import React from "react";
 import { renderToString } from "react-dom/server";
 import { LocaleProvider } from "../../locale";
-import type { ProgressDeltaDto } from "../../types";
+import type { JobRow, ProgressDeltaDto } from "../../types";
 import { applyProgressDelta, mergeRemoteFiles } from "../../lib/syncEvents";
 import { createRemoteFilesFixture, createStatusFixture } from "../../test/syncFixtures";
 import {
@@ -178,6 +178,46 @@ test("listed Office files offer editing by folder policy", () => {
       expect(html.includes("Chỉnh sửa trực tuyến")).toBe(category !== "raw");
     }
   }
+});
+
+describe("JobRowView", () => {
+  const waiting: JobRow = {
+    id: 7,
+    folder_id: 1,
+    file_id: 7,
+    relative_path: "profile.ps1.bak",
+    operation: "upload",
+    status: "retry_wait",
+    attempt_count: 0,
+    last_error: null,
+    bytes_total: 307,
+    bytes_done: 307,
+    remote_file_id: null,
+    remote_version_id: null,
+  };
+
+  function renderJob(job: JobRow): string {
+    return renderWithLocale(<JobRowView job={job} accessPaused={false} busy={false} onRetry={() => {}} />);
+  }
+
+  test("job chờ server xác minh hiện là đang xác minh, không có nút thử lại", () => {
+    const html = renderJob({ ...waiting, wait_reason: "verifying" });
+    expect(html).toContain("Máy chủ đang xác minh");
+    expect(html).not.toContain("Thử lại");
+    expect(html).not.toContain("text-red-700");
+  });
+
+  test("job đang hỏi lại server xác minh vẫn hiện đang xác minh, không phải đang tải lên", () => {
+    const html = renderJob({ ...waiting, status: "running", wait_reason: "verifying" });
+    expect(html).toContain("Máy chủ đang xác minh");
+    expect(html).not.toContain("Đang tải lên");
+  });
+
+  test("job chờ thử lại sau lỗi vẫn có nút thử lại", () => {
+    const html = renderJob({ ...waiting, last_error: "503: Service Unavailable" });
+    expect(html).toContain("Đang chờ thử lại");
+    expect(html).toContain("Thử lại");
+  });
 });
 
 describe("StatusSummary", () => {

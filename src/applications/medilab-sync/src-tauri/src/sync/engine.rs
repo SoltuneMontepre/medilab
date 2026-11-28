@@ -52,6 +52,9 @@ const ACCESS_REFRESH_COALESCE: Duration = Duration::from_secs(5);
 /// Xin lại URL presigned sớm hơn hạn server báo một khoảng này, để PUT không bắt đầu sát lúc hết hạn.
 const PRESIGN_EXPIRY_MARGIN: Duration = Duration::from_secs(60);
 const STABLE_WAIT: Duration = Duration::from_millis(400);
+/// Giây chờ trước khi hỏi lại một upload server còn đang xác minh; slot transfer được nhả trong
+/// lúc chờ để tệp khác tải lên.
+const VERIFYING_RECHECK_SECS: i64 = 10;
 /// Kích thước part khi tiếp tục một session của job lưu trước khi có cột `sync_job.part_size`;
 /// bằng `PART_SIZE` phía server lúc đó (`src/modules/medilab_sync/services/object_storage.py`).
 pub(crate) const LEGACY_PART_SIZE: i64 = 16 * 1024 * 1024;
@@ -766,6 +769,16 @@ impl EngineHandle {
                 return;
             }
         };
+        if matches!(err, AppError::UploadPending) {
+            tracing::info!(
+                job_id = job.id,
+                logical_path = %job.relative_path,
+                next_status = decision.status,
+                "upload waiting for server verification"
+            );
+            self.emit_status();
+            return;
+        }
         tracing::warn!(
             job_id = job.id,
             logical_path = %job.relative_path,
@@ -1883,7 +1896,7 @@ pub(crate) fn record_job_failure(
     let decision = if waiting {
         crate::sync::retry::RetryDecision {
             status: "retry_wait",
-            retry_at: Some(now_ts() + 5),
+            retry_at: Some(now_ts() + VERIFYING_RECHECK_SECS),
             message: err.to_string(),
         }
     } else {
@@ -1897,16 +1910,25 @@ pub(crate) fn record_job_failure(
             )?;
             clear_job_session_on(conn, owned.job_id)?;
         }
-        transition_running_job_on(
+        // Server còn xác minh thì job chỉ đang chờ, không phải lỗi: không ghi `last_error`.
+        let error = (!waiting).then_some(decision.message.as_str());
+        let changed = transition_running_job_on(
             conn,
             owned.job_id,
             decision.status,
-            Some(&decision.message),
+            error,
             attempt,
             decision.retry_at,
             None,
             None,
-        )
+        )?;
+        if waiting && changed {
+            conn.execute(
+                "UPDATE sync_job SET wait_reason = 'verifying' WHERE id = ?1 AND status = 'retry_wait'",
+                [owned.job_id],
+            )?;
+        }
+        Ok(changed)
     })?;
     Ok((changed == Some(true)).then_some(decision))
 }

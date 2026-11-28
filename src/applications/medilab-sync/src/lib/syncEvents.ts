@@ -185,7 +185,8 @@ export function isJobEqual(a: JobRow, b: JobRow): boolean {
     a.bytes_done === b.bytes_done &&
     a.remote_file_id === b.remote_file_id &&
     a.remote_version_id === b.remote_version_id &&
-    a.target_version_number === b.target_version_number
+    a.target_version_number === b.target_version_number &&
+    a.wait_reason === b.wait_reason
   );
 }
 

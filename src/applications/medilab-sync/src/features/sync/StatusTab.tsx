@@ -13,6 +13,8 @@ export function statusMessageKey(status: string): MessageKey {
       return "status.running";
     case "retry_wait":
       return "status.retry_wait";
+    case "verifying":
+      return "status.verifying";
     case "completed":
       return "status.completed";
     case "failed":
@@ -24,6 +26,13 @@ export function statusMessageKey(status: string): MessageKey {
     default:
       return "status.synced";
   }
+}
+
+/** Trạng thái hiện cho job: `verifying` khi job chờ server xác minh nội dung đã tải lên, hoặc
+ * đang chạy chỉ để hỏi lại server, không phải chờ thử lại sau lỗi hay đang gửi byte. */
+export function jobDisplayStatus(job: JobRow): string {
+  const waiting = job.status === "retry_wait" || job.status === "running";
+  return waiting && job.wait_reason === "verifying" ? "verifying" : job.status;
 }
 
 /** Phần trăm hoàn thành (0–100) của job: job xong luôn là 100, còn lại tính theo byte đã truyền. */
@@ -45,7 +54,7 @@ function statusTone(status: string, accessPaused = false): string {
   if (status === "failed" || status === "unauthenticated") {
     return "bg-red-100 text-red-700";
   }
-  if (status === "running") {
+  if (status === "running" || status === "verifying") {
     return "bg-sky-100 text-sky-800";
   }
   if (status === "pending") {
@@ -216,11 +225,12 @@ export const JobRowView = memo(function JobRowView({
   onRetry,
 }: Readonly<JobRowProps>) {
   const t = useT();
+  const status = jobDisplayStatus(job);
   return (
     <tr className="border-t">
       <td className="px-3 py-2">{job.relative_path}</td>
       <td className="px-3 py-2">
-        <StatusBadge status={job.status} accessPaused={accessPaused} />
+        <StatusBadge status={status} accessPaused={accessPaused} />
       </td>
       <td className="px-3 py-2">
         <JobProgress job={job} />
@@ -233,7 +243,7 @@ export const JobRowView = memo(function JobRowView({
         </td>
       )}
       <td className="px-3 py-2">
-        {!accessPaused && (job.status === "failed" || job.status === "retry_wait") ? (
+        {!accessPaused && (status === "failed" || status === "retry_wait") ? (
           <button
             type="button"
             className="btn btn-secondary px-2 py-1 whitespace-nowrap"

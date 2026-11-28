@@ -72,6 +72,11 @@ pub struct JobRow {
     /// download.
     #[serde(default)]
     pub part_size: Option<i64>,
+    /// Vì sao job `retry_wait` đang chờ mà không phải vì lỗi: `verifying` khi server còn xác minh
+    /// nội dung đã tải lên. Giữ nguyên khi job được claim lại chỉ để hỏi lại server; lượt chuyển
+    /// trạng thái kế tiếp hoặc một lượt chạy mới từ `pending` xóa nó.
+    #[serde(default)]
+    pub wait_reason: Option<String>,
 }
 
 /// Dấu vân tay nội dung của một tệp cục bộ đã lưu trong `sync_file`: kích thước, mtime (giây
@@ -180,6 +185,7 @@ fn job_summary_from_row(row: &Row) -> rusqlite::Result<JobRow> {
         content_hash: None,
         target_version_number: None,
         part_size: None,
+        wait_reason: None,
     })
 }
 
@@ -267,6 +273,7 @@ impl Db {
         Self::ensure_column(&conn, "sync_file", "last_synced_hash", "TEXT")?;
         Self::ensure_column(&conn, "sync_file", "suppress_hash", "TEXT")?;
         Self::ensure_column(&conn, "sync_job", "target_version_number", "INTEGER")?;
+        Self::ensure_column(&conn, "sync_job", "wait_reason", "TEXT")?;
         Self::ensure_column(&conn, "sync_folder", "sample_name", "TEXT")?;
         Self::ensure_column(&conn, "sync_folder", "sample_code", "TEXT")?;
         Self::ensure_column(&conn, "sync_folder", "category", "TEXT")?;
@@ -1135,7 +1142,8 @@ impl Db {
         let conn = self.conn.lock();
         let job = conn
             .query_row(
-                "UPDATE sync_job SET status = 'running', updated_at = ?1
+                "UPDATE sync_job SET status = 'running', updated_at = ?1,
+                    wait_reason = CASE WHEN status = 'retry_wait' THEN wait_reason END
                  WHERE id = (
                    SELECT candidate.id FROM sync_job AS candidate
                    WHERE (candidate.status = 'pending'
@@ -1304,13 +1312,14 @@ impl Db {
     pub fn list_jobs(&self) -> AppResult<Vec<JobRow>> {
         let conn = self.conn.lock();
         let mut stmt = conn.prepare(
-            "SELECT id, folder_id, file_id, relative_path, operation, status, attempt_count, last_error, bytes_total, bytes_done, remote_file_id, remote_version_id, target_version_number
+            "SELECT id, folder_id, file_id, relative_path, operation, status, attempt_count, last_error, bytes_total, bytes_done, remote_file_id, remote_version_id, target_version_number, wait_reason
              FROM sync_job ORDER BY id DESC LIMIT 200",
         )?;
         let rows = stmt
             .query_map([], |row| {
                 Ok(JobRow {
                     target_version_number: row.get(12)?,
+                    wait_reason: row.get(13)?,
                     ..job_summary_from_row(row)?
                 })
             })?
@@ -2011,6 +2020,7 @@ fn apply_job_transition_on(
     }
     conn.execute(
         "UPDATE sync_job SET status = ?1, last_error = ?2, attempt_count = ?3, next_retry_at = ?4,
+            wait_reason = NULL,
             remote_file_id = COALESCE(?5, remote_file_id),
             remote_version_id = COALESCE(?6, remote_version_id),
             updated_at = ?7
