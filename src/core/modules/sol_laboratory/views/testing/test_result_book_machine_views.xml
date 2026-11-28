@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_test_result_book_machine_form" model="ir.ui.view">
+        <field name="name">medilab.test.result.book.machine.form</field>
+        <field name="model">medilab.test.result.book.machine</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="result_id" invisible="1" />
+                <field name="available_machine_ids" invisible="1" />
+                <div class="alert alert-warning" role="alert" invisible="available_machine_ids">
+                    No machine linked to the testing method is fit to use and free from the result's start.
+                </div>
+                <group invisible="not available_machine_ids">
+                    <field name="machine_id" required="available_machine_ids" options="{'no_create': True}" />
+                </group>
+                <footer>
+                    <button
+                        name="action_book"
+                        type="object"
+                        string="Book"
+                        class="btn-primary"
+                        invisible="not available_machine_ids"
+                    />
+                    <button special="cancel" string="Discard" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_test_result_book_machine" model="ir.actions.act_window">
+        <field name="name">Book a Machine</field>
+        <field name="res_model">medilab.test.result.book.machine</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

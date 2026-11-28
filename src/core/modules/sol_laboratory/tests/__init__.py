@@ -227,6 +227,7 @@ from . import (
     test_report_templates,
     test_request_simulation,
     test_result_assessment,
+    test_result_machine_booking,
     test_result_sanity_check,
     test_result_snapshot_migration,
     test_role_grants,

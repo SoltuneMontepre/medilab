@@ -111,6 +111,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_machine.py:0
+msgid "%(machine)s is not free for the measurement of %(result)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
 msgid ""
 "%(machine)s stopped during %(booking)s, so its measurement ended. Record the"
@@ -3049,6 +3055,12 @@ msgid "Available Invoice Template Pdf Report"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__available_machine_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__available_machine_ids
+msgid "Available Machines"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__available_result_ids
 msgid "Available Result"
 msgstr ""
@@ -3214,6 +3226,22 @@ msgid "Blacklisted Phone is Phone"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_book_machine_form
+msgid "Book"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_test_result_book_machine
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Book a Machine"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_test_result_book_machine
+msgid "Book a Machine for a Test Result"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__is_bookable
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Bookable"
@@ -3360,6 +3388,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__can_assess_interruption
 msgid "Can Assess Interruption"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__can_book_machine
+msgid "Can Book Machine"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4758,6 +4791,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic_period__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -4862,6 +4896,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic_period__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__create_date
 msgid "Created on"
 msgstr ""
 
@@ -5608,6 +5643,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_period_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_user_link_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_book_machine_form
 msgid "Discard"
 msgstr ""
 
@@ -5827,6 +5863,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_resource_calendar_leaves__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -7971,6 +8008,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_resource_calendar_leaves__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__id
 msgid "ID"
 msgstr ""
 
@@ -8879,6 +8917,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic_period__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -8983,6 +9022,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic_period__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -9344,6 +9384,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__machine_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__machine_id
 msgid "Machine"
 msgstr ""
 
@@ -10207,6 +10248,13 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_book_machine_form
+msgid ""
+"No machine linked to the testing method is fit to use and free from the "
+"result's start."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
 msgid "No machine that runs it is in use with a valid calibration."
@@ -11013,6 +11061,14 @@ msgstr ""
 msgid ""
 "Only the tester of %s or the head of the department testing it marks it "
 "urgent, while it is open."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_machine.py:0
+msgid ""
+"Only the tester who entered a draft result without a machine books a machine"
+" for it."
 msgstr ""
 
 #. module: sol_laboratory
@@ -15052,6 +15108,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__result_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_book_machine__result_id
 msgid "Result"
 msgstr ""
 

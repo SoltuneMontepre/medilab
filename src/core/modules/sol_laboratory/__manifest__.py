@@ -131,6 +131,7 @@
         "views/testing/test_report_reject_views.xml",
         "views/testing/test_report_views.xml",
         "views/testing/test_report_portal_templates.xml",
+        "views/testing/test_result_book_machine_views.xml",
         "views/testing/test_result_reject_views.xml",
         "views/testing/test_result_views.xml",
         "views/testing/test_result_interruption_views.xml",
