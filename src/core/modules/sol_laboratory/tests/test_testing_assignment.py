@@ -1,5 +1,6 @@
 from freezegun import freeze_time
 
+from odoo.exceptions import ValidationError
 from odoo.tests import Form, tagged
 
 from .scheduling_case import MONDAY, SchedulingCase, calibrated
@@ -19,6 +20,22 @@ from odoo.addons.sol_laboratory.constants.models import (
 @freeze_time(MONDAY)
 @tagged("post_install", "-at_install")
 class TestTestingAssignment(SchedulingCase):
+    def reassign(self, tasks, **vals):
+        wizard = self.as_person(self.env[MODEL_TASK_REASSIGN], self.head).with_context(active_ids=tasks.ids)
+        return wizard.create(vals)
+
+    def coliforms_test(self):
+        """A coliforms test of the sample, which Microbiology tests."""
+        coliforms = self.create_parameter("Coliforms", self.group)
+        method = self.env[MODEL_TESTING_METHOD].create(
+            {"code": "TCVN 6187-2:2020", "name": "Coliforms by MPN", "field_id": self.testing_field.id}
+        )
+        way = self.env[MODEL_PARAMETER_METHOD].create(
+            {"parameter_id": coliforms.id, "method_id": method.id, "department_id": self.microbiology.id}
+        )
+        self.offer(coliforms, self.sample_type, way)
+        return self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": coliforms.id})
+
     def assign_sample(self, task, assignee):
         action = task.with_user(self.head.user_id).action_assign_sample()
         wizard = Form(self.env[MODEL_TASK_REASSIGN].with_user(self.head.user_id).with_context(**action["context"]))
@@ -69,25 +86,17 @@ class TestTestingAssignment(SchedulingCase):
         self.assertEqual(booking.calendar_event_id.partner_ids, self.other_tester.user_id.partner_id)
 
     def test_a_head_sees_the_bookings_of_their_department_only(self):
-        coliforms = self.create_parameter("Coliforms", self.group)
-        method = self.env[MODEL_TESTING_METHOD].create(
-            {"code": "TCVN 6187-2:2020", "name": "Coliforms by MPN", "field_id": self.testing_field.id}
-        )
-        way = self.env[MODEL_PARAMETER_METHOD].create(
-            {
-                "parameter_id": coliforms.id,
-                "method_id": method.id,
-                "department_id": self.microbiology.id,
-            }
-        )
-        self.offer(coliforms, self.sample_type, way)
+        other_test = self.coliforms_test()
         incubator = self.env[MODEL_MACHINE].create(calibrated({"code": "INC-1", "name": "Incubator 1"}))
         self.env[MODEL_MACHINE_METHOD].create(
-            {"method_id": way.method_id.id, "machine_id": incubator.id, "duration_minutes": 60}
+            {
+                "method_id": other_test.parameter_id.method_ids.method_id.id,
+                "machine_id": incubator.id,
+                "duration_minutes": 60,
+            }
         )
         self.grant(self.microbiologist, "sample_test.read.all")
         self.microbiologist.tz = "UTC"
-        other_test = self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": coliforms.id})
         self.testing_task(other_test, self.microbiologist, self.microbiology)
         self.testing_task(self.test, self.tester)
         own = self.schedule(self.test, self.tester)
@@ -116,3 +125,36 @@ class TestTestingAssignment(SchedulingCase):
             {"department_id": self.department.id, "assignee_id": False, "reason": "The tester is on leave"}
         ).action_confirm()
         self.assertEqual((task.status, self.test.status), ("open", "waiting"))
+
+    def test_the_assign_wizard_offers_only_the_department_of_a_testing_tasks_way(self):
+        task = self.testing_task(self.test)
+
+        wizard = Form(self.env[MODEL_TASK_REASSIGN].with_user(self.head.user_id).with_context(active_ids=task.ids))
+        self.assertEqual(wizard.department_id, self.department)
+        self.assertTrue(wizard.department_fixed)
+        with self.assertRaises(AssertionError):
+            wizard.department_id = self.microbiology
+
+    def test_a_testing_task_moved_to_another_department_through_the_wizard_is_refused(self):
+        task = self.testing_task(self.test)
+
+        with self.assertRaisesRegex(ValidationError, "stay in"):
+            self.reassign(task, department_id=self.microbiology.id, reason="Needs a culture").action_confirm()
+        self.assertEqual((task.department_id, task.status), (self.department, "open"))
+
+    def test_a_testing_task_written_into_another_department_is_refused(self):
+        task = self.testing_task(self.test)
+
+        with self.assertRaisesRegex(ValidationError, "cannot move to another department"):
+            task.write({"department_id": self.microbiology.id, "reassign_reason": "Needs a culture"})
+        self.assertEqual(task.department_id, self.department)
+
+    def test_testing_tasks_of_different_departments_are_assigned_separately(self):
+        tasks = self.testing_task(self.test) | self.testing_task(self.coliforms_test(), department=self.microbiology)
+
+        wizard = self.env[MODEL_TASK_REASSIGN].with_context(active_ids=tasks.ids).create({})
+        self.assertTrue(wizard.department_fixed)
+        self.assertFalse(wizard.department_id)
+        with self.assertRaisesRegex(ValidationError, "separately"):
+            wizard.action_confirm()
+        self.assertEqual(tasks.department_id, self.department | self.microbiology)

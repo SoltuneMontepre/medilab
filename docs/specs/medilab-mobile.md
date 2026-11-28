@@ -101,7 +101,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 | `GET /tasks/{task_id}` | The task, its document's code and screen, and the actions the person may take on it |
 | `POST /tasks` | Creates a task by hand with a name, a note, an assignee and a deadline |
 | `POST /tasks/{task_id}/claim`, `/start`, `/done` | `action_claim()`, `action_start()`, `action_done()` |
-| `POST /tasks/{task_id}/assign` | Assigns or reassigns the task to a person or a department, with a reason when it moves away |
+| `POST /tasks/{task_id}/assign` | Assigns or reassigns the task to a person or a department, with a reason when it moves away; a testing task stays in the department of its way of testing |
 | `GET /tasks/assignees?q=` | The people and departments the person may give a task to |
 
 - The lists search the person's tasks with `is_mine` and `in_my_queue`, as the web's to-do list and queues do, so both show the same tasks in the same order. A page's `next_after` is how many tasks the pages before it gave.
