@@ -353,7 +353,6 @@ Pushes reach the phones staff sign in on with Medilab Mobile. [Medilab Mobile](.
 - A push names the event and the document's code, never the customer or the customer's name for a sample.
 - A push sent to a token Firebase reports as permanently invalid (`UNREGISTERED`, `SENDER_ID_MISMATCH`, or `INVALID_ARGUMENT` about the token) turns that token off. A timeout or a temporary error leaves the token on and the delivery is retried.
 - The access token is an OAuth token from Google Application Default Credentials or a service-account JSON in the environment, refreshed by `google-auth`. The credential value is not stored on a record and is not written to the log.
-- The push job shares one cron worker with every other job, so it never holds it long. A run of the job looks for the credentials once, not for each push: off Google Cloud, looking for Application Default Credentials takes seconds. Without credentials, every push waits 5 minutes. Refreshing the token waits as long as a push, 30 seconds, and a refresh that fails is a temporary error. A pass of the job's cron stops taking pushes after 5 minutes and leaves the rest to the next pass.
 - The Firebase credentials are configuration, not data (SH-03). SMTP and FCM do not provide exactly-once delivery. The records and the jobs are created once; a retry sends again only while the earlier attempt did not succeed.
 
 ### 5. Trusted sources (master data)

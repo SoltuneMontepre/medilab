@@ -6,10 +6,8 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_datetime
 
-from odoo.addons.sol_laboratory.constants.jobs import JOB_RUN_CONTEXT
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_ENTRY,
-    MODEL_JOB_RUN,
     MODEL_MAIL_NOTIFICATION,
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_SCHEDULED_JOB,
@@ -17,12 +15,10 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.constants.notifications import (
     EVENT_LOCATION_BOOKING_REMINDER,
     EVENT_TASK_REMINDER,
-    PUSH_JOB,
-    PUSH_PASS_SECONDS,
     VIETNAM_ZONE,
 )
 from odoo.addons.sol_laboratory.constants.settings import DEFAULT_REMINDER_LEAD_MINUTES
-from odoo.addons.sol_laboratory.models.system.scheduled_job import CRON_PASS_KEY, PermanentJobError
+from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
 from odoo.addons.sol_laboratory.services.firebase_client import (
     PermanentTokenError,
     TemporaryFirebaseError,
@@ -36,8 +32,6 @@ else:
     ScheduledJobBase = object
 
 VIETNAM = ZoneInfo(VIETNAM_ZONE)
-# The Firebase client of the latest run of the push job, by the run's id; a new run finds the credentials again.
-_RUN_CLIENT = {}
 
 
 # Tác Vụ Định Kỳ
@@ -47,35 +41,7 @@ class ScheduledJob(models.Model, ScheduledJobBase):
     def _run_batch(self):
         if self.key == "notifications.remind":
             self._queue_task_reminders()
-        # A pass of the push cron that spent its time ends, and Odoo starts the next one once the other crons had
-        # their turn: the cron worker is shared by every job.
-        if self.key == PUSH_JOB and self._push_pass_spent():
-            self._progress(remaining=self._due_count(fields.Datetime.now()))
-            return self.env[MODEL_JOB_RUN]
         return super()._run_batch()
-
-    def _push_pass_spent(self):
-        """Whether this pass of the push cron ran longer than PUSH_PASS_SECONDS. Runs outside the cron are not timed."""
-        if not self._in_cron():
-            return False
-        run = self.env[MODEL_JOB_RUN].browse(self.env.context.get(JOB_RUN_CONTEXT) or []).sudo()
-        if not run.exists():
-            cron_pass = str(self.env.context.get(CRON_PASS_KEY))
-            run = run.search([("job_id", "=", self.id), ("cron_pass", "=", cron_pass)], limit=1)
-        if not run.started_at:
-            return False
-        return (fields.Datetime.now() - run.started_at).total_seconds() > PUSH_PASS_SECONDS
-
-    def _push_client(self):
-        """The Firebase client of this run of the push job: finding credentials off Google Cloud takes seconds, so a
-        run finds them once, not for each push."""
-        run_id = self.env.context.get(JOB_RUN_CONTEXT)
-        if not run_id:
-            return firebase_client_from_env()
-        if run_id not in _RUN_CLIENT:
-            _RUN_CLIENT.clear()
-            _RUN_CLIENT[run_id] = firebase_client_from_env()
-        return _RUN_CLIENT[run_id]
 
     def _queue_task_reminders(self):
         lead = self._reminder_lead()
@@ -185,9 +151,7 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         if not device._signed_in():
             delivery.write({"status": "skipped"})
             return None
-        if self._push_pass_spent():
-            return fields.Datetime.now()
-        client = self._push_client()
+        client = firebase_client_from_env()
         if client is None:
             return fields.Datetime.now() + timedelta(minutes=5)
         message = delivery._message()

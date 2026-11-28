@@ -10,7 +10,6 @@ import logging
 import os
 
 import requests
-from google.auth.exceptions import GoogleAuthError
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 
@@ -31,13 +30,6 @@ class TemporaryFirebaseError(Exception):
     """Firebase or the network failed in a way a later attempt can still succeed."""
 
 
-class _TimedRequest(Request):
-    """google-auth's transport, waiting as long as a push does instead of its default two minutes."""
-
-    def __call__(self, *args, timeout=TIMEOUT, **kwargs):
-        return super().__call__(*args, timeout=timeout, **kwargs)
-
-
 class FirebaseClient:
     """One project. The access token is refreshed by google-auth when it expires."""
 
@@ -49,11 +41,7 @@ class FirebaseClient:
         """Push the title and body to the token, with the data Medilab Mobile opens the document from; Firebase takes
         only text values in the data."""
         if not self.credentials.valid:
-            try:
-                self.credentials.refresh(_TimedRequest())
-            except GoogleAuthError as error:
-                _logger.info("Firebase access token could not be refreshed")
-                raise TemporaryFirebaseError(str(error)) from error
+            self.credentials.refresh(Request())
         try:
             response = requests.post(
                 f"https://fcm.googleapis.com/v1/projects/{self.project_id}/messages:send",

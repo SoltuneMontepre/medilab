@@ -39,9 +39,4 @@ BREVO_SMTP_USER = "BREVO_SMTP_USER"
 BREVO_SMTP_PASSWORD = "BREVO_SMTP_PASSWORD"
 FIREBASE_PROJECT_ID = "FIREBASE_PROJECT_ID"
 FIREBASE_CREDENTIALS = "FIREBASE_CREDENTIALS"
-# The job that pushes notifications to Medilab Mobile.
-PUSH_JOB = "notifications.push"
-# Seconds a pass of the push cron spends before it leaves the remaining pushes to the next pass, so a slow push
-# service never holds the one cron worker near its time limit.
-PUSH_PASS_SECONDS = 300
 VIETNAM_ZONE = "Asia/Ho_Chi_Minh"
