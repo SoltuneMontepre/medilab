@@ -33,7 +33,7 @@ class SaleOrderReturnTimeline(models.Model, SaleOrderReturnTimelineBase):
     )
     def _compute_return_timeline(self):
         for order in self:
-            estimate = order.state != "cancel" and order._return_estimate()
+            estimate = order.state in ("draft", "sent") and order._return_estimate()
             order.return_timeline = order._render_return_timeline(estimate) if estimate and estimate["date"] else False
 
     def _render_return_timeline(self, estimate):
@@ -60,14 +60,8 @@ class SaleOrderReturnTimeline(models.Model, SaleOrderReturnTimelineBase):
                         _("for approval and signing"),
                     )
                 )
-        if estimate.get("turnaround"):
-            steps.append(
-                (
-                    _("Standard turnaround"),
-                    day(estimate["turnaround"]),
-                    "",
-                )
-            )
+        if estimate.get("turnaround") and self.turnaround_days:
+            steps.append((_("Standard turnaround"), _("%s working days", self.turnaround_days), ""))
         expected = self.committed_date or estimate["date"]
         cells = Markup("").join(
             Markup(

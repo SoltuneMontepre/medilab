@@ -18,8 +18,3 @@ def migrate(cr, _version):
     )
     credit_orders = orders.filtered(lambda order: order._qualifies_for_credit(order.test_request_id.customer_id))
     credit_orders.on_credit = True
-    # The old workflow marked an unpaid credit request Paid after confirmation.
-    waiting = credit_orders.filtered(
-        lambda order: order.test_request_id.status in ("confirmed", "paid") and order.payment_status != "paid"
-    )
-    waiting.test_request_id.status = "on_credit"

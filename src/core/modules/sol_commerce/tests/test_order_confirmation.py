@@ -209,7 +209,7 @@ class TestOrderConfirmation(OrderCase):
         order = self.accepted_unpaid_order()
         request = order.test_request_id
         self.assertEqual(order.payment_request_id.kind, "balance")
-        self.assertEqual(request.status, "paid")
+        self.assertEqual(request.status, "confirmed")
         self.assertFalse(order.show_unpaid_warning)
 
         request.sample_ids.action_receive(1, "unusable", "The bottle leaked")
@@ -234,7 +234,6 @@ class TestOrderConfirmation(OrderCase):
         self.env[MODEL_CUSTOMER_SALES_TERMS].create({"customer_id": self.customer_record.id, "allow_credit": True})
         legacy = self.accepted_unpaid_order()
         legacy.on_credit = False
-        legacy.test_request_id.status = "paid"
 
         advance = self.make_confirmed_order()
         draft = self.make_quotable_order()
@@ -246,34 +245,55 @@ class TestOrderConfirmation(OrderCase):
         self.env.invalidate_all()
 
         self.assertTrue(legacy.on_credit)
-        self.assertEqual(legacy.test_request_id.status, "on_credit")
+        self.assertEqual(legacy.test_request_id.status, "confirmed")
         self.assertFalse(advance.on_credit)
         self.assertFalse(draft.on_credit)
 
         legacy.test_request_id.status = "completed"
         self.assertTrue(legacy.create_final_invoice())
 
-    def test_a_paid_order_and_a_request_without_an_order_are_not_blocked(self):
+    def test_a_paid_order_and_a_request_without_an_order_allow_sample_receipt(self):
         paid = self.make_confirmed_order()
+        self.assertFalse(paid.show_unpaid_warning)
+        paid.test_request_id.sample_ids[:1].with_user(self.sales).sudo().action_receive(1, "good")
+        self.assertEqual(paid.test_request_id.status, "sample_received")
+
         alone = self.env[MODEL_TEST_REQUEST].create({"customer_id": self.customer_record.id})
+        alone.with_user(self.sales).sudo().write(
+            {
+                "sample_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "customer_sample_name": "Standalone",
+                            "sample_type_id": self.sample_type.id,
+                            "physical_state": "liquid",
+                            "test_ids": [(0, 0, {"parameter_id": self.parameter.id})],
+                        },
+                    )
+                ]
+            }
+        )
+        alone.action_confirm()
+        self.assertEqual(alone.status, "confirmed")
+        alone.sample_ids[:1].with_user(self.sales).sudo().action_receive(1, "good")
+        self.assertEqual(alone.status, "sample_received")
 
-        self.assertFalse(paid.test_request_id._credit_blocks_confirmation())
-        self.assertFalse(alone._credit_blocks_confirmation())
-
-    def test_the_request_of_a_paid_order_is_paid_on_confirmation(self):
-        # Confirming the order confirms its request, which is paid already.
+    def test_the_request_of_a_paid_order_is_confirmed_on_confirmation(self):
+        # Confirming the order confirms its request cleanly without coupling payment state onto it.
         request = self.make_confirmed_order().test_request_id
 
-        self.assertEqual(request.status, "paid")
+        self.assertEqual(request.status, "confirmed")
         request.sample_ids[:1].with_user(self.sales).sudo().action_receive(1, "good")
         self.assertEqual(request.status, "sample_received")
 
-    def test_credit_order_invoices_after_testing_without_marking_test_request_paid(self):
+    def test_credit_order_invoices_after_testing_without_payment_status_on_test_request(self):
         self.env[MODEL_CUSTOMER_SALES_TERMS].create({"customer_id": self.customer_record.id, "allow_credit": True})
         order = self.accepted_unpaid_order()
         request = order.test_request_id
         self.assertFalse(order.payment_request_id)
-        self.assertEqual(request.status, "on_credit")
+        self.assertEqual(request.status, "confirmed")
         self.assertEqual(order.payment_status, "not_paid")
         self.route_collection_to_delivery_staff()
         order.with_user(self.sales).action_start_sample_collection()

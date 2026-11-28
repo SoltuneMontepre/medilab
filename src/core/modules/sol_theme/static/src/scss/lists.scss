@@ -156,6 +156,18 @@
                         box-shadow: inset 3px 0 0 $ml-accent !important;
                     }
 
+                    &:not(:hover):has(.o_medilab_priority_badge .text-bg-danger) > td {
+                        background-color: rgba($ml-danger, 0.03) !important;
+                    }
+
+                    &:has(.o_medilab_priority_badge .text-bg-danger) > td:first-child {
+                        box-shadow: inset 3px 0 0 $ml-danger !important;
+                    }
+
+                    &:has(.o_medilab_priority_badge .text-bg-warning) > td:first-child {
+                        box-shadow: inset 3px 0 0 $ml-warning !important;
+                    }
+
                     &.o_selected_row > td,
                     &.table-info > td,
                     &.o_data_row_selected > td {
@@ -357,6 +369,37 @@
     .text-bg-secondary {
         background-color: $ml-primary-light !important;
         color: $ml-primary !important;
+    }
+
+    .o_field_badge.o_medilab_priority_badge .badge {
+        border-radius: $ml-radius-sm;
+        font-weight: 700;
+        letter-spacing: $ml-letter-spacing-label;
+        text-transform: uppercase;
+        padding: 0.3em 0.65em;
+        border: 1px solid transparent;
+
+        &.text-bg-danger {
+            background-color: $ml-danger !important;
+            color: $ml-text-on-primary !important;
+            border-color: $ml-danger;
+        }
+
+        &.text-bg-warning {
+            background-color: $ml-warning-soft !important;
+            color: darken($ml-warning, 18%) !important;
+            border-color: $ml-warning;
+        }
+
+        &.text-bg-300,
+        &.text-bg-secondary {
+            background-color: transparent !important;
+            color: $ml-text-muted !important;
+            border-color: $ml-border-strong;
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0.01em;
+        }
     }
 
     .text-success,

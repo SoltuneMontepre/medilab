@@ -10,7 +10,9 @@ from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import ADVANCE_NONE, DATE_FIELDS
 from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE_DAYS, PAYMENT_DEADLINE_PARAMETER
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_MACHINE_BOOKING,
     MODEL_PARAMETER_METHOD,
+    MODEL_PERSON,
     MODEL_SAMPLE_TEST,
     MODEL_TEST_REQUEST,
 )
@@ -32,16 +34,13 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
         # The day Sales agreed with the customer for the samples to be picked up, which return dates count from.
         expected_collection_date = fields.Date(string="Expected Sample Pickup", copy=False)
         # The date the results are expected back: the earliest the laboratory can return them from the expected pickup,
-        # until Sales sets a later date or an accepted priority request sets it.
+        # or the date an accepted priority request or a change agreed with the customer sets.
         committed_date = fields.Date(
             string="Expected Return Date",
             compute="_compute_committed_date",
             store=True,
-            readonly=False,
             copy=False,
         )
-        # Earliest date the date picker allows for Expected Return Date.
-        min_committed_date = fields.Date(compute="_compute_min_committed_date")
         # Working days results take from sample receipt: the longest standard turnaround of the order's ways of
         # testing, kept as it was when the quotation was sent.
         turnaround_days = fields.Integer(
@@ -109,22 +108,6 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             )
             order.committed_date = order.committed_date if keep else order._earliest_return_date()
 
-    @api.depends(
-        "order_line.parameter_method_id",
-        "product_line_ids.product_id",
-        "product_line_ids.sample_type_id",
-        "product_line_ids.parameter_method_id",
-        "expected_collection_date",
-        "priority",
-    )
-    def _compute_min_committed_date(self):
-        today = fields.Date.context_today(self)
-        for order in self:
-            if order.priority:
-                order.min_committed_date = today
-            else:
-                order.min_committed_date = order._earliest_return_date() or order.expected_collection_date or today
-
     def _collection_start(self, day):
         """The moment samples picked up on the day can be scheduled at the earliest: the end of that day in the
         company's time zone since no collection time is set yet, or now when none is given."""
@@ -151,6 +134,38 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
         """The way of each test the order brings the laboratory: one for each parameter line, a package's included."""
         self.ensure_one()
         return self._estimation_lines()._resolved_ways()
+
+    @api.model
+    def _days_off(self, first, last):
+        """The days from first to last, both included, without working time in the company's working calendar."""
+        zone = ZoneInfo(self.env.company.tz or "UTC")
+        start, end = (
+            datetime.combine(day, time.min, tzinfo=zone).astimezone(ZoneInfo("UTC")).replace(tzinfo=None)
+            for day in (first, last + timedelta(days=1))
+        )
+        # Without a person, the scheduler gives the company calendar's working time.
+        intervals = self.env[MODEL_MACHINE_BOOKING].sudo()._working_time(self.env[MODEL_PERSON], start, end)
+        working = {
+            begin.replace(tzinfo=ZoneInfo("UTC")).astimezone(zone).date() for begin, _finish in intervals
+        }
+        days = (first + timedelta(days=offset) for offset in range((last - first).days + 1))
+        return [day for day in days if day not in working]
+
+    @api.onchange("expected_collection_date")
+    def _onchange_pickup_on_working_day(self):
+        """Warn Sales of a pickup day the laboratory does not work; the collection then starts the next working day."""
+        day = self.expected_collection_date
+        if day and self._days_off(day, day):
+            return {
+                "warning": {
+                    "title": self.env._("Company day off"),
+                    "message": self.env._(
+                        "%s is a company day off. The sample collection starts at the next working time.",
+                        format_date(self.env, day),
+                    ),
+                }
+            }
+        return None
 
     def _check_quotation_can_be_sent(self):
         super()._check_quotation_can_be_sent()
