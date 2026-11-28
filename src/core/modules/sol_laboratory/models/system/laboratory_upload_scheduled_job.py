@@ -5,6 +5,7 @@ from odoo import fields, models
 from odoo.addons.sol_laboratory.constants.laboratory_uploads import UPLOAD_JOB_FAILURES, VERIFY_JOB, VERIFYING
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_RUN, MODEL_LABORATORY_UPLOAD, MODEL_SCHEDULED_JOB
 from odoo.addons.sol_laboratory.models.system.scheduled_job import CRON_PASS_KEY
+from odoo.addons.sol_laboratory.services.type_values import value_as
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_scheduled_job as ScheduledJobBase
@@ -37,7 +38,7 @@ class ScheduledJob(models.Model, ScheduledJobBase):
     def _item_failed(self, item):
         # An upload whose verification or storing failed for good ends failed, so the computer stops waiting for it.
         super()._item_failed(item)
-        code = UPLOAD_JOB_FAILURES.get(self.key)
+        code = UPLOAD_JOB_FAILURES.get(value_as(self.key, str))
         upload = item._document() if code else None
         if upload and upload.exists() and upload.status == VERIFYING:
             upload._fail(code)
