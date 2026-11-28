@@ -355,6 +355,8 @@ const messages = {
     en: "Folders you own on the server that this computer is not syncing (for example after “Stop syncing”). Pick a local folder to sync again.",
   },
   "shared.bind": { vi: "Chọn thư mục trên máy", en: "Choose local folder" },
+  "shared.ownedTab": { vi: "Của bạn, chưa đồng bộ", en: "Yours, not synced here" },
+  "shared.empty": { vi: "Chưa có thư mục nào ở đây.", en: "No folders here yet." },
   "folders.unregister": { vi: "Ngừng đồng bộ", en: "Stop syncing" },
   "folders.unregisterConfirm": {
     vi: "Ngừng đồng bộ «{name}» trên máy này?",

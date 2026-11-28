@@ -4,7 +4,7 @@ import type { MessageKey } from "../../i18n";
 import type { FolderRow, StatusDto } from "../../types";
 import { displayLocalPath, ToggleSwitch } from "../../components";
 import { FolderExplorer } from "./FolderExplorer";
-import { SharedFolders } from "../access/SharedFolders";
+import { UnboundFolderList, useUnboundFolders } from "../access/SharedFolders";
 
 /** True nếu app đang chạy trên Windows (theo user agent/platform của trình duyệt). */
 function isWindowsHost(): boolean {
@@ -305,11 +305,58 @@ function AddFolderDialog(props: Readonly<FoldersTabProps>) {
   );
 }
 
-/** Tab Thư mục: thư mục chính, bảng thư mục đã thêm kiểu trình quản lý tệp (kéo tệp vào một dòng để
- * chép vào thư mục đó), hộp thoại thêm thư mục và các thư mục trên máy chủ chưa gắn. */
+/** Các tab của khung thư mục: đã thêm trên máy này, được chia sẻ, của mình nhưng chưa đồng bộ ở đây. */
+type ListTab = "added" | "shared" | "owned";
+
+/** Tab Thư mục: thư mục chính và một khung có các tab — thư mục đã thêm (bảng kiểu trình quản lý tệp,
+ * kéo tệp vào một dòng để chép vào thư mục đó), thư mục được chia sẻ với mình, và thư mục của mình
+ * chưa đồng bộ trên máy này (chỉ hiện khi có) — cùng hộp thoại thêm thư mục. */
 export function FoldersTab(props: Readonly<FoldersTabProps>) {
   const t = useT();
   const { status, busy } = props;
+  const [tab, setTab] = useState<ListTab>("added");
+  const unbound = useUnboundFolders(
+    status.folders.filter((folder) => folder.remote_id != null).length,
+    props.onSharedBound,
+  );
+  const tabs: Array<[ListTab, string, number]> = [
+    ["added", t("folders.registered"), status.folders.length],
+    ["shared", t("shared.title"), unbound.folders.shared.length],
+  ];
+  if (unbound.folders.owned.length > 0) {
+    tabs.push(["owned", t("shared.ownedTab"), unbound.folders.owned.length]);
+  }
+  const current = tabs.some(([key]) => key === tab) ? tab : "added";
+  const hints: Record<ListTab, string> = {
+    added: t("folders.explorerHint"),
+    shared: t("shared.hint"),
+    owned: t("shared.ownedHint"),
+  };
+  let body;
+  if (current === "added") {
+    body =
+      status.folders.length === 0 ? (
+        <p className="text-sm text-slate-500">{t("folders.empty")}</p>
+      ) : (
+        <FolderExplorer
+          folders={status.folders}
+          dropFolderId={props.dropFolderId}
+          busy={busy}
+          onOpen={props.onOpenFolder}
+          onManageAccess={props.onManageAccess}
+          onUnregister={props.onUnregister}
+          onRebind={props.onRebind}
+        />
+      );
+  } else {
+    const rows = current === "shared" ? unbound.folders.shared : unbound.folders.owned;
+    body =
+      rows.length === 0 ? (
+        <p className="text-sm text-slate-500">{t("shared.empty")}</p>
+      ) : (
+        <UnboundFolderList rows={rows} busy={unbound.busy} onBind={(folder) => void unbound.bind(folder)} />
+      );
+  }
   return (
     <div className="space-y-6">
       <HomeFolderCard homeFolder={props.homeFolder} busy={busy} onChoose={props.onChooseHomeFolder} />
@@ -318,34 +365,33 @@ export function FoldersTab(props: Readonly<FoldersTabProps>) {
           props.dropActive && props.dropFolderId === null ? "ring-2 ring-slate-700 ring-offset-2" : ""
         }`}
       >
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="font-semibold">{t("folders.registered")}</h2>
-            <p className="text-xs text-slate-500">{t("folders.explorerHint")}</p>
+        <div className="mb-3 flex items-end justify-between gap-3 border-b">
+          <div role="tablist" className="-mb-px flex flex-wrap">
+            {tabs.map(([key, label, count]) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={key === current}
+                className={`border-b-2 px-3 py-2 text-sm font-semibold ${
+                  key === current ? "border-blue-700 text-slate-900" : "border-transparent text-slate-500 hover:text-slate-800"
+                }`}
+                onClick={() => setTab(key)}
+              >
+                {label}
+                <span className="ml-1.5 rounded-full bg-slate-100 px-1.5 text-xs font-normal text-slate-600">{count}</span>
+              </button>
+            ))}
           </div>
-          <button type="button" className="btn btn-primary shrink-0" onClick={() => props.onAddOpenChange(true)}>
+          <button type="button" className="btn btn-primary mb-2 shrink-0" onClick={() => props.onAddOpenChange(true)}>
             + {t("folders.submit")}
           </button>
         </div>
-        {status.folders.length === 0 ? (
-          <p className="text-sm text-slate-500">{t("folders.empty")}</p>
-        ) : (
-          <FolderExplorer
-            folders={status.folders}
-            dropFolderId={props.dropFolderId}
-            busy={busy}
-            onOpen={props.onOpenFolder}
-            onManageAccess={props.onManageAccess}
-            onUnregister={props.onUnregister}
-            onRebind={props.onRebind}
-          />
-        )}
+        <p className="mb-3 text-xs text-slate-500">{hints[current]}</p>
+        {unbound.error ? <p className="mb-3 rounded bg-red-50 p-2 text-sm text-red-700">{unbound.error}</p> : null}
+        {body}
       </div>
       {props.addOpen ? <AddFolderDialog {...props} /> : null}
-      <SharedFolders
-        boundCount={status.folders.filter((folder) => folder.remote_id != null).length}
-        onBound={props.onSharedBound}
-      />
     </div>
   );
 }
