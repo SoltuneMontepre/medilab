@@ -20,11 +20,23 @@ import type {
 
 /** Payload sự kiện kéo-thả file gốc của Tauri webview. */
 type DragDropPayload =
-  | { type: "enter"; paths: string[] }
-  | { type: "over"; position?: unknown }
-  | { type: "drop"; paths: string[] }
+  | { type: "enter"; paths: string[]; position: PhysicalPoint }
+  | { type: "over"; position: PhysicalPoint }
+  | { type: "drop"; paths: string[]; position: PhysicalPoint }
   | { type: "leave" }
   | { type: "cancel" };
+
+/** Vị trí con trỏ theo pixel vật lý, như Tauri gửi kèm sự kiện kéo-thả. */
+type PhysicalPoint = { x: number; y: number };
+
+/** Điểm thả theo pixel CSS của trang, dùng được với `document.elementFromPoint`. */
+export type DropPoint = { x: number; y: number };
+
+/** Đổi vị trí pixel vật lý sang pixel CSS theo tỉ lệ màn hình hiện tại. */
+function toCssPoint(position: PhysicalPoint): DropPoint {
+  const ratio = globalThis.devicePixelRatio || 1;
+  return { x: position.x / ratio, y: position.y / ratio };
+}
 
 /** Đăng nhập Odoo và trả về trạng thái đồng bộ mới nhất. */
 export async function login(odoo_url: string, login: string, password: string) {
@@ -46,18 +58,19 @@ export async function resolveDroppedSyncFolder(paths: string[]) {
   return profiledInvoke<string>("resolve_dropped_sync_folder", { paths });
 }
 
-/** Lắng nghe sự kiện kéo-thả gốc của webview, gọi đúng handler theo giai đoạn (enter/leave/drop). */
+/** Lắng nghe sự kiện kéo-thả gốc của webview, gọi đúng handler theo giai đoạn, kèm vị trí con
+ * trỏ để biết đang kéo qua phần tử nào. */
 export async function onNativeFolderDrop(handlers: {
-  onEnter: () => void;
+  onOver: (point: DropPoint) => void;
   onLeave: () => void;
-  onDrop: (paths: string[]) => void;
+  onDrop: (paths: string[], point: DropPoint) => void;
 }): Promise<UnlistenFn> {
   return getCurrentWebview().onDragDropEvent((event) => {
     const payload = event.payload as DragDropPayload;
     switch (payload.type) {
       case "enter":
       case "over":
-        handlers.onEnter();
+        handlers.onOver(toCssPoint(payload.position));
         break;
       case "leave":
       case "cancel":
@@ -65,10 +78,15 @@ export async function onNativeFolderDrop(handlers: {
         break;
       case "drop":
         handlers.onLeave();
-        handlers.onDrop(payload.paths);
+        handlers.onDrop(payload.paths, toCssPoint(payload.position));
         break;
     }
   });
+}
+
+/** Chép các tệp và thư mục được kéo-thả vào một thư mục đã gắn; trả về số mục đã chép. */
+export async function copyIntoSyncFolder(folderId: number, paths: string[]) {
+  return profiledInvoke<number>("copy_into_sync_folder", { folderId, paths });
 }
 
 /** Đăng ký một thư mục cục bộ để đồng bộ. */

@@ -12,6 +12,7 @@ mod commands;
 mod config;
 #[cfg(test)]
 mod contract;
+mod drop_copy;
 mod error;
 #[cfg(test)]
 mod migration_tests;
@@ -257,6 +258,7 @@ pub fn run() {
             commands::keep_local_conflict,
             commands::open_office_editor,
             commands::open_sync_folder,
+            commands::copy_into_sync_folder,
             commands::open_sync_file,
             commands::list_sync_devices,
             commands::revoke_sync_device,

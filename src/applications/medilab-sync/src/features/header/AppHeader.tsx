@@ -5,8 +5,8 @@ import { useT } from "../../locale";
 import type { StatusDto } from "../../types";
 
 /**
- * Thanh đầu trang kiểu thanh điều hướng của Odoo: tên app, các tab (`children`), người dùng + máy
- * chủ + trạng thái, đổi ngôn ngữ, tạm dừng, đăng xuất.
+ * Thanh đầu trang kiểu thanh điều hướng của Odoo: tên app, các tab (`children`), người dùng +
+ * trạng thái, đổi ngôn ngữ, tạm dừng, đăng xuất.
  *
  * Nút Tạm dừng/Tiếp tục chỉ bị khóa khi CHÍNH lệnh đó đang chạy (`toggleBusy`), không theo `busy`
  * chung của app: các lệnh khác (gắn thư mục, đối soát…) có thể chạy lâu trong lúc transfer đang
@@ -34,7 +34,6 @@ export function AppHeader({
   const t = useT();
   const flags = [
     status.user_name || t("app.technician"),
-    status.odoo_url,
     status.degraded ? t("app.degraded") : "",
     status.paused ? t("app.paused") : "",
   ].filter(Boolean);
@@ -50,7 +49,7 @@ export function AppHeader({
         <button type="button" className="btn btn-secondary" disabled={toggleBusy} onClick={onToggleSync}>
           {status.paused ? t("action.resume") : t("action.pause")}
         </button>
-        <button type="button" className="btn btn-secondary" disabled={busy} onClick={onLogout}>
+        <button type="button" className="btn btn-danger" disabled={busy} onClick={onLogout}>
           {t("action.logout")}
         </button>
       </div>

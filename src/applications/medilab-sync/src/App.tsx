@@ -12,7 +12,7 @@ import {
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { getCurrent as getCurrentLinks, onOpenUrl } from "@tauri-apps/plugin-deep-link";
 import { connectServer } from "./features/login/connectLink";
-import type { AppSettings, ProgressDeltaDto, RemoteFileRow, StatusDto, SyncRule } from "./types";
+import type { AppSettings, FolderRow, ProgressDeltaDto, RemoteFileRow, StatusDto, SyncRule } from "./types";
 import { UpdateDialog } from "./features/update/UpdateDialog";
 import { AccessDialog } from "./features/access/AccessDialog";
 import { loadOdooUrlHistory, rememberOdooUrl } from "./features/login/OdooUrlField";
@@ -21,6 +21,7 @@ import { CredentialStoreLockedScreen } from "./features/login/CredentialStoreLoc
 import { VersionHistoryDialog } from "./features/history/VersionHistoryDialog";
 import { SettingsTab } from "./features/settings/SettingsTab";
 import { FoldersTab } from "./features/sync/FoldersTab";
+import { dropFolderAt } from "./features/sync/FolderExplorer";
 import { StatusTab } from "./features/sync/StatusTab";
 import { AppHeader } from "./features/header/AppHeader";
 import { displayLocalPath, useConfirm } from "./components";
@@ -55,6 +56,9 @@ import {
   registerSyncFolder,
   resolveDroppedSyncFolder,
   unregisterSyncFolder,
+  copyIntoSyncFolder,
+  bindSharedFolder,
+  listSharedFolders,
   restoreSession,
   retrySyncJob,
   saveSettings,
@@ -100,7 +104,7 @@ function useAsyncRunner(setBusy: (busy: boolean) => void, setError: (error: stri
       try {
         return await fn();
       } catch (err) {
-        setError(String(err));
+        setError(err instanceof Error ? err.message : String(err));
         return undefined;
       } finally {
         setBusy(false);
@@ -282,6 +286,9 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
   const [rulePattern, setRulePattern] = useState("");
   const [recursive, setRecursive] = useState(true);
   const [dropActive, setDropActive] = useState(false);
+  // Thư mục đã gắn đang nằm dưới con trỏ khi người dùng kéo tệp qua cửa sổ.
+  const [dropFolderId, setDropFolderId] = useState<number | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
   const [remoteFiles, setRemoteFiles] = useState<RemoteFileRow[]>([]);
   const [historyTarget, setHistoryTarget] = useState<{ fileId: number; label: string } | null>(null);
   // Người dùng chủ động chọn đăng nhập bằng mật khẩu thay vì mở khóa kho mật khẩu của OS.
@@ -431,13 +438,33 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
   useEffect(() => {
     let disposed = false;
     let stop: (() => void) | undefined;
+    // Thả lên một dòng thư mục: chép tệp vào thư mục đó. Thả chỗ khác: mở hộp thoại thêm thư mục
+    // với thư mục vừa thả.
     void onNativeFolderDrop({
-      onEnter: () => setDropActive(true),
-      onLeave: () => setDropActive(false),
-      onDrop: (paths) => {
+      onOver: (point) => {
+        setDropActive(true);
+        setDropFolderId(dropFolderAt(point)?.id ?? null);
+      },
+      onLeave: () => {
         setDropActive(false);
+        setDropFolderId(null);
+      },
+      onDrop: (paths, point) => {
+        const target = dropFolderAt(point);
+        if (target) {
+          void run(() => copyIntoSyncFolder(target.id, paths)).then((count) => {
+            if (count !== undefined) {
+              setNotice(tRef.current("folders.copied", { count, name: target.name }));
+            }
+          });
+          return;
+        }
         void resolveDroppedSyncFolder(paths)
-          .then((path) => applyLocalPath(displayLocalPath(path)))
+          .then((path) => {
+            applyLocalPath(displayLocalPath(path));
+            setTab("folders");
+            setAddOpen(true);
+          })
           .catch((err) => setError(String(err)));
       },
     }).then((unlisten) => {
@@ -510,6 +537,7 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
       setLocalPath("");
       setLogicalRoot("");
       logicalRootEdited.current = false;
+      setAddOpen(false);
     }
   }
 
@@ -566,6 +594,22 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
       return;
     }
     const next = await run(() => unregisterSyncFolder(folderId));
+    if (next) {
+      setStatus((prev) => mergeStatusSnapshot(prev, next));
+    }
+  }
+
+  /** Gắn lại một thư mục mất liên kết vào folder trên máy chủ cùng tên, giữ nguyên đường dẫn trên
+   * máy; báo lỗi nếu máy chủ không còn folder đó cho người dùng. */
+  async function onRebindFolder(folder: FolderRow) {
+    const next = await run(async () => {
+      const { shared, owned } = await listSharedFolders();
+      const remote = [...shared, ...owned].find((row) => row.logical_root === folder.logical_root);
+      if (!remote) {
+        throw new Error(t("folders.rebindMissing", { name: folder.logical_root }));
+      }
+      return bindSharedFolder({ remote_id: remote.id, local_path: folder.local_path, recursive: folder.recursive });
+    });
     if (next) {
       setStatus((prev) => mergeStatusSnapshot(prev, next));
     }
@@ -781,6 +825,10 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
               onUnregister={(folderId, folderLogicalRoot) =>
                 void onUnregisterFolder(folderId, folderLogicalRoot)
               }
+              onRebind={(folder) => void onRebindFolder(folder)}
+              addOpen={addOpen}
+              onAddOpenChange={setAddOpen}
+              dropFolderId={dropFolderId}
               onManageAccess={(remoteId, label) => setAccessTarget({ remoteId, label })}
               onSharedBound={(next) => setStatus((prev) => mergeStatusSnapshot(prev, next))}
               dropActive={dropActive}

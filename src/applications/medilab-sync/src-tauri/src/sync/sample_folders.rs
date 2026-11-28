@@ -102,9 +102,71 @@ pub fn bind_sample_folders(db: &Db, home: &Path, remotes: &[FolderDto]) -> AppRe
     Ok(bound)
 }
 
+/// Bỏ khỏi danh sách các folder mẫu máy chủ không còn đưa cho người dùng: chưa gắn hoặc mất quyền,
+/// và máy chủ không còn folder nào của mẫu đó, cùng loại, mà mẫu đang thử. Tệp trên máy giữ nguyên
+/// và không đánh dấu ngừng đồng bộ, nên mẫu được giao lại thì folder tự được gắn lại. Trả về số
+/// folder đã bỏ.
+pub fn drop_withdrawn_sample_folders(db: &Db, remotes: &[FolderDto]) -> AppResult<usize> {
+    let mut dropped = 0;
+    for folder in db.list_folders()? {
+        if folder.sample_code.is_none()
+            || !matches!(folder.access_state.as_str(), "unbound" | "denied")
+        {
+            continue;
+        }
+        let offered = remotes.iter().any(|remote| {
+            remote.sample_open
+                && (folder.remote_id == Some(remote.id)
+                    || (remote.sample_code == folder.sample_code
+                        && remote.category == folder.category))
+        });
+        if !offered {
+            db.delete_folder(folder.id)?;
+            dropped += 1;
+        }
+    }
+    Ok(dropped)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Folder mẫu chưa gắn hoặc mất quyền mà máy chủ không còn đưa ra thì bị bỏ, kể cả khi mẫu đã
+    /// xong; folder còn được đưa ra, folder đang gắn và folder không thuộc mẫu thì giữ nguyên.
+    #[test]
+    fn withdrawn_sample_folders_are_dropped_and_others_kept() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = Db::open(&dir.path().join("t.db")).unwrap();
+        let add = |path: &str, sample: Option<(&str, &str)>, remote_id: i64, state: &str| {
+            let id = db
+                .upsert_folder(path, path, Some(remote_id), true, &[])
+                .unwrap();
+            if let Some(sample) = sample {
+                db.apply_folder_lab_context(id, &remote(remote_id, Some(sample)))
+                    .unwrap();
+            }
+            db.set_folder_access_state(id, state).unwrap();
+            id
+        };
+        let gone = add("/a", Some(("PTN.1", "raw")), 1, "unbound");
+        let finished = add("/b", Some(("PTN.2", "raw")), 2, "denied");
+        let offered = add("/c", Some(("PTN.3", "raw")), 3, "unbound");
+        let linked = add("/d", Some(("PTN.4", "raw")), 4, "ok");
+        let own = add("/e", None, 5, "denied");
+        let mut closed = remote(20, Some(("PTN.2", "raw")));
+        closed.sample_open = false;
+
+        let dropped =
+            drop_withdrawn_sample_folders(&db, &[closed, remote(30, Some(("PTN.3", "raw")))])
+                .unwrap();
+
+        assert_eq!(dropped, 2);
+        let kept: Vec<i64> = db.list_folders().unwrap().iter().map(|f| f.id).collect();
+        assert!(!kept.contains(&gone) && !kept.contains(&finished));
+        assert!(kept.contains(&offered) && kept.contains(&linked) && kept.contains(&own));
+        assert!(!db.auto_bind_skipped(1).unwrap());
+    }
 
     /// Một folder trên server như `GET /folders` trả về; `sample` là (mã PTN, loại) nếu là folder mẫu.
     fn remote(id: i64, sample: Option<(&str, &str)>) -> FolderDto {

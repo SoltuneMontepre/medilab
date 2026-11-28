@@ -131,6 +131,15 @@ summary:focus-visible {
     background: rgb(255 255 255 / 0.12);
   }
 
+  .navbar .btn-danger {
+    border-color: #c0392b;
+    background: #c0392b;
+  }
+
+  .navbar .btn-danger:hover:not(:disabled) {
+    background: #a93226;
+  }
+
   .navbar select {
     border: 1px solid rgb(255 255 255 / 0.35);
     background: transparent;

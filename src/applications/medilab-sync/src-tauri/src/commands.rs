@@ -186,8 +186,12 @@ fn stdout_path(output: &std::process::Output) -> Option<String> {
 /// Thiếu binary hoặc helper bị crash không được coi là "người dùng đã hủy", nếu không sẽ bỏ qua
 /// hẳn dialog native/portal.
 #[cfg(target_os = "linux")]
-fn pick_folder_via_cli() -> Result<Option<String>, std::io::Error> {
-    let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".into());
+fn pick_folder_via_cli(start: Option<&Path>) -> Result<Option<String>, std::io::Error> {
+    let home = start
+        .map(|path| path.to_string_lossy().into_owned())
+        .or_else(|| std::env::var("HOME").ok())
+        .unwrap_or_else(|| "/tmp".into());
+    let start_file = format!("--filename={home}/");
     let tools: &[(&str, Vec<String>)] = &[
         (
             "zenity",
@@ -195,11 +199,12 @@ fn pick_folder_via_cli() -> Result<Option<String>, std::io::Error> {
                 "--file-selection".into(),
                 "--directory".into(),
                 "--title=Chọn thư mục đồng bộ".into(),
+                start_file.clone(),
             ],
         ),
         (
             "qarma",
-            vec!["--file-selection".into(), "--directory".into()],
+            vec!["--file-selection".into(), "--directory".into(), start_file],
         ),
         ("kdialog", vec!["--getexistingdirectory".into(), home]),
     ];
@@ -254,10 +259,24 @@ pub fn resolve_dropped_sync_folder(paths: Vec<String>) -> Result<String, String>
 /// Command: mở dialog chọn thư mục (CLI/portal picker trên Linux, dialog native ở nơi khác).
 #[tauri::command]
 #[tracing::instrument(level = "debug", skip_all, fields(command = "choose_sync_folder"))]
-pub async fn choose_sync_folder(app: AppHandle) -> Result<Option<String>, String> {
+pub async fn choose_sync_folder(
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> Result<Option<String>, String> {
+    // Hộp thoại mở sẵn ở thư mục chính (mặc định Documents\MediLab) nếu thư mục đó có trên máy.
+    let start = state
+        .engine
+        .settings
+        .lock()
+        .await
+        .home_folder
+        .clone()
+        .map(PathBuf::from)
+        .filter(|path| path.is_dir());
     #[cfg(target_os = "linux")]
     {
-        match tokio::task::spawn_blocking(pick_folder_via_cli)
+        let cli_start = start.clone();
+        match tokio::task::spawn_blocking(move || pick_folder_via_cli(cli_start.as_deref()))
             .await
             .map_err(|err| err.to_string())?
         {
@@ -273,7 +292,11 @@ pub async fn choose_sync_folder(app: AppHandle) -> Result<Option<String>, String
     let previous_gdk = std::env::var("GDK_BACKEND").ok();
     std::env::remove_var("GDK_BACKEND");
     let (tx, rx) = tokio::sync::oneshot::channel();
-    app.dialog().file().pick_folder(move |folder| {
+    let mut dialog = app.dialog().file();
+    if let Some(start) = start {
+        dialog = dialog.set_directory(start);
+    }
+    dialog.pick_folder(move |folder| {
         let _ = tx.send(folder);
     });
     let picked = rx.await.unwrap_or(None);
@@ -941,6 +964,35 @@ pub fn open_sync_folder(
         .find(|folder| folder.id == folder_id)
         .ok_or_else(|| AppError::FolderNotFound.to_string())?;
     open_local(&app, Path::new(&folder.local_path))
+}
+
+/// Command: chép các tệp và thư mục được kéo-thả vào một thư mục đã gắn; trình theo dõi tải chúng
+/// lên như tệp người dùng tự chép vào. Trả về số mục đã chép.
+#[tauri::command]
+#[tracing::instrument(
+    level = "debug",
+    skip_all,
+    fields(command = "copy_into_sync_folder", folder_id = folder_id)
+)]
+pub async fn copy_into_sync_folder(
+    state: State<'_, AppState>,
+    folder_id: i64,
+    paths: Vec<String>,
+) -> Result<usize, String> {
+    let folder = state
+        .engine
+        .db
+        .list_folders()?
+        .into_iter()
+        .find(|folder| folder.id == folder_id)
+        .ok_or_else(|| AppError::FolderNotFound.to_string())?;
+    let sources: Vec<PathBuf> = paths.iter().map(|raw| dropped_path_to_fs(raw)).collect();
+    tokio::task::spawn_blocking(move || {
+        crate::drop_copy::copy_into(Path::new(&folder.local_path), &sources)
+    })
+    .await
+    .map_err(|err| err.to_string())?
+    .map_err(|err| format!("Không chép được vào thư mục: {err}"))
 }
 
 /// Command: mở một tệp đã đồng bộ bằng chương trình mặc định của nó.

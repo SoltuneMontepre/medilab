@@ -31,6 +31,16 @@ function buttonTag(html: string, label: string): string {
   return match[1];
 }
 
+describe("AppHeader", () => {
+  test("names the user but not the server address, and marks Đăng xuất as a danger action", () => {
+    const status = createStatusFixture({ user_name: "demo.tester", odoo_url: "https://lims.example.test" });
+    const html = renderHeader(status, false, false);
+    expect(html).toContain("demo.tester");
+    expect(html).not.toContain("lims.example.test");
+    expect(buttonTag(html, "Đăng xuất")).toContain("btn-danger");
+  });
+});
+
 describe("AppHeader Pause/Resume", () => {
   test("A: việc khác của app đang chạy (busy) khi đang upload — Tạm dừng vẫn bấm được", () => {
     const status = createStatusFixture({ paused: false, uploading: 2, pending: 2 });

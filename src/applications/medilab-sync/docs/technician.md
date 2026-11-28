@@ -20,7 +20,7 @@ Nếu đăng nhập lỗi: có thể bạn thiếu quyền laboratory files, ho�
 
 ## After an update or server change
 
-Sign in again. If a folder is shown as **Not bound**, its local files and queued work are preserved. Select the intended existing server folder and the same local directory to resume; do not remove the application data directory. Changing the server address requires a new sign-in so an old device key is not sent to another server.
+Sign in again. If a folder is shown as **Not linked to the server**, its local files and queued work are preserved. Press **Reconnect** on it to resume; do not remove the application data directory. Changing the server address requires a new sign-in so an old device key is not sent to another server.
 
 ## Folders of your samples
 
