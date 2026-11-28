@@ -256,7 +256,7 @@ def verify(
             {**conversion, "iat": now, "exp": now + 300}, secret, algorithm="HS256"
         )
         converted = session.post(
-            internal + "/ConvertService.ashx",
+            internal + "/converter",
             json={**conversion, "token": token},
             headers={"Accept": "application/json"},
             timeout=120,

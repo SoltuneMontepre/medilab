@@ -118,6 +118,7 @@ class ProxyContractTest(unittest.TestCase):
             "//other/command",
             "/cache/%252fcommand",
             "/ConvertService.ashx",
+            "/converter",
             "/bad%00path",
         ]
         for path in cases:
@@ -159,6 +160,13 @@ class ProxyContractTest(unittest.TestCase):
                 "onlyoffice-gateway:9443",
                 ("https", "onlyoffice", 443),
             ),
+            (
+                "internal",
+                "POST",
+                "/converter",
+                "onlyoffice-gateway:9443",
+                ("https", "onlyoffice", 443),
+            ),
         ]
         for kind, method, path, host, result in accepted:
             self.assertEqual(proxy.route(CONFIG, kind, method, path, host), result)
@@ -168,6 +176,7 @@ class ProxyContractTest(unittest.TestCase):
             ("gateway", "POST", "/laboratory-files/object", "localhost:23900"),
             ("gateway", "GET", "/other-bucket/object", "localhost:23900"),
             ("internal", "GET", "/command", "onlyoffice-gateway:9443"),
+            ("internal", "GET", "/converter", "onlyoffice-gateway:9443"),
             ("internal", "GET", "/web/login", "onlyoffice-gateway:9443"),
         ]:
             with self.subTest(path=path), self.assertRaises(ValueError):

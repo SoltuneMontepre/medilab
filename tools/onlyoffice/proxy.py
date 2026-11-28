@@ -145,7 +145,8 @@ def _public_route(host, public, method, segments):
         host != public
         or method not in {"GET", "HEAD", "POST", "OPTIONS"}
         or any(
-            segment in {"command", "commandservice.ashx", "convertservice.ashx"}
+            segment
+            in {"command", "commandservice.ashx", "convertservice.ashx", "converter"}
             for segment in segments
         )
     ):
@@ -166,7 +167,7 @@ def _callback_route(method, host, pathname):
 def _internal_route(method, pathname):
     return (
         (pathname == "/healthcheck" and method in {"GET", "HEAD"})
-        or (pathname == "/ConvertService.ashx" and method == "POST")
+        or (pathname in {"/ConvertService.ashx", "/converter"} and method == "POST")
         or (pathname.startswith("/cache/files/") and method in {"GET", "HEAD"})
     )
 
