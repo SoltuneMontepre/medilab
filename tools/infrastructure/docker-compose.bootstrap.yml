@@ -11,6 +11,8 @@ services:
   garage:
     ports: !override []
   garage-setup:
+  mailpit:
+    ports: !override []
   cloudbeaver:
     profiles: ["not-used-during-bootstrap"]
 

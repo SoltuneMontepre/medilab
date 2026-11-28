@@ -23,6 +23,7 @@ def _backend_targets(peers):
             "cloudbeaver": 8978,
             "garage": 3903,
             "odoo": 8069,
+            "mailpit": 8025,
         }.get(service)
         if port:
             for network in peer.get("NetworkSettings", {}).get("Networks", {}).values():
@@ -51,6 +52,7 @@ def verify_network(controller, state, _marker, environment):
                     ("MEDILAB_CLOUDBEAVER_PORT", "8978"),
                     ("MEDILAB_DB_PORT", "15432"),
                     ("MEDILAB_GARAGE_ADMIN_PORT", "3903"),
+                    ("MEDILAB_MAILPIT_PORT", "8025"),
                 )
             ]
     targets.append(["169.254.169.254", 80])

@@ -89,3 +89,4 @@ tasks:
         log_ok "Local infrastructure is started:"
         log_link "Odoo" "http://localhost:${MEDILAB_ODOO_PORT:-8069}"
         log_link "CloudBeaver" "http://localhost:${MEDILAB_CLOUDBEAVER_PORT:-8978}"
+        log_link "Mailpit" "http://localhost:${MEDILAB_MAILPIT_PORT:-8025}"

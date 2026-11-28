@@ -35,6 +35,8 @@ services:
         condition: service_healthy
       garage:
         condition: service_healthy
+      mailpit:
+        condition: service_healthy
     ports:
       - "${MEDILAB_ODOO_PORT:-8069}:8069"
     volumes:
@@ -103,6 +105,22 @@ services:
         condition: service_healthy
     volumes:
       - ./garage:/opt/medilab/garage:ro,z
+
+  # Catches every e-mail Odoo sends, as in production; nothing is delivered and the mails are gone on a restart.
+  mailpit:
+    image: docker.io/axllent/mailpit:v1.31.6
+    restart: unless-stopped
+    environment:
+      MP_MAX_MESSAGES: "5000"
+      MP_SMTP_AUTH_ACCEPT_ANY: "true"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "true"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+    ports:
+      - "${MEDILAB_MAILPIT_PORT:-8025}:8025"
 
   cloudbeaver:
     image: docker.io/dbeaver/cloudbeaver:latest
