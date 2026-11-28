@@ -73,7 +73,8 @@ pub struct JobRow {
     #[serde(default)]
     pub part_size: Option<i64>,
     /// Vì sao job `retry_wait` đang chờ mà không phải vì lỗi: `verifying` khi server còn xác minh
-    /// nội dung đã tải lên. `None` với mọi job khác.
+    /// nội dung đã tải lên. Giữ nguyên khi job được claim lại chỉ để hỏi lại server; lượt chuyển
+    /// trạng thái kế tiếp hoặc một lượt chạy mới từ `pending` xóa nó.
     #[serde(default)]
     pub wait_reason: Option<String>,
 }
@@ -1141,7 +1142,8 @@ impl Db {
         let conn = self.conn.lock();
         let job = conn
             .query_row(
-                "UPDATE sync_job SET status = 'running', wait_reason = NULL, updated_at = ?1
+                "UPDATE sync_job SET status = 'running', updated_at = ?1,
+                    wait_reason = CASE WHEN status = 'retry_wait' THEN wait_reason END
                  WHERE id = (
                    SELECT candidate.id FROM sync_job AS candidate
                    WHERE (candidate.status = 'pending'

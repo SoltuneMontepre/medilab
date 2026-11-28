@@ -28,10 +28,11 @@ export function statusMessageKey(status: string): MessageKey {
   }
 }
 
-/** Trạng thái hiện cho job: `verifying` khi job chờ server xác minh nội dung đã tải lên, không
- * phải chờ thử lại sau lỗi. */
+/** Trạng thái hiện cho job: `verifying` khi job chờ server xác minh nội dung đã tải lên, hoặc
+ * đang chạy chỉ để hỏi lại server, không phải chờ thử lại sau lỗi hay đang gửi byte. */
 export function jobDisplayStatus(job: JobRow): string {
-  return job.status === "retry_wait" && job.wait_reason === "verifying" ? "verifying" : job.status;
+  const waiting = job.status === "retry_wait" || job.status === "running";
+  return waiting && job.wait_reason === "verifying" ? "verifying" : job.status;
 }
 
 /** Phần trăm hoàn thành (0–100) của job: job xong luôn là 100, còn lại tính theo byte đã truyền. */

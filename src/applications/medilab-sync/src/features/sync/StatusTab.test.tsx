@@ -207,6 +207,12 @@ describe("JobRowView", () => {
     expect(html).not.toContain("text-red-700");
   });
 
+  test("job đang hỏi lại server xác minh vẫn hiện đang xác minh, không phải đang tải lên", () => {
+    const html = renderJob({ ...waiting, status: "running", wait_reason: "verifying" });
+    expect(html).toContain("Máy chủ đang xác minh");
+    expect(html).not.toContain("Đang tải lên");
+  });
+
   test("job chờ thử lại sau lỗi vẫn có nút thử lại", () => {
     const html = renderJob({ ...waiting, last_error: "503: Service Unavailable" });
     expect(html).toContain("Đang chờ thử lại");
