@@ -190,6 +190,50 @@ jobs:
           echo "$address"
           echo "MediLab $MEDILAB_MOBILE_VERSION APK: $address" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Keep the APK for the GitHub release
+        uses: actions/upload-artifact@v7
+        with:
+          name: medilab-mobile-apk
+          path: ${{ runner.temp }}/medilab.apk
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Delete the keys
         if: always()
         run: rm -rf "$KEYS_DIR" google-services.json
+
+  # The release is never the latest: MediLab links to the latest release for the Sync installers. Its notes start at the
+  # previous mobile release, not at the previous release of the repository.
+  github-release:
+    needs: release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download the APK
+        uses: actions/download-artifact@v8
+        with:
+          name: medilab-mobile-apk
+          path: apk
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#mobile-v}"
+          mv apk/medilab.apk "apk/medilab-$version.apk"
+          previous="$(gh api "repos/$GH_REPO/git/matching-refs/tags/mobile-v" --jq '.[].ref | ltrimstr("refs/tags/")' \
+            | sort -Vu | awk -v tag="$TAG" '$0 == tag { print prev; exit } { prev = $0 }')"
+          flags=()
+          if [[ -n "$previous" ]]; then
+            flags+=(--notes-start-tag "$previous")
+          fi
+          gh release create "$TAG" "apk/medilab-$version.apk" \
+            --title "MediLab Mobile $version" \
+            --generate-notes \
+            --verify-tag \
+            --latest=false \
+            "${flags[@]}"
