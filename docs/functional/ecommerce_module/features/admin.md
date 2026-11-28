@@ -18,6 +18,10 @@ E-commerce keeps prices, taxes and packages in its own tables and does not add c
 
 - **US-AD20** As an administrator, I want to maintain service packages with their parameters, quantities and tax, so that customers can order sets of related tests together.
 
+### Priority orders
+
+- **US-AD39** As an administrator, I want to switch priority orders on or off, set the shortest turnaround a priority order may ask for and the surcharge it adds, so that customers can only ask for dates the laboratory offers, at its price.
+
 ## II. Feature details
 
 ### 1. Prices and taxes (US-AD17 to US-AD19)
@@ -74,6 +78,25 @@ Acceptance criteria:
 Order templates are archived when no longer offered for reuse. Deleting a template removes its selections and leaves its source and generated orders intact. Its product references restrict product deletion, and its source order cannot be deleted while it is referenced. Existing catalog retirement rules still apply; unavailable selections are reported when a template is reused.
 
 When a source order changes customer, Head of Sales and administrators with access to that source and the relevant template permissions can inspect the template with the **Customer mismatch** filter. They may archive it or delete it and save a replacement from the correct order. The customer and source references remain immutable. Deleting the template releases its source-order reference; existing source-order deletion rules still apply. Audit history remains available after deletion. Inconsistent templates cannot create orders, even with administrative privileges.
+
+### 4. Priority orders (US-AD39)
+
+The settings sit in the E-commerce block of [Settings](../../../specs/settings.md). An order is a priority request when its requested date is earlier than its standard return date; [Sales](sales.md#2-quotation-us-s05-to-us-s10-us-s21-us-s22) decides it.
+
+| Setting | Description |
+| ------- | ----------- |
+| Priority orders | On or off, on by default. While off, customers and Sales cannot pick a requested date earlier than the standard return date, and no order becomes a priority request. |
+| Shortest priority turnaround | Working days from the expected pickup day, 1 by default, at least 1. The earliest requested date the portal and the quotation offer. |
+| Priority surcharge | Percentage of the order's lines after their discounts, excluding VAT, 0% by default, from 0% to 100%. 0% adds no surcharge line. |
+
+A changed setting applies to orders whose quotation is not sent yet; a sent quotation keeps its surcharge line.
+
+Acceptance criteria:
+
+- With priority orders off, the cart and the quotation offer no requested date before the standard return date.
+- With a shortest priority turnaround of 2 working days, a requested date 1 working day after the pickup day is refused.
+- Setting the surcharge to 30% changes the surcharge line of an unsent quotation whose priority is accepted, and not that of a sent one.
+- A surcharge outside 0% to 100% or a shortest priority turnaround below 1 is refused with a message.
 
 ## III. Related documents
 

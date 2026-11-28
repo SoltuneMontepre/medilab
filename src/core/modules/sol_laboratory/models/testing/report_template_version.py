@@ -39,6 +39,7 @@ class ReportTemplateVersion(models.Model, ReportTemplateVersionBase):
     _order = "template_id, number desc"
     # Versions change only through their actions: editing and previewing a draft, making it available and archiving it.
     _permission_actions = ("read", "create", "edit", "archive")
+    _lock_free_buttons = ("action_open_preview",)
 
     if not TYPE_CHECKING:
         # The template the version is of.

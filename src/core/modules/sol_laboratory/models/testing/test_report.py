@@ -56,6 +56,7 @@ class TestReport(models.Model, TestReportBase):
     _order = "id desc"
     # The system drafts, prepares and issues a report; nobody edits it. People sign it and record its delivery.
     _permission_actions = ("read", "sign", "deliver")
+    _lock_free_buttons = ("action_download", "action_print_draft", "action_open_candidate")
     _digital_signing_report = TEST_REPORT_REPORT
 
     if not TYPE_CHECKING:

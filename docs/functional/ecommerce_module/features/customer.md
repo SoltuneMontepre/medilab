@@ -22,7 +22,7 @@ The customer is an external user of the laboratory. A customer has an account li
 - **US-C11** As a customer, I want to cancel an order until the laboratory has confirmed it, so that I can correct a mistake.
 - **US-C12** As a customer, I want to request the cancellation of an order that the laboratory has already confirmed, so that I can withdraw it when my needs change, and be told whether the laboratory accepted.
 
-- **US-C22** As a customer, I want to request priority when ordering, so that Sales can confirm whether the laboratory can meet my earlier date.
+- **US-C22** As a customer, I want to ask for my results earlier than the standard turnaround when ordering, and see what priority costs, so that Sales can confirm whether the laboratory can meet my earlier date.
 
 ### Quotation and payment
 
@@ -168,8 +168,9 @@ stateDiagram-v2
 | Complete order        | Submitting requires at least one parameter or service package in the cart.                                                             |
 | Items only | The customer chooses parameters, packages and quantities, nothing else. Sales and the laboratory choose each line's sample type and way of testing before the quotation is sent; the customer never sees whether a department or a subcontractor performs a test. |
 | Expected samples | The quotation and the order show the expected sample count, containers and amounts once sales has chosen the sample types and ways. The customer orders parameters and quantities, not physical samples; collection staff confirm the actual samples at handover. Extra samples or excess material add no test; the customer gets them back on request, when collecting the report in person or at a separate pickup. |
-| Requested date | The customer may give the date they want the results, kept as the order's requested date. |
-| Priority request | The customer may ask for priority with the date they want the results; a request without a date is refused. Sales accepts or declines priority on the quotation after the feasibility check; the request itself does not promise the date. |
+| Requested date | The customer may give the date they want the results, kept as the order's requested date. The date picker offers no day before the earliest the [priority settings](admin.md#4-priority-orders-us-ad39) allow, and the server refuses such a day, a past day included. |
+| Standard return date | The cart shows the standard return date: the turnaround of the default ways of testing of its parameters in working days from today, as the pickup day is agreed later with Sales. |
+| Priority request | The customer does not tick priority. A requested date earlier than the standard return date is a priority request, and the cart says so with the surcharge it adds; a date on or after it is not. While priority orders are switched off, the date picker starts at the standard return date. Sales accepts or declines priority on the quotation after the feasibility check; the request itself does not promise the date or the surcharge. |
 | Turnaround | The cart and the quotation show the working days results take from sample receipt, and the expected return date once it is agreed. |
 | Submit is not confirm | Submitting only puts the order in the sales queue. Sales then prepares the quotation.                                                  |
 | Cancel                | The customer can cancel until the order is confirmed; after that the customer can only [request cancellation](#request-cancel-us-c12). Cancel asks for confirmation first, saying the order is cancelled for good. |
@@ -197,6 +198,9 @@ Acceptance criteria:
 - The customer never sees whether a test is outsourced or which subcontractor performs it.
 - An unavailable default is never silently substituted.
 - A portal priority request reaches Sales for acceptance or refusal on the quotation.
+- A requested date earlier than the standard return date makes the order a priority request, and the cart shows the surcharge; a later date does not.
+- A requested date before the earliest the priority settings allow, or in the past, is refused.
+- While priority orders are switched off, the cart offers no date before the standard return date.
 - Submitting without being signed in asks for the visitor's details and e-mail address, and is refused without an e-mail address.
 - Reordering a completed order creates a draft with the same parameters and packages at current prices.
 - The original order, its invoices and its results are unchanged.

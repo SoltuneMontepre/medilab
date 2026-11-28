@@ -17,7 +17,7 @@ from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_PERCENTAGE,
 )
 from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE_DAYS, PAYMENT_DEADLINE_PARAMETER
-from odoo.addons.sol_commerce.constants.xml_ids import QUOTATION_REPORT
+from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP, QUOTATION_REPORT
 from odoo.addons.sol_commerce.models.orders.sale_order import QUOTATION_DIALOG
 
 if TYPE_CHECKING:
@@ -75,6 +75,16 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         email_body = fields.Text(string="Email message", compute="_compute_email_body", readonly=False, store=True)
         # Filename of the PDF quotation attached to the email.
         attachment_name = fields.Char(string="Attachment", compute="_compute_attachment_name")
+
+    @api.model
+    def fields_get(self, allfields=None, attributes=None):
+        fields = super().fields_get(allfields, attributes)
+        if self.env.su or self.env.user.has_group(ALL_ORDERS_GROUP):
+            return fields
+        field = fields.get("advance_mode")
+        if field and "selection" in field:
+            field["selection"] = [choice for choice in field["selection"] if choice[0] != ADVANCE_NONE]
+        return fields
 
     @api.depends("customer_id")
     def _compute_customer_address(self):
@@ -157,7 +167,8 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
     @api.onchange("advance_mode")
     def _onchange_advance_mode(self):
         # A percentage is never kept as an amount, nor an amount as a percentage.
-        self.advance_value = 0
+        if self.advance_mode != self.order_id.advance_mode:
+            self.advance_value = 0
 
     @api.model
     def default_get(self, fields_list):

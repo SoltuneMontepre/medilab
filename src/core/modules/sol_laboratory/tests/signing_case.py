@@ -55,6 +55,19 @@ def blank_pdf():
     return stream.getvalue()
 
 
+def patch_report_pdf(case, pdf=None, renders=None):
+    """Stub ir.actions.report._pre_render_qweb_pdf so tests return a PDF without spawning wkhtmltopdf."""
+    pdf_bytes = pdf if pdf is not None else blank_pdf()
+
+    def pre_render(printing, report_ref, res_ids=None, data=None):
+        res_id = res_ids if isinstance(res_ids, int) else (res_ids or [False])[0]
+        if renders is not None:
+            renders.append(res_id)
+        return {res_id: {"stream": io.BytesIO(pdf_bytes), "attachment": None}}, "pdf"
+
+    case.patch(type(case.env["ir.actions.report"]), "_pre_render_qweb_pdf", pre_render)
+
+
 class FakeViettelSign:
     """Viettel Sign as its API answers: it logs in, reports the laboratory's certificate and signs hashes with its key.
     While down, every call fails as an unreachable service does."""
@@ -115,13 +128,7 @@ class SigningCase(ReportCase):
         pdf = self.pdf
         # The reports rendered, by their ids.
         self.renders = renders = []
-
-        def pre_render(printing, report_ref, res_ids=None, data=None):
-            res_id = res_ids if isinstance(res_ids, int) else (res_ids or [False])[0]
-            renders.append(res_id)
-            return {res_id: {"stream": io.BytesIO(pdf), "attachment": None}}, "pdf"
-
-        self.patch(type(self.env["ir.actions.report"]), "_pre_render_qweb_pdf", pre_render)
+        patch_report_pdf(self, pdf=pdf, renders=renders)
         # ONLYOFFICE converts the prepared reports to a PDF Viettel Sign can sign.
         self.conversion.return_value = pdf
         self.env["ir.config_parameter"].set_bool(DIGITAL_SIGNING_PARAMETER, True)

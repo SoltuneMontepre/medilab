@@ -11,6 +11,17 @@
                         <field name="payment_deadline_days" class="o_light_label" />
                     </setting>
                 </block>
+                <block title="Priority Orders" name="priority_setting_container">
+                    <setting id="priority_orders_setting" help="Customers and Sales may ask for results earlier than the standard turnaround.">
+                        <field name="priority_orders" widget="radio" options="{'horizontal': true}" />
+                    </setting>
+                    <setting id="priority_min_turnaround_setting" invisible="priority_orders != 'on'">
+                        <field name="priority_min_turnaround_days" class="o_light_label" />
+                    </setting>
+                    <setting id="priority_surcharge_setting" invisible="priority_orders != 'on'">
+                        <field name="priority_surcharge_percent" class="o_light_label" />
+                    </setting>
+                </block>
             </xpath>
         </field>
     </record>

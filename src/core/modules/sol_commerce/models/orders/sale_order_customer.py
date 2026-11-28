@@ -156,9 +156,10 @@ class SaleOrderCustomer(models.Model, SaleOrderBase):
 
     @api.model
     def _portal_orders(self, user, limit: int | None = None, offset: int = 0, **filters) -> Self:
-        """The quotations and orders of the portal user's customer that match the filters, newest first."""
+        """The quotations and orders of the portal user's customer that match the filters, most recently updated
+        first."""
         domain = Domain(self._portal_orders_domain(user)) & self._portal_filter_domain(**filters)
-        return self.sudo().search(domain, order="id desc", limit=limit, offset=offset)
+        return self.sudo().search(domain, order="write_date desc, id desc", limit=limit, offset=offset)
 
     @api.model
     def _portal_order_count(self, user, **filters):
