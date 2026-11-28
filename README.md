@@ -70,6 +70,7 @@ These are the default ports for an ordinary local stack. A selected fresh demo u
 | Postgres    | `localhost:15432`     | port `MEDILAB_DB_PORT`; see [worktree port configuration](#a-second-stack-from-a-worktree)                                                                         |
 | CloudBeaver | http://localhost:8978 | port `MEDILAB_CLOUDBEAVER_PORT`; `medilab` / `admin` unless overridden                                                          |
 | Garage      | http://localhost:3900 | the laboratory files bucket, port `MEDILAB_GARAGE_PORT`; its admin API is on `127.0.0.1:3903`, port `MEDILAB_GARAGE_ADMIN_PORT` |
+| Mailpit     | http://localhost:8025 | every e-mail Odoo sends, never delivered; port `MEDILAB_MAILPIT_PORT`                                                           |
 
 ### A second stack from a worktree
 
@@ -84,6 +85,7 @@ MEDILAB_DB_PORT=25432
 MEDILAB_CLOUDBEAVER_PORT=18978
 MEDILAB_GARAGE_PORT=13900
 MEDILAB_GARAGE_ADMIN_PORT=13903
+MEDILAB_MAILPIT_PORT=18025
 BUCKET_LABORATORY_PUBLIC_ADDRESS=http://localhost:13900
 MEDILAB_ODOO_IMAGE=medilab-odoo:medilab-api
 ```

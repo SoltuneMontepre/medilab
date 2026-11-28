@@ -640,6 +640,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
                     "MEDILAB_GARAGE_PORT": "23900",
                     "MEDILAB_GARAGE_ADMIN_PORT": "23903",
                     "MEDILAB_CLOUDBEAVER_PORT": "28978",
+                    "MEDILAB_MAILPIT_PORT": "28025",
                 },
             ),
             patch("demo_bootstrap._assert_ports_available"),
@@ -732,6 +733,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             "MEDILAB_GARAGE_PORT": "18069",
             "MEDILAB_GARAGE_ADMIN_PORT": "3903",
             "MEDILAB_CLOUDBEAVER_PORT": "8978",
+            "MEDILAB_MAILPIT_PORT": "8025",
         }
 
         with self.assertRaisesRegex(BootstrapError, "must be distinct"):
@@ -746,6 +748,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
                 "MEDILAB_GARAGE_PORT": "3900",
                 "MEDILAB_GARAGE_ADMIN_PORT": "3903",
                 "MEDILAB_CLOUDBEAVER_PORT": "8978",
+                "MEDILAB_MAILPIT_PORT": "8025",
             }
             with (
                 patch("demo_bootstrap._published_ports", return_value=set()),
@@ -760,6 +763,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             "MEDILAB_GARAGE_PORT": "32539",
             "MEDILAB_GARAGE_ADMIN_PORT": "23903",
             "MEDILAB_CLOUDBEAVER_PORT": "28978",
+            "MEDILAB_MAILPIT_PORT": "28025",
         }
 
         with (
@@ -1190,7 +1194,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             self.assertNotIn(port, busy)
 
     def test_free_ports_skip_published_ports_that_a_bind_accepts(self):
-        unpublished = {20001, 20002, 20003, 20004, 20005}
+        unpublished = {20001, 20002, 20003, 20004, 20005, 20006}
         with (
             patch(
                 "demo_bootstrap._published_ports",
@@ -1326,6 +1330,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             "MEDILAB_GARAGE_PORT": "23900",
             "MEDILAB_GARAGE_ADMIN_PORT": "23903",
             "MEDILAB_CLOUDBEAVER_PORT": "28978",
+            "MEDILAB_MAILPIT_PORT": "28025",
         }
         with patch.dict(os.environ, {"MEDILAB_ODOO_PORT": "8069"}):
             config = _fresh_config("medilab-bootstrap-test-01", "aaaaaaaa-owner", ports)
