@@ -6,6 +6,7 @@ resources:
   - config.yaml
   - filestore.yaml
   - payos.yaml
+  - firebase.yaml
   - release-catalog.yaml
   - pre-sync-backup.yaml
   - upgrade-job.yaml

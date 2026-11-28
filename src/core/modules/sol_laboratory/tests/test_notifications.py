@@ -3,12 +3,14 @@ from datetime import datetime, timedelta
 from unittest.mock import patch
 
 import requests
+from google.auth.exceptions import TransportError
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests import HttpCase, TransactionCase, tagged
 
 from .mobile_phones import push_token
+from odoo.addons.sol_laboratory.constants.jobs import JOB_RUN_CONTEXT
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS
 from odoo.addons.sol_laboratory.constants.notifications import (
     BREVO_SMTP_HOST,
@@ -21,8 +23,10 @@ from odoo.addons.sol_laboratory.constants.notifications import (
     EVENT_TEST_REPORT_ISSUED,
     FIREBASE_CREDENTIALS,
     FIREBASE_PROJECT_ID,
+    PUSH_JOB,
+    PUSH_PASS_SECONDS,
 )
-from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
+from odoo.addons.sol_laboratory.models.system.scheduled_job import CRON_PASS_KEY, CRON_PROGRESS_KEY, PermanentJobError
 from odoo.addons.sol_laboratory.services import firebase_client
 from odoo.addons.sol_laboratory.services.firebase_client import (
     FirebaseClient,
@@ -303,6 +307,74 @@ class TestNotifications(TransactionCase):
             self.assertRaises(TemporaryFirebaseError),
         ):
             ready.send("token", "Title", "Body", {})
+
+    def test_a_token_refresh_waits_as_long_as_a_push_and_its_failure_can_be_retried(self):
+        requests_made = []
+
+        class _Refusing(_Credentials):
+            def refresh(self, request):
+                requests_made.append(request)
+                raise TransportError("metadata server unreachable")
+
+        client = FirebaseClient(_Refusing(valid=False), "project")
+        with self.assertRaises(TemporaryFirebaseError):
+            client.send("token", "Title", "Body", {})
+        self.assertIsInstance(requests_made[0], firebase_client._TimedRequest)
+        with patch.object(firebase_client.Request, "__call__", return_value="answer") as call:
+            requests_made[0]("https://oauth2.googleapis.com/token", method="POST")
+        self.assertEqual(call.call_args.kwargs["timeout"], firebase_client.TIMEOUT)
+
+    def test_a_run_of_the_push_job_finds_the_firebase_credentials_once(self):
+        push_token(self.env, self.user, "token-1")
+        push_token(self.env, self.user, "token-2", "ios")
+        self.env["medilab.notification.preference"].with_user(self.user).set_own(self.event, "push", True)
+        task = self._task()
+        self.env["mail.message"].raise_event(
+            EVENT_TASK_REMINDER, task, "push-once", "Body", partners=self.user.partner_id
+        )
+        lookups = []
+
+        def no_client():
+            lookups.append(1)
+
+        jobs = self.env["medilab.scheduled.job"]
+        with patch("odoo.addons.sol_laboratory.models.notifications.scheduled_job.firebase_client_from_env", no_client):
+            jobs._run_key(PUSH_JOB)
+        deliveries = self.env["medilab.push.delivery"].search([("mobile_device_id.user_id", "=", self.user.id)])
+        self.assertEqual(len(deliveries), 2)
+        self.assertEqual(len(lookups), 1)
+        self.assertEqual(set(deliveries.mapped("status")), {"pending"})
+        log = assert_instance(jobs._by_key(PUSH_JOB).last_run_id.log, str)
+        self.assertEqual(log.count("deferred"), 2)
+
+    def test_a_pass_of_the_push_cron_that_spent_its_time_leaves_the_pushes_for_the_next(self):
+        push_token(self.env, self.user, "token-1")
+        self.env["medilab.notification.preference"].with_user(self.user).set_own(self.event, "push", True)
+        task = self._task()
+        self.env["mail.message"].raise_event(
+            EVENT_TASK_REMINDER, task, "push-late", "Body", partners=self.user.partner_id
+        )
+        job = self.env["medilab.scheduled.job"]._by_key(PUSH_JOB)
+        delivery = self.env["medilab.push.delivery"].search([("mobile_device_id.user_id", "=", self.user.id)])
+        item = job.item_ids.filtered(lambda queued: queued.item_key == f"delivery:{delivery.id}")
+        now = fields.Datetime.now()
+        late = self.env["medilab.job.run"].create(
+            {"job_id": job.id, "started_at": now - timedelta(seconds=PUSH_PASS_SECONDS + 1), "cron_pass": "late"}
+        )
+        fresh = self.env["medilab.job.run"].create({"job_id": job.id, "started_at": now, "cron_pass": "fresh"})
+
+        def in_cron(run):
+            return job.with_context(**{CRON_PROGRESS_KEY: 1, CRON_PASS_KEY: run.cron_pass, JOB_RUN_CONTEXT: run.id})
+
+        self.assertTrue(in_cron(late)._push_pass_spent())
+        self.assertFalse(in_cron(fresh)._push_pass_spent())
+        self.assertFalse(job.with_context(**{JOB_RUN_CONTEXT: late.id})._push_pass_spent())
+        with patch(
+            "odoo.addons.sol_laboratory.models.notifications.scheduled_job.firebase_client_from_env",
+            side_effect=AssertionError("A spent pass looks up no credentials."),
+        ):
+            deferred_to = assert_instance(in_cron(late)._handle_notifications_push(item), datetime)
+        self.assertLessEqual(deferred_to, fields.Datetime.now())
 
     def client_from_env(self):
         client = firebase_client.firebase_client_from_env()
